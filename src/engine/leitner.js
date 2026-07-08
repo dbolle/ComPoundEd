@@ -1,0 +1,112 @@
+// Leitner-box spaced repetition tuned for short kid sessions.
+// Facts are stored under a normalized key ("3x4" covers both 3×4 and 4×3).
+// Correct-but-slow answers (e.g. skip counting) climb the early boxes up to
+// SLOW_CAP so the learning stage earns visible progress; only correct AND
+// fast answers climb beyond it, so mastery still means memorized. A wrong
+// answer drops one box (gentler than classic reset-to-zero).
+
+export const MAX_BOX = 5;
+export const MASTERY_BOX = 3;
+export const SLOW_CAP = 2;
+export const FAST_MS = 6000; // default bar until the kid is calibrated
+
+// The "fast answer" bar adapts to each kid's own mechanical speed, measured
+// on gimme facts (×0/×1 — no recall needed, just reading and typing). A slow
+// typist gets a fair bar; a quick one gets a real fluency target.
+const MIN_CALIBRATION_SAMPLES = 5;
+const GIMME_SAMPLE_MAX_MS = 20000; // ignore walked-away-from-the-tablet outliers
+
+function isGimme(a, b) {
+  return a <= 1 || b <= 1;
+}
+
+export function fastThresholdMs(profile) {
+  const s = profile.speed;
+  if (!s || s.samples < MIN_CALIBRATION_SAMPLES) return FAST_MS;
+  return Math.round(Math.min(10000, Math.max(4000, s.avgMs * 1.5 + 1500)));
+}
+
+export function isCalibrated(profile) {
+  return (profile.speed?.samples ?? 0) >= MIN_CALIBRATION_SAMPLES;
+}
+
+export const TABLE_MIN = 1;
+export const TABLE_MAX = 12;
+export const FACTOR_MIN = 0;
+export const FACTOR_MAX = 12;
+
+export function normKey(a, b) {
+  return a <= b ? `${a}x${b}` : `${b}x${a}`;
+}
+
+function emptyStat() {
+  return { attempts: 0, correct: 0, avgMs: 0, box: 0, lastSeen: 0 };
+}
+
+export function getStat(profile, a, b) {
+  return profile.facts[normKey(a, b)] ?? emptyStat();
+}
+
+// Returns per-answer flags the UI turns into micro-celebrations.
+export function recordAnswer(profile, a, b, correct, ms) {
+  const key = normKey(a, b);
+  const s = profile.facts[key] ?? (profile.facts[key] = emptyStat());
+  const prevBox = s.box;
+  const hadMisses = s.attempts - s.correct > 0;
+  s.attempts += 1;
+  if (correct) s.correct += 1;
+  s.avgMs = s.avgMs ? Math.round(s.avgMs * 0.7 + ms * 0.3) : Math.round(ms);
+  const fast = correct && ms <= fastThresholdMs(profile);
+  if (correct && isGimme(a, b) && ms < GIMME_SAMPLE_MAX_MS) {
+    const sp = profile.speed ?? (profile.speed = { avgMs: 0, samples: 0 });
+    sp.avgMs = sp.samples ? Math.round(sp.avgMs * 0.7 + ms * 0.3) : Math.round(ms);
+    sp.samples += 1;
+  }
+  if (fast) {
+    s.box = Math.min(MAX_BOX, s.box + 1);
+  } else if (correct) {
+    if (s.box < SLOW_CAP) s.box += 1;
+  } else {
+    s.box = Math.max(0, s.box - 1);
+  }
+  s.lastSeen = Date.now();
+  return {
+    stat: s,
+    correct,
+    fast,
+    leveledUp: s.box > prevBox,
+    firstCorrect: correct && s.correct === 1,
+    comeback: correct && hadMisses,
+  };
+}
+
+export function tableProgress(profile, table) {
+  let done = 0;
+  let points = 0;
+  const total = FACTOR_MAX - FACTOR_MIN + 1;
+  for (let b = FACTOR_MIN; b <= FACTOR_MAX; b++) {
+    const box = getStat(profile, table, b).box;
+    if (box >= MASTERY_BOX) done += 1;
+    // Partial credit so meters move from the very first good answer,
+    // even though unlocking still requires full mastery.
+    points += Math.min(box, MASTERY_BOX);
+  }
+  return { done, total, points, maxPoints: total * MASTERY_BOX };
+}
+
+export function isTableMastered(profile, table) {
+  const { done, total } = tableProgress(profile, table);
+  return done === total;
+}
+
+export function profileTotals(profile) {
+  let attempts = 0;
+  let correct = 0;
+  let mastered = 0;
+  for (const s of Object.values(profile.facts)) {
+    attempts += s.attempts;
+    correct += s.correct;
+    if (s.box >= MASTERY_BOX) mastered += 1;
+  }
+  return { attempts, correct, mastered };
+}

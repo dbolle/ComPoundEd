@@ -1,0 +1,737 @@
+:root {
+  --bg: #fff7ea;
+  --card: #ffffff;
+  --ink: #3b2f2f;
+  --ink-soft: #8a7a6d;
+  --brand: #f59e0b;
+  --brand-deep: #d97706;
+  --accent: #14b8a6;
+  --accent-deep: #0d9488;
+  --good: #22c55e;
+  --bad: #ef4444;
+  --locked: #d8cfc4;
+  --radius: 22px;
+  --shadow: 0 4px 14px rgba(59, 47, 47, 0.12);
+  font-family: ui-rounded, 'Segoe UI', 'Comic Sans MS', system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100%;
+}
+
+#app {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 16px 16px calc(24px + env(safe-area-inset-bottom));
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0.3em 0;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  touch-action: manipulation;
+}
+
+/* ---------- shared components ---------- */
+
+/* Every press visibly darkens the control so kids see the tap register.
+   The .pressed class is set from pointer events (see initPressFeedback) —
+   iOS Safari skips :active on fast taps, so :active alone isn't enough. */
+.btn:active,
+.key:active,
+.table-btn:active,
+.profile-card:active,
+.dog-card:active,
+button.dog-card:active,
+.hm-cell:active,
+button.pressed {
+  filter: brightness(0.85) saturate(1.2);
+}
+
+button.pressed {
+  transform: translateY(2px);
+}
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+  animation: screen-in 0.25s ease-out;
+}
+
+@keyframes screen-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+}
+
+.topbar .spacer {
+  flex: 1;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--brand);
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.15rem;
+  padding: 14px 22px;
+  border-radius: var(--radius);
+  border-bottom: 5px solid var(--brand-deep);
+  box-shadow: var(--shadow);
+  transition: transform 0.06s ease;
+}
+
+.btn:active {
+  transform: translateY(3px);
+  border-bottom-width: 2px;
+}
+
+.btn.accent {
+  background: var(--accent);
+  border-bottom-color: var(--accent-deep);
+}
+
+.btn.ghost {
+  background: var(--card);
+  color: var(--ink);
+  border-bottom-color: #e8ddd0;
+}
+
+.btn.small {
+  font-size: 0.95rem;
+  padding: 9px 14px;
+  border-radius: 16px;
+  border-bottom-width: 4px;
+  box-shadow: none;
+}
+
+.btn.danger {
+  background: var(--bad);
+  border-bottom-color: #b91c1c;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+
+.muted {
+  color: var(--ink-soft);
+}
+
+.center {
+  text-align: center;
+}
+
+/* ---------- profiles ---------- */
+
+.profile-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.profile-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  text-align: left;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 12px 16px;
+  font-size: 1.3rem;
+  font-weight: 800;
+  border-bottom: 5px solid #eee3d5;
+}
+
+.profile-card:active {
+  transform: translateY(2px);
+}
+
+.profile-card .avatar {
+  width: 64px;
+  height: 64px;
+  flex: none;
+}
+
+.name-input {
+  font: inherit;
+  font-size: 1.4rem;
+  font-weight: 700;
+  padding: 14px 18px;
+  border-radius: var(--radius);
+  border: 3px solid var(--brand);
+  width: 100%;
+  background: var(--card);
+  color: var(--ink);
+}
+
+.name-input:focus {
+  outline: 3px solid var(--accent);
+}
+
+/* ---------- home ---------- */
+
+.hero {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.hero .avatar {
+  width: 84px;
+  height: 84px;
+  flex: none;
+}
+
+.table-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.table-btn {
+  position: relative;
+  background: var(--card);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  border-bottom: 5px solid #eee3d5;
+  padding: 12px 6px 10px;
+  font-size: 1.45rem;
+  font-weight: 800;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.table-btn:active {
+  transform: translateY(2px);
+}
+
+.table-btn.mastered {
+  background: #fef3c7;
+  border-bottom-color: var(--brand);
+}
+
+.meter {
+  width: 80%;
+  height: 8px;
+  border-radius: 99px;
+  background: #f0e7da;
+  overflow: hidden;
+}
+
+.meter > span {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: var(--accent);
+  transition: width 0.4s ease;
+}
+
+.nav-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.sitting-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  background: #e7f6f3;
+  border: 2px dashed var(--accent);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 10px 14px;
+  font-size: 1.05rem;
+}
+
+.sitting-card:active {
+  filter: brightness(0.92);
+}
+
+.sitting-card .avatar {
+  width: 56px;
+  height: 56px;
+  flex: none;
+}
+
+.sitting-card .sitting-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-weight: 800;
+}
+
+/* ---------- quiz ---------- */
+
+.quiz-progress {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  font-size: 1.05rem;
+}
+
+.quiz-progress .paw {
+  opacity: 0.25;
+  transition: opacity 0.2s;
+}
+
+.quiz-progress .paw.done {
+  opacity: 1;
+}
+
+.quiz-progress .paw.missed {
+  opacity: 1;
+  filter: grayscale(1) brightness(0.7);
+}
+
+.question {
+  font-size: clamp(3rem, 14vw, 4.2rem);
+  font-weight: 900;
+  text-align: center;
+  letter-spacing: 0.03em;
+  margin: 4px 0;
+}
+
+.answer-box {
+  min-height: 74px;
+  border-radius: var(--radius);
+  background: var(--card);
+  box-shadow: inset 0 0 0 3px #eee3d5;
+  font-size: 2.6rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.06em;
+}
+
+.answer-box.good {
+  box-shadow: inset 0 0 0 4px var(--good);
+  animation: pop 0.35s ease;
+}
+
+.answer-box.bad {
+  box-shadow: inset 0 0 0 4px var(--bad);
+  animation: shake 0.4s ease;
+}
+
+@keyframes pop {
+  40% {
+    transform: scale(1.07);
+  }
+}
+
+@keyframes shake {
+  20%,
+  60% {
+    transform: translateX(-7px);
+  }
+  40%,
+  80% {
+    transform: translateX(7px);
+  }
+}
+
+.feedback {
+  min-height: 2em;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.feedback.good {
+  color: var(--good);
+}
+
+.feedback.bad {
+  color: var(--bad);
+}
+
+.numpad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: auto;
+}
+
+.key {
+  background: var(--card);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  border-bottom: 5px solid #eee3d5;
+  font-size: 1.9rem;
+  font-weight: 800;
+  padding: 14px 0;
+}
+
+.key:active {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+}
+
+.key.ok {
+  background: var(--good);
+  border-bottom-color: #15803d;
+  color: #fff;
+}
+
+.key.del {
+  background: #fde68a;
+  border-bottom-color: #f59e0b;
+}
+
+/* ---------- results ---------- */
+
+.big-score {
+  font-size: 3.4rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.badge {
+  background: #fef3c7;
+  border: 2px solid var(--brand);
+  color: var(--brand-deep);
+  border-radius: 99px;
+  padding: 5px 13px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  animation: pop 0.4s ease;
+}
+
+.unlock-card {
+  text-align: center;
+  animation: pop 0.5s ease;
+  border: 4px solid var(--brand);
+}
+
+.unlock-card .dog {
+  width: 150px;
+  height: 150px;
+  margin: 0 auto;
+}
+
+.confetti {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 10;
+}
+
+.confetti span {
+  position: absolute;
+  top: -10%;
+  font-size: 1.6rem;
+  animation: fall linear forwards;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(115vh) rotate(340deg);
+  }
+}
+
+/* ---------- pack ---------- */
+
+.pack-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.dog-card {
+  background: var(--card);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: 10px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  border-bottom: 5px solid #eee3d5;
+}
+
+.dog-card .dog {
+  width: 76px;
+  height: 76px;
+}
+
+.dog-card.locked {
+  background: #f4ede2;
+}
+
+.dog-card.locked .dog {
+  filter: grayscale(1) brightness(0);
+  opacity: 0.18;
+}
+
+.dog-card.locked .lock-hint {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+.dog-card.buddy {
+  border-bottom-color: var(--brand);
+  background: #fef3c7;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: #fff;
+  font-weight: 700;
+  padding: 12px 20px;
+  border-radius: 99px;
+  box-shadow: var(--shadow);
+  z-index: 20;
+  animation: screen-in 0.2s ease-out;
+}
+
+/* ---------- dog page & activities ---------- */
+
+.dog-hero {
+  text-align: center;
+}
+
+.dog-hero .dog {
+  width: 160px;
+  height: 160px;
+  margin: 0 auto;
+}
+
+.play-stats {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  color: var(--ink-soft);
+  font-weight: 700;
+}
+
+.activity-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.activity-scene {
+  position: relative;
+  height: 112px;
+  border-radius: var(--radius);
+  background: linear-gradient(#dff2fb 55%, #cdeab7 55%);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.activity-scene .mover {
+  position: absolute;
+  bottom: 4px;
+  left: 0;
+  width: 64px;
+  transition: left 0.6s ease;
+}
+
+.activity-scene .goal {
+  position: absolute;
+  right: 10px;
+  bottom: 12px;
+  font-size: 2.1rem;
+}
+
+.activity-scene .deco {
+  position: absolute;
+  bottom: 10px;
+  font-size: 1.3rem;
+  opacity: 0.75;
+}
+
+.activity-scene.celebrate .mover {
+  animation: bounce 0.6s ease infinite alternate;
+}
+
+.asker-overlay {
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--card);
+  border-radius: 99px;
+  padding: 2px 12px 2px 4px;
+  box-shadow: var(--shadow);
+  font-weight: 800;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+.asker-overlay svg {
+  display: block;
+}
+
+.question.compact {
+  font-size: clamp(2.2rem, 9vw, 3rem);
+  margin: 0;
+}
+
+.kind-btn.selected {
+  background: #fef3c7;
+  border-bottom-color: var(--brand);
+  color: var(--brand-deep);
+}
+
+.dog-card.selected {
+  background: #d7f2ee;
+  border-bottom-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent), var(--shadow);
+}
+
+@keyframes bounce {
+  to {
+    transform: translateY(-14px);
+  }
+}
+
+/* ---------- heatmap ---------- */
+
+.hm-grid {
+  display: grid;
+  grid-template-columns: repeat(14, 1fr);
+  gap: 2px; /* surface gap so adjacent ramp steps never touch */
+}
+
+.hm-head {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: var(--ink-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hm-cell {
+  aspect-ratio: 1;
+  border-radius: 4px;
+  padding: 0;
+}
+
+.hm-cell:active {
+  transform: scale(0.85);
+}
+
+.hm-caption {
+  min-height: 1.5em;
+  font-weight: 700;
+  margin: 10px 0 6px;
+}
+
+.hm-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+.hm-chip {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+/* ---------- grown-ups ---------- */
+
+.hold-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.hold-btn .fill {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.35);
+  width: 0%;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 2px solid #f4ede2;
+  font-weight: 700;
+}
+
+.stat-row span:last-child {
+  color: var(--accent-deep);
+}

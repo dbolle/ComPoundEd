@@ -1,0 +1,39 @@
+# Compounded — static PWA served from the build output of the repo root.
+# Redeploy: npm run build   (the mount picks up the new dist/)
+#
+# Served two ways:
+#   https://compounded.lan   via your reverse proxy (Traefik labels below;
+#                            locally-trusted cert, e.g. mkcert; PWA install +
+#                            offline need HTTPS and a router DNS entry
+#                            pointing compounded.lan at your server)
+#   http://<server-ip>:8091  direct, LAN-only; works in the browser but no
+#                            install/offline (service workers need HTTPS)
+#
+# Set TRAEFIK_NETWORK in ./.env (gitignored) to your proxy's Docker network.
+name: compounded
+
+services:
+  web:
+    image: nginx:alpine
+    ports:
+      - "8091:80"
+    volumes:
+      - ../dist:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./sync-data:/sync
+    restart: unless-stopped
+    networks:
+      - default
+      - traefik
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=${TRAEFIK_NETWORK:-traefik}
+      - traefik.http.routers.compounded.rule=Host(`compounded.lan`)
+      - traefik.http.routers.compounded.entrypoints=websecure
+      - traefik.http.routers.compounded.tls=true
+      - traefik.http.services.compounded.loadbalancer.server.port=80
+
+networks:
+  traefik:
+    name: ${TRAEFIK_NETWORK:-traefik}
+    external: true

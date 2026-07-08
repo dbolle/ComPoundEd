@@ -1,0 +1,115 @@
+// Versioned profile schema. Bump SCHEMA_VERSION and add a migration step in
+// migrateProfile() whenever the shape of stored data changes — this is the
+// contract a future sync backend will rely on.
+
+export const SCHEMA_VERSION = 4;
+
+// crypto.randomUUID only exists in secure contexts (https / localhost); the
+// app is also served over plain http on the LAN, so fall back to building a
+// v4 UUID from getRandomValues, which works everywhere.
+function makeId() {
+  if (typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+  const b = crypto.getRandomValues(new Uint8Array(16));
+  b[6] = (b[6] & 0x0f) | 0x40;
+  b[8] = (b[8] & 0x3f) | 0x80;
+  const h = [...b].map((x) => x.toString(16).padStart(2, '0')).join('');
+  return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
+}
+
+export function newProfile(name) {
+  return {
+    id: makeId(),
+    schemaVersion: SCHEMA_VERSION,
+    name,
+    avatarDogId: 'starter',
+    createdAt: Date.now(),
+    // Per-fact Leitner stats, keyed by normalized fact key ("3x4"):
+    // { attempts, correct, avgMs, box, lastSeen }
+    facts: {},
+    // Earned dogs: { dogId, table, at } (table is null for the starter dog)
+    unlocks: [{ dogId: 'starter', table: null, at: Date.now() }],
+    // Pet-play counters, keyed by dogId: { walk, feed, fetch }
+    play: {},
+    // Typing/reading speed baseline from gimme facts (×0/×1), used to tune
+    // the per-kid "fast answer" bar. samples < 5 → default bar applies.
+    speed: { avgMs: 0, samples: 0 },
+    updatedAt: Date.now(),
+  };
+}
+
+// Migrations must be additive — kids' progress on real devices flows through
+// here on every load, and losing it is not an option (see CLAUDE.md).
+export function migrateProfile(doc) {
+  if (!doc) return doc;
+  if (!doc.schemaVersion) doc.schemaVersion = 1;
+  if (doc.schemaVersion === 1) {
+    doc.play = doc.play ?? {};
+    doc.schemaVersion = 2;
+  }
+  if (doc.schemaVersion === 2) {
+    // Derive a plausible last-activity time so a stale device doesn't win
+    // merges against fresher data.
+    const seen = Object.values(doc.facts ?? {}).map((s) => s.lastSeen ?? 0);
+    doc.updatedAt = doc.updatedAt ?? Math.max(doc.createdAt ?? 0, ...seen, 0);
+    doc.schemaVersion = 3;
+  }
+  if (doc.schemaVersion === 3) {
+    doc.speed = doc.speed ?? { avgMs: 0, samples: 0 };
+    doc.schemaVersion = 4;
+  }
+  return doc;
+}
+
+// Merges two versions of the same profile without losing progress from
+// either side (used by family backup sync and file import). Per-fact: the
+// richer stat wins (more attempts, then later lastSeen). Unlocks: union.
+// Play counters: per-kind max. Name/avatar: from the more recently updated.
+export function mergeProfiles(a, b) {
+  if (!a) return b;
+  if (!b) return a;
+  const newer = (a.updatedAt ?? 0) >= (b.updatedAt ?? 0) ? a : b;
+  const facts = {};
+  for (const key of new Set([...Object.keys(a.facts), ...Object.keys(b.facts)])) {
+    const x = a.facts[key];
+    const y = b.facts[key];
+    if (!x || !y) {
+      facts[key] = x ?? y;
+    } else {
+      facts[key] =
+        x.attempts > y.attempts || (x.attempts === y.attempts && (x.lastSeen ?? 0) >= (y.lastSeen ?? 0))
+          ? x
+          : y;
+    }
+  }
+  const unlocks = [...a.unlocks];
+  for (const u of b.unlocks) {
+    const existing = unlocks.find((x) => x.dogId === u.dogId);
+    if (!existing) unlocks.push(u);
+    else if (u.at < existing.at) existing.at = u.at;
+  }
+  const play = {};
+  for (const dogId of new Set([...Object.keys(a.play ?? {}), ...Object.keys(b.play ?? {})])) {
+    const x = a.play?.[dogId] ?? {};
+    const y = b.play?.[dogId] ?? {};
+    play[dogId] = {
+      walk: Math.max(x.walk ?? 0, y.walk ?? 0),
+      feed: Math.max(x.feed ?? 0, y.feed ?? 0),
+      fetch: Math.max(x.fetch ?? 0, y.fetch ?? 0),
+    };
+  }
+  // Speed baseline: the better-calibrated side wins.
+  const speed =
+    (a.speed?.samples ?? 0) >= (b.speed?.samples ?? 0)
+      ? (a.speed ?? { avgMs: 0, samples: 0 })
+      : b.speed;
+  return {
+    ...newer,
+    schemaVersion: SCHEMA_VERSION,
+    createdAt: Math.min(a.createdAt ?? Date.now(), b.createdAt ?? Date.now()),
+    updatedAt: Math.max(a.updatedAt ?? 0, b.updatedAt ?? 0),
+    facts,
+    unlocks,
+    play,
+    speed,
+  };
+}

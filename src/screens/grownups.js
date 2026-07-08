@@ -1,0 +1,169 @@
+import { navigate } from '../router.js';
+import { profileTotals, fastThresholdMs, isCalibrated } from '../engine/leitner.js';
+import {
+  deleteProfile,
+  listProfiles,
+  importProfiles,
+  isSyncEnabled,
+  setSyncEnabled,
+  syncNow,
+} from '../data/store.js';
+import { DOGS } from '../art/dogs.js';
+import { toast, escapeHtml } from '../ui.js';
+
+// 90 distinct normalized facts across tables 1–12 with factors 0–12.
+const TOTAL_FACTS = 90;
+
+export function grownupsScreen(el, params, ctx) {
+  el.innerHTML = `
+    <div class="screen">
+      <div class="topbar">
+        <button class="btn ghost small" data-back>← Back</button>
+        <span class="spacer"></span>
+        <h2 style="margin:0">Grown-ups 🔒</h2>
+      </div>
+      <div class="card center" data-gate>
+        <p><strong>Grown-ups only!</strong></p>
+        <p class="muted">Press and hold the bone for 2 seconds.</p>
+        <button class="btn hold-btn" data-hold>🦴 Hold me<span class="fill"></span></button>
+      </div>
+      <div data-panel hidden></div>
+    </div>`;
+
+  const gate = el.querySelector('[data-gate]');
+  const panel = el.querySelector('[data-panel]');
+  const holdBtn = el.querySelector('[data-hold]');
+  const fill = holdBtn.querySelector('.fill');
+
+  let timer = null;
+  const startHold = () => {
+    fill.style.transition = 'width 2s linear';
+    fill.style.width = '100%';
+    timer = setTimeout(openPanel, 2000);
+  };
+  const cancelHold = () => {
+    clearTimeout(timer);
+    fill.style.transition = 'none';
+    fill.style.width = '0%';
+  };
+  holdBtn.addEventListener('pointerdown', startHold);
+  holdBtn.addEventListener('pointerup', cancelHold);
+  holdBtn.addEventListener('pointerleave', cancelHold);
+  holdBtn.addEventListener('contextmenu', (e) => e.preventDefault());
+
+  function openPanel() {
+    const p = ctx.profile;
+    const { attempts, correct, mastered } = profileTotals(p);
+    const accuracy = attempts ? Math.round((correct / attempts) * 100) : 0;
+    const dogsEarned = p.unlocks.length;
+    gate.hidden = true;
+    panel.hidden = false;
+    panel.innerHTML = `
+      <div class="card">
+        <h3>${escapeHtml(p.name)}'s progress</h3>
+        <div class="stat-row"><span>Facts mastered</span><span>${mastered} / ${TOTAL_FACTS}</span></div>
+        <div class="stat-row"><span>Questions answered</span><span>${attempts}</span></div>
+        <div class="stat-row"><span>Accuracy</span><span>${accuracy}%</span></div>
+        <div class="stat-row"><span>Dogs adopted</span><span>${dogsEarned} / ${DOGS.length}</span></div>
+        <div class="stat-row"><span>Fast-answer bar</span><span>${(fastThresholdMs(p) / 1000).toFixed(1)}s${isCalibrated(p) ? '' : ' (calibrating)'}</span></div>
+      </div>
+      <div style="height:12px"></div>
+      <div class="card">
+        <h3>About Compounded</h3>
+        <p class="muted">Each fact climbs levels: careful answers (like skip counting) build the
+        first levels, and quick recall builds the rest — so a fact is only "mastered" once it's
+        truly memorized, but working it out still earns visible progress. Mastering a whole
+        table earns a new dog for the pack. The "fast" bar tunes itself to each kid's own
+        reading and tapping speed, so quick counts as quick <em>for them</em>.</p>
+        <p class="muted"><strong>Privacy:</strong> everything is stored only on this device.
+        No accounts, no ads, no tracking — ever.</p>
+      </div>
+      <div style="height:12px"></div>
+      <div class="card">
+        <h3>Family backup</h3>
+        <p class="muted">Keeps every player's progress safe on your home server — this
+        network only, never the internet. Also works as a restore point for new devices.</p>
+        <div class="nav-row">
+          <button class="btn ghost small" data-sync-toggle></button>
+          <button class="btn ghost small" data-sync-now>💾 Back up now</button>
+        </div>
+        <div style="height:8px"></div>
+        <div class="nav-row">
+          <button class="btn ghost small" data-export>⬇️ Export to file</button>
+          <button class="btn ghost small" data-import>⬆️ Import from file</button>
+        </div>
+        <input type="file" accept=".json,application/json" hidden />
+      </div>
+      <div style="height:12px"></div>
+      <div class="nav-row">
+        <button class="btn ghost small" data-switch>🔄 Switch player</button>
+        <button class="btn danger small" data-delete>🗑️ Delete this player</button>
+      </div>`;
+
+    const toggleBtn = panel.querySelector('[data-sync-toggle]');
+    const renderToggle = () => {
+      toggleBtn.textContent = isSyncEnabled() ? '🟢 Backup: on' : '⚪ Backup: off';
+    };
+    renderToggle();
+    toggleBtn.addEventListener('click', async () => {
+      await setSyncEnabled(!isSyncEnabled());
+      renderToggle();
+      if (isSyncEnabled()) {
+        await syncNow();
+        toast('Family backup is on 🏡');
+      } else {
+        toast('Family backup turned off');
+      }
+    });
+    panel.querySelector('[data-sync-now]').addEventListener('click', async () => {
+      if (!isSyncEnabled()) {
+        toast('Turn backup on first');
+        return;
+      }
+      await syncNow();
+      toast('Backed up to the home server 💾');
+    });
+
+    panel.querySelector('[data-export]').addEventListener('click', async () => {
+      const data = {
+        app: 'compounded',
+        exportedAt: new Date().toISOString(),
+        profiles: await listProfiles(),
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `compounded-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+    const fileInput = panel.querySelector('input[type=file]');
+    panel.querySelector('[data-import]').addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', async () => {
+      const file = fileInput.files?.[0];
+      if (!file) return;
+      try {
+        const data = JSON.parse(await file.text());
+        const docs = Array.isArray(data.profiles) ? data.profiles : [];
+        const n = await importProfiles(docs);
+        toast(n ? `Imported ${n} player${n > 1 ? 's' : ''} 🐾` : 'No players found in that file');
+      } catch {
+        toast("That file doesn't look like a Compounded backup");
+      }
+      fileInput.value = '';
+    });
+
+    panel.querySelector('[data-switch]').addEventListener('click', () => navigate('/profiles'));
+    panel.querySelector('[data-delete]').addEventListener('click', async () => {
+      const sure = window.confirm(
+        `Delete ${p.name} and all their progress? This cannot be undone.`
+      );
+      if (!sure) return;
+      await deleteProfile(p.id);
+      await ctx.switchProfile(null);
+      navigate('/profiles');
+    });
+  }
+
+  el.querySelector('[data-back]').addEventListener('click', () => navigate('/home'));
+}
