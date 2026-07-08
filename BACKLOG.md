@@ -14,7 +14,9 @@ Ranked and agreed 2026-07-07. Work top-down.
   default 6s until 5 samples. Schema v4. Grown-Ups shows each kid's bar.
 - **Teach on misses** — wrong answers show a 💡 micro-strategy: structural
   tricks (×0/×1/×10/×11/×2), else an anchor on a well-known neighbor fact
-  ("you know 7×7=49 — one more 7 makes 56"), else a skip-count tail.
+  ("you know 7×7=49 — one more 7 makes 56"), else a skip-count tail. A
+  known fact missed in flipped orientation gets the reflexive hint ("7×5 is
+  the same as 5×7").
 - **Time-based review** — per-box freshness windows (1 day → 3 weeks); due
   facts jump the queue in rounds, show faded on the heatmap ("time for a
   refresh"), and are counted for parents. Levels/stars/dogs never regress.
