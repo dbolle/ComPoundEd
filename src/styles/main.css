@@ -289,6 +289,96 @@ button.pressed {
   gap: 10px;
 }
 
+.nav-row.three {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.nav-row.three .btn {
+  font-size: 1rem;
+  padding: 12px 6px;
+}
+
+/* ---------- awards ---------- */
+
+.next-up {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.next-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+}
+
+.next-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  font-size: 0.95rem;
+}
+
+.next-count {
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+.award-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.award-card {
+  background: var(--card);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  border-bottom: 5px solid var(--brand);
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.award-card.locked {
+  opacity: 0.6;
+  filter: grayscale(0.9);
+  border-bottom-color: #eee3d5;
+}
+
+.award-emoji {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.award-desc {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.award-earned {
+  color: var(--brand-deep);
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+
+.award-card .meter,
+.next-card .meter {
+  width: 90%;
+  margin-top: 3px;
+}
+
+.award-reveal {
+  border: 3px solid var(--brand);
+  animation: pop 0.5s ease;
+}
+
 .sitting-card {
   display: flex;
   align-items: center;

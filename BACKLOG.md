@@ -36,6 +36,11 @@ them)*
 
 ## ✅ Also done
 
+- **Achievements** — 37 laddered awards (uniform value/target model):
+  first-session quick wins, then streak/perfect/speed/comeback/care/pack/
+  mastery ladders. Awards screen with "Next up!" progress; reveals on
+  results and activity finishes. Schema v6 (lifetime stats + earned map).
+
 - **Missing number → division** — ÷t track unlocks when ×t is mastered;
   missing-factor presentation ("5 × _ = 20") bridges to ÷ form as facts
   strengthen; 12 new division dogs; inverse-anchored hints. Schema v5.

@@ -8,6 +8,7 @@ import { navigate } from '../router.js';
 import { buildRound, buildDivisionRound, buildSittingRound } from '../engine/selector.js';
 import { recordAnswer, recordDivisionAnswer } from '../engine/leitner.js';
 import { checkUnlocks, isUnlocked } from '../engine/unlocks.js';
+import { bumpAnswer, bumpActivity, checkAchievements } from '../engine/achievements.js';
 import { hintFor, divisionHint } from '../engine/hints.js';
 import { getDog, isGuest, GUESTS, dogSVG } from '../art/dogs.js';
 import { buildNumpad, bindKeyboard, celebrationLine, confetti, escapeHtml } from '../ui.js';
@@ -99,7 +100,6 @@ export function activityScreen(el, params, ctx) {
   let busy = false;
   let startT = 0;
   let steps = 0;
-  let streak = 0;
 
   // Dogs stagger tightly and the asker chip overlays the scene so the whole
   // activity fits a small phone viewport without scrolling.
@@ -180,7 +180,7 @@ export function activityScreen(el, params, ctx) {
         ? recordDivisionAnswer(ctx.profile, q.a, q.b, correct, ms)
         : recordAnswer(ctx.profile, q.a, q.b, correct, ms);
     busy = true;
-    streak = correct ? streak + 1 : 0;
+    const stats = bumpAnswer(ctx.profile, r);
     if (correct) {
       if (r.fast) sfx.fast();
       else sfx.correct();
@@ -190,7 +190,7 @@ export function activityScreen(el, params, ctx) {
       ansEl.classList.add('good');
       fbEl.textContent = celebrationLine(
         r,
-        streak,
+        stats.currentStreak,
         group ? theme.cheerGroup : `${q.dog.name} ${theme.cheer}`
       );
       fbEl.classList.add('good');
@@ -227,6 +227,8 @@ export function activityScreen(el, params, ctx) {
       p.play[d.id][kind] += 1;
     }
     checkUnlocks(p);
+    bumpActivity(p, { sitting });
+    const newAwards = checkAchievements(p);
     await ctx.save();
     sfx.celebrate();
     buzz([30, 40, 30]);
@@ -244,6 +246,13 @@ export function activityScreen(el, params, ctx) {
         : `🐶 Back to ${escapeHtml(dogs[0].name)}`;
     ansEl.outerHTML = `<div class="card center">
       <h2>${headline}</h2>
+      ${
+        newAwards.length
+          ? `<div class="badge-row" style="margin-top:8px">${newAwards
+              .map((aw) => `<span class="badge">🏆 ${aw.emoji} ${escapeHtml(aw.name)}</span>`)
+              .join('')}</div>`
+          : ''
+      }
       <div class="nav-row" style="margin-top:10px">
         <button class="btn" data-again>🔁 Again!</button>
         <button class="btn accent" data-done>${doneLabel}</button>

@@ -29,9 +29,10 @@ export function homeScreen(el, params, ctx) {
       <h3>Pick a table</h3>
       <div class="table-grid"></div>
       <div data-division-slot></div>
-      <div class="nav-row">
-        <button class="btn accent" data-nav="/pack">🐶 My pack</button>
-        <button class="btn accent" data-nav="/heatmap">🗺️ Progress map</button>
+      <div class="nav-row three">
+        <button class="btn accent" data-nav="/pack">🐶 Pack</button>
+        <button class="btn accent" data-nav="/heatmap">🗺️ Map</button>
+        <button class="btn accent" data-nav="/awards">🏆 Awards</button>
       </div>
       <div class="nav-row">
         <button class="btn ghost small" data-nav="/profiles">🔄 Switch player</button>

@@ -2,7 +2,19 @@
 // migrateProfile() whenever the shape of stored data changes — this is the
 // contract a future sync backend will rely on.
 
-export const SCHEMA_VERSION = 5;
+export const SCHEMA_VERSION = 6;
+
+export const EMPTY_STATS = () => ({
+  rounds: 0,
+  perfectRounds: 0,
+  activities: 0,
+  sittings: 0,
+  comebacks: 0,
+  fastAnswers: 0,
+  currentStreak: 0,
+  bestStreak: 0,
+  fastestPerfectMs: null,
+});
 
 // crypto.randomUUID only exists in secure contexts (https / localhost); the
 // app is also served over plain http on the LAN, so fall back to building a
@@ -36,6 +48,10 @@ export function newProfile(name) {
     // Typing/reading speed baseline from gimme facts (×0/×1), used to tune
     // the per-kid "fast answer" bar. samples < 5 → default bar applies.
     speed: { avgMs: 0, samples: 0 },
+    // Earned achievement badges: { [achievementId]: earnedAt }
+    achievements: {},
+    // Lifetime counters that feed the achievement ladders.
+    stats: EMPTY_STATS(),
     updatedAt: Date.now(),
   };
 }
@@ -63,6 +79,11 @@ export function migrateProfile(doc) {
   if (doc.schemaVersion === 4) {
     doc.division = doc.division ?? {};
     doc.schemaVersion = 5;
+  }
+  if (doc.schemaVersion === 5) {
+    doc.achievements = doc.achievements ?? {};
+    doc.stats = { ...EMPTY_STATS(), ...(doc.stats ?? {}) };
+    doc.schemaVersion = 6;
   }
   return doc;
 }
@@ -114,6 +135,24 @@ export function mergeProfiles(a, b) {
     (a.speed?.samples ?? 0) >= (b.speed?.samples ?? 0)
       ? (a.speed ?? { avgMs: 0, samples: 0 })
       : b.speed;
+  // Achievements: union, keeping the earliest earn date.
+  const achievements = { ...(b.achievements ?? {}) };
+  for (const [id, at] of Object.entries(a.achievements ?? {})) {
+    achievements[id] = achievements[id] != null ? Math.min(achievements[id], at) : at;
+  }
+  // Lifetime counters: the larger count wins per field (never regresses);
+  // fastest time: the smaller non-null wins.
+  const sa = { ...EMPTY_STATS(), ...(a.stats ?? {}) };
+  const sb = { ...EMPTY_STATS(), ...(b.stats ?? {}) };
+  const stats = { ...sa };
+  for (const k of Object.keys(sa)) {
+    if (k === 'fastestPerfectMs') {
+      const vals = [sa[k], sb[k]].filter((v) => v != null);
+      stats[k] = vals.length ? Math.min(...vals) : null;
+    } else {
+      stats[k] = Math.max(sa[k] ?? 0, sb[k] ?? 0);
+    }
+  }
   return {
     ...newer,
     schemaVersion: SCHEMA_VERSION,
@@ -124,5 +163,7 @@ export function mergeProfiles(a, b) {
     unlocks,
     play,
     speed,
+    achievements,
+    stats,
   };
 }

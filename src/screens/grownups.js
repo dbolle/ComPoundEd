@@ -17,6 +17,7 @@ import {
   syncNow,
 } from '../data/store.js';
 import { sfx, setSoundOn } from '../sound.js';
+import { CATALOG } from '../engine/achievements.js';
 import { DOGS } from '../art/dogs.js';
 import { toast, escapeHtml } from '../ui.js';
 
@@ -77,6 +78,7 @@ export function grownupsScreen(el, params, ctx) {
         <div class="stat-row"><span>Fast-answer bar</span><span>${(fastThresholdMs(p) / 1000).toFixed(1)}s${isCalibrated(p) ? '' : ' (calibrating)'}</span></div>
         <div class="stat-row"><span>Facts needing a refresh</span><span>${dueCount(p)}</span></div>
         <div class="stat-row"><span>Division facts mastered</span><span>${divisionMasteredCount(p)}</span></div>
+        <div class="stat-row"><span>Awards earned</span><span>${Object.keys(p.achievements ?? {}).length} / ${CATALOG.length}</span></div>
       </div>
       <div style="height:12px"></div>
       <div class="card">
