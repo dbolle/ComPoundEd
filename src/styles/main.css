@@ -695,6 +695,10 @@ button.pressed {
   transform: scale(0.85);
 }
 
+.hm-cell.hm-due {
+  opacity: 0.5;
+}
+
 .hm-caption {
   min-height: 1.5em;
   font-weight: 700;

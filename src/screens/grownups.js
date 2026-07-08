@@ -1,5 +1,5 @@
 import { navigate } from '../router.js';
-import { profileTotals, fastThresholdMs, isCalibrated } from '../engine/leitner.js';
+import { profileTotals, fastThresholdMs, isCalibrated, dueCount } from '../engine/leitner.js';
 import {
   deleteProfile,
   listProfiles,
@@ -66,6 +66,7 @@ export function grownupsScreen(el, params, ctx) {
         <div class="stat-row"><span>Accuracy</span><span>${accuracy}%</span></div>
         <div class="stat-row"><span>Dogs adopted</span><span>${dogsEarned} / ${DOGS.length}</span></div>
         <div class="stat-row"><span>Fast-answer bar</span><span>${(fastThresholdMs(p) / 1000).toFixed(1)}s${isCalibrated(p) ? '' : ' (calibrating)'}</span></div>
+        <div class="stat-row"><span>Facts needing a refresh</span><span>${dueCount(p)}</span></div>
       </div>
       <div style="height:12px"></div>
       <div class="card">
@@ -74,7 +75,9 @@ export function grownupsScreen(el, params, ctx) {
         first levels, and quick recall builds the rest — so a fact is only "mastered" once it's
         truly memorized, but working it out still earns visible progress. Mastering a whole
         table earns a new dog for the pack. The "fast" bar tunes itself to each kid's own
-        reading and tapping speed, so quick counts as quick <em>for them</em>.</p>
+        reading and tapping speed, so quick counts as quick <em>for them</em>. Mastered facts
+        get "rusty" after a while without practice and quietly come back around in rounds —
+        levels and adopted dogs are never taken away.</p>
         <p class="muted"><strong>Privacy:</strong> everything is stored only on this device.
         No accounts, no ads, no tracking — ever.</p>
       </div>

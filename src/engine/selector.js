@@ -4,6 +4,7 @@
 
 import {
   getStat,
+  isDue,
   MASTERY_BOX,
   FACTOR_MIN,
   FACTOR_MAX,
@@ -113,11 +114,13 @@ export function buildRound(profile, scope, count = ROUND_SIZE) {
 
   const weak = [];
   const fresh = [];
+  const dueStrong = []; // mastered but past its freshness window — refresh it
   const strong = [];
   for (const [a, b] of pool) {
     const s = getStat(profile, a, b);
     if (s.attempts === 0) fresh.push({ a, b, s });
     else if (s.box < MASTERY_BOX) weak.push({ a, b, s });
+    else if (isDue(s)) dueStrong.push({ a, b, s });
     else strong.push({ a, b, s });
   }
 
@@ -125,6 +128,7 @@ export function buildRound(profile, scope, count = ROUND_SIZE) {
   weak.sort((x, y) => x.s.box - y.s.box || x.s.lastSeen - y.s.lastSeen);
   // Easier new facts first so first encounters build confidence.
   fresh.sort((x, y) => x.a * x.b - y.a * y.b || Math.random() - 0.5);
+  dueStrong.sort((x, y) => x.s.lastSeen - y.s.lastSeen);
   shuffle(strong);
 
   const picked = [];
@@ -134,11 +138,13 @@ export function buildRound(profile, scope, count = ROUND_SIZE) {
       n -= 1;
     }
   };
-  take(weak, 6);
-  take(fresh, 3);
-  take(strong, 2);
+  take(weak, 5);
+  take(dueStrong, 2);
+  take(fresh, 2);
+  take(strong, 1);
   // Fill any remaining slots from whatever is left.
   take(weak, count);
+  take(dueStrong, count);
   take(fresh, count);
   take(strong, count);
   // Tiny pools (shouldn't happen with 13+ facts): repeat the weakest.
