@@ -4,6 +4,7 @@
 
 import {
   getStat,
+  getDivStat,
   isDue,
   MASTERY_BOX,
   FACTOR_MIN,
@@ -11,6 +12,17 @@ import {
   TABLE_MIN,
   TABLE_MAX,
 } from './leitner.js';
+
+function multQuestion(left, right) {
+  return {
+    a: left,
+    b: right,
+    answer: left * right,
+    kind: 'mult',
+    text: `${left} × ${right}`,
+    correction: `${left} × ${right} = ${left * right}`,
+  };
+}
 
 export const ROUND_SIZE = 10;
 
@@ -105,7 +117,64 @@ export function buildSittingRound(profile, count = ROUND_SIZE) {
   }
   return out.map(({ a, b }) => {
     const [l, r] = Math.random() < 0.5 ? [a, b] : [b, a];
-    return { a: l, b: r, answer: l * r };
+    return multQuestion(l, r);
+  });
+}
+
+// Division-track round for one ÷table. Presentation follows the fact's own
+// division box: early reps use the missing-factor bridge ("5 × _ = 20"),
+// and once it's warming up (box ≥ 2) the ÷ symbol takes over.
+export function buildDivisionRound(profile, table, count = ROUND_SIZE) {
+  const weak = [];
+  const fresh = [];
+  const dueStrong = [];
+  const strong = [];
+  for (let b = FACTOR_MIN; b <= FACTOR_MAX; b++) {
+    const s = getDivStat(profile, table, b);
+    const item = { a: table, b, s };
+    if (s.attempts === 0) fresh.push(item);
+    else if (s.box < MASTERY_BOX) weak.push(item);
+    else if (isDue(s)) dueStrong.push(item);
+    else strong.push(item);
+  }
+  weak.sort((x, y) => x.s.box - y.s.box || x.s.lastSeen - y.s.lastSeen);
+  fresh.sort((x, y) => x.a * x.b - y.a * y.b || Math.random() - 0.5);
+  dueStrong.sort((x, y) => x.s.lastSeen - y.s.lastSeen);
+  shuffle(strong);
+
+  const picked = [];
+  const take = (list, n) => {
+    while (n > 0 && list.length && picked.length < count) {
+      picked.push(list.shift());
+      n -= 1;
+    }
+  };
+  take(weak, 5);
+  take(dueStrong, 2);
+  take(fresh, 2);
+  take(strong, 1);
+  take(weak, count);
+  take(dueStrong, count);
+  take(fresh, count);
+  take(strong, count);
+  let i = 0;
+  while (picked.length < count && picked.length > 0) {
+    picked.push(picked[i % picked.length]);
+    i += 1;
+  }
+  shuffle(picked);
+
+  return picked.map(({ a, b }) => {
+    const product = a * b;
+    const divForm = getDivStat(profile, a, b).box >= 2;
+    return {
+      a,
+      b,
+      answer: b,
+      kind: 'div',
+      text: divForm ? `${product} ÷ ${a}` : `${a} × _ = ${product}`,
+      correction: divForm ? `${product} ÷ ${a} = ${b}` : `${a} × ${b} = ${product}`,
+    };
   });
 }
 
@@ -163,6 +232,6 @@ export function buildRound(profile, scope, count = ROUND_SIZE) {
     let right = b;
     if (scope.type === 'mixed' && Math.random() < 0.5) [left, right] = [right, left];
     if (scope.type === 'table' && a !== scope.table) [left, right] = [b, a];
-    return { a: left, b: right, answer: left * right };
+    return multQuestion(left, right);
   });
 }

@@ -1,5 +1,11 @@
 import { navigate } from '../router.js';
-import { profileTotals, fastThresholdMs, isCalibrated, dueCount } from '../engine/leitner.js';
+import {
+  profileTotals,
+  fastThresholdMs,
+  isCalibrated,
+  dueCount,
+  divisionMasteredCount,
+} from '../engine/leitner.js';
 import {
   deleteProfile,
   listProfiles,
@@ -70,6 +76,7 @@ export function grownupsScreen(el, params, ctx) {
         <div class="stat-row"><span>Dogs adopted</span><span>${dogsEarned} / ${DOGS.length}</span></div>
         <div class="stat-row"><span>Fast-answer bar</span><span>${(fastThresholdMs(p) / 1000).toFixed(1)}s${isCalibrated(p) ? '' : ' (calibrating)'}</span></div>
         <div class="stat-row"><span>Facts needing a refresh</span><span>${dueCount(p)}</span></div>
+        <div class="stat-row"><span>Division facts mastered</span><span>${divisionMasteredCount(p)}</span></div>
       </div>
       <div style="height:12px"></div>
       <div class="card">

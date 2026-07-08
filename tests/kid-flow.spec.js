@@ -23,6 +23,7 @@ test('first run: create → round → results → progress → pack → heatmap'
 
   // Meter moved after one perfect round
   await page.tap('[data-home]');
+  await page.waitForSelector('.table-grid .table-btn');
   const width = await page.$eval(
     '.table-grid .table-btn:nth-child(2) .meter span',
     (e) => parseInt(e.style.width, 10)
@@ -33,7 +34,7 @@ test('first run: create → round → results → progress → pack → heatmap'
   await page.tap('[data-nav="/pack"]');
   await page.waitForSelector('.pack-grid .dog-card');
   expect(await page.$$eval('.dog-card:not(.locked)', (els) => els.length)).toBe(1);
-  expect(await page.$$eval('.dog-card.locked', (els) => els.length)).toBe(12);
+  expect(await page.$$eval('.dog-card.locked', (els) => els.length)).toBe(24);
   await page.tap('[data-back]');
   await page.waitForSelector('.table-grid');
   await page.tap('[data-nav="/heatmap"]');

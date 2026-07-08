@@ -16,6 +16,19 @@ export const DOGS = [
   { id: 'dog-10', table: 10, name: 'Bruno', base: '#4e342e', muzzle: '#8d6e63', ear: 'floppy', earColor: '#3a2723', tongue: true, collar: '#f59e0b' },
   { id: 'dog-11', table: 11, name: 'Ziggy', base: '#f4f1ec', muzzle: '#f4f1ec', ear: 'floppy', earColor: '#8a5a33', patch: '#8a5a33', collar: '#14b8a6' },
   { id: 'dog-12', table: 12, name: 'Captain', base: '#3e2f28', muzzle: '#f4f1ec', ear: 'floppy', earColor: '#2b201b', blaze: '#f4f1ec', collar: '#f59e0b' },
+  // Division pack: one dog per ÷table, earned by mastering the division track.
+  { id: 'div-1', table: null, divTable: 1, name: 'Cocoa', base: '#6f4e37', muzzle: '#c9a887', ear: 'round', earColor: '#59402c', tongue: true, collar: '#f472b6' },
+  { id: 'div-2', table: null, divTable: 2, name: 'Willow', base: '#b9c0c9', muzzle: '#f4f1ec', ear: 'long', earColor: '#98a1ad', blaze: '#f4f1ec', collar: '#8b5cf6' },
+  { id: 'div-3', table: null, divTable: 3, name: 'Banjo', base: '#d8a25a', muzzle: '#f6e3c2', ear: 'pointy', earColor: '#b9823f', patch: '#8a5a33', collar: '#0ea5e9' },
+  { id: 'div-4', table: null, divTable: 4, name: 'Juno', base: '#33333d', muzzle: '#8d8d99', ear: 'round', earColor: '#22222b', blaze: '#8d8d99', collar: '#ec4899' },
+  { id: 'div-5', table: null, divTable: 5, name: 'Olive', base: '#9a8f4f', muzzle: '#e9e0bb', ear: 'floppy', earColor: '#7c723c', tongue: true, collar: '#ef4444' },
+  { id: 'div-6', table: null, divTable: 6, name: 'Tux', base: '#2b2b33', muzzle: '#f4f1ec', ear: 'floppy', earColor: '#1d1d24', blaze: '#f4f1ec', collar: '#dc2626' },
+  { id: 'div-7', table: null, divTable: 7, name: 'Poppy', base: '#f0e4d0', muzzle: '#f0e4d0', ear: 'long', earColor: '#a4552f', patch: '#a4552f', tongue: true, collar: '#16a34a' },
+  { id: 'div-8', table: null, divTable: 8, name: 'Ginger', base: '#c96a2f', muzzle: '#f6dcc0', ear: 'pointy', earColor: '#a5521f', collar: '#eab308' },
+  { id: 'div-9', table: null, divTable: 9, name: 'Ace', base: '#f4f1ec', muzzle: '#f4f1ec', ear: 'pointy', earColor: '#3b3b44', patch: '#3b3b44', spots: '#3b3b44', collar: '#2563eb' },
+  { id: 'div-10', table: null, divTable: 10, name: 'Sunny', base: '#edc35a', muzzle: '#faeecb', ear: 'floppy', earColor: '#d1a53c', tongue: true, collar: '#14b8a6' },
+  { id: 'div-11', table: null, divTable: 11, name: 'Rocket', base: '#7d8ba1', muzzle: '#e6ebf2', ear: 'pointy', earColor: '#62708a', blaze: '#e6ebf2', collar: '#f97316' },
+  { id: 'div-12', table: null, divTable: 12, name: 'Bear', base: '#4a3423', muzzle: '#b08b64', ear: 'round', earColor: '#38271a', collar: '#a3e635' },
 ];
 
 // Guest dogs for pet sitting: neighbors' pups who visit but aren't part of
@@ -37,6 +50,10 @@ export function isGuest(id) {
 
 export function dogForTable(table) {
   return DOGS.find((d) => d.table === table);
+}
+
+export function dogForDivTable(table) {
+  return DOGS.find((d) => d.divTable === table);
 }
 
 const INK = '#35281e';

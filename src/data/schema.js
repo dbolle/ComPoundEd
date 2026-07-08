@@ -2,7 +2,7 @@
 // migrateProfile() whenever the shape of stored data changes — this is the
 // contract a future sync backend will rely on.
 
-export const SCHEMA_VERSION = 4;
+export const SCHEMA_VERSION = 5;
 
 // crypto.randomUUID only exists in secure contexts (https / localhost); the
 // app is also served over plain http on the LAN, so fall back to building a
@@ -26,6 +26,9 @@ export function newProfile(name) {
     // Per-fact Leitner stats, keyed by normalized fact key ("3x4"):
     // { attempts, correct, avgMs, box, lastSeen }
     facts: {},
+    // Division-track stats (missing-factor → ÷), same key/shape as facts.
+    // A family joins this track once its multiplication fact is mastered.
+    division: {},
     // Earned dogs: { dogId, table, at } (table is null for the starter dog)
     unlocks: [{ dogId: 'starter', table: null, at: Date.now() }],
     // Pet-play counters, keyed by dogId: { walk, feed, fetch }
@@ -57,6 +60,10 @@ export function migrateProfile(doc) {
     doc.speed = doc.speed ?? { avgMs: 0, samples: 0 };
     doc.schemaVersion = 4;
   }
+  if (doc.schemaVersion === 4) {
+    doc.division = doc.division ?? {};
+    doc.schemaVersion = 5;
+  }
   return doc;
 }
 
@@ -68,19 +75,24 @@ export function mergeProfiles(a, b) {
   if (!a) return b;
   if (!b) return a;
   const newer = (a.updatedAt ?? 0) >= (b.updatedAt ?? 0) ? a : b;
-  const facts = {};
-  for (const key of new Set([...Object.keys(a.facts), ...Object.keys(b.facts)])) {
-    const x = a.facts[key];
-    const y = b.facts[key];
-    if (!x || !y) {
-      facts[key] = x ?? y;
-    } else {
-      facts[key] =
-        x.attempts > y.attempts || (x.attempts === y.attempts && (x.lastSeen ?? 0) >= (y.lastSeen ?? 0))
-          ? x
-          : y;
+  const mergeStatMap = (ma = {}, mb = {}) => {
+    const out = {};
+    for (const key of new Set([...Object.keys(ma), ...Object.keys(mb)])) {
+      const x = ma[key];
+      const y = mb[key];
+      if (!x || !y) {
+        out[key] = x ?? y;
+      } else {
+        out[key] =
+          x.attempts > y.attempts || (x.attempts === y.attempts && (x.lastSeen ?? 0) >= (y.lastSeen ?? 0))
+            ? x
+            : y;
+      }
     }
-  }
+    return out;
+  };
+  const facts = mergeStatMap(a.facts, b.facts);
+  const division = mergeStatMap(a.division, b.division);
   const unlocks = [...a.unlocks];
   for (const u of b.unlocks) {
     const existing = unlocks.find((x) => x.dogId === u.dogId);
@@ -108,6 +120,7 @@ export function mergeProfiles(a, b) {
     createdAt: Math.min(a.createdAt ?? Date.now(), b.createdAt ?? Date.now()),
     updatedAt: Math.max(a.updatedAt ?? 0, b.updatedAt ?? 0),
     facts,
+    division,
     unlocks,
     play,
     speed,

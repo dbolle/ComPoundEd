@@ -231,7 +231,8 @@ button.pressed {
   flex: none;
 }
 
-.table-grid {
+.table-grid,
+.div-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
@@ -259,6 +260,11 @@ button.pressed {
 .table-btn.mastered {
   background: #fef3c7;
   border-bottom-color: var(--brand);
+}
+
+.table-btn.locked {
+  opacity: 0.45;
+  cursor: default;
 }
 
 .meter {

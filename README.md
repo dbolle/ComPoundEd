@@ -12,7 +12,10 @@ licensing.
 - **Spaced repetition, kid-sized** — Leitner boxes; weak facts come back more
   often. Careful answers (skip counting) climb the early levels; only fast
   recall climbs to mastery, so mastered means memorized.
-- **Adopt-a-dog collection** — 13 original SVG dogs, one per mastered table.
+- **Adopt-a-dog collection** — 25 original SVG dogs: one per mastered times
+  table, one per mastered division table, plus a starter pup.
+- **Missing number → division** — mastering ×t opens the ÷t track, which
+  bridges from "5 × _ = 20" to "20 ÷ 5" as each fact strengthens.
 - **Progress map** — a 13×13 mastery heatmap of every fact.
 - **Pet sitting** — once a kid has a baseline of solid facts, a daily guest
   pup visits with a confidence-first round: mostly mastered quick wins, a few
