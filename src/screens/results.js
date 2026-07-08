@@ -3,6 +3,7 @@ import { tableProgress, TABLE_MIN, TABLE_MAX } from '../engine/leitner.js';
 import { dogSVG, dogForTable } from '../art/dogs.js';
 import { isUnlocked } from '../engine/unlocks.js';
 import { confetti, escapeHtml } from '../ui.js';
+import { sfx, buzz } from '../sound.js';
 
 function headline(score, total) {
   if (score === total) return 'Top dog!! 🏆';
@@ -76,7 +77,16 @@ export function resultsScreen(el, params, ctx) {
     unlockBox.appendChild(card);
   }
 
-  if (score >= total * 0.7 || round.newUnlocks.length) confetti();
+  if (score >= total * 0.7 || round.newUnlocks.length) {
+    confetti();
+    buzz([30, 40, 30]);
+    if (round.newUnlocks.length) {
+      sfx.bark();
+      setTimeout(() => sfx.celebrate(), 380);
+    } else {
+      sfx.celebrate();
+    }
+  }
 
   el.querySelector('[data-again]').addEventListener('click', () => navigate(againHref));
   el.querySelector('[data-home]').addEventListener('click', () => navigate('/home'));
