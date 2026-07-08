@@ -1,6 +1,6 @@
 // Group play setup: pick an activity and 2–3 pack dogs to do it together.
 import { navigate } from '../router.js';
-import { DOGS, dogSVG } from '../art/dogs.js';
+import { DOGS, dogSVG, accessoriesFor } from '../art/dogs.js';
 import { isUnlocked } from '../engine/unlocks.js';
 import { escapeHtml } from '../ui.js';
 
@@ -34,7 +34,7 @@ export function groupScreen(el, params, ctx) {
   for (const dog of unlocked) {
     const card = document.createElement('button');
     card.className = 'dog-card';
-    card.innerHTML = `<span class="dog">${dogSVG(dog, 76)}</span>
+    card.innerHTML = `<span class="dog">${dogSVG(dog, 76, accessoriesFor(ctx.profile, dog.id))}</span>
       <span>${escapeHtml(dog.name)}</span>`;
     card.setAttribute('aria-pressed', 'false');
     card.addEventListener('click', () => {

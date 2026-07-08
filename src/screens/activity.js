@@ -10,7 +10,7 @@ import { recordAnswer, recordDivisionAnswer } from '../engine/leitner.js';
 import { checkUnlocks, isUnlocked } from '../engine/unlocks.js';
 import { bumpAnswer, bumpActivity, checkAchievements } from '../engine/achievements.js';
 import { hintFor, divisionHint } from '../engine/hints.js';
-import { getDog, isGuest, GUESTS, dogSVG } from '../art/dogs.js';
+import { getDog, isGuest, GUESTS, dogSVG, accessoriesFor, ACCESSORIES } from '../art/dogs.js';
 import { buildNumpad, bindKeyboard, celebrationLine, confetti, escapeHtml } from '../ui.js';
 import { sfx, buzz } from '../sound.js';
 
@@ -118,7 +118,7 @@ export function activityScreen(el, params, ctx) {
         ${dogs
           .map(
             (d, i) =>
-              `<span class="mover" style="bottom:${4 + i * 14}px;transition-delay:${i * 90}ms">${dogSVG(d, 56)}</span>`
+              `<span class="mover" style="bottom:${4 + i * 14}px;transition-delay:${i * 90}ms">${dogSVG(d, 56, accessoriesFor(ctx.profile, d.id))}</span>`
           )
           .join('')}
       </div>
@@ -222,10 +222,16 @@ export function activityScreen(el, params, ctx) {
 
   async function finish() {
     const p = ctx.profile;
+    const wornBefore = dogs.map((d) => accessoriesFor(p, d.id));
     for (const d of dogs) {
       p.play[d.id] = p.play[d.id] ?? { walk: 0, feed: 0, fetch: 0 };
       p.play[d.id][kind] += 1;
     }
+    const newWear = dogs.flatMap((d, i) =>
+      accessoriesFor(p, d.id)
+        .filter((id) => !wornBefore[i].includes(id))
+        .map((id) => ({ dog: d, acc: ACCESSORIES.find((a) => a.id === id) }))
+    );
     checkUnlocks(p);
     bumpActivity(p, { sitting });
     const newAwards = checkAchievements(p);
@@ -246,6 +252,16 @@ export function activityScreen(el, params, ctx) {
         : `🐶 Back to ${escapeHtml(dogs[0].name)}`;
     ansEl.outerHTML = `<div class="card center">
       <h2>${headline}</h2>
+      ${
+        newWear.length
+          ? `<div class="badge-row" style="margin-top:8px">${newWear
+              .map(
+                (w) =>
+                  `<span class="badge">${w.acc.emoji} ${escapeHtml(w.dog.name)} earned a ${w.acc.name}!</span>`
+              )
+              .join('')}</div>`
+          : ''
+      }
       ${
         newAwards.length
           ? `<div class="badge-row" style="margin-top:8px">${newAwards
