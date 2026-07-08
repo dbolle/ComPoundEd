@@ -73,6 +73,16 @@ export function resultsScreen(el, params, ctx) {
       <h2 class="center">${headline(score, total)}</h2>
       <div class="big-score">${score} / ${total}</div>
       ${badges.length ? `<div class="badge-row">${badges.map((b) => `<span class="badge">${b}</span>`).join('')}</div>` : ''}
+      ${
+        round.newAwards?.length
+          ? `<div class="card center award-reveal">
+              <h3>🏆 New award${round.newAwards.length > 1 ? 's' : ''}!</h3>
+              <div class="badge-row">${round.newAwards
+                .map((aw) => `<span class="badge">${aw.emoji} ${escapeHtml(aw.name)}</span>`)
+                .join('')}</div>
+            </div>`
+          : ''
+      }
       <div class="unlocks"></div>
       ${
         goal

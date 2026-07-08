@@ -2,6 +2,7 @@ import { navigate } from '../router.js';
 import { buildRound, buildDivisionRound, ROUND_SIZE } from '../engine/selector.js';
 import { recordAnswer, recordDivisionAnswer } from '../engine/leitner.js';
 import { checkUnlocks } from '../engine/unlocks.js';
+import { bumpAnswer, bumpRound, checkAchievements } from '../engine/achievements.js';
 import { hintFor, divisionHint } from '../engine/hints.js';
 import { buildNumpad, bindKeyboard, celebrationLine } from '../ui.js';
 import { sfx, buzz } from '../sound.js';
@@ -26,7 +27,7 @@ export function quizScreen(el, params, ctx) {
   let busy = false;
   let startT = 0;
   let finished = false;
-  let streak = 0;
+  const roundStart = performance.now();
 
   el.innerHTML = `
     <div class="screen">
@@ -104,7 +105,7 @@ export function quizScreen(el, params, ctx) {
     });
     paws[index].classList.add(correct ? 'done' : 'missed');
     busy = true;
-    streak = correct ? streak + 1 : 0;
+    const stats = bumpAnswer(ctx.profile, r);
     if (correct) {
       if (r.fast) sfx.fast();
       else sfx.correct();
@@ -112,7 +113,7 @@ export function quizScreen(el, params, ctx) {
       ansEl.classList.add('good');
       fbEl.textContent = celebrationLine(
         r,
-        streak,
+        stats.currentStreak,
         CHEERS[Math.floor(Math.random() * CHEERS.length)]
       );
       fbEl.classList.add('good');
@@ -135,8 +136,13 @@ export function quizScreen(el, params, ctx) {
     if (index >= questions.length) {
       finished = true;
       const newUnlocks = checkUnlocks(ctx.profile);
+      bumpRound(ctx.profile, {
+        perfect: results.length === questions.length && results.every((x) => x.correct),
+        durationMs: performance.now() - roundStart,
+      });
+      const newAwards = checkAchievements(ctx.profile);
       await ctx.save();
-      ctx.session.lastRound = { scope, results, newUnlocks };
+      ctx.session.lastRound = { scope, results, newUnlocks, newAwards };
       navigate('/results');
     } else {
       showQuestion();

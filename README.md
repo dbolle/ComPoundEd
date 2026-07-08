@@ -16,6 +16,9 @@ licensing.
   table, one per mastered division table, plus a starter pup.
 - **Missing number → division** — mastering ×t opens the ÷t track, which
   bridges from "5 × _ = 20" to "20 ÷ 5" as each fact strengthens.
+- **Awards** — 37 laddered achievements (streaks, perfect rounds, speed runs,
+  comebacks, pet care, collection, mastery) with a "Next up!" tracker so
+  there's always a goal within reach.
 - **Progress map** — a 13×13 mastery heatmap of every fact.
 - **Pet sitting** — once a kid has a baseline of solid facts, a daily guest
   pup visits with a confidence-first round: mostly mastered quick wins, a few
