@@ -1,0 +1,99 @@
+// Shared drivers for the Compounded UI. All timings track the app's feedback
+// windows (correct ≈ 700-800ms, wrong ≈ 1900ms).
+
+export const norm = (a, b) => (a <= b ? `${a}x${b}` : `${b}x${a}`);
+
+export function stat(box, { attempts = 6, correct = 6, avgMs = 3000, ageMs = 86400e3 } = {}) {
+  return { attempts, correct, avgMs, box, lastSeen: Date.now() - ageMs };
+}
+
+// Writes a profile doc straight into IndexedDB (page must already be on the
+// app origin), then reloads so the app picks it up.
+export async function seedProfile(page, doc) {
+  await page.evaluate(
+    (d) =>
+      new Promise((resolve, reject) => {
+        const req = indexedDB.open('compounded', 1);
+        req.onsuccess = () => {
+          const t = req.result.transaction('profiles', 'readwrite');
+          t.objectStore('profiles').put(d);
+          t.oncomplete = resolve;
+          t.onerror = () => reject(t.error);
+        };
+        req.onerror = () => reject(req.error);
+      }),
+    doc
+  );
+  await page.reload({ waitUntil: 'networkidle' });
+}
+
+export function readProfile(page, id) {
+  return page.evaluate(
+    (pid) =>
+      new Promise((resolve) => {
+        const req = indexedDB.open('compounded', 1);
+        req.onsuccess = () => {
+          const g = req.result.transaction('profiles').objectStore('profiles').get(pid);
+          g.onsuccess = () => resolve(g.result ?? null);
+        };
+      }),
+    id
+  );
+}
+
+export async function createProfileUI(page, name) {
+  await page.goto('/', { waitUntil: 'networkidle' });
+  await page.tap('[data-new]');
+  await page.fill('.name-input', name);
+  await page.tap('form[data-create] button[type=submit]');
+  await page.waitForSelector('.hero');
+}
+
+export async function selectProfile(page, name) {
+  await page.tap(`.profile-card:has-text("${name}")`);
+  await page.waitForSelector('.hero');
+}
+
+async function answer(page, value) {
+  for (const d of String(value)) await page.tap(`.numpad .key:text-is("${d}")`);
+  await page.tap('.numpad .key.ok');
+}
+
+// Plays until the quiz/activity finishes or maxQuestions is hit. Returns the
+// questions seen. options.answerFn(q, i) → value to type (default: correct).
+// options.delayFn(q, i) → ms to wait before answering (for slow-answer tests).
+export async function playQuestions(page, maxQuestions, options = {}) {
+  const seen = [];
+  for (let i = 0; i < maxQuestions; i++) {
+    await page.waitForFunction(() =>
+      document.querySelector('.question')?.textContent?.includes('×')
+    );
+    const text = (await page.textContent('.question')).trim();
+    const [a, b] = text.split('×').map((s) => parseInt(s.trim(), 10));
+    const q = { a, b, text, i };
+    seen.push(q);
+    if (options.delayFn) await page.waitForTimeout(options.delayFn(q, i));
+    const value = options.answerFn ? options.answerFn(q, i) : a * b;
+    await answer(page, value);
+    if (options.afterAnswer) await options.afterAnswer(q, i);
+    const wrong = value !== a * b;
+    await page.waitForTimeout(wrong ? 2100 : 1000);
+    if (await page.$('.big-score, [data-again]')) break;
+  }
+  return seen;
+}
+
+export async function holdGrownupsGate(page) {
+  await page.waitForSelector('[data-hold]');
+  const box = await (await page.$('[data-hold]')).boundingBox();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.waitForTimeout(2300);
+  await page.mouse.up();
+  await page.waitForSelector('.stat-row');
+}
+
+let uid = 0;
+export function uniqueName(prefix) {
+  return `${prefix}${Date.now() % 100000}${uid++}`;
+}

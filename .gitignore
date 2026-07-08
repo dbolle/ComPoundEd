@@ -1,0 +1,15 @@
+node_modules/
+dist/
+dev-dist/
+*.local
+.DS_Store
+test-results/
+playwright-report/
+
+# Kid data and private material — never commit these.
+deploy/sync-data/
+compounded-backup-*.json
+*.pem
+*.key
+.env
+.env.*
