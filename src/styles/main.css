@@ -400,6 +400,14 @@ button.pressed {
   color: var(--bad);
 }
 
+.feedback .hint {
+  display: block;
+  margin-top: 3px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
 .numpad {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

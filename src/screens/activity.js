@@ -8,6 +8,7 @@ import { navigate } from '../router.js';
 import { buildRound, buildSittingRound } from '../engine/selector.js';
 import { recordAnswer } from '../engine/leitner.js';
 import { checkUnlocks, isUnlocked } from '../engine/unlocks.js';
+import { hintFor } from '../engine/hints.js';
 import { getDog, isGuest, GUESTS, dogSVG } from '../art/dogs.js';
 import { buildNumpad, bindKeyboard, celebrationLine, confetti, escapeHtml } from '../ui.js';
 
@@ -180,10 +181,12 @@ export function activityScreen(el, params, ctx) {
       fbEl.classList.add('good');
     } else {
       ansEl.classList.add('bad');
-      fbEl.textContent = `${q.a} × ${q.b} = ${q.answer}`;
+      fbEl.innerHTML = `${q.a} × ${q.b} = ${q.answer}<span class="hint">💡 ${hintFor(ctx.profile, q.a, q.b)}</span>`;
       fbEl.classList.add('bad');
     }
-    setTimeout(next, correct ? 800 : 1900);
+    // Wrong answers linger longer so there's time to read the hint — and the
+    // same fact comes right back, so the hint gets used immediately.
+    setTimeout(next, correct ? 800 : 3600);
   }
 
   async function next() {

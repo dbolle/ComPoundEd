@@ -1,5 +1,5 @@
 // Shared drivers for the Compounded UI. All timings track the app's feedback
-// windows (correct ≈ 700-800ms, wrong ≈ 1900ms).
+// windows (correct ≈ 700-800ms, wrong ≈ 3600ms incl. the teaching hint).
 
 export const norm = (a, b) => (a <= b ? `${a}x${b}` : `${b}x${a}`);
 
@@ -77,7 +77,7 @@ export async function playQuestions(page, maxQuestions, options = {}) {
     await answer(page, value);
     if (options.afterAnswer) await options.afterAnswer(q, i);
     const wrong = value !== a * b;
-    await page.waitForTimeout(wrong ? 2100 : 1000);
+    await page.waitForTimeout(wrong ? 3800 : 1000);
     if (await page.$('.big-score, [data-again]')) break;
   }
   return seen;

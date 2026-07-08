@@ -2,6 +2,7 @@ import { navigate } from '../router.js';
 import { buildRound, ROUND_SIZE } from '../engine/selector.js';
 import { recordAnswer } from '../engine/leitner.js';
 import { checkUnlocks } from '../engine/unlocks.js';
+import { hintFor } from '../engine/hints.js';
 import { buildNumpad, bindKeyboard, celebrationLine } from '../ui.js';
 
 const CHEERS = ['Woof! 🎉', 'Good dog-gone job! 🐶', 'Fetch-tastic! 🦴', 'Paw-some! 🐾'];
@@ -95,10 +96,11 @@ export function quizScreen(el, params, ctx) {
       fbEl.classList.add('good');
     } else {
       ansEl.classList.add('bad');
-      fbEl.textContent = `${q.a} × ${q.b} = ${q.answer}`;
+      fbEl.innerHTML = `${q.a} × ${q.b} = ${q.answer}<span class="hint">💡 ${hintFor(ctx.profile, q.a, q.b)}</span>`;
       fbEl.classList.add('bad');
     }
-    setTimeout(next, correct ? 700 : 1900);
+    // Wrong answers linger longer so there's time to read the hint.
+    setTimeout(next, correct ? 700 : 3600);
   }
 
   async function next() {
