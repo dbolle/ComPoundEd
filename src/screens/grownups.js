@@ -6,8 +6,11 @@ import {
   importProfiles,
   isSyncEnabled,
   setSyncEnabled,
+  isSoundEnabled,
+  setSoundEnabled,
   syncNow,
 } from '../data/store.js';
+import { sfx, setSoundOn } from '../sound.js';
 import { DOGS } from '../art/dogs.js';
 import { toast, escapeHtml } from '../ui.js';
 
@@ -83,6 +86,13 @@ export function grownupsScreen(el, params, ctx) {
       </div>
       <div style="height:12px"></div>
       <div class="card">
+        <h3>Settings</h3>
+        <div class="nav-row">
+          <button class="btn ghost small" data-sound-toggle></button>
+        </div>
+      </div>
+      <div style="height:12px"></div>
+      <div class="card">
         <h3>Family backup</h3>
         <p class="muted">Keeps every player's progress safe on your home server — this
         network only, never the internet. Also works as a restore point for new devices.</p>
@@ -102,6 +112,18 @@ export function grownupsScreen(el, params, ctx) {
         <button class="btn ghost small" data-switch>🔄 Switch player</button>
         <button class="btn danger small" data-delete>🗑️ Delete this player</button>
       </div>`;
+
+    const soundBtn = panel.querySelector('[data-sound-toggle]');
+    const renderSound = () => {
+      soundBtn.textContent = isSoundEnabled() ? '🔊 Sounds & buzz: on' : '🔇 Sounds & buzz: off';
+    };
+    renderSound();
+    soundBtn.addEventListener('click', async () => {
+      await setSoundEnabled(!isSoundEnabled());
+      setSoundOn(isSoundEnabled());
+      renderSound();
+      if (isSoundEnabled()) sfx.correct(); // audible sample of the new state
+    });
 
     const toggleBtn = panel.querySelector('[data-sync-toggle]');
     const renderToggle = () => {

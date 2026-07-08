@@ -4,6 +4,7 @@ import { recordAnswer } from '../engine/leitner.js';
 import { checkUnlocks } from '../engine/unlocks.js';
 import { hintFor } from '../engine/hints.js';
 import { buildNumpad, bindKeyboard, celebrationLine } from '../ui.js';
+import { sfx, buzz } from '../sound.js';
 
 const CHEERS = ['Woof! 🎉', 'Good dog-gone job! 🐶', 'Fetch-tastic! 🦴', 'Paw-some! 🐾'];
 
@@ -87,6 +88,9 @@ export function quizScreen(el, params, ctx) {
     busy = true;
     streak = correct ? streak + 1 : 0;
     if (correct) {
+      if (r.fast) sfx.fast();
+      else sfx.correct();
+      buzz(20);
       ansEl.classList.add('good');
       fbEl.textContent = celebrationLine(
         r,
@@ -95,6 +99,8 @@ export function quizScreen(el, params, ctx) {
       );
       fbEl.classList.add('good');
     } else {
+      sfx.wrong();
+      buzz(60);
       ansEl.classList.add('bad');
       fbEl.innerHTML = `${q.a} × ${q.b} = ${q.answer}<span class="hint">💡 ${hintFor(ctx.profile, q.a, q.b)}</span>`;
       fbEl.classList.add('bad');

@@ -20,11 +20,14 @@ Ranked and agreed 2026-07-07. Work top-down.
 - **Time-based review** — per-box freshness windows (1 day → 3 weeks); due
   facts jump the queue in rounds, show faded on the heatmap ("time for a
   refresh"), and are counted for parents. Levels/stars/dogs never regress.
+- **Sounds & haptics** — synthesized Web Audio (no assets/network): chime on
+  correct, sparkle on ⚡, soft boop on wrong, arpeggio celebrations, bark on
+  dog unlocks; vibration where supported. Grown-Ups toggle, on by default.
 
 ## Prioritized
 
-1. **Sounds & haptics** — soft chime on correct, happy bark on unlock,
-   vibration where supported; toggle in Grown-Ups, default respectful.
+*(empty — next items come from On hold or Later when the user green-lights
+them)*
 
 ## On hold (per user)
 

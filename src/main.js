@@ -7,10 +7,12 @@ import {
   loadProfile,
   saveProfile,
   isSyncEnabled,
+  isSoundEnabled,
   syncNow,
 } from './data/store.js';
 import { register, startRouter } from './router.js';
 import { initPressFeedback } from './ui.js';
+import { setSoundOn } from './sound.js';
 import { profilesScreen } from './screens/profiles.js';
 import { homeScreen } from './screens/home.js';
 import { quizScreen } from './screens/quiz.js';
@@ -57,6 +59,7 @@ function guard(path) {
 
 async function boot() {
   await initStore();
+  setSoundOn(isSoundEnabled());
   if (isSyncEnabled()) {
     // Family backup: merge in anything newer from the home server before
     // rendering. Fails silently (and fast) when offline or away from home.

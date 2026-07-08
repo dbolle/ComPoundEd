@@ -11,6 +11,7 @@ import { checkUnlocks, isUnlocked } from '../engine/unlocks.js';
 import { hintFor } from '../engine/hints.js';
 import { getDog, isGuest, GUESTS, dogSVG } from '../art/dogs.js';
 import { buildNumpad, bindKeyboard, celebrationLine, confetti, escapeHtml } from '../ui.js';
+import { sfx, buzz } from '../sound.js';
 
 const KINDS = {
   walk: {
@@ -170,6 +171,9 @@ export function activityScreen(el, params, ctx) {
     busy = true;
     streak = correct ? streak + 1 : 0;
     if (correct) {
+      if (r.fast) sfx.fast();
+      else sfx.correct();
+      buzz(20);
       steps += 1;
       placeDogs();
       ansEl.classList.add('good');
@@ -180,6 +184,8 @@ export function activityScreen(el, params, ctx) {
       );
       fbEl.classList.add('good');
     } else {
+      sfx.wrong();
+      buzz(60);
       ansEl.classList.add('bad');
       fbEl.innerHTML = `${q.a} × ${q.b} = ${q.answer}<span class="hint">💡 ${hintFor(ctx.profile, q.a, q.b)}</span>`;
       fbEl.classList.add('bad');
@@ -210,6 +216,8 @@ export function activityScreen(el, params, ctx) {
     }
     checkUnlocks(p);
     await ctx.save();
+    sfx.celebrate();
+    buzz([30, 40, 30]);
     scene.classList.add('celebrate');
     if (askerEl) askerEl.remove();
     qEl.textContent = '';
