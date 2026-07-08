@@ -1,5 +1,6 @@
 // Teach on misses: one short line that gives the kid a way IN to the fact,
 // not just the answer. Priority: structural tricks for special factors, then
+// the reflexive flip when the kid knows the fact the other way around, then
 // an anchor on a neighboring fact this kid already knows well, then a
 // skip-count tail anyone can follow.
 
@@ -44,6 +45,13 @@ export function hintFor(profile, a, b) {
   }
   if (lo === 2) {
     return `×2 means double: ${hi} + ${hi} = ${ans}!`;
+  }
+  // Reflexive property: missing a fact whose own level is high means the kid
+  // knows it in the other orientation — teach that turning it around changes
+  // nothing. (Both orientations share one stat, so a high box on a miss is
+  // exactly this situation.)
+  if (a !== b && getStat(profile, a, b).box >= MASTERY_BOX) {
+    return `Flip it! ${a}×${b} is the same as ${b}×${a} — and you know that one: ${ans}!`;
   }
   const anchor = bestAnchor(profile, a, b);
   if (anchor) return anchor;
