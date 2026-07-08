@@ -59,6 +59,19 @@ async function answer(page, value) {
   await page.tap('.numpad .key.ok');
 }
 
+// Derives the correct answer from any question format the app shows:
+// "7 × 8", "5 × _ = 20", or "20 ÷ 5".
+export function answerFromText(text) {
+  if (text.includes('÷')) {
+    const [q, d] = text.split('÷').map((s) => parseInt(s.trim(), 10));
+    return q / d;
+  }
+  const missing = text.match(/(\d+)\s*×\s*_\s*=\s*(\d+)/);
+  if (missing) return Number(missing[2]) / Number(missing[1]);
+  const [a, b] = text.split('×').map((s) => parseInt(s.trim(), 10));
+  return a * b;
+}
+
 // Plays until the quiz/activity finishes or maxQuestions is hit. Returns the
 // questions seen. options.answerFn(q, i) → value to type (default: correct).
 // options.delayFn(q, i) → ms to wait before answering (for slow-answer tests).
@@ -66,17 +79,25 @@ export async function playQuestions(page, maxQuestions, options = {}) {
   const seen = [];
   for (let i = 0; i < maxQuestions; i++) {
     await page.waitForFunction(() =>
-      document.querySelector('.question')?.textContent?.includes('×')
+      /[×÷]/.test(document.querySelector('.question')?.textContent ?? '')
     );
     const text = (await page.textContent('.question')).trim();
-    const [a, b] = text.split('×').map((s) => parseInt(s.trim(), 10));
-    const q = { a, b, text, i };
+    const right = answerFromText(text);
+    // a/b populated for plain multiplication questions (what most specs use)
+    const plain = text.match(/^(\d+)\s*×\s*(\d+)$/);
+    const q = {
+      a: plain ? Number(plain[1]) : undefined,
+      b: plain ? Number(plain[2]) : undefined,
+      text,
+      right,
+      i,
+    };
     seen.push(q);
     if (options.delayFn) await page.waitForTimeout(options.delayFn(q, i));
-    const value = options.answerFn ? options.answerFn(q, i) : a * b;
+    const value = options.answerFn ? options.answerFn(q, i) : right;
     await answer(page, value);
     if (options.afterAnswer) await options.afterAnswer(q, i);
-    const wrong = value !== a * b;
+    const wrong = value !== right;
     await page.waitForTimeout(wrong ? 3800 : 1000);
     if (await page.$('.big-score, [data-again]')) break;
   }

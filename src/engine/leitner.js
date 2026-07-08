@@ -47,21 +47,15 @@ export function getStat(profile, a, b) {
   return profile.facts[normKey(a, b)] ?? emptyStat();
 }
 
-// Returns per-answer flags the UI turns into micro-celebrations.
-export function recordAnswer(profile, a, b, correct, ms) {
-  const key = normKey(a, b);
-  const s = profile.facts[key] ?? (profile.facts[key] = emptyStat());
+// Shared Leitner update; returns per-answer flags the UI turns into
+// micro-celebrations.
+function applyAnswer(s, correct, ms, fastMs) {
   const prevBox = s.box;
   const hadMisses = s.attempts - s.correct > 0;
   s.attempts += 1;
   if (correct) s.correct += 1;
   s.avgMs = s.avgMs ? Math.round(s.avgMs * 0.7 + ms * 0.3) : Math.round(ms);
-  const fast = correct && ms <= fastThresholdMs(profile);
-  if (correct && isGimme(a, b) && ms < GIMME_SAMPLE_MAX_MS) {
-    const sp = profile.speed ?? (profile.speed = { avgMs: 0, samples: 0 });
-    sp.avgMs = sp.samples ? Math.round(sp.avgMs * 0.7 + ms * 0.3) : Math.round(ms);
-    sp.samples += 1;
-  }
+  const fast = correct && ms <= fastMs;
   if (fast) {
     s.box = Math.min(MAX_BOX, s.box + 1);
   } else if (correct) {
@@ -78,6 +72,63 @@ export function recordAnswer(profile, a, b, correct, ms) {
     firstCorrect: correct && s.correct === 1,
     comeback: correct && hadMisses,
   };
+}
+
+export function recordAnswer(profile, a, b, correct, ms) {
+  const key = normKey(a, b);
+  const s = profile.facts[key] ?? (profile.facts[key] = emptyStat());
+  const res = applyAnswer(s, correct, ms, fastThresholdMs(profile));
+  if (correct && isGimme(a, b) && ms < GIMME_SAMPLE_MAX_MS) {
+    const sp = profile.speed ?? (profile.speed = { avgMs: 0, samples: 0 });
+    sp.avgMs = sp.samples ? Math.round(sp.avgMs * 0.7 + ms * 0.3) : Math.round(ms);
+    sp.samples += 1;
+  }
+  return res;
+}
+
+// --- Division track (missing-factor → ÷), same Leitner rules on its own
+// stat map. A fact family joins the track once its multiplication fact is
+// mastered; division practice never feeds the speed baseline.
+
+export function getDivStat(profile, a, b) {
+  return (profile.division ?? {})[normKey(a, b)] ?? emptyStat();
+}
+
+export function recordDivisionAnswer(profile, a, b, correct, ms) {
+  if (!profile.division) profile.division = {};
+  const key = normKey(a, b);
+  const s = profile.division[key] ?? (profile.division[key] = emptyStat());
+  return applyAnswer(s, correct, ms, fastThresholdMs(profile));
+}
+
+// The ÷t table opens once the ×t table is mastered.
+export function divisionTableUnlocked(profile, table) {
+  return isTableMastered(profile, table);
+}
+
+export function divisionTableProgress(profile, table) {
+  let done = 0;
+  let points = 0;
+  const total = FACTOR_MAX - FACTOR_MIN + 1;
+  for (let b = FACTOR_MIN; b <= FACTOR_MAX; b++) {
+    const box = getDivStat(profile, table, b).box;
+    if (box >= MASTERY_BOX) done += 1;
+    points += Math.min(box, MASTERY_BOX);
+  }
+  return { done, total, points, maxPoints: total * MASTERY_BOX };
+}
+
+export function isDivisionTableMastered(profile, table) {
+  const { done, total } = divisionTableProgress(profile, table);
+  return done === total;
+}
+
+export function divisionMasteredCount(profile) {
+  let n = 0;
+  for (const s of Object.values(profile.division ?? {})) {
+    if (s.box >= MASTERY_BOX) n += 1;
+  }
+  return n;
 }
 
 // Review freshness: how long each box stays fresh without practice. A fact

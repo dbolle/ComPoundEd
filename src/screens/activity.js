@@ -5,10 +5,10 @@
 // playtime is practice in disguise.
 
 import { navigate } from '../router.js';
-import { buildRound, buildSittingRound } from '../engine/selector.js';
-import { recordAnswer } from '../engine/leitner.js';
+import { buildRound, buildDivisionRound, buildSittingRound } from '../engine/selector.js';
+import { recordAnswer, recordDivisionAnswer } from '../engine/leitner.js';
 import { checkUnlocks, isUnlocked } from '../engine/unlocks.js';
-import { hintFor } from '../engine/hints.js';
+import { hintFor, divisionHint } from '../engine/hints.js';
 import { getDog, isGuest, GUESTS, dogSVG } from '../art/dogs.js';
 import { buildNumpad, bindKeyboard, celebrationLine, confetti, escapeHtml } from '../ui.js';
 import { sfx, buzz } from '../sound.js';
@@ -75,10 +75,17 @@ export function activityScreen(el, params, ctx) {
   if (sitting) {
     questions = buildSittingRound(ctx.profile, QUESTIONS).map((q) => ({ ...q, dog: dogs[0] }));
   } else {
-    // Each dog contributes questions from its own table, asked in rotation.
+    // Each dog contributes questions from its own table, asked in rotation
+    // (division dogs quiz their ÷table; the starter and guests ask mixed).
     const perDog = Math.ceil(QUESTIONS / dogs.length);
     const pools = dogs.map((d) =>
-      buildRound(ctx.profile, d.table == null ? { type: 'mixed' } : { type: 'table', table: d.table }, perDog)
+      d.divTable != null
+        ? buildDivisionRound(ctx.profile, d.divTable, perDog)
+        : buildRound(
+            ctx.profile,
+            d.table == null ? { type: 'mixed' } : { type: 'table', table: d.table },
+            perDog
+          )
     );
     questions = [];
     for (let i = 0; i < QUESTIONS; i++) {
@@ -143,7 +150,8 @@ export function activityScreen(el, params, ctx) {
     if (askerEl) {
       askerEl.innerHTML = `${dogSVG(q.dog, 26)} ${escapeHtml(q.dog.name)} asks…`;
     }
-    qEl.textContent = `${q.a} × ${q.b}`;
+    qEl.textContent = q.text;
+    qEl.classList.toggle('compact', group || q.text.length > 8);
     ansEl.textContent = ' ';
     ansEl.className = 'answer-box';
     fbEl.textContent = '';
@@ -167,7 +175,10 @@ export function activityScreen(el, params, ctx) {
     const q = questions[index];
     const ms = performance.now() - startT;
     const correct = Number(input) === q.answer;
-    const r = recordAnswer(ctx.profile, q.a, q.b, correct, ms);
+    const r =
+      q.kind === 'div'
+        ? recordDivisionAnswer(ctx.profile, q.a, q.b, correct, ms)
+        : recordAnswer(ctx.profile, q.a, q.b, correct, ms);
     busy = true;
     streak = correct ? streak + 1 : 0;
     if (correct) {
@@ -187,7 +198,8 @@ export function activityScreen(el, params, ctx) {
       sfx.wrong();
       buzz(60);
       ansEl.classList.add('bad');
-      fbEl.innerHTML = `${q.a} × ${q.b} = ${q.answer}<span class="hint">💡 ${hintFor(ctx.profile, q.a, q.b)}</span>`;
+      const hint = q.kind === 'div' ? divisionHint(q.a, q.b) : hintFor(ctx.profile, q.a, q.b);
+      fbEl.innerHTML = `${q.correction}<span class="hint">💡 ${hint}</span>`;
       fbEl.classList.add('bad');
     }
     // Wrong answers linger longer so there's time to read the hint — and the

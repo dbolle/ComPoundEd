@@ -31,6 +31,12 @@ function bestAnchor(profile, a, b) {
     : `You know ${best.ka}×${best.kb} = ${known} — one ${best.step} less is ${ans}!`;
 }
 
+// Division-track misses anchor on the multiplication fact the kid already
+// mastered (that's the entry ticket to this track).
+export function divisionHint(a, b) {
+  return `Think times: you know ${a} × ${b} = ${a * b} — so the missing number is ${b}!`;
+}
+
 export function hintFor(profile, a, b) {
   const ans = a * b;
   if (a === 0 || b === 0) return 'Times zero is always 0!';

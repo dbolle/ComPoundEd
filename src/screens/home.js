@@ -1,5 +1,13 @@
 import { navigate } from '../router.js';
-import { tableProgress, isTableMastered, TABLE_MIN, TABLE_MAX } from '../engine/leitner.js';
+import {
+  tableProgress,
+  isTableMastered,
+  divisionTableProgress,
+  divisionTableUnlocked,
+  isDivisionTableMastered,
+  TABLE_MIN,
+  TABLE_MAX,
+} from '../engine/leitner.js';
 import { sittingReady } from '../engine/selector.js';
 import { getDog, dogSVG, GUESTS } from '../art/dogs.js';
 import { escapeHtml } from '../ui.js';
@@ -20,6 +28,7 @@ export function homeScreen(el, params, ctx) {
       <div data-sitting-slot></div>
       <h3>Pick a table</h3>
       <div class="table-grid"></div>
+      <div data-division-slot></div>
       <div class="nav-row">
         <button class="btn accent" data-nav="/pack">🐶 My pack</button>
         <button class="btn accent" data-nav="/heatmap">🗺️ Progress map</button>
@@ -41,6 +50,39 @@ export function homeScreen(el, params, ctx) {
       <span class="meter"><span style="width:${Math.round((points / maxPoints) * 100)}%"></span></span>`;
     btn.addEventListener('click', () => navigate(`/quiz?table=${t}`));
     grid.appendChild(btn);
+  }
+
+  // Missing-number & division: appears once any table is mastered; each ÷t
+  // opens when its ×t is mastered — the bridge from products to quotients.
+  const anyMastered = Array.from(
+    { length: TABLE_MAX - TABLE_MIN + 1 },
+    (_, i) => TABLE_MIN + i
+  ).some((t) => isTableMastered(p, t));
+  if (anyMastered) {
+    const slot = el.querySelector('[data-division-slot]');
+    slot.innerHTML = `<h3>Missing number & division 🧩</h3><div class="div-grid"></div>`;
+    const dgrid = slot.querySelector('.div-grid');
+    for (let t = TABLE_MIN; t <= TABLE_MAX; t++) {
+      const open = divisionTableUnlocked(p, t);
+      const mastered = isDivisionTableMastered(p, t);
+      const { done, total, points, maxPoints } = divisionTableProgress(p, t);
+      const btn = document.createElement('button');
+      btn.className = `table-btn${mastered ? ' mastered' : ''}${open ? '' : ' locked'}`;
+      if (open) {
+        btn.setAttribute(
+          'aria-label',
+          `Practice missing-number and division for the ${t}s, ${done} of ${total} facts strong`
+        );
+        btn.innerHTML = `<span>${mastered ? '⭐ ' : ''}÷${t}</span>
+          <span class="meter"><span style="width:${Math.round((points / maxPoints) * 100)}%"></span></span>`;
+        btn.addEventListener('click', () => navigate(`/quiz?dtable=${t}`));
+      } else {
+        btn.disabled = true;
+        btn.setAttribute('aria-label', `Master the ×${t} table to unlock division`);
+        btn.innerHTML = `<span>🔒 ÷${t}</span><span class="meter"><span style="width:0%"></span></span>`;
+      }
+      dgrid.appendChild(btn);
+    }
   }
 
   // Pet sitting appears once there's a baseline of solid facts to draw

@@ -34,8 +34,14 @@ them)*
 - Skip-count warm-up mode for new tables.
 - Durable rewards from play counters (bandanas/hats for dogs).
 
+## ✅ Also done
+
+- **Missing number → division** — ÷t track unlocks when ×t is mastered;
+  missing-factor presentation ("5 × _ = 20") bridges to ÷ form as facts
+  strengthen; 12 new division dogs; inverse-anchored hints. Schema v5.
+
 ## Later / roadmap
 
-- Division mode (inverse facts reuse the same fact data), then addition &
-  subtraction for younger kids.
+- Addition & subtraction fact modes for younger kids.
+- Division facts on the progress map (heatmap currently shows × only).
 - Printable/exportable progress reports for grown-ups.

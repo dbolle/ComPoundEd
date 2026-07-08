@@ -12,9 +12,11 @@ export function dogScreen(el, params, ctx) {
   const play = ctx.profile.play[dog.id] ?? { walk: 0, feed: 0, fetch: 0 };
   const isBuddy = ctx.profile.avatarDogId === dog.id;
   const knows =
-    dog.table == null
-      ? 'Loves numbers of every kind!'
-      : `Knows all about the ×${dog.table} table.`;
+    dog.divTable != null
+      ? `Knows all about sharing by ${dog.divTable}.`
+      : dog.table == null
+        ? 'Loves numbers of every kind!'
+        : `Knows all about the ×${dog.table} table.`;
 
   el.innerHTML = `
     <div class="screen">
