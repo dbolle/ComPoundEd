@@ -12,17 +12,17 @@ Ranked and agreed 2026-07-07. Work top-down.
 - **Adaptive speed bar** — the ⚡ threshold calibrates per kid from
   gimme-fact (×0/×1) response speed: 1.5× baseline + 1.5s, clamped 4–10s,
   default 6s until 5 samples. Schema v4. Grown-Ups shows each kid's bar.
+- **Teach on misses** — wrong answers show a 💡 micro-strategy: structural
+  tricks (×0/×1/×10/×11/×2), else an anchor on a well-known neighbor fact
+  ("you know 7×7=49 — one more 7 makes 56"), else a skip-count tail.
 
 ## Prioritized
 
-1. **Teach on misses** — after a wrong answer, show a micro-strategy, not
-   just the correction: nearest known anchor fact ("you know 7×7=49 — one
-   more 7 is 56") or a skip-count strip. Turns misses into learning moments.
-2. **Time-based review (retention)** — boxes currently never decay. Give
+1. **Time-based review (retention)** — boxes currently never decay. Give
    each box a review interval (box 5 ≈ weeks) and treat overdue facts as due
    in selection, so the heatmap stays honest over months. Engine-deep;
    benefits from the test suite existing first.
-3. **Sounds & haptics** — soft chime on correct, happy bark on unlock,
+2. **Sounds & haptics** — soft chime on correct, happy bark on unlock,
    vibration where supported; toggle in Grown-Ups, default respectful.
 
 ## On hold (per user)
