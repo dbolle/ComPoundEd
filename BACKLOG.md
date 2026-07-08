@@ -45,8 +45,10 @@ them)*
   missing-factor presentation ("5 × _ = 20") bridges to ÷ form as facts
   strengthen; 12 new division dogs; inverse-anchored hints. Schema v5.
 
+- **Accessories & division map** — dogs wear earned gear from play counters
+  (no schema change); the progress map gained a ×/÷ toggle.
+
 ## Later / roadmap
 
 - Addition & subtraction fact modes for younger kids.
-- Division facts on the progress map (heatmap currently shows × only).
 - Printable/exportable progress reports for grown-ups.

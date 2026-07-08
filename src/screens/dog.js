@@ -1,5 +1,5 @@
 import { navigate } from '../router.js';
-import { getDog, dogSVG } from '../art/dogs.js';
+import { getDog, dogSVG, accessoriesFor, ACCESSORIES } from '../art/dogs.js';
 import { isUnlocked } from '../engine/unlocks.js';
 import { toast, escapeHtml } from '../ui.js';
 
@@ -11,6 +11,13 @@ export function dogScreen(el, params, ctx) {
   }
   const play = ctx.profile.play[dog.id] ?? { walk: 0, feed: 0, fetch: 0 };
   const isBuddy = ctx.profile.avatarDogId === dog.id;
+  const worn = accessoriesFor(ctx.profile, dog.id);
+  // The nearest unearned accessory, as a gentle goal.
+  const total = (play.walk ?? 0) + (play.feed ?? 0) + (play.fetch ?? 0);
+  const next = ACCESSORIES.filter((a) => !worn.includes(a.id))
+    .map((a) => ({ ...a, left: a.need - (a.kind === 'total' ? total : (play[a.kind] ?? 0)) }))
+    .sort((x, y) => x.left - y.left)[0];
+  const kindWord = { walk: 'walks', feed: 'meals', fetch: 'fetches', total: 'plays' };
   const knows =
     dog.divTable != null
       ? `Knows all about sharing by ${dog.divTable}.`
@@ -26,7 +33,7 @@ export function dogScreen(el, params, ctx) {
         ${isBuddy ? '<strong>Your buddy 🐾</strong>' : ''}
       </div>
       <div class="dog-hero">
-        <div class="dog">${dogSVG(dog, 160)}</div>
+        <div class="dog">${dogSVG(dog, 160, worn)}</div>
         <h1>${escapeHtml(dog.name)}</h1>
         <p class="muted">${knows}</p>
         <p class="play-stats">
@@ -34,6 +41,11 @@ export function dogScreen(el, params, ctx) {
           <span>🍖 ${play.feed} meals</span>
           <span>🎾 ${play.fetch} fetches</span>
         </p>
+        ${
+          next
+            ? `<p class="muted acc-hint">${next.emoji} ${escapeHtml(dog.name)} gets a ${next.name} after ${next.left} more ${kindWord[next.kind]}!</p>`
+            : `<p class="muted acc-hint">👑 ${escapeHtml(dog.name)} has every accessory!</p>`
+        }
       </div>
       <h3>Play with ${escapeHtml(dog.name)}</h3>
       <div class="activity-row">

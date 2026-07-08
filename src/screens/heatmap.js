@@ -1,5 +1,12 @@
 import { navigate } from '../router.js';
-import { getStat, isDue, FACTOR_MIN, FACTOR_MAX, MASTERY_BOX } from '../engine/leitner.js';
+import {
+  getStat,
+  getDivStat,
+  isDue,
+  FACTOR_MIN,
+  FACTOR_MAX,
+  MASTERY_BOX,
+} from '../engine/leitner.js';
 
 // Sequential single-hue ramp (light → dark teal), one step per Leitner box.
 // Lightness is strictly monotonic; unseen facts get a neutral so "no data"
@@ -10,6 +17,7 @@ const LEVEL_NAMES = ['Sniffing', 'Learning', 'Warming up', 'Strong', 'Super', 'P
 
 export function heatmapScreen(el, params, ctx) {
   const p = ctx.profile;
+  let mode = 'mult';
 
   el.innerHTML = `
     <div class="screen">
@@ -18,8 +26,12 @@ export function heatmapScreen(el, params, ctx) {
         <span class="spacer"></span>
         <h2 style="margin:0">Progress map 🗺️</h2>
       </div>
+      <div class="nav-row">
+        <button class="btn ghost small kind-btn selected" data-mode="mult">✖️ Times</button>
+        <button class="btn ghost small kind-btn" data-mode="div">➗ Division</button>
+      </div>
       <div class="card">
-        <div class="hm-grid" role="grid" aria-label="Multiplication mastery map"></div>
+        <div class="hm-grid" role="grid" aria-label="Fact mastery map"></div>
         <p class="hm-caption muted center">Tap a square to peek at a fact</p>
         <div class="hm-legend">
           <span class="hm-chip" style="background:${UNSEEN}"></span><span>New</span>
@@ -32,44 +44,69 @@ export function heatmapScreen(el, params, ctx) {
   const grid = el.querySelector('.hm-grid');
   const caption = el.querySelector('.hm-caption');
 
-  const corner = document.createElement('span');
-  corner.className = 'hm-head';
-  corner.textContent = '×';
-  grid.appendChild(corner);
-  for (let b = FACTOR_MIN; b <= FACTOR_MAX; b++) {
-    const h = document.createElement('span');
-    h.className = 'hm-head';
-    h.textContent = b;
-    grid.appendChild(h);
-  }
+  function renderGrid() {
+    grid.innerHTML = '';
+    caption.textContent = 'Tap a square to peek at a fact';
+    const stat = mode === 'div' ? getDivStat : getStat;
 
-  for (let a = FACTOR_MIN; a <= FACTOR_MAX; a++) {
-    const rh = document.createElement('span');
-    rh.className = 'hm-head';
-    rh.textContent = a;
-    grid.appendChild(rh);
+    const corner = document.createElement('span');
+    corner.className = 'hm-head';
+    corner.textContent = mode === 'div' ? '÷' : '×';
+    grid.appendChild(corner);
     for (let b = FACTOR_MIN; b <= FACTOR_MAX; b++) {
-      const s = getStat(p, a, b);
-      const seen = s.attempts > 0;
-      // Levels never regress, but a fact past its freshness window shows as
-      // faded — time for a refresh, not a demotion.
-      const rusty = seen && s.box > 0 && isDue(s);
-      const cell = document.createElement('button');
-      cell.className = `hm-cell${rusty ? ' hm-due' : ''}`;
-      cell.style.background = seen ? RAMP[s.box] : UNSEEN;
-      const label = seen
-        ? `${a} × ${b}: ${LEVEL_NAMES[s.box]}${s.box >= MASTERY_BOX ? ' (mastered)' : ''}${rusty ? ', needs a refresh' : ''}`
-        : `${a} × ${b}: not tried yet`;
-      cell.setAttribute('aria-label', label);
-      cell.title = label;
-      cell.addEventListener('click', () => {
-        caption.textContent = seen
-          ? `${a} × ${b} = ${a * b} · ${LEVEL_NAMES[s.box]} ${'🐾'.repeat(s.box + 1)}${rusty ? ' · time for a refresh!' : ''}`
-          : `${a} × ${b} — not sniffed out yet!`;
-      });
-      grid.appendChild(cell);
+      const h = document.createElement('span');
+      h.className = 'hm-head';
+      h.textContent = b;
+      grid.appendChild(h);
+    }
+
+    for (let a = FACTOR_MIN; a <= FACTOR_MAX; a++) {
+      const rh = document.createElement('span');
+      rh.className = 'hm-head';
+      rh.textContent = a;
+      grid.appendChild(rh);
+      for (let b = FACTOR_MIN; b <= FACTOR_MAX; b++) {
+        const s = stat(p, a, b);
+        const seen = s.attempts > 0;
+        const rusty = seen && s.box > 0 && isDue(s);
+        const cell = document.createElement('button');
+        cell.className = `hm-cell${rusty ? ' hm-due' : ''}`;
+        cell.style.background = seen ? RAMP[s.box] : UNSEEN;
+        // Division reading: product ÷ divisor = quotient (never divide by 0).
+        const divisor = a === 0 ? b : a;
+        const factText =
+          mode === 'div'
+            ? divisor === 0
+              ? `0 × 0 has no sharing fact`
+              : `${a * b} ÷ ${divisor} = ${(a * b) / divisor}`
+            : `${a} × ${b} = ${a * b}`;
+        const label = seen
+          ? `${mode === 'div' ? `${a * b} ÷ ${divisor}` : `${a} × ${b}`}: ${LEVEL_NAMES[s.box]}${s.box >= MASTERY_BOX ? ' (mastered)' : ''}${rusty ? ', needs a refresh' : ''}`
+          : `${mode === 'div' ? `${a * b} ÷ ${divisor || b}` : `${a} × ${b}`}: not tried yet`;
+        cell.setAttribute('aria-label', label);
+        cell.title = label;
+        cell.addEventListener('click', () => {
+          caption.textContent = seen
+            ? `${factText} · ${LEVEL_NAMES[s.box]} ${'🐾'.repeat(s.box + 1)}${rusty ? ' · time for a refresh!' : ''}`
+            : mode === 'div' && divisor === 0
+              ? factText
+              : `${factText.split('=')[0].trim()} — not sniffed out yet!`;
+        });
+        grid.appendChild(cell);
+      }
     }
   }
 
+  for (const btn of el.querySelectorAll('[data-mode]')) {
+    btn.addEventListener('click', () => {
+      mode = btn.dataset.mode;
+      for (const x of el.querySelectorAll('[data-mode]')) {
+        x.classList.toggle('selected', x === btn);
+      }
+      renderGrid();
+    });
+  }
+
+  renderGrid();
   el.querySelector('[data-back]').addEventListener('click', () => navigate('/home'));
 }
