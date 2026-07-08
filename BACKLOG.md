@@ -15,14 +15,13 @@ Ranked and agreed 2026-07-07. Work top-down.
 - **Teach on misses** — wrong answers show a 💡 micro-strategy: structural
   tricks (×0/×1/×10/×11/×2), else an anchor on a well-known neighbor fact
   ("you know 7×7=49 — one more 7 makes 56"), else a skip-count tail.
+- **Time-based review** — per-box freshness windows (1 day → 3 weeks); due
+  facts jump the queue in rounds, show faded on the heatmap ("time for a
+  refresh"), and are counted for parents. Levels/stars/dogs never regress.
 
 ## Prioritized
 
-1. **Time-based review (retention)** — boxes currently never decay. Give
-   each box a review interval (box 5 ≈ weeks) and treat overdue facts as due
-   in selection, so the heatmap stays honest over months. Engine-deep;
-   benefits from the test suite existing first.
-2. **Sounds & haptics** — soft chime on correct, happy bark on unlock,
+1. **Sounds & haptics** — soft chime on correct, happy bark on unlock,
    vibration where supported; toggle in Grown-Ups, default respectful.
 
 ## On hold (per user)

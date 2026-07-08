@@ -1,5 +1,5 @@
 import { navigate } from '../router.js';
-import { getStat, FACTOR_MIN, FACTOR_MAX, MASTERY_BOX } from '../engine/leitner.js';
+import { getStat, isDue, FACTOR_MIN, FACTOR_MAX, MASTERY_BOX } from '../engine/leitner.js';
 
 // Sequential single-hue ramp (light → dark teal), one step per Leitner box.
 // Lightness is strictly monotonic; unseen facts get a neutral so "no data"
@@ -51,17 +51,20 @@ export function heatmapScreen(el, params, ctx) {
     for (let b = FACTOR_MIN; b <= FACTOR_MAX; b++) {
       const s = getStat(p, a, b);
       const seen = s.attempts > 0;
+      // Levels never regress, but a fact past its freshness window shows as
+      // faded — time for a refresh, not a demotion.
+      const rusty = seen && s.box > 0 && isDue(s);
       const cell = document.createElement('button');
-      cell.className = 'hm-cell';
+      cell.className = `hm-cell${rusty ? ' hm-due' : ''}`;
       cell.style.background = seen ? RAMP[s.box] : UNSEEN;
       const label = seen
-        ? `${a} × ${b}: ${LEVEL_NAMES[s.box]}${s.box >= MASTERY_BOX ? ' (mastered)' : ''}`
+        ? `${a} × ${b}: ${LEVEL_NAMES[s.box]}${s.box >= MASTERY_BOX ? ' (mastered)' : ''}${rusty ? ', needs a refresh' : ''}`
         : `${a} × ${b}: not tried yet`;
       cell.setAttribute('aria-label', label);
       cell.title = label;
       cell.addEventListener('click', () => {
         caption.textContent = seen
-          ? `${a} × ${b} = ${a * b} · ${LEVEL_NAMES[s.box]} ${'🐾'.repeat(s.box + 1)}`
+          ? `${a} × ${b} = ${a * b} · ${LEVEL_NAMES[s.box]} ${'🐾'.repeat(s.box + 1)}${rusty ? ' · time for a refresh!' : ''}`
           : `${a} × ${b} — not sniffed out yet!`;
       });
       grid.appendChild(cell);

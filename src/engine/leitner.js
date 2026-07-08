@@ -80,6 +80,25 @@ export function recordAnswer(profile, a, b, correct, ms) {
   };
 }
 
+// Review freshness: how long each box stays fresh without practice. A fact
+// past its window is "due" — computed, never stored, so nothing in the kid's
+// data ever regresses; due facts just get picked for rounds again.
+export const BOX_FRESH_MS = [0, 1, 2, 4, 7, 21].map((days) => days * 86400e3);
+
+export function isDue(stat, now = Date.now()) {
+  if (stat.attempts === 0) return true;
+  return now - stat.lastSeen > BOX_FRESH_MS[Math.min(stat.box, MAX_BOX)];
+}
+
+// Mastered facts currently past their freshness window (parent-facing count).
+export function dueCount(profile, now = Date.now()) {
+  let n = 0;
+  for (const s of Object.values(profile.facts)) {
+    if (s.box >= MASTERY_BOX && isDue(s, now)) n += 1;
+  }
+  return n;
+}
+
 export function tableProgress(profile, table) {
   let done = 0;
   let points = 0;
