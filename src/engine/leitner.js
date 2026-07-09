@@ -52,6 +52,7 @@ export function getStat(profile, a, b) {
 function applyAnswer(s, correct, ms, fastMs) {
   const prevBox = s.box;
   const hadMisses = s.attempts - s.correct > 0;
+  const firstAttempt = s.attempts === 0;
   s.attempts += 1;
   if (correct) s.correct += 1;
   s.avgMs = s.avgMs ? Math.round(s.avgMs * 0.7 + ms * 0.3) : Math.round(ms);
@@ -68,6 +69,7 @@ function applyAnswer(s, correct, ms, fastMs) {
     stat: s,
     correct,
     fast,
+    firstAttempt,
     leveledUp: s.box > prevBox,
     firstCorrect: correct && s.correct === 1,
     comeback: correct && hadMisses,
