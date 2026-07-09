@@ -2,7 +2,48 @@
 // migrateProfile() whenever the shape of stored data changes — this is the
 // contract a future sync backend will rely on.
 
-export const SCHEMA_VERSION = 7;
+export const SCHEMA_VERSION = 8;
+
+// v7-era flat achievement ids → stacked { family, tier } (schema v8).
+const LEGACY_ACHIEVEMENTS = {
+  'round-1': ['rounds', 1],
+  'flash-1': ['flash', 1],
+  'comeback-1': ['comeback', 1],
+  'perfect-1': ['perfect', 1],
+  'care-1': ['care', 1],
+  'streak-5': ['streak', 1],
+  'streak-10': ['streak', 2],
+  'streak-25': ['streak', 3],
+  'streak-50': ['streak', 4],
+  'streak-100': ['streak', 5],
+  'perfect-5': ['perfect', 2],
+  'perfect-25': ['perfect', 3],
+  'speed-60': ['speed', 2],
+  'speed-40': ['speed', 3],
+  'comeback-10': ['comeback', 2],
+  'comeback-50': ['comeback', 3],
+  'answers-100': ['answers', 1],
+  'answers-500': ['answers', 2],
+  'answers-1000': ['answers', 3],
+  'care-10': ['care', 2],
+  'care-50': ['care', 3],
+  'carer-3': ['pals', 1],
+  'carer-8': ['pals', 2],
+  'sitter-1': ['sitter', 1],
+  'sitter-10': ['sitter', 2],
+  'pack-2': ['pack', 1],
+  'pack-5': ['pack', 2],
+  'pack-13': ['pack', 3],
+  'pack-25': ['pack', 5],
+  'table-1': ['tables', 1],
+  'table-3': ['tables', 2],
+  'table-6': ['tables', 3],
+  'table-12': ['tables', 5],
+  'div-1': ['division', 1],
+  'div-12': ['division', 5],
+  'facts-45': ['facts', 3],
+  'facts-90': ['facts', 5],
+};
 
 export const EMPTY_STATS = () => ({
   rounds: 0,
@@ -97,6 +138,27 @@ export function migrateProfile(doc) {
     doc.little = doc.little ?? { xp: 0 };
     doc.schemaVersion = 7;
   }
+  if (doc.schemaVersion === 7) {
+    // Flat earned badges become stacked family tiers; every earned badge
+    // maps to at least its equivalent tier, keeping the earliest earn date.
+    const stacked = {};
+    for (const [key, val] of Object.entries(doc.achievements ?? {})) {
+      if (val && typeof val === 'object' && val.tier) {
+        stacked[key] = val;
+        continue;
+      }
+      const mapped = LEGACY_ACHIEVEMENTS[key];
+      if (!mapped) continue;
+      const [family, tier] = mapped;
+      const prev = stacked[family];
+      stacked[family] = {
+        tier: Math.max(prev?.tier ?? 0, tier),
+        at: Math.min(prev?.at ?? val, val),
+      };
+    }
+    doc.achievements = stacked;
+    doc.schemaVersion = 8;
+  }
   return doc;
 }
 
@@ -147,10 +209,22 @@ export function mergeProfiles(a, b) {
     (a.speed?.samples ?? 0) >= (b.speed?.samples ?? 0)
       ? (a.speed ?? { avgMs: 0, samples: 0 })
       : b.speed;
-  // Achievements: union, keeping the earliest earn date.
-  const achievements = { ...(b.achievements ?? {}) };
-  for (const [id, at] of Object.entries(a.achievements ?? {})) {
-    achievements[id] = achievements[id] != null ? Math.min(achievements[id], at) : at;
+  // Achievements: highest tier per family wins, earliest earn date kept.
+  const achievements = {};
+  for (const id of new Set([
+    ...Object.keys(a.achievements ?? {}),
+    ...Object.keys(b.achievements ?? {}),
+  ])) {
+    const x = a.achievements?.[id];
+    const y = b.achievements?.[id];
+    if (!x || !y) {
+      achievements[id] = x ?? y;
+    } else {
+      achievements[id] = {
+        tier: Math.max(x.tier ?? 0, y.tier ?? 0),
+        at: Math.min(x.at ?? Infinity, y.at ?? Infinity),
+      };
+    }
   }
   // Lifetime counters: the larger count wins per field (never regresses);
   // fastest time: the smaller non-null wins.

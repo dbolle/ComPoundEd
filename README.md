@@ -18,9 +18,9 @@ licensing.
   bridges from "5 × _ = 20" to "20 ÷ 5" as each fact strengthens.
 - **Dog accessories** — pups earn a bandana/bow/cap (10 walks/meals/fetches)
   and a star tag (40 plays), worn everywhere they appear.
-- **Awards** — 37 laddered achievements (streaks, perfect rounds, speed runs,
-  comebacks, pet care, collection, mastery) with a "Next up!" tracker so
-  there's always a goal within reach.
+- **Awards** — 14 stacked achievement families climbing Bronze → Silver →
+  Gold → Diamond → Royal → Legend; counter families (comebacks, streaks,
+  care, rounds) scale endlessly past Legend, so there is always a next tier.
 - **Progress map** — a 13×13 mastery heatmap of every fact.
 - **Pet sitting** — once a kid has a baseline of solid facts, a daily guest
   pup visits with a confidence-first round: mostly mastered quick wins, a few

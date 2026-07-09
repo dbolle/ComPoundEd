@@ -404,6 +404,11 @@ button.pressed {
   font-weight: 700;
 }
 
+.award-pips {
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+}
+
 .award-earned {
   color: var(--brand-deep);
   font-weight: 800;
