@@ -2,7 +2,7 @@
 import { test, expect } from '@playwright/test';
 import { hintFor } from '../src/engine/hints.js';
 import { newProfile } from '../src/data/schema.js';
-import { createProfileUI, uniqueName, norm, stat } from './helpers.mjs';
+import { createProfileUI, uniqueName, norm, stat, openTableGrid } from './helpers.mjs';
 
 test('structural tricks cover the special factors', () => {
   const p = newProfile('H');
@@ -56,6 +56,7 @@ test('skip-count tail is the fallback', () => {
 
 test('a wrong answer in a quiz shows the hint', async ({ page }) => {
   await createProfileUI(page, uniqueName('Hint'));
+  await openTableGrid(page);
   await page.tap('.table-grid .table-btn:nth-child(3)'); // ×3 table
   await page.waitForSelector('.question');
   // Find a question with both factors ≥ 2 so we get a non-trivial hint

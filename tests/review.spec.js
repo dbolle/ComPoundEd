@@ -5,7 +5,7 @@ import { test, expect } from '@playwright/test';
 import { isDue, dueCount, tableProgress, isTableMastered } from '../src/engine/leitner.js';
 import { buildRound } from '../src/engine/selector.js';
 import { newProfile } from '../src/data/schema.js';
-import { seedProfile, selectProfile, norm, stat } from './helpers.mjs';
+import { seedProfile, selectProfile, norm, stat, openTableGrid } from './helpers.mjs';
 
 const DAY = 86400e3;
 
@@ -60,6 +60,7 @@ test('heatmap fades due facts and grown-ups counts them', async ({ page }) => {
   await selectProfile(page, 'RustyKid');
 
   // Star still shown for the ×2 table even though a fact is overdue
+  await openTableGrid(page);
   await expect(page.locator('.table-grid .table-btn:nth-child(2)')).toContainText('⭐');
 
   await page.tap('[data-nav="/heatmap"]');

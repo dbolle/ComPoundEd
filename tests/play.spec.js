@@ -8,6 +8,7 @@ import {
   playQuestions,
   norm,
   stat,
+  openTableGrid,
 } from './helpers.mjs';
 
 function richDoc(id, name) {
@@ -138,6 +139,7 @@ test('slow-correct answers climb early boxes but not past the cap', async ({ pag
   doc.facts[norm(5, 5)] = stat(2, { attempts: 4, correct: 3, avgMs: 8000 });
   await seedProfile(page, doc);
   await selectProfile(page, 'PlaySlow');
+  await openTableGrid(page);
   await page.tap('.table-grid .table-btn:nth-child(5)'); // ×5 table
   await page.waitForSelector('.question');
 

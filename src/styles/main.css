@@ -238,6 +238,13 @@ button.pressed {
   gap: 10px;
 }
 
+/* display:grid above would defeat the hidden attribute (collapsed sections) */
+.table-grid[hidden],
+.div-grid[hidden],
+.div-note[hidden] {
+  display: none;
+}
+
 .table-btn {
   position: relative;
   background: var(--card);
@@ -281,6 +288,41 @@ button.pressed {
   border-radius: 99px;
   background: var(--accent);
   transition: width 0.4s ease;
+}
+
+.section-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--ink);
+  padding: 8px 4px;
+}
+
+.section-toggle .sub {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.section-toggle .chev {
+  margin-left: auto;
+  color: var(--ink-soft);
+  font-size: 1rem;
+  transition: transform 0.15s ease;
+}
+
+.section-toggle.open .chev {
+  transform: rotate(90deg);
+}
+
+.div-note {
+  margin: 0;
+  font-size: 0.85rem;
+  text-align: center;
 }
 
 .nav-row {

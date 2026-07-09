@@ -9,6 +9,7 @@ import {
   holdGrownupsGate,
   norm,
   stat,
+  openTableGrid,
 } from './helpers.mjs';
 
 function doc(id, name) {
@@ -65,6 +66,7 @@ test('backup → restore on a new device → two-way merge', async ({ page, brow
   expect(onB.play['dog-2'].walk).toBe(3);
 
   // B plays ×3; A pulls on next boot and keeps its own data too
+  await openTableGrid(B);
   await B.tap('.table-grid .table-btn:nth-child(3)');
   await playQuestions(B, 12);
   await B.waitForSelector('.big-score');

@@ -48,6 +48,18 @@ them)*
 - **Accessories & division map** — dogs wear earned gear from play counters
   (no schema change); the progress map gained a ×/÷ toggle.
 
+## Next agreed
+
+- **Per-profile visibility controls in Grown-Ups** (home simplification #3).
+  Design constraint from the user: scaffold a per-profile `subjects` config
+  that can later express — parent selects whether the child sees
+  multiplication/division or addition/subtraction, or grants the child an
+  independent subject toggle. Suggested shape:
+  `subjects: { multiplication: true, division: 'auto', addition: false,
+  subtraction: false, childCanSwitch: false }` (schema-versioned, additive),
+  with today's UI (hide division / hide sitting / limit tables) as the first
+  consumers and the +/− modes plugging in later.
+
 ## Later / roadmap
 
 - Addition & subtraction fact modes for younger kids.

@@ -12,7 +12,7 @@ import {
 import { buildDivisionRound } from '../src/engine/selector.js';
 import { checkUnlocks } from '../src/engine/unlocks.js';
 import { newProfile, migrateProfile, SCHEMA_VERSION } from '../src/data/schema.js';
-import { seedProfile, selectProfile, playQuestions, norm, stat } from './helpers.mjs';
+import { seedProfile, selectProfile, playQuestions, norm, stat, openDivisionGrid } from './helpers.mjs';
 
 function masteredTable(profile, t, { division = false, box = 4 } = {}) {
   for (let b = 0; b <= 12; b++) {
@@ -92,11 +92,13 @@ test('e2e: unlock ÷2, play the missing-number round, earn Willow', async ({ pag
   await seedProfile(page, doc);
   await selectProfile(page, 'DivKid');
 
-  // Division grid: ÷2 open, ÷3 locked
-  await expect(page.locator('h3', { hasText: 'Missing number' })).toBeVisible();
+  // Trimmed division grid: only the next locked (÷1) + the unlocked ÷2
+  await expect(page.locator('[data-toggle="division"]')).toBeVisible();
+  await openDivisionGrid(page);
   const divGrid = page.locator('.div-grid');
+  await expect(divGrid.locator('.table-btn')).toHaveCount(2);
+  await expect(divGrid.locator('.table-btn').nth(0)).toBeDisabled();
   await expect(divGrid.locator('.table-btn').nth(1)).not.toBeDisabled();
-  await expect(divGrid.locator('.table-btn').nth(2)).toBeDisabled();
 
   await divGrid.locator('.table-btn').nth(1).tap();
   await page.waitForSelector('.question');
@@ -121,7 +123,9 @@ test('e2e: fresh division round uses the missing-factor bridge and teaches on mi
   masteredTable(doc, 3);
   await seedProfile(page, doc);
   await selectProfile(page, 'BridgeKid');
-  await page.locator('[data-division-slot] .table-btn').nth(2).tap();
+  await openDivisionGrid(page);
+  // Trimmed grid: [÷1 locked, ÷3 unlocked]
+  await page.locator('.div-grid .table-btn').nth(1).tap();
   await page.waitForSelector('.question');
 
   const seen = await playQuestions(page, 4, {

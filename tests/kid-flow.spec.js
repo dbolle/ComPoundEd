@@ -1,6 +1,6 @@
 // The full first-run kid journey, on an insecure origin like the deployed app.
 import { test, expect } from '@playwright/test';
-import { createProfileUI, playQuestions, uniqueName } from './helpers.mjs';
+import { createProfileUI, playQuestions, uniqueName, openTableGrid } from './helpers.mjs';
 
 test('profile creation works without secure-context APIs', async ({ page, baseURL }) => {
   test.skip(baseURL.includes('127.0.0.1'), 'needs the LAN-IP insecure origin');
@@ -16,6 +16,7 @@ test('first run: create → round → results → progress → pack → heatmap'
   await expect(page.locator('.hero h1')).toContainText(name);
 
   // ×2 round, all correct
+  await openTableGrid(page);
   await page.tap('.table-grid .table-btn:nth-child(2)');
   await playQuestions(page, 12);
   await expect(page.locator('.big-score')).toContainText('10 / 10');
@@ -44,6 +45,7 @@ test('first run: create → round → results → progress → pack → heatmap'
 
 test('wrong answers show the correction and input caps at 3 digits', async ({ page }) => {
   await createProfileUI(page, uniqueName('Wrong'));
+  await openTableGrid(page);
   await page.tap('.table-grid .table-btn:nth-child(3)');
   await page.waitForSelector('.question');
   for (const d of '99999') await page.tap(`.numpad .key:text-is("${d}")`);
@@ -57,6 +59,7 @@ test('wrong answers show the correction and input caps at 3 digits', async ({ pa
 test('profiles are isolated', async ({ page }) => {
   const a = uniqueName('Iso');
   await createProfileUI(page, a);
+  await openTableGrid(page);
   await page.tap('.table-grid .table-btn:nth-child(2)');
   await playQuestions(page, 12);
   await page.waitForSelector('.big-score');
