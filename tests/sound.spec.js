@@ -1,7 +1,7 @@
 // Sounds & haptics: the toggle persists per-device, and audio firing during
 // play never breaks the game (synthesized Web Audio, guarded).
 import { test, expect } from '@playwright/test';
-import { createProfileUI, playQuestions, holdGrownupsGate, uniqueName } from './helpers.mjs';
+import { createProfileUI, playQuestions, holdGrownupsGate, uniqueName, openTableGrid } from './helpers.mjs';
 
 test('sounds default on, toggle persists across reload', async ({ page }) => {
   await createProfileUI(page, uniqueName('Snd'));
@@ -21,6 +21,7 @@ test('a full round with sounds on raises no page errors', async ({ page }) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await createProfileUI(page, uniqueName('Sfx'));
+  await openTableGrid(page);
   await page.tap('.table-grid .table-btn:nth-child(2)');
   await playQuestions(page, 12, {
     answerFn: (q, i) => (i === 1 ? q.a * q.b + 1 : q.a * q.b), // one wrong → sfx.wrong

@@ -9,7 +9,7 @@ import {
   bumpActivity,
 } from '../src/engine/achievements.js';
 import { newProfile, migrateProfile, mergeProfiles, SCHEMA_VERSION } from '../src/data/schema.js';
-import { createProfileUI, playQuestions, uniqueName, norm, stat } from './helpers.mjs';
+import { createProfileUI, playQuestions, uniqueName, norm, stat, openTableGrid } from './helpers.mjs';
 
 test('catalog integrity: unique ids, valid ladder shape', () => {
   const ids = CATALOG.map((a) => a.id);
@@ -92,6 +92,7 @@ test('migration v5→v6 adds achievements + stats; merge keeps the best of both'
 
 test('e2e: first round earns quick wins, awards screen shows them + next up', async ({ page }) => {
   await createProfileUI(page, uniqueName('Award'));
+  await openTableGrid(page);
   await page.tap('.table-grid .table-btn:nth-child(2)');
   await playQuestions(page, 12);
   await page.waitForSelector('.big-score');

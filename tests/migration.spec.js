@@ -1,7 +1,7 @@
 // THE preservation gate (see CLAUDE.md): old-schema profiles must survive
 // every update with zero progress loss.
 import { test, expect } from '@playwright/test';
-import { seedProfile, readProfile, selectProfile, playQuestions, norm, stat } from './helpers.mjs';
+import { seedProfile, readProfile, selectProfile, playQuestions, norm, stat, openTableGrid } from './helpers.mjs';
 import { migrateProfile, mergeProfiles, SCHEMA_VERSION } from '../src/data/schema.js';
 
 function v1Doc(id, name) {
@@ -28,6 +28,7 @@ test('v1 profile loads, plays, and upgrades without losing anything', async ({ p
   await selectProfile(page, 'MigV1');
 
   // Mastered ×2 star still visible from v1 data
+  await openTableGrid(page);
   await expect(page.locator('.table-grid .table-btn:nth-child(2)')).toContainText('⭐');
 
   // Play (forces a save → persists the migration)

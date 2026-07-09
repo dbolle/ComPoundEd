@@ -100,6 +100,16 @@ export async function importProfiles(docs) {
   return count;
 }
 
+// Per-profile UI preferences (collapsed sections etc.) — device-local meta,
+// not part of the synced profile document.
+export async function getUiPrefs(profileId) {
+  return (await repo.getMeta(`ui:${profileId}`)) ?? {};
+}
+
+export async function setUiPrefs(profileId, prefs) {
+  await repo.setMeta(`ui:${profileId}`, prefs);
+}
+
 export async function getActiveProfileId() {
   return (await repo.getMeta('activeProfileId')) ?? null;
 }
