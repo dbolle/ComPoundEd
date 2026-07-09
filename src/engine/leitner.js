@@ -125,6 +125,23 @@ export function isDivisionTableMastered(profile, table) {
   return done === total;
 }
 
+// How many of a table's facts have ever been attempted (0 = untried table).
+export function tableTriedCount(profile, table) {
+  let n = 0;
+  for (let b = FACTOR_MIN; b <= FACTOR_MAX; b++) {
+    if (getStat(profile, table, b).attempts > 0) n += 1;
+  }
+  return n;
+}
+
+export function divisionTriedCount(profile, table) {
+  let n = 0;
+  for (let b = FACTOR_MIN; b <= FACTOR_MAX; b++) {
+    if (getDivStat(profile, table, b).attempts > 0) n += 1;
+  }
+  return n;
+}
+
 export function divisionMasteredCount(profile) {
   let n = 0;
   for (const s of Object.values(profile.division ?? {})) {

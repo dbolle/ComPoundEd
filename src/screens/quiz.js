@@ -3,7 +3,10 @@ import { buildRound, buildDivisionRound, ROUND_SIZE } from '../engine/selector.j
 import { recordAnswer, recordDivisionAnswer } from '../engine/leitner.js';
 import { checkUnlocks } from '../engine/unlocks.js';
 import { bumpAnswer, bumpRound, checkAchievements } from '../engine/achievements.js';
+import { tableTriedCount, divisionTriedCount } from '../engine/leitner.js';
+import { dogForTable, dogForDivTable, dogSVG } from '../art/dogs.js';
 import { hintFor, divisionHint } from '../engine/hints.js';
+import { escapeHtml } from '../ui.js';
 import { buildNumpad, bindKeyboard, celebrationLine } from '../ui.js';
 import { sfx, buzz } from '../sound.js';
 
@@ -21,6 +24,15 @@ export function quizScreen(el, params, ctx) {
     scope.type === 'division'
       ? buildDivisionRound(ctx.profile, scope.table)
       : buildRound(ctx.profile, scope);
+
+  // Untried table: reframe the round — the table's own dog is the one
+  // learning, and the kid is the teacher.
+  let teachDog = null;
+  if (scope.type === 'table' && tableTriedCount(ctx.profile, scope.table) === 0) {
+    teachDog = dogForTable(scope.table);
+  } else if (scope.type === 'division' && divisionTriedCount(ctx.profile, scope.table) === 0) {
+    teachDog = dogForDivTable(scope.table);
+  }
   const results = [];
   let index = 0;
   let input = '';
@@ -46,6 +58,12 @@ export function quizScreen(el, params, ctx) {
       <div class="quiz-progress" aria-hidden="true">
         ${Array.from({ length: ROUND_SIZE }, () => '<span class="paw">🐾</span>').join('')}
       </div>
+      ${
+        teachDog
+          ? `<div class="teach-banner">${dogSVG(teachDog, 44)}
+             <span><b>${escapeHtml(teachDog.name)}</b> is still learning the ${scope.type === 'division' ? '÷' : '×'}${scope.table}s — teach them!</span></div>`
+          : ''
+      }
       <div class="question"></div>
       <div class="answer-box" aria-live="assertive">&nbsp;</div>
       <div class="feedback"></div>

@@ -3,6 +3,8 @@
 import { test, expect } from '@playwright/test';
 import { recordAnswer } from '../src/engine/leitner.js';
 import { bumpAnswer, FAMILIES, tierOf, checkAchievements } from '../src/engine/achievements.js';
+import { suggestNext } from '../src/engine/suggest.js';
+import { dogForTable } from '../src/art/dogs.js';
 import { newProfile } from '../src/data/schema.js';
 import { createProfileUI, uniqueName, openTableGrid } from './helpers.mjs';
 
@@ -61,4 +63,40 @@ test('B: e2e — a wrong first try celebrates the attempt', async ({ page }) => 
   const fb = page.locator('.feedback.bad');
   await expect(fb.locator('.hint.brave')).toContainText('trying it is the win');
   await expect(fb.locator('.hint').last()).toContainText('💡');
+});
+
+// ---- Bundle C: teach the puppy — the dog is the learner, not the kid
+
+test('C: suggestions name the dog for untried tables only', () => {
+  const fresh = newProfile('Teach');
+  const s = suggestNext(fresh);
+  expect(s.label).toBe('×1');
+  expect(s.teach).toBe(dogForTable(1).name);
+
+  // Once the table has any attempts, the framing returns to practice
+  bumpAnswer(fresh, recordAnswer(fresh, 1, 3, true, 2000));
+  expect(suggestNext(fresh).teach).toBeNull();
+});
+
+test('C: e2e — untried table shows the teach banner; tried table does not', async ({ page }) => {
+  await createProfileUI(page, uniqueName('Prof'));
+  await expect(page.locator('[data-suggest]')).toContainText(`Teach ${dogForTable(1).name}`);
+
+  await openTableGrid(page);
+  await page.tap('.table-grid .table-btn:nth-child(3)');
+  await page.waitForSelector('.question');
+  await expect(page.locator('.teach-banner')).toContainText(dogForTable(3).name);
+
+  // Answer one question, quit, return: table now tried → no banner
+  await page.waitForFunction(() => /[×÷]/.test(document.querySelector('.question')?.textContent ?? ''));
+  const [a, b] = (await page.textContent('.question')).split('×').map((s) => parseInt(s.trim(), 10));
+  for (const d of String(a * b)) await page.tap(`.numpad .key:text-is("${d}")`);
+  await page.tap('.numpad .key.ok');
+  await page.waitForTimeout(1000);
+  await page.tap('[data-quit]');
+  await page.waitForSelector('.hero');
+  await openTableGrid(page);
+  await page.tap('.table-grid .table-btn:nth-child(3)');
+  await page.waitForSelector('.question');
+  expect(await page.$('.teach-banner')).toBeNull();
 });

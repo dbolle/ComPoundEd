@@ -7,6 +7,8 @@ import {
   divisionTableProgress,
   divisionTableUnlocked,
   isDivisionTableMastered,
+  tableTriedCount,
+  divisionTriedCount,
   getStat,
   isDue,
   TABLE_MIN,
@@ -14,6 +16,7 @@ import {
   FACTOR_MIN,
   FACTOR_MAX,
 } from './leitner.js';
+import { dogForTable, dogForDivTable } from '../art/dogs.js';
 
 // Gentle pedagogy for brand-new kids: easy patterns first.
 const PED_ORDER = [1, 2, 10, 5, 3, 4, 6, 7, 8, 9, 11, 12];
@@ -33,6 +36,8 @@ export function suggestNext(profile) {
         href: `/quiz?table=${t}`,
         ratio: p.points / p.maxPoints,
         rank,
+        // Untried table: the dog is the learner, not the kid.
+        teach: tableTriedCount(profile, t) === 0 ? dogForTable(t).name : null,
       });
     } else if (divisionTableUnlocked(profile, t) && !isDivisionTableMastered(profile, t)) {
       // Newly unlocked division content gets a head start so it actually
@@ -43,6 +48,7 @@ export function suggestNext(profile) {
         href: `/quiz?dtable=${t}`,
         ratio: 0.15 + (p.points / p.maxPoints) * 0.85,
         rank,
+        teach: divisionTriedCount(profile, t) === 0 ? dogForDivTable(t).name : null,
       });
     }
   });
