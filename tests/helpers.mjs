@@ -98,7 +98,14 @@ export async function playQuestions(page, maxQuestions, options = {}) {
     await answer(page, value);
     if (options.afterAnswer) await options.afterAnswer(q, i);
     const wrong = value !== right;
-    await page.waitForTimeout(wrong ? 3800 : 1000);
+    if (wrong) {
+      // Wrong answers are self-paced: tap "Got it!" to move on.
+      await page.waitForSelector('.feedback [data-next]');
+      await page.tap('.feedback [data-next]');
+      await page.waitForTimeout(200);
+    } else {
+      await page.waitForTimeout(1000);
+    }
     if (await page.$('.big-score, [data-again]')) break;
   }
   return seen;

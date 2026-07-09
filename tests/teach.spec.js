@@ -73,6 +73,17 @@ test('a wrong answer in a quiz shows the hint', async ({ page }) => {
       const fb = page.locator('.feedback.bad');
       await expect(fb).toContainText(`= ${a * b}`);
       await expect(fb.locator('.hint')).toContainText('💡');
+
+      // 🔍 Self-paced: the hint stays put until the kid taps through
+      const question = (await page.textContent('.question')).trim();
+      await page.waitForTimeout(4200); // well past the old auto-advance
+      expect((await page.textContent('.question')).trim()).toBe(question);
+      await expect(fb.locator('.hint')).toBeVisible();
+      await page.tap('.feedback [data-next]');
+      await page.waitForFunction(
+        (old) => document.querySelector('.question')?.textContent?.trim() !== old,
+        question
+      );
       return;
     }
     // gimme question: answer correctly and move on

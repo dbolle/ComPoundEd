@@ -551,6 +551,16 @@ button.pressed {
   color: var(--ink-soft);
 }
 
+.feedback .got-it {
+  display: inline-flex;
+  margin-top: 10px;
+  font-size: 1.05rem;
+  padding: 10px 24px;
+  border-radius: 16px;
+  border-bottom-width: 4px;
+  animation: screen-in 0.25s ease-out;
+}
+
 .numpad {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

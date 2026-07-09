@@ -98,6 +98,7 @@ export function activityScreen(el, params, ctx) {
   let index = 0;
   let input = '';
   let busy = false;
+  let awaitingNext = false;
   let startT = 0;
   let steps = 0;
 
@@ -160,7 +161,11 @@ export function activityScreen(el, params, ctx) {
   }
 
   function press(k) {
-    if (busy) return;
+    if (busy) {
+      // Reading a hint: the ✓ key (or Enter) moves on when they're ready.
+      if (awaitingNext && k === 'ok') gotIt();
+      return;
+    }
     if (k === 'ok') {
       submit();
       return;
@@ -194,17 +199,26 @@ export function activityScreen(el, params, ctx) {
         group ? theme.cheerGroup : `${q.dog.name} ${theme.cheer}`
       );
       fbEl.classList.add('good');
+      setTimeout(next, 800);
     } else {
       sfx.wrong();
       buzz(60);
       ansEl.classList.add('bad');
       const hint = q.kind === 'div' ? divisionHint(q.a, q.b) : hintFor(ctx.profile, q.a, q.b);
-      fbEl.innerHTML = `${q.correction}<span class="hint">💡 ${hint}</span>`;
+      // Self-paced: the hint stays until the kid says they're ready — and the
+      // same fact comes right back, so the hint gets used immediately.
+      fbEl.innerHTML = `${q.correction}<span class="hint">💡 ${hint}</span>
+        <button class="btn got-it" data-next>👍 Got it!</button>`;
       fbEl.classList.add('bad');
+      awaitingNext = true;
+      fbEl.querySelector('[data-next]').addEventListener('click', gotIt);
     }
-    // Wrong answers linger longer so there's time to read the hint — and the
-    // same fact comes right back, so the hint gets used immediately.
-    setTimeout(next, correct ? 800 : 3600);
+  }
+
+  function gotIt() {
+    if (!awaitingNext) return;
+    awaitingNext = false;
+    next();
   }
 
   async function next() {
