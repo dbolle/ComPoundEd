@@ -52,6 +52,11 @@ them)*
 - **Accessories & division map** — dogs wear earned gear from play counters
   (no schema change); the progress map gained a ×/÷ toggle.
 
+- **Encourage-new-facts bundles (A–E, discrete commits)** — A: first-try
+  misses are streak-neutral; B: 🦁 Brave Paw family rewards attempts; C:
+  teach-the-puppy framing for untried tables; D: sniff-the-map coverage
+  (n/169 + row badges); E: training-treat first rounds (mostly wins).
+
 ## Next agreed
 
 - **Per-profile visibility controls in Grown-Ups** (home simplification #3).
