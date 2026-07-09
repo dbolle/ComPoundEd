@@ -25,6 +25,13 @@ export function quizScreen(el, params, ctx) {
       ? buildDivisionRound(ctx.profile, scope.table)
       : buildRound(ctx.profile, scope);
 
+  // Sniff-the-map: remember which rows were fully attempted before this
+  // round, so finishing one can celebrate "sniffed every ×t fact".
+  const sniffedBefore = new Set();
+  for (let t = 1; t <= 12; t++) {
+    if (tableTriedCount(ctx.profile, t) === 13) sniffedBefore.add(t);
+  }
+
   // Untried table: reframe the round — the table's own dog is the one
   // learning, and the kid is the teacher.
   let teachDog = null;
@@ -177,8 +184,12 @@ export function quizScreen(el, params, ctx) {
         durationMs: performance.now() - roundStart,
       });
       const newAwards = checkAchievements(ctx.profile);
+      const sniffedRows = [];
+      for (let t = 1; t <= 12; t++) {
+        if (!sniffedBefore.has(t) && tableTriedCount(ctx.profile, t) === 13) sniffedRows.push(t);
+      }
       await ctx.save();
-      ctx.session.lastRound = { scope, results, newUnlocks, newAwards };
+      ctx.session.lastRound = { scope, results, newUnlocks, newAwards, sniffedRows };
       navigate('/results');
     } else {
       showQuestion();

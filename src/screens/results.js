@@ -60,6 +60,9 @@ export function resultsScreen(el, params, ctx) {
   if (ups) badges.push(`🐾 ${ups} level up${ups > 1 ? 's' : ''}`);
   const backs = count('comeback');
   if (backs) badges.push(`💪 ${backs} comeback${backs > 1 ? 's' : ''}`);
+  for (const t of round.sniffedRows ?? []) {
+    badges.push(`🐽 Sniffed every ×${t} fact!`);
+  }
   const goal = nextGoal(ctx.profile, round.scope);
   const againHref =
     round.scope.type === 'division'

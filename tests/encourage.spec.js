@@ -6,7 +6,7 @@ import { bumpAnswer, FAMILIES, tierOf, checkAchievements } from '../src/engine/a
 import { suggestNext } from '../src/engine/suggest.js';
 import { dogForTable } from '../src/art/dogs.js';
 import { newProfile } from '../src/data/schema.js';
-import { createProfileUI, uniqueName, openTableGrid } from './helpers.mjs';
+import { createProfileUI, seedProfile, selectProfile, playQuestions, uniqueName, openTableGrid } from './helpers.mjs';
 
 // ---- Bundle A: streak protection for first tries
 
@@ -99,4 +99,29 @@ test('C: e2e — untried table shows the teach banner; tried table does not', as
   await page.tap('.table-grid .table-btn:nth-child(3)');
   await page.waitForSelector('.question');
   expect(await page.$('.teach-banner')).toBeNull();
+});
+
+// ---- Bundle D: sniff the map — coverage is collectible
+
+test('D: e2e — completing a row of attempts earns the sniffed badge', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'networkidle' });
+  const doc = newProfile('Sniffy');
+  doc.id = 'sniff-kid';
+  // ×2 row: 11 facts attempted (still weak), 2 never tried
+  for (let b = 0; b <= 10; b++) {
+    doc.facts[b <= 2 ? `${b}x2` : `2x${b}`] = { attempts: 1, correct: 0, avgMs: 5000, box: 0, lastSeen: Date.now() };
+  }
+  await seedProfile(page, doc);
+  await selectProfile(page, 'Sniffy');
+  await openTableGrid(page);
+  await page.tap('.table-grid .table-btn:nth-child(2)');
+  await playQuestions(page, 14);
+  await page.waitForSelector('.big-score');
+  await expect(page.locator('.badge', { hasText: 'Sniffed every ×2 fact' })).toBeVisible();
+
+  // Heatmap shows the coverage count
+  await page.tap('[data-home]');
+  await page.tap('[data-nav="/heatmap"]');
+  await page.waitForSelector('.hm-cell');
+  await expect(page.locator('.hm-caption')).toContainText('spots sniffed');
 });

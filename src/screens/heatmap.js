@@ -46,8 +46,15 @@ export function heatmapScreen(el, params, ctx) {
 
   function renderGrid() {
     grid.innerHTML = '';
-    caption.textContent = 'Tap a square to peek at a fact';
     const stat = mode === 'div' ? getDivStat : getStat;
+    // Coverage framing: untried facts are unsniffed spots to collect.
+    let sniffed = 0;
+    for (let a = FACTOR_MIN; a <= FACTOR_MAX; a++) {
+      for (let b = FACTOR_MIN; b <= FACTOR_MAX; b++) {
+        if (stat(p, a, b).attempts > 0) sniffed += 1;
+      }
+    }
+    caption.textContent = `🐽 ${sniffed}/169 spots sniffed — tap a square to peek`;
 
     const corner = document.createElement('span');
     corner.className = 'hm-head';
