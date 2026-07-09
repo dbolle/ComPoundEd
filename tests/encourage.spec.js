@@ -4,6 +4,7 @@ import { test, expect } from '@playwright/test';
 import { recordAnswer } from '../src/engine/leitner.js';
 import { bumpAnswer, FAMILIES, tierOf, checkAchievements } from '../src/engine/achievements.js';
 import { suggestNext } from '../src/engine/suggest.js';
+import { buildRound } from '../src/engine/selector.js';
 import { dogForTable } from '../src/art/dogs.js';
 import { newProfile } from '../src/data/schema.js';
 import { createProfileUI, seedProfile, selectProfile, playQuestions, uniqueName, openTableGrid } from './helpers.mjs';
@@ -124,4 +125,46 @@ test('D: e2e — completing a row of attempts earns the sniffed badge', async ({
   await page.tap('[data-nav="/heatmap"]');
   await page.waitForSelector('.hm-cell');
   await expect(page.locator('.hm-caption')).toContainText('spots sniffed');
+});
+
+// ---- Bundle E: training treats — a new table's first taste is mostly wins
+
+test('E: a barely-touched table serves wins-first rounds with few new facts', () => {
+  const p = newProfile('Treat');
+  for (let b = 0; b <= 12; b++) {
+    p.facts[b <= 2 ? `${b}x2` : `2x${b}`] = { attempts: 6, correct: 6, avgMs: 3000, box: 4, lastSeen: Date.now() };
+    p.facts[b <= 10 ? `${b}x10` : `10x${b}`] = { attempts: 6, correct: 6, avgMs: 3000, box: 4, lastSeen: Date.now() };
+  }
+  const isWin = (q) => {
+    const [lo, hi] = q.a <= q.b ? [q.a, q.b] : [q.b, q.a];
+    const s = p.facts[`${lo}x${hi}`];
+    return lo <= 1 || (s && s.box >= 3);
+  };
+  for (let trial = 0; trial < 5; trial++) {
+    const round = buildRound(p, { type: 'table', table: 7 });
+    expect(round).toHaveLength(10);
+    expect(isWin(round[0])).toBe(true); // opens with wins
+    expect(isWin(round[1])).toBe(true);
+    const advCount = round.filter((q) => !isWin(q)).length;
+    expect(advCount).toBeLessThanOrEqual(4); // few discoveries
+    expect(advCount).toBeGreaterThanOrEqual(2);
+    for (let k = 1; k < round.length; k++) {
+      expect(!isWin(round[k]) && !isWin(round[k - 1])).toBe(false); // never two in a row
+    }
+  }
+});
+
+test('E: once a table is genuinely in progress, the standard mix returns', () => {
+  const p = newProfile('Std');
+  for (let b = 0; b <= 4; b++) {
+    p.facts[b <= 5 ? `${b}x5` : `5x${b}`] = { attempts: 2, correct: 1, avgMs: 5000, box: 1, lastSeen: Date.now() };
+  }
+  const round = buildRound(p, { type: 'table', table: 5 });
+  // Standard selector leads with weak seen facts (box < 3, attempts > 0)
+  const weakCount = round.filter((q) => {
+    const [lo, hi] = q.a <= q.b ? [q.a, q.b] : [q.b, q.a];
+    const s = p.facts[`${lo}x${hi}`];
+    return s && s.attempts > 0 && s.box < 3;
+  }).length;
+  expect(weakCount).toBeGreaterThanOrEqual(5);
 });

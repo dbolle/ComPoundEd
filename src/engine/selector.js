@@ -6,6 +6,7 @@ import {
   getStat,
   getDivStat,
   isDue,
+  tableTriedCount,
   MASTERY_BOX,
   FACTOR_MIN,
   FACTOR_MAX,
@@ -178,7 +179,48 @@ export function buildDivisionRound(profile, table, count = ROUND_SIZE) {
   });
 }
 
+// Training treats: a barely-touched table's first rounds are mostly wins —
+// facts already strong via other tables plus the ×0/×1 gimmes — with at most
+// four genuinely new facts woven in, never back-to-back. The first taste of
+// a scary table is 6+ wins and a few discoveries.
+function buildTrainingRound(profile, table, count = ROUND_SIZE) {
+  const wins = [];
+  const adventures = [];
+  for (let b = FACTOR_MIN; b <= FACTOR_MAX; b++) {
+    const s = getStat(profile, table, b);
+    if (s.box >= MASTERY_BOX || b <= 1) wins.push({ a: table, b });
+    else adventures.push({ a: table, b, adv: true });
+  }
+  shuffle(wins);
+  adventures.sort((x, y) => x.a * x.b - y.a * y.b); // easiest discoveries first
+  // Cap discoveries so win-separators always suffice (no two in a row).
+  const adv = adventures.slice(
+    0,
+    Math.min(4, adventures.length, Math.floor((count - 2) / 2))
+  );
+  const win = [];
+  // Fill with wins, repeating them rather than adding more new facts —
+  // repetition builds comfort in a training round.
+  let i = 0;
+  while (win.length < count - adv.length && wins.length > 0) {
+    win.push(wins[i % wins.length]);
+    i += 1;
+  }
+  // Open with two wins, then alternate discovery → win so new facts are
+  // always cushioned.
+  const out = win.slice(0, 2);
+  const rest = win.slice(2);
+  for (let k = 0; k < Math.max(adv.length, rest.length); k++) {
+    if (k < adv.length) out.push(adv[k]);
+    if (k < rest.length) out.push(rest[k]);
+  }
+  return out.map(({ a, b }) => multQuestion(a, b));
+}
+
 export function buildRound(profile, scope, count = ROUND_SIZE) {
+  if (scope.type === 'table' && tableTriedCount(profile, scope.table) <= 3) {
+    return buildTrainingRound(profile, scope.table, count);
+  }
   const pool = scope.type === 'table' ? tablePool(scope.table) : mixedPool();
 
   const weak = [];
