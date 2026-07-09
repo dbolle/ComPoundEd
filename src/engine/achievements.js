@@ -1,6 +1,8 @@
-// Achievements: laddered awards so there are quick wins early and always
-// something within reach. Every award is the same shape — earned when
-// value(profile) >= target — which makes progress bars automatic.
+// Achievements: one stacked award per family, climbing tiers (Bronze →
+// Legend) instead of separate saturating badges. Counter families are
+// ENDLESS — past Legend each next tier doubles the threshold — so the
+// behaviors worth encouraging (recovering from mistakes, showing up, caring
+// for the pack) always have a next goal.
 
 import { EMPTY_STATS } from '../data/schema.js';
 import {
@@ -20,7 +22,6 @@ export function ensureStats(profile) {
 
 // --- Lifetime counter updates (call from the screens, then checkAchievements)
 
-// Per answer; returns the stats object so callers can read currentStreak.
 export function bumpAnswer(profile, r) {
   const s = ensureStats(profile);
   if (r.correct) {
@@ -50,6 +51,23 @@ export function bumpActivity(profile, { sitting = false } = {}) {
   else s.activities += 1;
 }
 
+// --- Tiers
+
+export const TIERS = [
+  { name: 'Bronze', emoji: '🥉' },
+  { name: 'Silver', emoji: '🥈' },
+  { name: 'Gold', emoji: '🥇' },
+  { name: 'Diamond', emoji: '💎' },
+  { name: 'Royal', emoji: '👑' },
+  { name: 'Legend', emoji: '🌈' },
+];
+
+export function tierInfo(tier) {
+  if (tier <= 0) return { name: '—', emoji: '▫️' };
+  if (tier <= TIERS.length) return TIERS[tier - 1];
+  return { name: `Legend ×${tier - TIERS.length + 1}`, emoji: '🌈' };
+}
+
 // --- Derived values
 
 const tablesMastered = (p) => {
@@ -65,87 +83,103 @@ const divTablesMastered = (p) => {
 const dogsCaredFor = (p) =>
   Object.values(p.play ?? {}).filter((c) => (c.walk ?? 0) + (c.feed ?? 0) + (c.fetch ?? 0) > 0)
     .length;
-const perfectUnder = (p, ms) =>
-  p.stats?.fastestPerfectMs != null && p.stats.fastestPerfectMs <= ms ? 1 : 0;
+// Speed is "time barriers broken" so it fits the same climbs-a-ladder model.
+export const SPEED_BARRIERS_MS = [90000, 60000, 45000, 35000];
+const speedValue = (p) =>
+  SPEED_BARRIERS_MS.filter(
+    (ms) => p.stats?.fastestPerfectMs != null && p.stats.fastestPerfectMs <= ms
+  ).length;
 
-// --- The catalog. Ordered roughly easiest → grandest within each family.
+// --- The families. endless: thresholds keep doubling past the last one.
 
-const A = (id, emoji, name, desc, target, value) => ({ id, emoji, name, desc, target, value });
+const F = (id, emoji, name, desc, thresholds, value, endless = false) => ({
+  id,
+  emoji,
+  name,
+  desc,
+  thresholds,
+  value,
+  endless,
+});
 
-export const CATALOG = [
-  // First steps — quick wins in the first session or two
-  A('round-1', '🎾', 'First Fetch', 'Finish your very first round', 1, (p) => p.stats.rounds),
-  A('flash-1', '⚡', 'Quick Paws', 'Get a lightning-fast answer', 1, (p) => p.stats.fastAnswers),
-  A('comeback-1', '💪', 'Bounce Back', 'Get a fact right after missing it', 1, (p) => p.stats.comebacks),
-  A('perfect-1', '🌟', 'Perfect Ten', 'Score 10 out of 10 in a round', 1, (p) => p.stats.perfectRounds),
-  A('care-1', '🦴', 'Playtime!', 'Walk, feed, or play fetch with a dog', 1, (p) => p.stats.activities),
-
-  // Streaks (best ever, carries across rounds)
-  A('streak-5', '🔥', 'On a Roll', '5 correct answers in a row', 5, (p) => p.stats.bestStreak),
-  A('streak-10', '🔥', 'Hot Streak', '10 in a row', 10, (p) => p.stats.bestStreak),
-  A('streak-25', '🌋', 'Unstoppable', '25 in a row', 25, (p) => p.stats.bestStreak),
-  A('streak-50', '🚀', 'Rocket Roll', '50 in a row', 50, (p) => p.stats.bestStreak),
-  A('streak-100', '👑', 'Streak Royalty', '100 in a row!', 100, (p) => p.stats.bestStreak),
-
-  // Perfect rounds & speed runs
-  A('perfect-5', '✨', 'High Five', '5 perfect rounds', 5, (p) => p.stats.perfectRounds),
-  A('perfect-25', '💎', 'Diamond Rounds', '25 perfect rounds', 25, (p) => p.stats.perfectRounds),
-  A('speed-60', '🏎️', 'Speed Run', 'A perfect round in under a minute', 1, (p) => perfectUnder(p, 60000)),
-  A('speed-40', '⚡', 'Lightning Round', 'A perfect round in under 40 seconds', 1, (p) => perfectUnder(p, 40000)),
-
-  // Persistence
-  A('comeback-10', '🧗', 'Never Give Up', '10 comebacks', 10, (p) => p.stats.comebacks),
-  A('comeback-50', '🛡️', 'Iron Will', '50 comebacks', 50, (p) => p.stats.comebacks),
-
-  // Practice volume
-  A('answers-100', '🐾', 'Century Club', 'Answer 100 questions', 100, (p) => profileTotals(p).attempts),
-  A('answers-500', '📚', 'Scholar Pup', 'Answer 500 questions', 500, (p) => profileTotals(p).attempts),
-  A('answers-1000', '🎓', 'Math Professor', 'Answer 1000 questions', 1000, (p) => profileTotals(p).attempts),
-
-  // Pet care
-  A('care-10', '🎾', 'Good Human', '10 pet play sessions', 10, (p) => p.stats.activities),
-  A('care-50', '🥇', 'Best Friend', '50 pet play sessions', 50, (p) => p.stats.activities),
-  A('carer-3', '🐕', 'Pack Pal', 'Play with 3 different dogs', 3, dogsCaredFor),
-  A('carer-8', '🐕‍🦺', 'Pack Leader', 'Play with 8 different dogs', 8, dogsCaredFor),
-  A('sitter-1', '🏡', 'Pet Sitter', 'Look after a visiting pup', 1, (p) => p.stats.sittings),
-  A('sitter-10', '🏘️', 'Super Sitter', '10 pet-sitting visits', 10, (p) => p.stats.sittings),
-
-  // The pack
-  A('pack-2', '🐶', 'New Friend', 'Adopt your 2nd dog', 2, (p) => p.unlocks.length),
-  A('pack-5', '🐕', 'Growing Pack', 'Adopt 5 dogs', 5, (p) => p.unlocks.length),
-  A('pack-13', '🌟', 'Big Pack', 'Adopt 13 dogs', 13, (p) => p.unlocks.length),
-  A('pack-25', '👑', 'The Whole Pack', 'Adopt all 25 dogs', 25, (p) => p.unlocks.length),
-
-  // Mastery
-  A('table-1', '🧠', 'Table Tamer', 'Master your first times table', 1, tablesMastered),
-  A('table-3', '🥉', 'Triple Tamer', 'Master 3 times tables', 3, tablesMastered),
-  A('table-6', '🥈', 'Half Way Hero', 'Master 6 times tables', 6, tablesMastered),
-  A('table-12', '🥇', 'Times Master', 'Master all 12 times tables', 12, tablesMastered),
-  A('div-1', '🧩', 'Division Explorer', 'Master your first ÷table', 1, divTablesMastered),
-  A('div-12', '🏆', 'Division Champion', 'Master all 12 ÷tables', 12, divTablesMastered),
-  A('facts-45', '⭐', 'Fact Collector', 'Master 45 multiplication facts', 45, (p) => profileTotals(p).mastered),
-  A('facts-90', '🌟', 'Fact Wizard', 'Master all 90 multiplication facts', 90, (p) => profileTotals(p).mastered),
+export const FAMILIES = [
+  F('rounds', '🎾', 'Fetcher', 'Rounds finished', [1, 10, 50, 150, 400, 1000], (p) => p.stats.rounds, true),
+  F('streak', '🔥', 'Hot Streak', 'Most correct answers in a row', [5, 10, 25, 50, 100, 250], (p) => p.stats.bestStreak, true),
+  F('perfect', '🌟', 'Perfect Rounds', '10-out-of-10 rounds', [1, 5, 25, 75, 200, 500], (p) => p.stats.perfectRounds, true),
+  F('speed', '🏎️', 'Speed Runner', 'Perfect-round time barriers broken (90s, 60s, 45s, 35s)', [1, 2, 3, 4], speedValue),
+  F('flash', '⚡', 'Quick Paws', 'Lightning-fast answers', [1, 25, 100, 400, 1000, 2500], (p) => p.stats.fastAnswers, true),
+  F('comeback', '💪', 'Bounce Back', 'Facts nailed after missing them', [1, 10, 50, 150, 400, 1000], (p) => p.stats.comebacks, true),
+  F('answers', '📚', 'Scholar Pup', 'Questions answered', [100, 500, 1000, 2500, 5000, 10000], (p) => profileTotals(p).attempts, true),
+  F('care', '🦴', 'Best Friend', 'Pet play sessions', [1, 10, 50, 150, 400, 1000], (p) => p.stats.activities, true),
+  F('pals', '🐕', 'Pack Pal', 'Different dogs played with', [3, 8, 15, 25], dogsCaredFor),
+  F('sitter', '🏡', 'Pet Sitter', 'Pet-sitting visits', [1, 10, 30, 75, 150, 300], (p) => p.stats.sittings, true),
+  F('pack', '🐶', 'The Pack', 'Dogs adopted', [2, 5, 13, 19, 25], (p) => p.unlocks.length),
+  F('tables', '🧠', 'Times Tamer', 'Times tables mastered', [1, 3, 6, 9, 12], tablesMastered),
+  F('division', '🧩', 'Division Explorer', '÷tables mastered', [1, 3, 6, 9, 12], divTablesMastered),
+  F('facts', '⭐', 'Fact Collector', 'Multiplication facts mastered', [10, 30, 45, 70, 90], (p) => profileTotals(p).mastered),
 ];
 
-// Awards any newly earned achievements and returns them (for celebration).
+export function thresholdFor(family, tier) {
+  const t = family.thresholds;
+  if (tier <= t.length) return t[tier - 1];
+  if (!family.endless) return null;
+  return t[t.length - 1] * 2 ** (tier - t.length);
+}
+
+export function tierOf(family, profile) {
+  const v = family.value(profile);
+  let tier = 0;
+  for (;;) {
+    const th = thresholdFor(family, tier + 1);
+    if (th == null || v < th) break;
+    tier += 1;
+  }
+  return tier;
+}
+
+// Raises stored tiers and returns the families that climbed (one entry per
+// family at its new highest tier, for the celebration reveal).
 export function checkAchievements(profile) {
   ensureStats(profile);
   const newly = [];
-  for (const a of CATALOG) {
-    if (profile.achievements[a.id] != null) continue;
-    if (a.value(profile) >= a.target) {
-      profile.achievements[a.id] = Date.now();
-      newly.push(a);
+  for (const f of FAMILIES) {
+    const stored = profile.achievements[f.id]?.tier ?? 0;
+    const now = tierOf(f, profile);
+    if (now > stored) {
+      profile.achievements[f.id] = {
+        tier: now,
+        at: profile.achievements[f.id]?.at ?? Date.now(),
+      };
+      const t = tierInfo(now);
+      newly.push({ id: f.id, emoji: f.emoji, name: `${f.name}: ${t.name} ${t.emoji}`, tier: now });
     }
   }
   return newly;
 }
 
-// The nearest unearned awards, for the "Next up!" section.
+// The closest next tiers, for "Next up!". Endless families guarantee there
+// is always something within reach.
 export function nextUp(profile, n = 3) {
   ensureStats(profile);
-  return CATALOG.filter((a) => profile.achievements[a.id] == null)
-    .map((a) => ({ ...a, current: Math.min(a.value(profile), a.target) }))
+  return FAMILIES.map((f) => {
+    const stored = profile.achievements[f.id]?.tier ?? 0;
+    const target = thresholdFor(f, stored + 1);
+    if (target == null) return null; // bounded family, complete
+    return {
+      id: f.id,
+      emoji: f.emoji,
+      name: f.name,
+      desc: f.desc,
+      current: Math.min(f.value(profile), target),
+      target,
+      nextTier: tierInfo(stored + 1),
+    };
+  })
+    .filter(Boolean)
     .sort((x, y) => y.current / y.target - x.current / x.target)
     .slice(0, n);
+}
+
+export function totalTiers(profile) {
+  return Object.values(profile.achievements ?? {}).reduce((sum, a) => sum + (a?.tier ?? 0), 0);
 }

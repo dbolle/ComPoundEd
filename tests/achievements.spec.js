@@ -1,9 +1,15 @@
-// Achievements: laddered awards with quick wins early and always a next goal.
+// Stacked achievements: one award per family climbing Bronze → Legend, with
+// endless scaling for the behavior-shaping counters (comebacks, care, rounds).
 import { test, expect } from '@playwright/test';
 import {
-  CATALOG,
+  FAMILIES,
+  TIERS,
+  tierInfo,
+  tierOf,
+  thresholdFor,
   checkAchievements,
   nextUp,
+  totalTiers,
   bumpAnswer,
   bumpRound,
   bumpActivity,
@@ -11,56 +17,76 @@ import {
 import { newProfile, migrateProfile, mergeProfiles, SCHEMA_VERSION } from '../src/data/schema.js';
 import { createProfileUI, playQuestions, uniqueName, norm, stat, openTableGrid } from './helpers.mjs';
 
-test('catalog integrity: unique ids, valid ladder shape', () => {
-  const ids = CATALOG.map((a) => a.id);
-  expect(new Set(ids).size).toBe(CATALOG.length);
+test('family integrity: unique ids, ascending thresholds, values work fresh', () => {
+  const ids = FAMILIES.map((f) => f.id);
+  expect(new Set(ids).size).toBe(FAMILIES.length);
   const p = newProfile('X');
-  for (const a of CATALOG) {
-    expect(a.target).toBeGreaterThan(0);
-    expect(typeof a.value(p)).toBe('number'); // every value fn works on a fresh profile
+  for (const f of FAMILIES) {
+    expect(typeof f.value(p)).toBe('number');
+    for (let i = 1; i < f.thresholds.length; i++) {
+      expect(f.thresholds[i]).toBeGreaterThan(f.thresholds[i - 1]);
+    }
   }
 });
 
 test('quick wins land in the first session; checks are idempotent', () => {
   const p = newProfile('Quick');
-  // One round: 10 answers, one fast, one comeback, perfect... not perfect (one miss then comeback)
   bumpAnswer(p, { correct: true, fast: true, comeback: false });
   bumpAnswer(p, { correct: false, fast: false, comeback: false });
   bumpAnswer(p, { correct: true, fast: false, comeback: true });
   bumpRound(p, { perfect: false, durationMs: 90000 });
   const first = checkAchievements(p);
-  expect(first.map((a) => a.id)).toEqual(
-    expect.arrayContaining(['round-1', 'flash-1', 'comeback-1'])
-  );
-  expect(checkAchievements(p)).toEqual([]); // nothing double-earned
+  const byId = Object.fromEntries(first.map((a) => [a.id, a]));
+  expect(byId.rounds.tier).toBe(1);
+  expect(byId.flash.name).toContain('Bronze');
+  expect(byId.comeback.tier).toBe(1);
+  expect(checkAchievements(p)).toEqual([]);
 });
 
-test('ladders always leave something soon: nextUp shows progress', () => {
-  const p = newProfile('Ladder');
-  for (let i = 0; i < 4; i++) bumpAnswer(p, { correct: true, fast: false, comeback: false });
+test('a multi-tier jump reports once, at the new highest tier', () => {
+  const p = newProfile('Jump');
+  p.stats.comebacks = 60; // crosses 1, 10, and 50 at once
+  const newly = checkAchievements(p);
+  const cb = newly.find((a) => a.id === 'comeback');
+  expect(cb.tier).toBe(3);
+  expect(cb.name).toContain('Gold');
+  expect(newly.filter((a) => a.id === 'comeback')).toHaveLength(1);
+});
+
+test('endless families keep scaling past Legend', () => {
+  const streak = FAMILIES.find((f) => f.id === 'streak');
+  expect(thresholdFor(streak, 6)).toBe(250); // last named tier
+  expect(thresholdFor(streak, 7)).toBe(500); // Legend ×2
+  expect(thresholdFor(streak, 8)).toBe(1000);
+  expect(tierInfo(7).name).toBe('Legend ×2');
+
+  const p = newProfile('L');
+  p.stats.bestStreak = 500;
+  expect(tierOf(streak, p)).toBe(7);
   checkAchievements(p);
-  const up = nextUp(p, 3);
-  expect(up.length).toBe(3);
-  // 4-streak → streak-5 should be the nearest goal (4/5)
-  expect(up[0].id).toBe('streak-5');
-  expect(up[0].current).toBe(4);
+  // ...and there is STILL a next goal
+  const up = nextUp(p, 14).find((a) => a.id === 'streak');
+  expect(up.target).toBe(1000);
+
+  // Bounded families end: tables has no tier 6
+  const tables = FAMILIES.find((f) => f.id === 'tables');
+  expect(thresholdFor(tables, 6)).toBeNull();
 });
 
-test('speed-run awards use the fastest perfect round', () => {
+test('speed tiers are time barriers broken', () => {
   const p = newProfile('Fast');
+  const speed = FAMILIES.find((f) => f.id === 'speed');
   bumpRound(p, { perfect: true, durationMs: 55000 });
-  const newly = checkAchievements(p).map((a) => a.id);
-  expect(newly).toContain('speed-60');
-  expect(newly).not.toContain('speed-40');
-  bumpRound(p, { perfect: true, durationMs: 39000 });
-  expect(checkAchievements(p).map((a) => a.id)).toContain('speed-40');
+  expect(tierOf(speed, p)).toBe(2); // beat 90s and 60s
+  bumpRound(p, { perfect: true, durationMs: 34000 });
+  expect(tierOf(speed, p)).toBe(4); // all barriers
 });
 
-test('migration v5→v6 adds achievements + stats; merge keeps the best of both', () => {
+test('legacy flat badges migrate to their equivalent tiers', () => {
   const doc = migrateProfile({
-    id: 'v5',
-    schemaVersion: 5,
-    name: 'V5',
+    id: 'v7',
+    schemaVersion: 7,
+    name: 'V7',
     avatarDogId: 'starter',
     createdAt: Date.now(),
     updatedAt: Date.now(),
@@ -69,50 +95,58 @@ test('migration v5→v6 adds achievements + stats; merge keeps the best of both'
     unlocks: [{ dogId: 'starter', table: null, at: Date.now() }],
     play: {},
     speed: { avgMs: 0, samples: 0 },
+    subjects: { little: false },
+    little: { xp: 0 },
+    stats: {},
+    achievements: {
+      'round-1': 100,
+      'streak-5': 200,
+      'streak-25': 300,
+      'pack-25': 400,
+      'speed-40': 500,
+      'facts-90': 600,
+    },
   });
   expect(doc.schemaVersion).toBe(SCHEMA_VERSION);
-  expect(doc.achievements).toEqual({});
-  expect(doc.stats.rounds).toBe(0);
-
-  const a = newProfile('A');
-  const b = structuredClone(a);
-  a.achievements = { 'round-1': 100 };
-  a.stats.rounds = 7;
-  a.stats.fastestPerfectMs = 52000;
-  b.achievements = { 'round-1': 50, 'flash-1': 200 };
-  b.stats.bestStreak = 12;
-  b.stats.fastestPerfectMs = 61000;
-  const m = mergeProfiles(a, b);
-  expect(m.achievements['round-1']).toBe(50); // earliest earn date
-  expect(m.achievements['flash-1']).toBe(200);
-  expect(m.stats.rounds).toBe(7);
-  expect(m.stats.bestStreak).toBe(12);
-  expect(m.stats.fastestPerfectMs).toBe(52000);
+  expect(doc.achievements.rounds).toEqual({ tier: 1, at: 100 });
+  expect(doc.achievements.streak).toEqual({ tier: 3, at: 200 }); // highest tier, earliest date
+  expect(doc.achievements.pack.tier).toBe(5);
+  expect(doc.achievements.speed.tier).toBe(3);
+  expect(doc.achievements.facts.tier).toBe(5);
+  expect(totalTiers(doc)).toBe(1 + 3 + 5 + 3 + 5);
 });
 
-test('e2e: first round earns quick wins, awards screen shows them + next up', async ({ page }) => {
+test('merges keep the highest tier and earliest date per family', () => {
+  const a = newProfile('A');
+  const b = structuredClone(a);
+  a.achievements = { streak: { tier: 2, at: 100 } };
+  b.achievements = { streak: { tier: 4, at: 300 }, care: { tier: 1, at: 50 } };
+  const m = mergeProfiles(a, b);
+  expect(m.achievements.streak).toEqual({ tier: 4, at: 100 });
+  expect(m.achievements.care.tier).toBe(1);
+});
+
+test('e2e: first round reveals Bronze tiers; awards screen shows families', async ({ page }) => {
   await createProfileUI(page, uniqueName('Award'));
   await openTableGrid(page);
   await page.tap('.table-grid .table-btn:nth-child(2)');
   await playQuestions(page, 12);
   await page.waitForSelector('.big-score');
 
-  // Award reveal on results
   const reveal = page.locator('.award-reveal');
   await expect(reveal).toBeVisible();
-  await expect(reveal).toContainText('First Fetch');
+  await expect(reveal).toContainText('Fetcher: Bronze');
 
-  // Awards screen: earned + next-up with progress meters
   await page.tap('[data-home]');
   await page.waitForSelector('[data-nav="/awards"]');
   await page.tap('[data-nav="/awards"]');
   await page.waitForSelector('.award-grid');
-  await expect(page.locator('.award-card:not(.locked)', { hasText: 'First Fetch' })).toBeVisible();
-  expect(await page.$$eval('.award-card.locked', (els) => els.length)).toBeGreaterThan(20);
+  expect(await page.$$eval('.award-card', (els) => els.length)).toBe(FAMILIES.length);
+  await expect(page.locator('.award-card:not(.locked)', { hasText: 'Fetcher' })).toBeVisible();
   await expect(page.locator('.next-up .next-card').first()).toBeVisible();
 });
 
-test('e2e: pet play earns the Playtime award', async ({ page }) => {
+test('e2e: pet play climbs the Best Friend family', async ({ page }) => {
   await page.goto('/', { waitUntil: 'networkidle' });
   await createProfileUI(page, uniqueName('Care'));
   await page.tap('[data-nav="/pack"]');
@@ -122,5 +156,5 @@ test('e2e: pet play earns the Playtime award', async ({ page }) => {
   await page.waitForSelector('.activity-scene');
   await playQuestions(page, 7);
   await page.waitForSelector('[data-again]');
-  await expect(page.locator('.badge', { hasText: 'Playtime' })).toBeVisible();
+  await expect(page.locator('.badge', { hasText: 'Best Friend: Bronze' })).toBeVisible();
 });
