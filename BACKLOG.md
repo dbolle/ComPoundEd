@@ -51,14 +51,14 @@ them)*
 ## Next agreed
 
 - **Per-profile visibility controls in Grown-Ups** (home simplification #3).
-  Design constraint from the user: scaffold a per-profile `subjects` config
-  that can later express — parent selects whether the child sees
-  multiplication/division or addition/subtraction, or grants the child an
-  independent subject toggle. Suggested shape:
-  `subjects: { multiplication: true, division: 'auto', addition: false,
-  subtraction: false, childCanSwitch: false }` (schema-versioned, additive),
-  with today's UI (hide division / hide sitting / limit tables) as the first
-  consumers and the +/− modes plugging in later.
+  The `subjects` config now EXISTS (schema v7; `subjects.little` is its
+  first consumer, toggled at profile creation and in Grown-Ups). Remaining:
+  extend it so a parent selects multiplication/division vs addition/
+  subtraction visibility — or grants the child an independent subject
+  toggle (`childCanSwitch`) — plus hide-sitting / limit-tables options.
+- **Little Pup expansion** — more games as the 3yo grows: tap-to-count
+  (one-to-one correspondence), what-comes-next, shapes, simple addition
+  within 5. Same tap-card framework.
 
 ## Later / roadmap
 

@@ -98,6 +98,7 @@ export function grownupsScreen(el, params, ctx) {
         <h3>Settings</h3>
         <div class="nav-row">
           <button class="btn ghost small" data-sound-toggle></button>
+          <button class="btn ghost small" data-little-toggle></button>
         </div>
       </div>
       <div style="height:12px"></div>
@@ -132,6 +133,22 @@ export function grownupsScreen(el, params, ctx) {
       setSoundOn(isSoundEnabled());
       renderSound();
       if (isSoundEnabled()) sfx.correct(); // audible sample of the new state
+    });
+
+    const littleBtn = panel.querySelector('[data-little-toggle]');
+    const renderLittle = () => {
+      littleBtn.textContent = p.subjects?.little ? '🐣 Little pup: on' : '🧒 Little pup: off';
+    };
+    renderLittle();
+    littleBtn.addEventListener('click', async () => {
+      p.subjects = { ...(p.subjects ?? {}), little: !p.subjects?.little };
+      await ctx.save();
+      renderLittle();
+      toast(
+        p.subjects.little
+          ? `${p.name} now sees the counting games 🐣`
+          : `${p.name} now sees the full app 🧒`
+      );
     });
 
     const toggleBtn = panel.querySelector('[data-sync-toggle]');

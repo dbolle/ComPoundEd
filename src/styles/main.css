@@ -806,6 +806,112 @@ button.pressed {
   }
 }
 
+/* ---------- little pup mode ---------- */
+
+.little-hero .avatar {
+  width: 120px;
+  height: 120px;
+}
+
+.little-btn {
+  font-size: 1.5rem;
+  padding: 22px;
+}
+
+.little-btn.more-btn {
+  background: #8b5cf6;
+  border-bottom-color: #6d28d9;
+}
+
+.little-prompt {
+  font-size: 2rem;
+  font-weight: 900;
+  text-align: center;
+  min-height: 1.3em;
+}
+
+.little-stage {
+  text-align: center;
+}
+
+.little-items {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  font-size: 2.4rem;
+  max-width: 340px;
+}
+
+.little-items.small {
+  font-size: 1.5rem;
+  gap: 5px;
+}
+
+.little-numeral {
+  font-size: 3rem;
+  font-weight: 900;
+}
+
+.little-numeral.big {
+  font-size: 5.5rem;
+  line-height: 1;
+  color: var(--brand-deep);
+}
+
+.little-choices {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: auto;
+}
+
+.little-choices.stacked,
+.little-choices.duo {
+  grid-template-columns: 1fr;
+}
+
+.little-choices.duo {
+  grid-template-columns: 1fr 1fr;
+}
+
+.little-card {
+  background: var(--card);
+  border-radius: 22px;
+  box-shadow: var(--shadow);
+  border-bottom: 6px solid #eee3d5;
+  padding: 18px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 84px;
+}
+
+.little-card.dim {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.little-card.win {
+  background: #dcfce7;
+  border-bottom-color: var(--good);
+  animation: pop 0.4s ease;
+}
+
+.little-fb {
+  font-size: 1.4rem;
+  font-weight: 800;
+  min-height: 1.5em;
+  color: var(--accent-deep);
+}
+
+.little-done .dog.bounce {
+  animation: bounce 0.6s ease infinite alternate;
+  display: inline-block;
+}
+
 /* ---------- heatmap ---------- */
 
 .hm-grid {

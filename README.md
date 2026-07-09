@@ -26,6 +26,10 @@ licensing.
   pup visits with a confidence-first round: mostly mastered quick wins, a few
   firm facts to reinforce, and 1–2 weak facts tucked in the middle.
 - **Multiple players** — sibling-friendly profiles on one device.
+- **Little Pup mode (ages 3–5)** — a per-profile preschool experience:
+  tap-the-answer counting, numeral recognition, and more/fewer games with
+  spoken prompts, error-less retries, and the same dogs (they earn
+  accessories too). Numbers grow 1–5 → 1–10 with success.
 - **Private by construction** — installable, fully offline PWA; all data stays
   on the device. No accounts, ads, analytics, or network calls.
 - **Family backup (opt-in, off by default)** — Grown-Ups area can back

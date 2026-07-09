@@ -1,4 +1,4 @@
-import { listProfiles, createProfile, setSyncEnabled, syncNow } from '../data/store.js';
+import { listProfiles, createProfile, saveProfile, setSyncEnabled, syncNow } from '../data/store.js';
 import { navigate } from '../router.js';
 import { getDog, dogSVG, accessoriesFor } from '../art/dogs.js';
 import { toast, escapeHtml } from '../ui.js';
@@ -18,7 +18,11 @@ export async function profilesScreen(el, params, ctx) {
         <h3>What's your name?</h3>
         <input class="name-input" maxlength="14" autocomplete="off" placeholder="Type your name" />
         <div style="height:12px"></div>
-        <button class="btn" type="submit">Let's go! 🐶</button>
+        <div class="nav-row">
+          <button class="btn" type="submit" data-kind="big">🧒 Big kid</button>
+          <button class="btn accent" type="submit" data-kind="little">🐣 Little pup</button>
+        </div>
+        <p class="muted center" style="margin:8px 0 0;font-size:.85rem">Little pups (ages 3–5) get counting games!</p>
       </form>
       <button class="btn ghost small" data-restore style="margin-top:auto">↻ Restore family backup</button>
     </div>`;
@@ -67,6 +71,10 @@ export async function profilesScreen(el, params, ctx) {
     const name = input.value.trim();
     if (!name) return;
     const p = await createProfile(name);
+    if (e.submitter?.dataset.kind === 'little') {
+      p.subjects = { ...(p.subjects ?? {}), little: true };
+      await saveProfile(p);
+    }
     await ctx.switchProfile(p);
     navigate('/home');
   });
