@@ -43,9 +43,9 @@ export function littleHomeScreen(el, params, ctx) {
   const p = ctx.profile;
   const buddy = getDog(p.avatarDogId);
   el.innerHTML = `
-    <div class="screen">
+    <div class="screen little-screen">
       <div class="hero little-hero">
-        <span class="avatar">${dogSVG(buddy, 120, accessoriesFor(p, buddy.id))}</span>
+        <span class="avatar">${dogSVG(buddy, 96, accessoriesFor(p, buddy.id))}</span>
         <div>
           <h1>Hi, ${escapeHtml(p.name)}!</h1>
           <p class="muted">Let's count with ${escapeHtml(buddy.name)}!</p>
@@ -79,7 +79,7 @@ export function littleGameScreen(el, params, ctx) {
   let firstTry = true;
 
   el.innerHTML = `
-    <div class="screen">
+    <div class="screen little-screen">
       <div class="topbar">
         <button class="btn ghost small" data-quit>✕</button>
         <span class="spacer"></span>
@@ -116,7 +116,7 @@ export function littleGameScreen(el, params, ctx) {
       const item = ITEMS[ri(ITEMS.length)];
       promptEl.textContent = 'How many?';
       say('How many?');
-      stageEl.innerHTML = `<div class="little-items">${itemRow(item, n)}</div>`;
+      stageEl.innerHTML = `<div class="little-items${n > 6 ? ' many' : ''}">${itemRow(item, n)}</div>`;
       for (const v of pickCounts(n, range)) {
         choiceButton(`<span class="little-numeral">${v}</span>`, v === n);
       }
@@ -144,12 +144,12 @@ export function littleGameScreen(el, params, ctx) {
       say('Who has more bones?');
       choicesEl.classList.add('duo');
       choiceButton(
-        `<span class="dog">${dogSVG(buddy, 88, accessoriesFor(p, buddy.id))}</span>
+        `<span class="dog">${dogSVG(buddy, 72, accessoriesFor(p, buddy.id))}</span>
          <span class="little-items small">${itemRow('🦴', a)}</span>`,
         a > b
       );
       choiceButton(
-        `<span class="dog">${dogSVG(rival, 88)}</span>
+        `<span class="dog">${dogSVG(rival, 72)}</span>
          <span class="little-items small">${itemRow('🦴', b)}</span>`,
         b > a
       );
@@ -205,7 +205,7 @@ export function littleGameScreen(el, params, ctx) {
     choicesEl.className = 'little-choices';
     choicesEl.innerHTML = `
       <div class="card center little-done">
-        <div class="dog bounce">${dogSVG(buddy, 130, accessoriesFor(p, buddy.id))}</div>
+        <div class="dog bounce">${dogSVG(buddy, 104, accessoriesFor(p, buddy.id))}</div>
         <h2>Hooray! 🎉</h2>
         <div class="nav-row" style="margin-top:10px">
           <button class="btn" data-again>🔁 Again!</button>

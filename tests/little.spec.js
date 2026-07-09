@@ -1,7 +1,7 @@
 // Little Pup mode: preschool counting games, error-less by design.
 import { test, expect } from '@playwright/test';
 import { newProfile, migrateProfile, mergeProfiles, SCHEMA_VERSION } from '../src/data/schema.js';
-import { readProfile, uniqueName, stat, norm } from './helpers.mjs';
+import { readProfile, seedProfile, uniqueName, stat, norm } from './helpers.mjs';
 
 test('migration v6→v7 adds subjects scaffolding + little progression', () => {
   const doc = migrateProfile({
@@ -88,6 +88,59 @@ test('e2e: How many? round — errorless retries, xp, buddy play credit', async 
   const doc = profiles.find((x) => x.name === name);
   expect(doc.little.xp).toBe(4); // 5 correct, one needed a retry
   expect(doc.play.starter.fetch).toBe(1); // counts as playing with the buddy
+});
+
+test('e2e: little screens fit a small iPhone viewport with zero scrolling', async ({ browser, baseURL }) => {
+  // 390×560 ≈ iPhone with the Safari bars showing (the worst case).
+  const ctx = await browser.newContext({
+    baseURL,
+    viewport: { width: 390, height: 560 },
+    hasTouch: true,
+    isMobile: true,
+  });
+  const page = await ctx.newPage();
+  await page.goto('/', { waitUntil: 'networkidle' });
+  const doc = newProfile('Fit');
+  doc.id = 'fit-kid';
+  doc.subjects.little = true;
+  doc.little.xp = 50; // numbers up to 10 → the tallest layouts
+  await seedProfile(page, doc);
+  await page.tap('.profile-card:has-text("Fit")');
+  await page.waitForSelector('.little-btn');
+
+  const overflow = () =>
+    page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight);
+  expect(await overflow()).toBeLessThanOrEqual(0);
+
+  for (const game of ['count', 'find', 'more']) {
+    await page.tap(`[data-game="${game}"]`);
+    await page.waitForSelector('.little-card');
+    for (let i = 0; i < 4; i++) {
+      expect(await overflow()).toBeLessThanOrEqual(0);
+      const n = await page.evaluate(() =>
+        Number(document.querySelector('.little-stage').dataset.answer)
+      );
+      const cards = await page.$$('.little-card');
+      for (const c of cards) {
+        const text = (await c.textContent()).trim();
+        const items = (await c.$$('.li')).length;
+        if (text === String(n) || items === n) {
+          await c.tap();
+          break;
+        }
+      }
+      await page.waitForTimeout(1100);
+      if (await page.$('.little-done')) break;
+    }
+    if (await page.$('.little-done')) {
+      expect(await overflow()).toBeLessThanOrEqual(0);
+      await page.tap('[data-home]');
+    } else {
+      await page.tap('[data-quit]');
+    }
+    await page.waitForSelector('.little-btn');
+  }
+  await ctx.close();
 });
 
 test('e2e: grown-ups toggle flips a big-kid profile into little mode', async ({ page }) => {
