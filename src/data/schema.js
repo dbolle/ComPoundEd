@@ -52,6 +52,7 @@ export const EMPTY_STATS = () => ({
   sittings: 0,
   comebacks: 0,
   fastAnswers: 0,
+  braveTries: 0, // first-ever attempts at untried facts, right or wrong
   currentStreak: 0,
   bestStreak: 0,
   fastestPerfectMs: null,

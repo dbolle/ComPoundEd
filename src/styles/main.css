@@ -564,6 +564,10 @@ button.pressed {
   color: var(--ink-soft);
 }
 
+.feedback .hint.brave {
+  color: var(--brand-deep);
+}
+
 .feedback .got-it {
   display: inline-flex;
   margin-top: 10px;

@@ -132,7 +132,7 @@ test('e2e: fresh division round uses the missing-factor bridge and teaches on mi
     answerFn: (q, i) => (i === 1 ? q.right + 1 : q.right),
     afterAnswer: async (q, i) => {
       if (i === 1) {
-        await expect(page.locator('.feedback.bad .hint')).toContainText('Think times');
+        await expect(page.locator('.feedback.bad .hint').last()).toContainText('Think times');
       }
     },
   });
