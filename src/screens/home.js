@@ -35,7 +35,15 @@ export async function homeScreen(el, params, ctx) {
           <p class="muted">Ready to fetch some facts?</p>
         </div>
       </div>
-      ${next ? `<button class="btn" data-suggest>🐾 Practice next: ${next.label}</button>` : ''}
+      ${
+        next
+          ? `<button class="btn" data-suggest>${
+              next.teach
+                ? `🐶 Teach ${escapeHtml(next.teach)}: ${next.label}`
+                : `🐾 Practice next: ${next.label}`
+            }</button>`
+          : ''
+      }
       <button class="btn${next ? ' accent' : ''}" data-mixed>🎲 Mixed round!</button>
       <div data-sitting-slot></div>
       <button class="section-toggle${prefs.tablesOpen ? ' open' : ''}" data-toggle="tables" aria-expanded="${!!prefs.tablesOpen}">

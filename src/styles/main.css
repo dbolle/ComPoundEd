@@ -493,6 +493,21 @@ button.pressed {
   filter: grayscale(1) brightness(0.7);
 }
 
+.teach-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fef3c7;
+  border: 2px dashed var(--brand);
+  border-radius: 16px;
+  padding: 6px 12px;
+  font-size: 0.95rem;
+}
+
+.teach-banner svg {
+  flex: none;
+}
+
 .question {
   font-size: clamp(3rem, 14vw, 4.2rem);
   font-weight: 900;
