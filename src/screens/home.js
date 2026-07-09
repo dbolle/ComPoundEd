@@ -12,12 +12,14 @@ import { sittingReady } from '../engine/selector.js';
 import { suggestNext } from '../engine/suggest.js';
 import { getUiPrefs, setUiPrefs } from '../data/store.js';
 import { getDog, dogSVG, accessoriesFor, GUESTS } from '../art/dogs.js';
+import { littleHomeScreen } from './little.js';
 import { escapeHtml } from '../ui.js';
 
 const tables = () => Array.from({ length: TABLE_MAX - TABLE_MIN + 1 }, (_, i) => TABLE_MIN + i);
 
 export async function homeScreen(el, params, ctx) {
   const p = ctx.profile;
+  if (p.subjects?.little) return littleHomeScreen(el, params, ctx);
   const prefs = await getUiPrefs(p.id);
   const next = suggestNext(p);
   const masteredM = tables().filter((t) => isTableMastered(p, t)).length;

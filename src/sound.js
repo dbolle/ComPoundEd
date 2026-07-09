@@ -70,6 +70,22 @@ export const sfx = {
     }),
 };
 
+// Spoken prompts for pre-readers (little-pup mode). Uses the device's local
+// speech voices — nothing leaves the device. Fails silently everywhere else.
+export function say(text) {
+  if (!on) return;
+  try {
+    if (!('speechSynthesis' in window)) return;
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 0.85;
+    u.pitch = 1.1;
+    speechSynthesis.cancel();
+    speechSynthesis.speak(u);
+  } catch {
+    /* no voices available — the visuals carry it */
+  }
+}
+
 export function buzz(pattern) {
   if (!on) return;
   try {

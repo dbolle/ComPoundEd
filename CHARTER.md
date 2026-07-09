@@ -9,6 +9,7 @@ Every kid can master their multiplication tables through short, joyful, dog-fill
 ## Audience
 
 - **Primary:** kids ages 7–10 learning multiplication facts (0×0 through 12×12).
+- **Little pups:** ages 3–5, via Little Pup mode — tap-only counting and numeral games with spoken prompts, no reading or typing required, and no fail states.
 - **Secondary:** parents and teachers, via a "Grown-Ups" area for viewing progress and managing profiles.
 
 ## Goals

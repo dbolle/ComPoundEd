@@ -2,7 +2,7 @@
 // migrateProfile() whenever the shape of stored data changes — this is the
 // contract a future sync backend will rely on.
 
-export const SCHEMA_VERSION = 6;
+export const SCHEMA_VERSION = 7;
 
 export const EMPTY_STATS = () => ({
   rounds: 0,
@@ -48,6 +48,13 @@ export function newProfile(name) {
     // Typing/reading speed baseline from gimme facts (×0/×1), used to tune
     // the per-kid "fast answer" bar. samples < 5 → default bar applies.
     speed: { avgMs: 0, samples: 0 },
+    // Which parts of the app this player sees. Scaffolded for the roadmap:
+    // parents will be able to select multiplication/division vs addition/
+    // subtraction here, or grant the child an independent subject toggle.
+    // `little: true` switches the whole app to the preschool experience.
+    subjects: { little: false },
+    // Little-pup progression: xp grows the number range (1–5 → 1–10).
+    little: { xp: 0 },
     // Earned achievement badges: { [achievementId]: earnedAt }
     achievements: {},
     // Lifetime counters that feed the achievement ladders.
@@ -84,6 +91,11 @@ export function migrateProfile(doc) {
     doc.achievements = doc.achievements ?? {};
     doc.stats = { ...EMPTY_STATS(), ...(doc.stats ?? {}) };
     doc.schemaVersion = 6;
+  }
+  if (doc.schemaVersion === 6) {
+    doc.subjects = doc.subjects ?? { little: false };
+    doc.little = doc.little ?? { xp: 0 };
+    doc.schemaVersion = 7;
   }
   return doc;
 }
@@ -153,8 +165,14 @@ export function mergeProfiles(a, b) {
       stats[k] = Math.max(sa[k] ?? 0, sb[k] ?? 0);
     }
   }
+  // Subjects follow the more recently updated doc (it's a parent setting);
+  // little-pup xp never regresses.
+  const subjects = { little: false, ...(newer.subjects ?? {}) };
+  const little = { xp: Math.max(a.little?.xp ?? 0, b.little?.xp ?? 0) };
   return {
     ...newer,
+    subjects,
+    little,
     schemaVersion: SCHEMA_VERSION,
     createdAt: Math.min(a.createdAt ?? Date.now(), b.createdAt ?? Date.now()),
     updatedAt: Math.max(a.updatedAt ?? 0, b.updatedAt ?? 0),
