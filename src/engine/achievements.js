@@ -34,6 +34,8 @@ export function bumpAnswer(profile, r) {
   }
   if (r.fast) s.fastAnswers += 1;
   if (r.comeback) s.comebacks += 1;
+  // Bravery is the attempt itself — counted whether or not it was right.
+  if (r.firstAttempt) s.braveTries = (s.braveTries ?? 0) + 1;
   return s;
 }
 
@@ -111,6 +113,7 @@ export const FAMILIES = [
   F('speed', '🏎️', 'Speed Runner', 'Perfect-round time barriers broken (90s, 60s, 45s, 35s)', [1, 2, 3, 4], speedValue),
   F('flash', '⚡', 'Quick Paws', 'Lightning-fast answers', [1, 25, 100, 400, 1000, 2500], (p) => p.stats.fastAnswers, true),
   F('comeback', '💪', 'Bounce Back', 'Facts nailed after missing them', [1, 10, 50, 150, 400, 1000], (p) => p.stats.comebacks, true),
+  F('brave', '🦁', 'Brave Paw', 'Brand-new facts tried (right or wrong!)', [1, 10, 30, 75, 150, 300], (p) => p.stats.braveTries ?? 0, true),
   F('answers', '📚', 'Scholar Pup', 'Questions answered', [100, 500, 1000, 2500, 5000, 10000], (p) => profileTotals(p).attempts, true),
   F('care', '🦴', 'Best Friend', 'Pet play sessions', [1, 10, 50, 150, 400, 1000], (p) => p.stats.activities, true),
   F('pals', '🐕', 'Pack Pal', 'Different dogs played with', [3, 8, 15, 25], dogsCaredFor),

@@ -205,9 +205,12 @@ export function activityScreen(el, params, ctx) {
       buzz(60);
       ansEl.classList.add('bad');
       const hint = q.kind === 'div' ? divisionHint(q.a, q.b) : hintFor(ctx.profile, q.a, q.b);
+      const brave = r.firstAttempt
+        ? '<span class="hint brave">🦁 Brand-new fact — trying it is the win!</span>'
+        : '';
       // Self-paced: the hint stays until the kid says they're ready — and the
       // same fact comes right back, so the hint gets used immediately.
-      fbEl.innerHTML = `${q.correction}<span class="hint">💡 ${hint}</span>
+      fbEl.innerHTML = `${q.correction}${brave}<span class="hint">💡 ${hint}</span>
         <button class="btn got-it" data-next>👍 Got it!</button>`;
       fbEl.classList.add('bad');
       awaitingNext = true;
