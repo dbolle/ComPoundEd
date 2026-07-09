@@ -27,7 +27,9 @@ export function bumpAnswer(profile, r) {
   if (r.correct) {
     s.currentStreak += 1;
     s.bestStreak = Math.max(s.bestStreak, s.currentStreak);
-  } else {
+  } else if (!r.firstAttempt) {
+    // A miss on a brand-new fact is streak-NEUTRAL: exploring never costs
+    // the streak, so trying untried facts is the safest move on the board.
     s.currentStreak = 0;
   }
   if (r.fast) s.fastAnswers += 1;
