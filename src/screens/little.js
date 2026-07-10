@@ -182,7 +182,7 @@ export function littleGameScreen(el, params, ctx) {
   };
 
   el.innerHTML = `
-    <div class="screen little-screen">
+    <div class="screen little-screen little-lock">
       <div class="topbar">
         <button class="btn ghost small" data-quit aria-label="Stop">✕</button>
         <span class="spacer"></span>
