@@ -39,12 +39,12 @@ async function createLittleProfile(page, name) {
   await page.tap('[data-new]');
   await page.fill('.name-input', name);
   await page.tap('form[data-create] [data-kind="little"]');
-  await page.waitForSelector('.little-btn');
+  await page.waitForSelector('.little-tile');
 }
 
 test('e2e: little pup profile gets the counting home, not the grids', async ({ page }) => {
   await createLittleProfile(page, uniqueName('Pup'));
-  expect(await page.$$eval('.little-btn', (els) => els.length)).toBe(3);
+  expect(await page.$$eval('.little-tile', (els) => els.length)).toBe(3);
   expect(await page.$('.table-grid')).toBeNull();
   expect(await page.$('[data-suggest]')).toBeNull();
 });
@@ -68,7 +68,9 @@ test('e2e: How many? round — errorless retries, xp, buddy play credit', async 
       await page.locator('.little-card', { hasText: new RegExp(`^${wrongText}$`) }).tap();
       await expect(page.locator('.little-card.dim')).toHaveCount(1);
       await expect(page.locator('.paw.done')).toHaveCount(0);
-      await expect(page.locator('.little-fb')).toContainText('Try again');
+      await expect(page.locator('.little-fb')).toContainText('🐾');
+      await expect(page.locator('.little-card.shake')).toHaveCount(1);
+      await page.tap('[data-say]'); // 🔊 repeat is present and safe
     }
     await page.locator('.little-card', { hasText: new RegExp(`^${n}$`) }).tap();
     await page.waitForTimeout(1150);
@@ -106,7 +108,7 @@ test('e2e: little screens fit a small iPhone viewport with zero scrolling', asyn
   doc.little.xp = 50; // numbers up to 10 → the tallest layouts
   await seedProfile(page, doc);
   await page.tap('.profile-card:has-text("Fit")');
-  await page.waitForSelector('.little-btn');
+  await page.waitForSelector('.little-tile');
 
   const overflow = () =>
     page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight);
@@ -138,7 +140,7 @@ test('e2e: little screens fit a small iPhone viewport with zero scrolling', asyn
     } else {
       await page.tap('[data-quit]');
     }
-    await page.waitForSelector('.little-btn');
+    await page.waitForSelector('.little-tile');
   }
   await ctx.close();
 });
@@ -150,7 +152,7 @@ test('e2e: grown-ups toggle flips a big-kid profile into little mode', async ({ 
   await page.fill('.name-input', name);
   await page.tap('form[data-create] [data-kind="big"]');
   await page.waitForSelector('.hero');
-  expect(await page.$('.little-btn')).toBeNull();
+  expect(await page.$('.little-tile')).toBeNull();
 
   await page.tap('[data-nav="/grownups"]');
   await page.waitForSelector('[data-hold]');
@@ -162,6 +164,6 @@ test('e2e: grown-ups toggle flips a big-kid profile into little mode', async ({ 
   await page.tap('[data-little-toggle]');
   await expect(page.locator('[data-little-toggle]')).toContainText('on');
   await page.tap('[data-back]');
-  await page.waitForSelector('.little-btn');
-  expect(await page.$$eval('.little-btn', (els) => els.length)).toBe(3);
+  await page.waitForSelector('.little-tile');
+  expect(await page.$$eval('.little-tile', (els) => els.length)).toBe(3);
 });
