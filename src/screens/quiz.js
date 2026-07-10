@@ -50,7 +50,7 @@ export function quizScreen(el, params, ctx) {
   const roundStart = performance.now();
 
   el.innerHTML = `
-    <div class="screen">
+    <div class="screen game-screen">
       <div class="topbar">
         <button class="btn ghost small" data-quit>✕ Stop</button>
         <span class="spacer"></span>
@@ -84,6 +84,13 @@ export function quizScreen(el, params, ctx) {
   const pad = el.querySelector('.numpad');
 
   buildNumpad(pad, press);
+  const banner = el.querySelector('.teach-banner');
+  if (banner) {
+    setTimeout(() => {
+      banner.classList.add('leaving');
+      setTimeout(() => banner.remove(), 600);
+    }, 4500);
+  }
 
   function showQuestion() {
     const q = questions[index];
@@ -162,6 +169,7 @@ export function quizScreen(el, params, ctx) {
         <button class="btn got-it" data-next>👍 Got it!</button>`;
       fbEl.classList.add('bad');
       awaitingNext = true;
+      pad.hidden = true; // the hint + Got it! take the numpad's space
       fbEl.querySelector('[data-next]').addEventListener('click', gotIt);
     }
   }
@@ -173,6 +181,7 @@ export function quizScreen(el, params, ctx) {
   }
 
   async function next() {
+    pad.hidden = false;
     index += 1;
     input = '';
     busy = false;
