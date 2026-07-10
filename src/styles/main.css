@@ -1012,6 +1012,38 @@ button.pressed {
   animation: shake 0.4s ease;
 }
 
+.tap-count {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: var(--brand-deep);
+  text-align: center;
+  min-height: 1em;
+  line-height: 1;
+}
+
+.tap-items .tap-item {
+  font-size: inherit;
+  padding: 2px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.tap-items .tap-item.popped {
+  transform: scale(1.35);
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+.feed-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.feed-bowl {
+  font-size: 1.8rem;
+}
+
 .little-prompt {
   font-size: 1.5rem;
   font-weight: 900;
