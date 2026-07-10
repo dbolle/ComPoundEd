@@ -14,12 +14,12 @@ import { confetti, escapeHtml } from '../ui.js';
 const ITEMS = ['🦴', '🎾', '🍖'];
 const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 const STARS = ['⭐', '🌟', '🎉', '🐾'];
-const KIND_BY_GAME = { count: 'fetch', find: 'walk', more: 'feed', tap: 'fetch', feed: 'feed', shape: 'walk', pattern: 'feed' };
-const QUESTIONS_BY_GAME = { count: 5, find: 5, more: 5, tap: 3, feed: 3, shape: 5, pattern: 5 };
+const KIND_BY_GAME = { count: 'fetch', find: 'walk', more: 'feed', tap: 'fetch', feed: 'feed', shape: 'walk', pattern: 'feed', next: 'walk', add: 'fetch' };
+const QUESTIONS_BY_GAME = { count: 5, find: 5, more: 5, tap: 3, feed: 3, shape: 5, pattern: 5, next: 5, add: 5 };
 
 // New species from the pet pool host the non-counting games — a pre-reader
 // navigates by which animal, not by words.
-const HOSTS = { shape: 'cat-1', pattern: 'turtle-1' };
+const HOSTS = { shape: 'cat-1', pattern: 'turtle-1', next: 'bird-1', add: 'guinea-1' };
 
 const SHAPE_COLORS = ['#ef4444', '#3b82f6', '#22c55e', '#f59e0b', '#8b5cf6'];
 const SHAPE_DEFS = [
@@ -63,38 +63,57 @@ function tiles(p, buddy) {
   return [
     {
       game: 'count',
+      minXp: 0,
       caption: 'How many?',
-      art: `<span class="tile-art">🦴🦴🦴</span><span class="tile-mark">❓</span>`,
+      art: `<span class="tile-art">\u{1F9B4}\u{1F9B4}\u{1F9B4}</span><span class="tile-mark">\u2753</span>`,
     },
     {
       game: 'tap',
+      minXp: 0,
       caption: 'Tap & count',
-      art: `<span class="tile-art">👆🦴</span><span class="tile-mark">1·2·3</span>`,
+      art: `<span class="tile-art">\u{1F446}\u{1F9B4}</span><span class="tile-mark">1\u00b72\u00b73</span>`,
     },
     {
       game: 'find',
+      minXp: 8,
       caption: 'Find it!',
-      art: `<span class="tile-num">5</span><span class="tile-art small">🦴🦴🦴🦴🦴</span>`,
+      art: `<span class="tile-num">5</span><span class="tile-art small">\u{1F9B4}\u{1F9B4}\u{1F9B4}\u{1F9B4}\u{1F9B4}</span>`,
     },
     {
       game: 'feed',
+      minXp: 14,
       caption: 'Feed me!',
-      art: `<span class="tile-dogs">${dogSVG(buddy, 38, accessoriesFor(p, buddy.id))}</span><span class="tile-art small">🦴➡️🥣</span>`,
+      art: `<span class="tile-dogs">${dogSVG(buddy, 38, accessoriesFor(p, buddy.id))}</span><span class="tile-art small">\u{1F9B4}\u27A1\uFE0F\u{1F963}</span>`,
+    },
+    {
+      game: 'more',
+      minXp: 20,
+      caption: 'Who has more?',
+      art: `<span class="tile-dogs">${dogSVG(buddy, 38, accessoriesFor(p, buddy.id))}${dogSVG(GUESTS[0], 38)}</span><span class="tile-art small">\u{1F9B4}\u{1F9B4} \u00b7 \u{1F9B4}</span>`,
     },
     {
       game: 'shape',
+      minXp: 28,
       caption: 'Shapes',
       art: `<span class="tile-dogs">${petSVG(getPet(HOSTS.shape), 38)}</span><span class="tile-art small">${shapeSVG(SHAPE_DEFS[0], SHAPE_COLORS[0], 18)}${shapeSVG(SHAPE_DEFS[2], SHAPE_COLORS[1], 18)}${shapeSVG(SHAPE_DEFS[1], SHAPE_COLORS[2], 18)}</span>`,
     },
     {
       game: 'pattern',
+      minXp: 38,
       caption: 'Patterns',
-      art: `<span class="tile-dogs">${petSVG(getPet(HOSTS.pattern), 38)}</span><span class="tile-art small">${shapeSVG(SHAPE_DEFS[0], SHAPE_COLORS[0], 16)}${shapeSVG(SHAPE_DEFS[0], SHAPE_COLORS[1], 16)}${shapeSVG(SHAPE_DEFS[0], SHAPE_COLORS[0], 16)}❓</span>`,
+      art: `<span class="tile-dogs">${petSVG(getPet(HOSTS.pattern), 38)}</span><span class="tile-art small">${shapeSVG(SHAPE_DEFS[0], SHAPE_COLORS[0], 16)}${shapeSVG(SHAPE_DEFS[0], SHAPE_COLORS[1], 16)}${shapeSVG(SHAPE_DEFS[0], SHAPE_COLORS[0], 16)}\u2753</span>`,
     },
     {
-      game: 'more',
-      caption: 'Who has more?',
-      art: `<span class="tile-dogs">${dogSVG(buddy, 38, accessoriesFor(p, buddy.id))}${dogSVG(GUESTS[0], 38)}</span><span class="tile-art small">🦴🦴 · 🦴</span>`,
+      game: 'next',
+      minXp: 55,
+      caption: 'What comes next?',
+      art: `<span class="tile-dogs">${petSVG(getPet(HOSTS.next), 38)}</span><span class="tile-art small"><span class="tile-mark">2\u00b73\u00b7\u2753</span></span>`,
+    },
+    {
+      game: 'add',
+      minXp: 70,
+      caption: 'Adding',
+      art: `<span class="tile-dogs">${petSVG(getPet(HOSTS.add), 38)}</span><span class="tile-art small">\u{1F9B4}\u2795\u{1F9B4}\u{1F9B4}</span>`,
     },
   ];
 }
@@ -117,8 +136,12 @@ export function littleHomeScreen(el, params, ctx) {
       </div>
     </div>`;
 
+  // Games appear as the little pup grows; one sparkly mystery tile hints at
+  // the next unlock without pressuring.
+  const xp = p.little?.xp ?? 0;
   const grid = el.querySelector('.little-tiles');
-  for (const t of tiles(p, buddy)) {
+  const all = tiles(p, buddy);
+  for (const t of all.filter((t) => xp >= t.minXp)) {
     const btn = document.createElement('button');
     btn.className = 'little-tile';
     btn.dataset.game = t.game;
@@ -126,6 +149,14 @@ export function littleHomeScreen(el, params, ctx) {
     btn.innerHTML = `${t.art}<span class="tile-caption">${t.caption}</span>`;
     btn.addEventListener('click', () => navigate(`/little?game=${t.game}`));
     grid.appendChild(btn);
+  }
+  const upcoming = all.find((t) => xp < t.minXp);
+  if (upcoming) {
+    const soon = document.createElement('div');
+    soon.className = 'little-tile soon';
+    soon.setAttribute('aria-label', 'More games soon!');
+    soon.innerHTML = `<span class="tile-art">✨</span><span class="tile-caption">···</span>`;
+    grid.appendChild(soon);
   }
   for (const b of el.querySelectorAll('[data-nav]')) {
     b.addEventListener('click', () => navigate(b.dataset.nav));
@@ -293,6 +324,39 @@ export function littleGameScreen(el, params, ctx) {
         { html: shapeSVG(defA, colB), good: false }, // right shape, wrong color
       ].sort(() => Math.random() - 0.5);
       for (const o of options) choiceButton(o.html, o.good);
+    } else if (game === 'next') {
+      // What comes next? — number path with Kiwi the bird.
+      const host = getPet(HOSTS.next);
+      const s0 = 1 + ri(Math.max(1, range - 3));
+      const answer = s0 + 3;
+      promptEl.innerHTML = `${petSVG(host, 34)} ➡️❓`;
+      speak('What comes next?');
+      stageEl.dataset.answer = answer;
+      stageEl.innerHTML = `<div class="pattern-row">${[s0, s0 + 1, s0 + 2]
+        .map((v) => `<span class="path-num">${v}</span>`)
+        .join('<span class="path-paw">🐾</span>')}<span class="path-paw">🐾</span><span class="pattern-q">❓</span></div>`;
+      for (const v of pickCounts(answer, Math.max(range, answer))) {
+        choiceButton(`<span class="little-numeral">${v}</span>`, v === answer);
+      }
+    } else if (game === 'add') {
+      // Adding within 5 (10 later) with Peanut the guinea pig — two groups
+      // of things, one number.
+      const host = getPet(HOSTS.add);
+      const maxSum = (p.little?.xp ?? 0) >= 100 ? 10 : 5;
+      const a = 1 + ri(maxSum - 1);
+      const b = 1 + ri(maxSum - a);
+      const item = ITEMS[ri(ITEMS.length)];
+      promptEl.innerHTML = `${petSVG(host, 34)} ➕`;
+      speak(`${WORDS[a]} plus ${WORDS[b]}!`);
+      stageEl.dataset.answer = a + b;
+      stageEl.innerHTML = `<div class="pattern-row add-row">
+        <span class="little-items small">${itemRow(item, a)}</span>
+        <span class="pattern-q">➕</span>
+        <span class="little-items small">${itemRow(item, b)}</span>
+        <span class="pattern-q">=</span><span class="pattern-q">❓</span></div>`;
+      for (const v of pickCounts(a + b, Math.max(maxSum, a + b))) {
+        choiceButton(`<span class="little-numeral">${v}</span>`, v === a + b);
+      }
     } else {
       // more: two dogs with bone piles — tap the one with more
       const others = [...DOGS, ...GUESTS].filter((d) => d.id !== buddy.id);

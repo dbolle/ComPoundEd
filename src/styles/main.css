@@ -1061,6 +1061,26 @@ button.pressed {
   color: var(--brand-deep);
 }
 
+.path-num {
+  font-size: 1.9rem;
+  font-weight: 900;
+  background: var(--card);
+  border-radius: 12px;
+  padding: 4px 10px;
+  box-shadow: var(--shadow);
+}
+
+.path-paw {
+  font-size: 0.9rem;
+  opacity: 0.6;
+}
+
+.little-tile.soon {
+  opacity: 0.5;
+  border-bottom-style: dashed;
+  pointer-events: none;
+}
+
 .little-prompt-row .little-prompt svg {
   vertical-align: middle;
 }
