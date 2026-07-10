@@ -1,6 +1,7 @@
-// Little Pup mode: preschool counting games for ages 3–5. No reading, no
-// number pad — big tap-the-answer cards, error-less retries (a wrong tap
-// dims; you can never fail), spoken prompts, and the same dogs throughout.
+// Little Pup mode: preschool games for ages 3–5. Icon-first by design —
+// pictorial tiles, spoken prompts with a 🔊 repeat button, and wordless
+// feedback (wobbles and stars, never sentences). No reading, no number pad,
+// no fail states: a wrong tap dims and the question waits.
 // Every finished game counts as playing with the buddy dog, so little pups
 // earn real accessories too.
 
@@ -9,11 +10,11 @@ import { getDog, dogSVG, accessoriesFor, DOGS, GUESTS } from '../art/dogs.js';
 import { sfx, buzz, say } from '../sound.js';
 import { confetti, escapeHtml } from '../ui.js';
 
-const QUESTIONS = 5;
 const ITEMS = ['🦴', '🎾', '🍖'];
 const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
-const CHEERS = ['Yes! ⭐', 'Woof! 🐾', 'Great job! 🎉', 'Super! 🌟'];
+const STARS = ['⭐', '🌟', '🎉', '🐾'];
 const KIND_BY_GAME = { count: 'fetch', find: 'walk', more: 'feed' };
+const QUESTIONS_BY_GAME = { count: 5, find: 5, more: 5 };
 
 const ri = (n) => Math.floor(Math.random() * n);
 
@@ -39,6 +40,28 @@ function pickCounts(correct, range, count = 3) {
   return [...set].sort(() => Math.random() - 0.5);
 }
 
+// Pictorial tiles: a pre-reader navigates by pictures; captions are tiny
+// hints for grown-ups and older siblings.
+function tiles(p, buddy) {
+  return [
+    {
+      game: 'count',
+      caption: 'How many?',
+      art: `<span class="tile-art">🦴🦴🦴</span><span class="tile-mark">❓</span>`,
+    },
+    {
+      game: 'find',
+      caption: 'Find it!',
+      art: `<span class="tile-num">5</span><span class="tile-art small">🦴🦴🦴🦴🦴</span>`,
+    },
+    {
+      game: 'more',
+      caption: 'Who has more?',
+      art: `<span class="tile-dogs">${dogSVG(buddy, 38, accessoriesFor(p, buddy.id))}${dogSVG(GUESTS[0], 38)}</span><span class="tile-art small">🦴🦴 · 🦴</span>`,
+    },
+  ];
+}
+
 export function littleHomeScreen(el, params, ctx) {
   const p = ctx.profile;
   const buddy = getDog(p.avatarDogId);
@@ -48,19 +71,24 @@ export function littleHomeScreen(el, params, ctx) {
         <span class="avatar">${dogSVG(buddy, 96, accessoriesFor(p, buddy.id))}</span>
         <div>
           <h1>Hi, ${escapeHtml(p.name)}!</h1>
-          <p class="muted">Let's count with ${escapeHtml(buddy.name)}!</p>
         </div>
       </div>
-      <button class="btn little-btn" data-game="count">🦴 How many?</button>
-      <button class="btn accent little-btn" data-game="find">🔢 Find the number!</button>
-      <button class="btn little-btn more-btn" data-game="more">🐶 Who has more?</button>
-      <div class="nav-row" style="margin-top:auto">
-        <button class="btn ghost small" data-nav="/profiles">🔄 Switch player</button>
-        <button class="btn ghost small" data-nav="/grownups">🔒 Grown-ups</button>
+      <div class="little-tiles"></div>
+      <div class="nav-row little-nav" style="margin-top:auto">
+        <button class="btn ghost small" data-nav="/profiles" aria-label="Switch player">👥</button>
+        <button class="btn ghost small" data-nav="/grownups" aria-label="Grown-ups">🔒</button>
       </div>
     </div>`;
-  for (const b of el.querySelectorAll('[data-game]')) {
-    b.addEventListener('click', () => navigate(`/little?game=${b.dataset.game}`));
+
+  const grid = el.querySelector('.little-tiles');
+  for (const t of tiles(p, buddy)) {
+    const btn = document.createElement('button');
+    btn.className = 'little-tile';
+    btn.dataset.game = t.game;
+    btn.setAttribute('aria-label', t.caption);
+    btn.innerHTML = `${t.art}<span class="tile-caption">${t.caption}</span>`;
+    btn.addEventListener('click', () => navigate(`/little?game=${t.game}`));
+    grid.appendChild(btn);
   }
   for (const b of el.querySelectorAll('[data-nav]')) {
     b.addEventListener('click', () => navigate(b.dataset.nav));
@@ -70,22 +98,32 @@ export function littleHomeScreen(el, params, ctx) {
 export function littleGameScreen(el, params, ctx) {
   const p = ctx.profile;
   const little = ensureLittle(p);
-  const game = ['count', 'find', 'more'].includes(params.get('game'))
+  const game = Object.keys(QUESTIONS_BY_GAME).includes(params.get('game'))
     ? params.get('game')
     : 'count';
+  const QUESTIONS = QUESTIONS_BY_GAME[game];
   const buddy = getDog(p.avatarDogId);
   let index = 0;
   let busy = false;
   let firstTry = true;
+  let lastSpoken = '';
+
+  const speak = (text) => {
+    lastSpoken = text;
+    say(text);
+  };
 
   el.innerHTML = `
     <div class="screen little-screen">
       <div class="topbar">
-        <button class="btn ghost small" data-quit>✕</button>
+        <button class="btn ghost small" data-quit aria-label="Stop">✕</button>
         <span class="spacer"></span>
         <span class="quiz-progress">${'<span class="paw">🐾</span>'.repeat(QUESTIONS)}</span>
       </div>
-      <div class="little-prompt"></div>
+      <div class="little-prompt-row">
+        <button class="say-again" data-say aria-label="Hear it again">🔊</button>
+        <span class="little-prompt"></span>
+      </div>
       <div class="little-stage"></div>
       <div class="little-choices"></div>
       <div class="feedback center little-fb"></div>
@@ -95,6 +133,7 @@ export function littleGameScreen(el, params, ctx) {
   const stageEl = el.querySelector('.little-stage');
   const choicesEl = el.querySelector('.little-choices');
   const fbEl = el.querySelector('.little-fb');
+  el.querySelector('[data-say]').addEventListener('click', () => say(lastSpoken));
 
   function choiceButton(html, correct, cls = '') {
     const btn = document.createElement('button');
@@ -114,8 +153,8 @@ export function littleGameScreen(el, params, ctx) {
     if (game === 'count') {
       const n = 1 + ri(range);
       const item = ITEMS[ri(ITEMS.length)];
-      promptEl.textContent = 'How many?';
-      say('How many?');
+      promptEl.textContent = `${item}❓`;
+      speak('How many?');
       stageEl.innerHTML = `<div class="little-items${n > 6 ? ' many' : ''}">${itemRow(item, n)}</div>`;
       for (const v of pickCounts(n, range)) {
         choiceButton(`<span class="little-numeral">${v}</span>`, v === n);
@@ -124,8 +163,8 @@ export function littleGameScreen(el, params, ctx) {
     } else if (game === 'find') {
       const n = 1 + ri(range);
       const item = ITEMS[ri(ITEMS.length)];
-      promptEl.textContent = 'Find the number!';
-      say(`Find ${WORDS[n]}!`);
+      promptEl.textContent = '🔍❓';
+      speak(`Find ${WORDS[n]}!`);
       stageEl.innerHTML = `<div class="little-numeral big">${n}</div>`;
       choicesEl.classList.add('stacked');
       for (const v of pickCounts(n, range)) {
@@ -136,12 +175,11 @@ export function littleGameScreen(el, params, ctx) {
       // more: two dogs with bone piles — tap the one with more
       const others = [...DOGS, ...GUESTS].filter((d) => d.id !== buddy.id);
       const rival = others[ri(others.length)];
-      const range2 = rangeFor(p);
-      const a = 1 + ri(range2);
-      let b = 1 + ri(range2);
-      while (b === a) b = 1 + ri(range2);
-      promptEl.textContent = 'Who has more?';
-      say('Who has more bones?');
+      const a = 1 + ri(range);
+      let b = 1 + ri(range);
+      while (b === a) b = 1 + ri(range);
+      promptEl.textContent = '🦴🆚🦴';
+      speak('Who has more bones?');
       choicesEl.classList.add('duo');
       choiceButton(
         `<span class="dog">${dogSVG(buddy, 72, accessoriesFor(p, buddy.id))}</span>
@@ -157,25 +195,31 @@ export function littleGameScreen(el, params, ctx) {
     }
   }
 
+  function celebrate(btn) {
+    busy = true;
+    if (firstTry) little.xp += 1;
+    paws[index].classList.add('done');
+    if (btn) btn.classList.add('win');
+    sfx.correct();
+    buzz(20);
+    fbEl.textContent = `${STARS[ri(STARS.length)]}${STARS[ri(STARS.length)]}`;
+    const n = Number(stageEl.dataset.answer);
+    if (n >= 0 && n <= 10) speak(WORDS[n]);
+    setTimeout(next, 1000);
+  }
+
   function onChoice(btn, correct) {
     if (busy) return;
     if (correct) {
-      busy = true;
-      if (firstTry) little.xp += 1;
-      paws[index].classList.add('done');
-      btn.classList.add('win');
-      sfx.correct();
-      buzz(20);
-      const n = Number(stageEl.dataset.answer);
-      fbEl.textContent = CHEERS[ri(CHEERS.length)];
-      if (n >= 0 && n <= 10) say(WORDS[n]);
-      setTimeout(next, 1000);
+      celebrate(btn);
     } else {
-      // Error-less: the wrong card dims, the question stays. No fail states.
+      // Error-less and wordless: the wrong card dims + wobbles, a paw of
+      // sympathy appears, and the question waits.
       firstTry = false;
       btn.classList.add('dim');
+      btn.classList.add('shake');
       sfx.wrong();
-      fbEl.textContent = 'Try again! 🐾';
+      fbEl.textContent = '🐾';
       say('Try again!');
     }
   }
@@ -199,17 +243,16 @@ export function littleGameScreen(el, params, ctx) {
     buzz([30, 40, 30]);
     confetti(18);
     say('Hooray! Great counting!');
-    promptEl.textContent = '';
+    promptEl.textContent = '🎉';
     stageEl.innerHTML = '';
     fbEl.textContent = '';
     choicesEl.className = 'little-choices';
     choicesEl.innerHTML = `
       <div class="card center little-done">
         <div class="dog bounce">${dogSVG(buddy, 104, accessoriesFor(p, buddy.id))}</div>
-        <h2>Hooray! 🎉</h2>
         <div class="nav-row" style="margin-top:10px">
-          <button class="btn" data-again>🔁 Again!</button>
-          <button class="btn accent" data-home>🏠 Home</button>
+          <button class="btn little-icon-btn" data-again aria-label="Play again">🔁</button>
+          <button class="btn accent little-icon-btn" data-home aria-label="Home">🏠</button>
         </div>
       </div>`;
     choicesEl.querySelector('[data-again]').addEventListener('click', () =>
