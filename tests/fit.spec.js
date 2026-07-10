@@ -29,7 +29,7 @@ test('quiz and activity screens never overflow a 390×600 viewport', async ({ br
   });
   const page = await ctx.newPage();
   const overflow = () =>
-    page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight);
+    page.evaluate(() => document.querySelector('#app').scrollHeight - window.innerHeight);
 
   await page.goto('/', { waitUntil: 'networkidle' });
   await seedProfile(page, richDoc('fit-game', 'FitGame'));

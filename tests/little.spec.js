@@ -111,9 +111,11 @@ test('e2e: little screens fit a small iPhone viewport with zero scrolling', asyn
   await page.tap('.profile-card:has-text("Fit")');
   await page.waitForSelector('.little-tile');
 
+  // Measure the app's real content height — a scroll-locked body clamps
+  // documentElement.scrollHeight and would hide overflow.
   const overflow = () =>
-    page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight);
-  expect(await overflow()).toBeLessThanOrEqual(0);
+    page.evaluate(() => document.querySelector('#app').scrollHeight - window.innerHeight);
+  // (The little HOME may scroll — its tile shelf grows with xp.)
 
   for (const game of ['count', 'find', 'more']) {
     await page.tap(`[data-game="${game}"]`);

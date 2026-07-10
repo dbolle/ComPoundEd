@@ -59,9 +59,10 @@ textarea {
   user-select: text;
 }
 
-/* Little-pup screens: hard scroll lock so imprecise little taps can never
-   turn into scrolls or rubber-band bounces. */
-body:has(.little-screen) {
+/* Little-pup GAME screens: hard scroll lock so imprecise little taps can
+   never turn into scrolls or rubber-band bounces. (The little home is
+   allowed to scroll — the tile shelf grows with xp.) */
+body:has(.little-lock) {
   position: fixed;
   inset: 0;
   width: 100%;
