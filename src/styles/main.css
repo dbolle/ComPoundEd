@@ -46,6 +46,17 @@ body {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
+  /* A kids' game has no text to copy: long-presses must never pop the
+     selection loupe or copy callout. Inputs re-enable selection below. */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+input,
+textarea {
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 /* Little-pup screens: hard scroll lock so imprecise little taps can never
