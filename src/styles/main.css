@@ -20,6 +20,12 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* The hidden attribute must always win, even over display:grid/flex rules —
+   this bit us three times (table grids, div-note, numpad). */
+[hidden] {
+  display: none !important;
+}
+
 html,
 body {
   margin: 0;
@@ -493,7 +499,15 @@ button.pressed {
   filter: grayscale(1) brightness(0.7);
 }
 
+/* Zero layout height: the teach banner floats over the top of the round and
+   dismisses itself, so it can never push the numpad off-screen. */
 .teach-banner {
+  position: absolute;
+  top: 58px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(92%, 480px);
+  z-index: 5;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -501,11 +515,50 @@ button.pressed {
   border: 2px dashed var(--brand);
   border-radius: 16px;
   padding: 6px 12px;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  box-shadow: var(--shadow);
+  animation: screen-in 0.3s ease-out;
+}
+
+.teach-banner.leaving {
+  transition: opacity 0.5s ease;
+  opacity: 0;
 }
 
 .teach-banner svg {
   flex: none;
+}
+
+/* Game screens (quiz + activities): compact enough for an iPhone with the
+   Safari bars showing (~600px visible), so rounds never scroll. */
+.game-screen {
+  gap: 8px;
+  position: relative;
+}
+
+.game-screen .question {
+  font-size: clamp(2.6rem, 12vw, 3.6rem);
+  line-height: 1;
+  margin: 2px 0;
+}
+
+.game-screen .answer-box {
+  min-height: 58px;
+  font-size: 2.2rem;
+}
+
+.game-screen .feedback {
+  min-height: 1.6em;
+  font-size: 1.15rem;
+}
+
+.game-screen .numpad {
+  gap: 8px;
+}
+
+.game-screen .numpad .key {
+  padding: 8px 0;
+  font-size: 1.7rem;
 }
 
 .question {

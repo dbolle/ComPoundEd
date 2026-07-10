@@ -104,9 +104,9 @@ export function activityScreen(el, params, ctx) {
 
   // Dogs stagger tightly and the asker chip overlays the scene so the whole
   // activity fits a small phone viewport without scrolling.
-  const sceneHeight = 112 + (dogs.length - 1) * 14;
+  const sceneHeight = 92 + (dogs.length - 1) * 10;
   el.innerHTML = `
-    <div class="screen">
+    <div class="screen game-screen">
       <div class="topbar">
         <button class="btn ghost small" data-quit>✕ Stop</button>
         <span class="spacer"></span>
@@ -119,7 +119,7 @@ export function activityScreen(el, params, ctx) {
         ${dogs
           .map(
             (d, i) =>
-              `<span class="mover" style="bottom:${4 + i * 14}px;transition-delay:${i * 90}ms">${dogSVG(d, 56, accessoriesFor(ctx.profile, d.id))}</span>`
+              `<span class="mover" style="bottom:${4 + i * 10}px;transition-delay:${i * 90}ms">${dogSVG(d, 56, accessoriesFor(ctx.profile, d.id))}</span>`
           )
           .join('')}
       </div>
@@ -135,7 +135,8 @@ export function activityScreen(el, params, ctx) {
   const qEl = el.querySelector('.question');
   const ansEl = el.querySelector('.answer-box');
   const fbEl = el.querySelector('.feedback');
-  buildNumpad(el.querySelector('.numpad'), press);
+  const padEl = el.querySelector('.numpad');
+  buildNumpad(padEl, press);
   bindKeyboard(press);
 
   function placeDogs() {
@@ -214,6 +215,7 @@ export function activityScreen(el, params, ctx) {
         <button class="btn got-it" data-next>👍 Got it!</button>`;
       fbEl.classList.add('bad');
       awaitingNext = true;
+      padEl.hidden = true; // the hint + Got it! take the numpad's space
       fbEl.querySelector('[data-next]').addEventListener('click', gotIt);
     }
   }
@@ -225,6 +227,7 @@ export function activityScreen(el, params, ctx) {
   }
 
   async function next() {
+    padEl.hidden = false;
     input = '';
     busy = false;
     // A wrong answer re-asks the same fact so the activity always ends with
