@@ -2,6 +2,17 @@
 import { test, expect } from '@playwright/test';
 import { createProfileUI, uniqueName } from './helpers.mjs';
 
+test('nothing is text-selectable except inputs', async ({ page }) => {
+  await createProfileUI(page, uniqueName('Sel'));
+  const sel = (selector) =>
+    page.$eval(selector, (el) => getComputedStyle(el).userSelect);
+  expect(await sel('[data-mixed]')).toBe('none'); // buttons
+  expect(await sel('.hero h1')).toBe('none'); // headings/labels too
+  await page.tap('[data-nav="/profiles"]');
+  await page.tap('[data-new]');
+  expect(await sel('.name-input')).toBe('text'); // typing surface stays normal
+});
+
 test('fast taps flash the pressed state; held presses stay dark', async ({ page }) => {
   await createProfileUI(page, uniqueName('Tap'));
   await page.tap('[data-mixed]');
