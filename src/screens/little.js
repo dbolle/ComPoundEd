@@ -13,8 +13,8 @@ import { confetti, escapeHtml } from '../ui.js';
 const ITEMS = ['🦴', '🎾', '🍖'];
 const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 const STARS = ['⭐', '🌟', '🎉', '🐾'];
-const KIND_BY_GAME = { count: 'fetch', find: 'walk', more: 'feed' };
-const QUESTIONS_BY_GAME = { count: 5, find: 5, more: 5 };
+const KIND_BY_GAME = { count: 'fetch', find: 'walk', more: 'feed', tap: 'fetch', feed: 'feed' };
+const QUESTIONS_BY_GAME = { count: 5, find: 5, more: 5, tap: 3, feed: 3 };
 
 const ri = (n) => Math.floor(Math.random() * n);
 
@@ -50,9 +50,19 @@ function tiles(p, buddy) {
       art: `<span class="tile-art">🦴🦴🦴</span><span class="tile-mark">❓</span>`,
     },
     {
+      game: 'tap',
+      caption: 'Tap & count',
+      art: `<span class="tile-art">👆🦴</span><span class="tile-mark">1·2·3</span>`,
+    },
+    {
       game: 'find',
       caption: 'Find it!',
       art: `<span class="tile-num">5</span><span class="tile-art small">🦴🦴🦴🦴🦴</span>`,
+    },
+    {
+      game: 'feed',
+      caption: 'Feed me!',
+      art: `<span class="tile-dogs">${dogSVG(buddy, 38, accessoriesFor(p, buddy.id))}</span><span class="tile-art small">🦴➡️🥣</span>`,
     },
     {
       game: 'more',
@@ -171,6 +181,57 @@ export function littleGameScreen(el, params, ctx) {
         choiceButton(`<span class="little-items small">${itemRow(item, v)}</span>`, v === n);
       }
       stageEl.dataset.answer = n;
+    } else if (game === 'tap') {
+      // Tap-to-count: one-to-one correspondence — tap each item, the count
+      // speaks and grows, no choices and no way to be wrong.
+      const n = 1 + ri(range);
+      const item = ITEMS[ri(ITEMS.length)];
+      promptEl.textContent = `👆${item}`;
+      speak('Tap and count!');
+      stageEl.dataset.answer = n;
+      stageEl.innerHTML = `<div class="tap-count">&nbsp;</div>
+        <div class="little-items${n > 6 ? ' many' : ''} tap-items">${Array.from(
+          { length: n },
+          () => `<button class="tap-item">${item}</button>`
+        ).join('')}</div>`;
+      let tapped = 0;
+      for (const b of stageEl.querySelectorAll('.tap-item')) {
+        b.addEventListener('click', () => {
+          if (busy || b.classList.contains('popped')) return;
+          b.classList.add('popped');
+          tapped += 1;
+          stageEl.querySelector('.tap-count').textContent = tapped;
+          buzz(15);
+          say(WORDS[tapped]);
+          if (tapped === n) celebrate(null, { speakWord: false });
+        });
+      }
+    } else if (game === 'feed') {
+      // Feed the puppy N: counting OUT a quantity — tap bones into the bowl
+      // until the buddy has enough.
+      const n = 1 + ri(range);
+      promptEl.textContent = `🦴➡️🥣`;
+      speak(`Feed ${buddy.name} ${WORDS[n]} bones!`);
+      stageEl.dataset.answer = n;
+      stageEl.innerHTML = `<div class="feed-row">${dogSVG(buddy, 52, accessoriesFor(p, buddy.id))}
+          <span class="little-numeral">${n}</span><span class="feed-bowl">🥣</span>
+          <span class="tap-count">0</span></div>
+        <div class="little-items tap-items">${Array.from(
+          { length: n + 2 },
+          () => `<button class="tap-item">🦴</button>`
+        ).join('')}</div>`;
+      let fed = 0;
+      for (const b of stageEl.querySelectorAll('.tap-item')) {
+        b.addEventListener('click', () => {
+          if (busy || b.classList.contains('popped')) return;
+          b.classList.add('popped');
+          fed += 1;
+          stageEl.querySelector('.tap-count').textContent = fed;
+          buzz(15);
+          say(WORDS[fed]);
+          if (fed === n) celebrate(null, { speakWord: false });
+        });
+      }
     } else {
       // more: two dogs with bone piles — tap the one with more
       const others = [...DOGS, ...GUESTS].filter((d) => d.id !== buddy.id);
@@ -195,7 +256,7 @@ export function littleGameScreen(el, params, ctx) {
     }
   }
 
-  function celebrate(btn) {
+  function celebrate(btn, { speakWord = true } = {}) {
     busy = true;
     if (firstTry) little.xp += 1;
     paws[index].classList.add('done');
@@ -204,7 +265,7 @@ export function littleGameScreen(el, params, ctx) {
     buzz(20);
     fbEl.textContent = `${STARS[ri(STARS.length)]}${STARS[ri(STARS.length)]}`;
     const n = Number(stageEl.dataset.answer);
-    if (n >= 0 && n <= 10) speak(WORDS[n]);
+    if (speakWord && n >= 0 && n <= 10) speak(WORDS[n]);
     setTimeout(next, 1000);
   }
 

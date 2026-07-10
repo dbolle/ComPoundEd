@@ -44,7 +44,7 @@ async function createLittleProfile(page, name) {
 
 test('e2e: little pup profile gets the counting home, not the grids', async ({ page }) => {
   await createLittleProfile(page, uniqueName('Pup'));
-  expect(await page.$$eval('.little-tile', (els) => els.length)).toBe(3);
+  expect(await page.$$eval('.little-tile', (els) => els.length)).toBe(5);
   expect(await page.$('.table-grid')).toBeNull();
   expect(await page.$('[data-suggest]')).toBeNull();
 });
@@ -165,5 +165,63 @@ test('e2e: grown-ups toggle flips a big-kid profile into little mode', async ({ 
   await expect(page.locator('[data-little-toggle]')).toContainText('on');
   await page.tap('[data-back]');
   await page.waitForSelector('.little-tile');
-  expect(await page.$$eval('.little-tile', (els) => els.length)).toBe(3);
+  expect(await page.$$eval('.little-tile', (els) => els.length)).toBe(5);
+});
+
+test('e2e: tap-to-count — every tap counts up, no way to be wrong', async ({ page }) => {
+  const name = uniqueName('Tapper');
+  await page.goto('/', { waitUntil: 'networkidle' });
+  await page.tap('[data-new]');
+  await page.fill('.name-input', name);
+  await page.tap('form[data-create] [data-kind="little"]');
+  await page.waitForSelector('.little-tile');
+  await page.tap('[data-game="tap"]');
+
+  for (let q = 0; q < 3; q++) {
+    await page.waitForSelector('.tap-item:not(.popped)');
+    const n = await page.evaluate(() =>
+      Number(document.querySelector('.little-stage').dataset.answer)
+    );
+    expect(await page.$$eval('.tap-item', (els) => els.length)).toBe(n);
+    for (let i = 1; i <= n; i++) {
+      await page.tap('.tap-item:not(.popped)');
+      if (i < n) {
+        await expect(page.locator('.tap-count')).toHaveText(String(i));
+      }
+    }
+    await expect(page.locator('.paw.done')).toHaveCount(q + 1);
+    await page.waitForTimeout(1150);
+  }
+  await page.waitForSelector('.little-done');
+});
+
+test('e2e: feed the puppy — counting out exactly N earns the paw', async ({ page }) => {
+  const name = uniqueName('Feeder');
+  await page.goto('/', { waitUntil: 'networkidle' });
+  await page.tap('[data-new]');
+  await page.fill('.name-input', name);
+  await page.tap('form[data-create] [data-kind="little"]');
+  await page.waitForSelector('.little-tile');
+  await page.tap('[data-game="feed"]');
+
+  await page.waitForSelector('.tap-item');
+  const n = await page.evaluate(() =>
+    Number(document.querySelector('.little-stage').dataset.answer)
+  );
+  expect(await page.$$eval('.tap-item', (els) => els.length)).toBe(n + 2); // extra bones to stop at N
+  for (let i = 1; i <= n; i++) await page.tap('.tap-item:not(.popped)');
+  await expect(page.locator('.paw.done')).toHaveCount(1);
+  await page.tap('[data-quit]');
+  await page.waitForSelector('.little-tile');
+  const profiles = await page.evaluate(
+    () => new Promise((resolve) => {
+      const req = indexedDB.open('compounded', 1);
+      req.onsuccess = () => {
+        const g = req.result.transaction('profiles').objectStore('profiles').getAll();
+        g.onsuccess = () => resolve(g.result);
+      };
+    })
+  );
+  const doc = profiles.find((x) => x.name === name);
+  expect(doc.little.xp).toBeGreaterThanOrEqual(1);
 });
