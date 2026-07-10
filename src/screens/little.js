@@ -7,14 +7,31 @@
 
 import { navigate } from '../router.js';
 import { getDog, dogSVG, accessoriesFor, DOGS, GUESTS } from '../art/dogs.js';
+import { getPet, petSVG } from '../art/pets.js';
 import { sfx, buzz, say } from '../sound.js';
 import { confetti, escapeHtml } from '../ui.js';
 
 const ITEMS = ['🦴', '🎾', '🍖'];
 const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 const STARS = ['⭐', '🌟', '🎉', '🐾'];
-const KIND_BY_GAME = { count: 'fetch', find: 'walk', more: 'feed', tap: 'fetch', feed: 'feed' };
-const QUESTIONS_BY_GAME = { count: 5, find: 5, more: 5, tap: 3, feed: 3 };
+const KIND_BY_GAME = { count: 'fetch', find: 'walk', more: 'feed', tap: 'fetch', feed: 'feed', shape: 'walk', pattern: 'feed' };
+const QUESTIONS_BY_GAME = { count: 5, find: 5, more: 5, tap: 3, feed: 3, shape: 5, pattern: 5 };
+
+// New species from the pet pool host the non-counting games — a pre-reader
+// navigates by which animal, not by words.
+const HOSTS = { shape: 'cat-1', pattern: 'turtle-1' };
+
+const SHAPE_COLORS = ['#ef4444', '#3b82f6', '#22c55e', '#f59e0b', '#8b5cf6'];
+const SHAPE_DEFS = [
+  { kind: 'circle', word: 'circle', d: (c) => `<circle cx="30" cy="30" r="22" fill="${c}"/>` },
+  { kind: 'square', word: 'square', d: (c) => `<rect x="10" y="10" width="40" height="40" rx="6" fill="${c}"/>` },
+  { kind: 'triangle', word: 'triangle', d: (c) => `<path d="M30 8 L54 50 L6 50 Z" fill="${c}"/>` },
+  { kind: 'star', word: 'star', d: (c) => `<path d="M30 6 L37 22 L54 24 L41 36 L45 53 L30 44 L15 53 L19 36 L6 24 L23 22 Z" fill="${c}"/>` },
+];
+
+function shapeSVG(def, color, size = 52) {
+  return `<svg viewBox="0 0 60 60" width="${size}" height="${size}" role="img" aria-label="${def.word}">${def.d(color)}</svg>`;
+}
 
 const ri = (n) => Math.floor(Math.random() * n);
 
@@ -63,6 +80,16 @@ function tiles(p, buddy) {
       game: 'feed',
       caption: 'Feed me!',
       art: `<span class="tile-dogs">${dogSVG(buddy, 38, accessoriesFor(p, buddy.id))}</span><span class="tile-art small">🦴➡️🥣</span>`,
+    },
+    {
+      game: 'shape',
+      caption: 'Shapes',
+      art: `<span class="tile-dogs">${petSVG(getPet(HOSTS.shape), 38)}</span><span class="tile-art small">${shapeSVG(SHAPE_DEFS[0], SHAPE_COLORS[0], 18)}${shapeSVG(SHAPE_DEFS[2], SHAPE_COLORS[1], 18)}${shapeSVG(SHAPE_DEFS[1], SHAPE_COLORS[2], 18)}</span>`,
+    },
+    {
+      game: 'pattern',
+      caption: 'Patterns',
+      art: `<span class="tile-dogs">${petSVG(getPet(HOSTS.pattern), 38)}</span><span class="tile-art small">${shapeSVG(SHAPE_DEFS[0], SHAPE_COLORS[0], 16)}${shapeSVG(SHAPE_DEFS[0], SHAPE_COLORS[1], 16)}${shapeSVG(SHAPE_DEFS[0], SHAPE_COLORS[0], 16)}❓</span>`,
     },
     {
       game: 'more',
@@ -148,6 +175,7 @@ export function littleGameScreen(el, params, ctx) {
   function choiceButton(html, correct, cls = '') {
     const btn = document.createElement('button');
     btn.className = `little-card ${cls}`;
+    btn.dataset.good = correct ? '1' : '0';
     btn.innerHTML = html;
     btn.addEventListener('click', () => onChoice(btn, correct));
     choicesEl.appendChild(btn);
@@ -232,6 +260,39 @@ export function littleGameScreen(el, params, ctx) {
           if (fed === n) celebrate(null, { speakWord: false });
         });
       }
+    } else if (game === 'shape') {
+      // Shapes with Whiskers: wordless geometry — find the spoken shape.
+      const host = getPet(HOSTS.shape);
+      const defs = [...SHAPE_DEFS].sort(() => Math.random() - 0.5).slice(0, 3);
+      const target = defs[ri(defs.length)];
+      promptEl.innerHTML = `${petSVG(host, 34)} 🔍`;
+      speak(`Find the ${target.word}!`);
+      stageEl.dataset.answer = -1;
+      stageEl.innerHTML = `<div class="host-spot">${petSVG(host, 60)}</div>`;
+      for (const def of defs) {
+        choiceButton(shapeSVG(def, SHAPE_COLORS[ri(SHAPE_COLORS.length)]), def === target);
+      }
+    } else if (game === 'pattern') {
+      // Patterns with Sheldon: ABAB… what comes next?
+      const host = getPet(HOSTS.pattern);
+      const defA = SHAPE_DEFS[ri(SHAPE_DEFS.length)];
+      let defB = SHAPE_DEFS[ri(SHAPE_DEFS.length)];
+      while (defB === defA) defB = SHAPE_DEFS[ri(SHAPE_DEFS.length)];
+      const colA = SHAPE_COLORS[ri(SHAPE_COLORS.length)];
+      let colB = SHAPE_COLORS[ri(SHAPE_COLORS.length)];
+      while (colB === colA) colB = SHAPE_COLORS[ri(SHAPE_COLORS.length)];
+      const A = shapeSVG(defA, colA, 40);
+      const B = shapeSVG(defB, colB, 40);
+      promptEl.innerHTML = `${petSVG(host, 34)} ➡️❓`;
+      speak('What comes next?');
+      stageEl.dataset.answer = -1;
+      stageEl.innerHTML = `<div class="pattern-row">${A}${B}${A}${B}<span class="pattern-q">❓</span></div>`;
+      const options = [
+        { html: shapeSVG(defA, colA), good: true },
+        { html: shapeSVG(defB, colB), good: false },
+        { html: shapeSVG(defA, colB), good: false }, // right shape, wrong color
+      ].sort(() => Math.random() - 0.5);
+      for (const o of options) choiceButton(o.html, o.good);
     } else {
       // more: two dogs with bone piles — tap the one with more
       const others = [...DOGS, ...GUESTS].filter((d) => d.id !== buddy.id);

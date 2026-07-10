@@ -44,7 +44,7 @@ async function createLittleProfile(page, name) {
 
 test('e2e: little pup profile gets the counting home, not the grids', async ({ page }) => {
   await createLittleProfile(page, uniqueName('Pup'));
-  expect(await page.$$eval('.little-tile', (els) => els.length)).toBe(5);
+  expect(await page.$$eval('.little-tile', (els) => els.length)).toBe(7);
   expect(await page.$('.table-grid')).toBeNull();
   expect(await page.$('[data-suggest]')).toBeNull();
 });
@@ -165,7 +165,7 @@ test('e2e: grown-ups toggle flips a big-kid profile into little mode', async ({ 
   await expect(page.locator('[data-little-toggle]')).toContainText('on');
   await page.tap('[data-back]');
   await page.waitForSelector('.little-tile');
-  expect(await page.$$eval('.little-tile', (els) => els.length)).toBe(5);
+  expect(await page.$$eval('.little-tile', (els) => els.length)).toBe(7);
 });
 
 test('e2e: tap-to-count — every tap counts up, no way to be wrong', async ({ page }) => {
@@ -224,4 +224,36 @@ test('e2e: feed the puppy — counting out exactly N earns the paw', async ({ pa
   );
   const doc = profiles.find((x) => x.name === name);
   expect(doc.little.xp).toBeGreaterThanOrEqual(1);
+});
+
+test('e2e: shapes with Whiskers — spoken target, wordless choices', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'networkidle' });
+  await page.tap('[data-new]');
+  await page.fill('.name-input', uniqueName('Shaper'));
+  await page.tap('form[data-create] [data-kind="little"]');
+  await page.waitForSelector('.little-tile');
+  await page.tap('[data-game="shape"]');
+  await page.waitForSelector('.little-card');
+
+  await expect(page.locator('.little-stage [aria-label*="Whiskers"]')).toBeVisible(); // host
+  await page.tap('.little-card[data-good="0"]'); // wrong first: dims, waits
+  await expect(page.locator('.little-card.dim')).toHaveCount(1);
+  await page.tap('.little-card[data-good="1"]');
+  await expect(page.locator('.paw.done')).toHaveCount(1);
+});
+
+test('e2e: patterns with Sheldon — ABAB continues', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'networkidle' });
+  await page.tap('[data-new]');
+  await page.fill('.name-input', uniqueName('Pattern'));
+  await page.tap('form[data-create] [data-kind="little"]');
+  await page.waitForSelector('.little-tile');
+  await page.tap('[data-game="pattern"]');
+  await page.waitForSelector('.little-card');
+
+  await expect(page.locator('.little-prompt [aria-label*="Sheldon"]')).toBeVisible();
+  expect(await page.$$eval('.pattern-row svg', (els) => els.length)).toBe(4); // A B A B
+  expect(await page.$$eval('.little-card', (els) => els.length)).toBe(3);
+  await page.tap('.little-card[data-good="1"]');
+  await expect(page.locator('.paw.done')).toHaveCount(1);
 });
