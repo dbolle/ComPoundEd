@@ -44,7 +44,8 @@ async function createLittleProfile(page, name) {
 
 test('e2e: little pup profile gets the counting home, not the grids', async ({ page }) => {
   await createLittleProfile(page, uniqueName('Pup'));
-  expect(await page.$$eval('.little-tile', (els) => els.length)).toBe(7);
+  expect(await page.$$eval('button.little-tile', (els) => els.length)).toBe(2); // xp 0: count + tap
+  expect(await page.$('.little-tile.soon')).not.toBeNull(); // sparkly next-unlock hint
   expect(await page.$('.table-grid')).toBeNull();
   expect(await page.$('[data-suggest]')).toBeNull();
 });
@@ -165,7 +166,7 @@ test('e2e: grown-ups toggle flips a big-kid profile into little mode', async ({ 
   await expect(page.locator('[data-little-toggle]')).toContainText('on');
   await page.tap('[data-back]');
   await page.waitForSelector('.little-tile');
-  expect(await page.$$eval('.little-tile', (els) => els.length)).toBe(7);
+  expect(await page.$$eval('button.little-tile', (els) => els.length)).toBe(2);
 });
 
 test('e2e: tap-to-count — every tap counts up, no way to be wrong', async ({ page }) => {
@@ -202,7 +203,7 @@ test('e2e: feed the puppy — counting out exactly N earns the paw', async ({ pa
   await page.fill('.name-input', name);
   await page.tap('form[data-create] [data-kind="little"]');
   await page.waitForSelector('.little-tile');
-  await page.tap('[data-game="feed"]');
+  await page.evaluate(() => { location.hash = '#/little?game=feed'; });
 
   await page.waitForSelector('.tap-item');
   const n = await page.evaluate(() =>
@@ -232,7 +233,7 @@ test('e2e: shapes with Whiskers — spoken target, wordless choices', async ({ p
   await page.fill('.name-input', uniqueName('Shaper'));
   await page.tap('form[data-create] [data-kind="little"]');
   await page.waitForSelector('.little-tile');
-  await page.tap('[data-game="shape"]');
+  await page.evaluate(() => { location.hash = '#/little?game=shape'; });
   await page.waitForSelector('.little-card');
 
   await expect(page.locator('.little-stage [aria-label*="Whiskers"]')).toBeVisible(); // host
@@ -248,12 +249,51 @@ test('e2e: patterns with Sheldon — ABAB continues', async ({ page }) => {
   await page.fill('.name-input', uniqueName('Pattern'));
   await page.tap('form[data-create] [data-kind="little"]');
   await page.waitForSelector('.little-tile');
-  await page.tap('[data-game="pattern"]');
+  await page.evaluate(() => { location.hash = '#/little?game=pattern'; });
   await page.waitForSelector('.little-card');
 
   await expect(page.locator('.little-prompt [aria-label*="Sheldon"]')).toBeVisible();
   expect(await page.$$eval('.pattern-row svg', (els) => els.length)).toBe(4); // A B A B
   expect(await page.$$eval('.little-card', (els) => els.length)).toBe(3);
+  await page.tap('.little-card[data-good="1"]');
+  await expect(page.locator('.paw.done')).toHaveCount(1);
+});
+
+
+test('e2e: tiles unlock with xp; K-tier games work', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'networkidle' });
+  const doc = newProfile('Grown');
+  doc.id = 'grown-pup';
+  doc.subjects.little = true;
+  doc.little.xp = 120; // everything unlocked, sums to 10
+  await seedProfile(page, doc);
+  await page.tap('.profile-card:has-text("Grown")');
+  await page.waitForSelector('.little-tile');
+  expect(await page.$$eval('button.little-tile', (els) => els.length)).toBe(9);
+  expect(await page.$('.little-tile.soon')).toBeNull();
+
+  // What comes next? — Kiwi hosts a number path
+  await page.tap('[data-game="next"]');
+  await page.waitForSelector('.little-card');
+  await expect(page.locator('.little-prompt [aria-label*="Kiwi"]')).toBeVisible();
+  expect(await page.$$eval('.path-num', (els) => els.length)).toBe(3);
+  const nums = await page.$$eval('.path-num', (els) => els.map((e) => Number(e.textContent)));
+  const answer = await page.evaluate(() => Number(document.querySelector('.little-stage').dataset.answer));
+  expect(answer).toBe(nums[2] + 1);
+  await page.tap('.little-card[data-good="1"]');
+  await expect(page.locator('.paw.done')).toHaveCount(1);
+  await page.tap('[data-quit]');
+  await page.waitForSelector('.little-tile');
+
+  // Adding with Peanut — two groups, one number
+  await page.tap('[data-game="add"]');
+  await page.waitForSelector('.little-card');
+  await expect(page.locator('.little-prompt [aria-label*="Peanut"]')).toBeVisible();
+  const groups = await page.$$eval('.add-row .little-items', (els) =>
+    els.map((e) => e.querySelectorAll('.li').length)
+  );
+  const sum = await page.evaluate(() => Number(document.querySelector('.little-stage').dataset.answer));
+  expect(groups[0] + groups[1]).toBe(sum);
   await page.tap('.little-card[data-good="1"]');
   await expect(page.locator('.paw.done')).toHaveCount(1);
 });
