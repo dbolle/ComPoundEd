@@ -137,30 +137,37 @@ export function dogSVG(dog, size = 96, accessories = []) {
   <circle cx="46.6" cy="54.4" r="1.5" fill="#fff"/>
   <circle cx="76.6" cy="54.4" r="1.5" fill="#fff"/>
   <path d="M31 91 a40 40 0 0 0 58 0 l-4 9 a40 40 0 0 1 -50 0 Z" fill="${d.collar}"/>
-  ${
-    has('star')
-      ? `<path data-acc="star" d="M60 95 L62.2 100.3 L67.8 100.6 L63.5 104.2 L64.9 109.7 L60 106.6 L55.1 109.7 L56.5 104.2 L52.2 100.6 L57.8 100.3 Z" fill="#fcd34d" stroke="#d97706" stroke-width="1.6"/>`
-      : `<circle cx="60" cy="103" r="6" fill="#fcd34d" stroke="#d97706" stroke-width="2"/>`
-  }
-  ${
+  ${collarTag(accessories)}
+  ${accessoryOverlays(accessories)}
+</svg>`;
+}
+
+// Shared by every species (pets.js reuses these so any animal can wear
+// earned play accessories).
+export function collarTag(accessories = []) {
+  return accessories.includes('star')
+    ? `<path data-acc="star" d="M60 95 L62.2 100.3 L67.8 100.6 L63.5 104.2 L64.9 109.7 L60 106.6 L55.1 109.7 L56.5 104.2 L52.2 100.6 L57.8 100.3 Z" fill="#fcd34d" stroke="#d97706" stroke-width="1.6"/>`
+    : `<circle cx="60" cy="103" r="6" fill="#fcd34d" stroke="#d97706" stroke-width="2"/>`;
+}
+
+export function accessoryOverlays(accessories = []) {
+  const has = (id) => accessories.includes(id);
+  return `${
     has('bandana')
       ? `<g data-acc="bandana"><path d="M36 92 L84 92 L60 112 Z" fill="#f43f5e"/>
          <circle cx="52" cy="97" r="2" fill="#fff"/><circle cx="68" cy="97" r="2" fill="#fff"/><circle cx="60" cy="104" r="2" fill="#fff"/></g>`
       : ''
-  }
-  ${
+  }${
     has('cap')
       ? `<g data-acc="cap"><path d="M37 34 A23 17 0 0 1 83 34 L83 39 L37 39 Z" fill="#3b82f6"/>
          <rect x="72" y="33" width="24" height="7" rx="3.5" fill="#2563eb"/>
          <circle cx="60" cy="19" r="4" fill="#2563eb"/></g>`
       : ''
-  }
-  ${
+  }${
     has('bow')
       ? `<g data-acc="bow" transform="rotate(-14 86 32)"><path d="M86 32 L72 24 L72 40 Z" fill="#ec4899"/>
          <path d="M86 32 L100 24 L100 40 Z" fill="#ec4899"/>
          <circle cx="86" cy="32" r="4.5" fill="#be185d"/></g>`
       : ''
-  }
-</svg>`;
+  }`;
 }

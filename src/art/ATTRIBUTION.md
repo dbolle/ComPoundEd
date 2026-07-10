@@ -6,7 +6,8 @@ license doesn't require attribution.
 
 | Asset | Source | License |
 | --- | --- | --- |
-| Pack dogs (13 characters, `dogs.js`) | Original, generated SVG art created for Compounded | CC0 (dedicated to the public domain) |
+| Pack dogs (25 characters + guests, `dogs.js`) | Original, generated SVG art created for Compounded | CC0 (dedicated to the public domain) |
+| Pet pool (cats, rabbits, guinea pigs, birds, sloths, hedgehogs, turtles — `pets.js`) | Original, generated SVG art created for Compounded | CC0 (dedicated to the public domain) |
 | App icon & paw motifs (`public/icons/`) | Original SVG art created for Compounded | CC0 (dedicated to the public domain) |
 
 ## Vetted CC0 sources for future assets

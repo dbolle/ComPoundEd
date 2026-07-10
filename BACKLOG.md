@@ -71,5 +71,10 @@ them)*
 
 ## Later / roadmap
 
+- **Pet pool ready** — `src/art/pets.js` holds 15 original characters across
+  7 new species (cats, rabbits, guinea pigs, birds, sloths, hedgehogs,
+  turtles), sharing the dogs' style and accessory system — ready for future
+  modes (e.g. +/− packs, new sitting guests, little-pup friends).
+
 - Addition & subtraction fact modes for younger kids.
 - Printable/exportable progress reports for grown-ups.
