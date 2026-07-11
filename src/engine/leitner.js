@@ -125,6 +125,25 @@ export function isDivisionTableMastered(profile, table) {
   return done === total;
 }
 
+// Due facts within one table (each track) — feeds the grooming "dirt" level.
+export function tableDueCount(profile, table) {
+  let n = 0;
+  for (let b = FACTOR_MIN; b <= FACTOR_MAX; b++) {
+    const s = getStat(profile, table, b);
+    if (s.attempts > 0 && isDue(s)) n += 1;
+  }
+  return n;
+}
+
+export function divisionTableDueCount(profile, table) {
+  let n = 0;
+  for (let b = FACTOR_MIN; b <= FACTOR_MAX; b++) {
+    const s = getDivStat(profile, table, b);
+    if (s.attempts > 0 && isDue(s)) n += 1;
+  }
+  return n;
+}
+
 // How many of a table's facts have ever been attempted (0 = untried table).
 export function tableTriedCount(profile, table) {
   let n = 0;

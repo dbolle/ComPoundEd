@@ -1,5 +1,5 @@
 import { navigate } from '../router.js';
-import { DOGS, dogSVG, accessoriesFor } from '../art/dogs.js';
+import { DOGS, dogSVG, accessoriesFor, dirtFor } from '../art/dogs.js';
 import { isUnlocked } from '../engine/unlocks.js';
 import { escapeHtml } from '../ui.js';
 
@@ -32,7 +32,7 @@ export function packScreen(el, params, ctx) {
     const unlocked = isUnlocked(p, dog.id);
     const card = document.createElement(unlocked ? 'button' : 'div');
     card.className = `dog-card${unlocked ? '' : ' locked'}${p.avatarDogId === dog.id ? ' buddy' : ''}`;
-    card.innerHTML = `<span class="dog">${dogSVG(dog, 76, unlocked ? accessoriesFor(p, dog.id) : [])}</span>
+    card.innerHTML = `<span class="dog">${dogSVG(dog, 76, unlocked ? accessoriesFor(p, dog.id) : [], unlocked ? dirtFor(p, dog) : 0)}</span>
       <span>${unlocked ? escapeHtml(dog.name) : '???'}</span>
       ${unlocked ? '' : `<span class="lock-hint">Master the ${dog.divTable ? `÷${dog.divTable}` : `×${dog.table}`}s</span>`}`;
     if (unlocked) {

@@ -217,6 +217,42 @@ function buildTrainingRound(profile, table, count = ROUND_SIZE) {
   return out.map(({ a, b }) => multQuestion(a, b));
 }
 
+// Grooming: the dog's COMPLETE fact set (its own table, in that track's
+// current presentation), rustiest first. The bath ends only when every fact
+// has been answered correctly — misses re-queue (handled by the activity).
+// Dogs unlock by mastering their table, so this is always pure review.
+export function buildGroomRound(profile, dog) {
+  const items = [];
+  for (let b = FACTOR_MIN; b <= FACTOR_MAX; b++) {
+    if (dog.divTable != null) {
+      const t = dog.divTable;
+      const s = getDivStat(profile, t, b);
+      const product = t * b;
+      const divForm = s.box >= 2;
+      items.push({
+        a: t,
+        b,
+        answer: b,
+        kind: 'div',
+        text: divForm ? `${product} ÷ ${t}` : `${t} × _ = ${product}`,
+        correction: divForm ? `${product} ÷ ${t} = ${b}` : `${t} × ${b} = ${product}`,
+        due: s.attempts > 0 && isDue(s) ? 1 : 0,
+        lastSeen: s.lastSeen,
+      });
+    } else {
+      const t = dog.table;
+      const s = getStat(profile, t, b);
+      items.push({
+        ...multQuestion(t, b),
+        due: s.attempts > 0 && isDue(s) ? 1 : 0,
+        lastSeen: s.lastSeen,
+      });
+    }
+  }
+  items.sort((x, y) => y.due - x.due || x.lastSeen - y.lastSeen);
+  return items;
+}
+
 export function buildRound(profile, scope, count = ROUND_SIZE) {
   if (scope.type === 'table' && tableTriedCount(profile, scope.table) <= 3) {
     return buildTrainingRound(profile, scope.table, count);

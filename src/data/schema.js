@@ -203,6 +203,7 @@ export function mergeProfiles(a, b) {
       walk: Math.max(x.walk ?? 0, y.walk ?? 0),
       feed: Math.max(x.feed ?? 0, y.feed ?? 0),
       fetch: Math.max(x.fetch ?? 0, y.fetch ?? 0),
+      groom: Math.max(x.groom ?? 0, y.groom ?? 0),
     };
   }
   // Speed baseline: the better-calibrated side wins.
