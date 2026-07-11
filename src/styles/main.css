@@ -1014,7 +1014,7 @@ button.pressed {
 }
 
 .tap-count {
-  font-size: 2.2rem;
+  font-size: 3rem;
   font-weight: 900;
   color: var(--brand-deep);
   text-align: center;
@@ -1022,10 +1022,19 @@ button.pressed {
   line-height: 1;
 }
 
+.tap-items {
+  max-width: none;
+  gap: 14px;
+}
+
 .tap-items .tap-item {
-  font-size: inherit;
-  padding: 2px;
+  font-size: 3rem;
+  padding: 6px;
   transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.little-items.many.tap-items .tap-item {
+  font-size: 2.2rem;
 }
 
 .tap-items .tap-item.popped {
@@ -1093,8 +1102,17 @@ button.pressed {
   min-height: 1.2em;
 }
 
+/* The stage flexes to fill the screen's middle, so game content is
+   centered and can use the space (bigger targets for little fingers). */
 .little-stage {
   text-align: center;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
 }
 
 .little-items {
@@ -1136,6 +1154,17 @@ button.pressed {
 .little-choices.stacked,
 .little-choices.duo {
   grid-template-columns: 1fr;
+}
+
+/* Finish card: centered in the screen, not squeezed into a grid column. */
+.little-choices.finish {
+  display: flex;
+  justify-content: center;
+  margin: auto 0;
+}
+
+.little-choices.finish .little-done {
+  width: min(84%, 320px);
 }
 
 .little-choices.duo {

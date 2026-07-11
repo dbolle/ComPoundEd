@@ -429,10 +429,10 @@ export function littleGameScreen(el, params, ctx) {
     buzz([30, 40, 30]);
     confetti(18);
     say('Hooray! Great counting!');
-    promptEl.textContent = '🎉';
-    stageEl.innerHTML = '';
+    el.querySelector('.little-prompt-row').hidden = true;
+    stageEl.hidden = true; // stage would otherwise flex-eat the space above
     fbEl.textContent = '';
-    choicesEl.className = 'little-choices';
+    choicesEl.className = 'little-choices finish';
     choicesEl.innerHTML = `
       <div class="card center little-done">
         <div class="dog bounce">${dogSVG(buddy, 104, accessoriesFor(p, buddy.id))}</div>
