@@ -112,7 +112,11 @@ export function grownupsScreen(el, params, ctx) {
         </div>
         <div style="height:8px"></div>
         <div class="nav-row">
-          <button class="btn ghost small" data-export>⬇️ Export to file</button>
+          <button class="btn ghost small" data-export>⬇️ Export all players</button>
+          <button class="btn ghost small" data-export-one>⬇️ Just ${escapeHtml(p.name)}</button>
+        </div>
+        <div style="height:8px"></div>
+        <div class="nav-row">
           <button class="btn ghost small" data-import>⬆️ Import from file</button>
         </div>
         <input type="file" accept=".json,application/json" hidden />
@@ -175,18 +179,25 @@ export function grownupsScreen(el, params, ctx) {
       toast('Backed up to the home server 💾');
     });
 
-    panel.querySelector('[data-export]').addEventListener('click', async () => {
+    // Same file format for both — import handles either, anywhere.
+    const exportProfiles = (profiles, label) => {
       const data = {
         app: 'compounded',
         exportedAt: new Date().toISOString(),
-        profiles: await listProfiles(),
+        profiles,
       };
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = `compounded-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      a.download = `compounded-backup-${label}-${new Date().toISOString().slice(0, 10)}.json`;
       a.click();
       URL.revokeObjectURL(a.href);
+    };
+    panel.querySelector('[data-export]').addEventListener('click', async () => {
+      exportProfiles(await listProfiles(), 'all');
+    });
+    panel.querySelector('[data-export-one]').addEventListener('click', () => {
+      exportProfiles([p], p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'player');
     });
     const fileInput = panel.querySelector('input[type=file]');
     panel.querySelector('[data-import]').addEventListener('click', () => fileInput.click());

@@ -112,3 +112,45 @@ test('restore reports nothing found and stays disabled on an empty server', asyn
   expect(await page.textContent('.toast')).toContain('No backup found');
   await ctx.close();
 });
+
+test('single-profile export carries only that kid and round-trips', async ({ page, browser, baseURL }) => {
+  // Two kids on device A; export just one
+  await page.goto('/', { waitUntil: 'networkidle' });
+  await seedProfile(page, doc('solo-a', 'SoloA'));
+  await seedProfile(page, doc('solo-b', 'SoloB'));
+  await selectProfile(page, 'SoloA');
+  await page.tap('[data-nav="/grownups"]');
+  await holdGrownupsGate(page);
+  const [download] = await Promise.all([
+    page.waitForEvent('download'),
+    page.tap('[data-export-one]'),
+  ]);
+  const path = await download.path();
+  const { readFile } = await import('node:fs/promises');
+  const data = JSON.parse(await readFile(path, 'utf8'));
+  expect(data.profiles).toHaveLength(1);
+  expect(data.profiles[0].name).toBe('SoloA'); // the sisters stay home
+
+  // Device C imports the file: only SoloA arrives
+  const ctxC = await browser.newContext({
+    baseURL,
+    viewport: { width: 390, height: 664 },
+    hasTouch: true,
+    isMobile: true,
+  });
+  const C = await ctxC.newPage();
+  await ctxC.route('**/sync/**', (r) => r.abort()); // isolate from the shared test store
+  await C.goto('/', { waitUntil: 'networkidle' });
+  await C.tap('[data-new]');
+  await C.fill('.name-input', 'Local');
+  await C.tap('form[data-create] [data-kind="big"]');
+  await C.waitForSelector('.hero');
+  await C.tap('[data-nav="/grownups"]');
+  await holdGrownupsGate(C);
+  const [chooser] = await Promise.all([C.waitForEvent('filechooser'), C.tap('[data-import]')]);
+  await chooser.setFiles(path);
+  await C.waitForTimeout(600);
+  expect(await readProfile(C, 'solo-a')).not.toBeNull();
+  expect(await readProfile(C, 'solo-b')).toBeNull();
+  await ctxC.close();
+});
