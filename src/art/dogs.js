@@ -2,6 +2,8 @@
 // the collection feels like a matched set. One starter dog plus one dog per
 // times table (1–12). All original art, released with the project.
 
+import { tableDueCount, divisionTableDueCount } from '../engine/leitner.js';
+
 export const DOGS = [
   { id: 'starter', table: null, name: 'Biscuit', base: '#e8b05c', muzzle: '#f6d9a6', ear: 'floppy', earColor: '#c98d3f', tongue: true, collar: '#ef4444' },
   { id: 'dog-1', table: 1, name: 'Pepper', base: '#4a4a55', muzzle: '#f4f1ec', ear: 'floppy', earColor: '#33333d', blaze: '#f4f1ec', collar: '#14b8a6' },
@@ -57,6 +59,21 @@ export const ACCESSORIES = [
   { id: 'star', emoji: '⭐', name: 'star tag', kind: 'total', need: 40 },
 ];
 
+// Dirt = the dog's own table gone rusty (due facts), capped at a gentle
+// maximum. Biscuit (the starter) and guests never get dirty. Derived live —
+// nothing stored, and a grooming bath cleans it by refreshing the facts.
+export function dirtFor(profile, dog) {
+  if (!profile || !dog || (dog.table == null && dog.divTable == null)) return 0;
+  const due =
+    dog.divTable != null
+      ? divisionTableDueCount(profile, dog.divTable)
+      : tableDueCount(profile, dog.table);
+  if (due <= 0) return 0;
+  if (due <= 3) return 1;
+  if (due <= 8) return 2;
+  return 3;
+}
+
 export function accessoriesFor(profile, dogId) {
   const c = profile?.play?.[dogId];
   if (!c) return [];
@@ -95,7 +112,19 @@ function ears(d) {
   }
 }
 
-export function dogSVG(dog, size = 96, accessories = []) {
+// Gentle mud smudges by dirt level (0–3). Always paired with the same happy
+// face — a dusty dog "played in the garden", it is never sad or neglected.
+function dirtLayer(level, uid) {
+  if (!level) return '';
+  const smudge = (cx, cy, rx, ry, rot, o) =>
+    `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="#8a6a4a" opacity="${o}" transform="rotate(${rot} ${cx} ${cy})"/>`;
+  let marks = smudge(42, 46, 6, 3.5, -18, 0.32) + smudge(76, 68, 5, 3, 12, 0.3);
+  if (level >= 2) marks += smudge(60, 40, 7, 3.5, 6, 0.28) + smudge(38, 74, 4.5, 2.6, -8, 0.3);
+  if (level >= 3) marks += smudge(70, 88, 6, 3, 16, 0.3) + smudge(30, 58, 4, 2.4, -20, 0.28);
+  return `<g data-dirt="${level}" clip-path="url(#${uid})">${marks}</g>`;
+}
+
+export function dogSVG(dog, size = 96, accessories = [], dirt = 0) {
   const d = dog;
   const uid = `dg-${d.id}`;
   const has = (id) => accessories.includes(id);
@@ -136,6 +165,7 @@ export function dogSVG(dog, size = 96, accessories = []) {
   <circle cx="75" cy="56" r="4.6" fill="${INK}"/>
   <circle cx="46.6" cy="54.4" r="1.5" fill="#fff"/>
   <circle cx="76.6" cy="54.4" r="1.5" fill="#fff"/>
+  ${dirtLayer(dirt, uid)}
   <path d="M31 91 a40 40 0 0 0 58 0 l-4 9 a40 40 0 0 1 -50 0 Z" fill="${d.collar}"/>
   ${collarTag(accessories)}
   ${accessoryOverlays(accessories)}

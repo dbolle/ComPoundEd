@@ -5,16 +5,24 @@
 // playtime is practice in disguise.
 
 import { navigate } from '../router.js';
-import { buildRound, buildDivisionRound, buildSittingRound } from '../engine/selector.js';
+import { buildRound, buildDivisionRound, buildSittingRound, buildGroomRound } from '../engine/selector.js';
 import { recordAnswer, recordDivisionAnswer } from '../engine/leitner.js';
 import { checkUnlocks, isUnlocked } from '../engine/unlocks.js';
 import { bumpAnswer, bumpActivity, checkAchievements } from '../engine/achievements.js';
 import { hintFor, divisionHint } from '../engine/hints.js';
-import { getDog, isGuest, GUESTS, dogSVG, accessoriesFor, ACCESSORIES } from '../art/dogs.js';
+import { getDog, isGuest, GUESTS, dogSVG, accessoriesFor, ACCESSORIES, dirtFor } from '../art/dogs.js';
 import { buildNumpad, bindKeyboard, celebrationLine, confetti, escapeHtml } from '../ui.js';
 import { sfx, buzz } from '../sound.js';
 
 const KINDS = {
+  groom: {
+    title: 'Bath time!',
+    goal: '🛁',
+    deco: ['🫧', '🧼', '🫧', '🫧'],
+    cheer: 'gets sudsier!',
+    cheerGroup: 'So many bubbles!',
+    done: 'is squeaky clean! ✨',
+  },
   walk: {
     title: 'Walkies!',
     goal: '🏠',
@@ -61,7 +69,7 @@ export function activityScreen(el, params, ctx) {
   const kind = KINDS[params.get('kind')]
     ? params.get('kind')
     : sitting
-      ? Object.keys(KINDS)[Math.floor(Math.random() * 3)]
+      ? ['walk', 'feed', 'fetch'][Math.floor(Math.random() * 3)]
       : 'walk';
   if (!dogs.length) {
     navigate('/pack');
@@ -69,11 +77,16 @@ export function activityScreen(el, params, ctx) {
   }
   const theme = KINDS[kind];
   const group = dogs.length > 1;
-  const QUESTIONS = sitting ? 10 : group ? 6 : 5;
+  let QUESTIONS = sitting ? 10 : group ? 6 : 5;
+  if (kind === 'groom') QUESTIONS = 13; // the full set; re-queues don't add paws
   const backTo = sitting ? '/home' : group ? '/pack' : `/dog?id=${dogs[0].id}`;
 
   let questions;
-  if (sitting) {
+  if (kind === 'groom') {
+    // The complete fact set, rustiest first; misses re-queue until every
+    // fact has been answered correctly. All-review by construction.
+    questions = buildGroomRound(ctx.profile, dogs[0]).map((q) => ({ ...q, dog: dogs[0] }));
+  } else if (sitting) {
     questions = buildSittingRound(ctx.profile, QUESTIONS).map((q) => ({ ...q, dog: dogs[0] }));
   } else {
     // Each dog contributes questions from its own table, asked in rotation
@@ -101,6 +114,7 @@ export function activityScreen(el, params, ctx) {
   let awaitingNext = false;
   let startT = 0;
   let steps = 0;
+  let lastCorrect = false;
 
   // Dogs stagger tightly and the asker chip overlays the scene so the whole
   // activity fits a small phone viewport without scrolling.
@@ -112,6 +126,7 @@ export function activityScreen(el, params, ctx) {
         <span class="spacer"></span>
         <strong>${theme.title}</strong>
       </div>
+      ${kind === 'groom' ? `<div class="quiz-progress suds" aria-hidden="true">${'<span class="paw">🫧</span>'.repeat(QUESTIONS)}</div>` : ''}
       <div class="activity-scene" style="height:${sceneHeight}px">
         ${group ? '<span class="asker-overlay"></span>' : ''}
         <span class="goal">${theme.goal}</span>
@@ -119,7 +134,7 @@ export function activityScreen(el, params, ctx) {
         ${dogs
           .map(
             (d, i) =>
-              `<span class="mover" style="bottom:${4 + i * 10}px;transition-delay:${i * 90}ms">${dogSVG(d, 56, accessoriesFor(ctx.profile, d.id))}</span>`
+              `<span class="mover" style="bottom:${4 + i * 10}px;transition-delay:${i * 90}ms">${dogSVG(d, 56, accessoriesFor(ctx.profile, d.id), kind === 'groom' ? dirtFor(ctx.profile, d) : 0)}</span>`
           )
           .join('')}
       </div>
@@ -181,6 +196,7 @@ export function activityScreen(el, params, ctx) {
     const q = questions[index];
     const ms = performance.now() - startT;
     const correct = Number(input) === q.answer;
+    lastCorrect = correct;
     const r =
       q.kind === 'div'
         ? recordDivisionAnswer(ctx.profile, q.a, q.b, correct, ms)
@@ -193,6 +209,9 @@ export function activityScreen(el, params, ctx) {
       buzz(20);
       steps += 1;
       placeDogs();
+      if (kind === 'groom') {
+        el.querySelectorAll('.suds .paw')[steps - 1]?.classList.add('done');
+      }
       ansEl.classList.add('good');
       fbEl.textContent = celebrationLine(
         r,
@@ -230,9 +249,16 @@ export function activityScreen(el, params, ctx) {
     padEl.hidden = false;
     input = '';
     busy = false;
-    // A wrong answer re-asks the same fact so the activity always ends with
-    // the dogs reaching the goal — play never ends in failure.
-    if (steps > index) index += 1;
+    if (kind === 'groom') {
+      // Bath rule: a missed fact goes to the back of the line and the bath
+      // only ends when every fact has been answered correctly.
+      if (!lastCorrect) questions.push(questions[index]);
+      index += 1;
+    } else {
+      // A wrong answer re-asks the same fact so the activity always ends
+      // with the dogs reaching the goal — play never ends in failure.
+      if (steps > index) index += 1;
+    }
     if (index >= questions.length) {
       await finish();
     } else {
@@ -245,7 +271,7 @@ export function activityScreen(el, params, ctx) {
     const wornBefore = dogs.map((d) => accessoriesFor(p, d.id));
     for (const d of dogs) {
       p.play[d.id] = p.play[d.id] ?? { walk: 0, feed: 0, fetch: 0 };
-      p.play[d.id][kind] += 1;
+      p.play[d.id][kind] = (p.play[d.id][kind] ?? 0) + 1;
     }
     const newWear = dogs.flatMap((d, i) =>
       accessoriesFor(p, d.id)
@@ -265,12 +291,17 @@ export function activityScreen(el, params, ctx) {
     const headline = sitting
       ? `${escapeHtml(dogs[0].name)} had the best day — thanks for pet sitting! 🏡`
       : `${escapeHtml(listNames(dogs))} ${theme.done}`;
+    if (kind === 'groom') {
+      // The clean reveal: re-render the freshly washed pup in the scene.
+      movers[0].innerHTML = dogSVG(dogs[0], 56, accessoriesFor(p, dogs[0].id), 0);
+    }
     const doneLabel = sitting
       ? '🏠 Home'
       : group
         ? '🐶 Back to the pack'
         : `🐶 Back to ${escapeHtml(dogs[0].name)}`;
     ansEl.outerHTML = `<div class="card center">
+      ${kind === 'groom' ? `<div class="dog clean-reveal">${dogSVG(dogs[0], 110, accessoriesFor(p, dogs[0].id), 0)}</div>` : ''}
       <h2>${headline}</h2>
       ${
         newWear.length

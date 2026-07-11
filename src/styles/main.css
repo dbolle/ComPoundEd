@@ -838,6 +838,28 @@ button.pressed {
   gap: 10px;
 }
 
+.activity-row.four {
+  grid-template-columns: 1fr 1fr;
+}
+
+.groom-btn {
+  background: #38bdf8;
+  border-bottom-color: #0284c7;
+}
+
+.groom-hint {
+  margin: 0;
+  font-weight: 700;
+}
+
+.quiz-progress.suds .paw {
+  font-size: 0.8rem;
+}
+
+.clean-reveal {
+  animation: pop 0.5s ease;
+}
+
 .activity-scene {
   position: relative;
   height: 112px;

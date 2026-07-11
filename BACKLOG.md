@@ -57,7 +57,21 @@ them)*
   teach-the-puppy framing for untried tables; D: sniff-the-map coverage
   (n/169 + row badges); E: training-treat first rounds (mostly wins).
 
+- **Grooming Phase 1** — dirt derives from the dog's own table's due facts
+  (capped, always happy; Biscuit and guests never dirty). 🧼 Groom = the
+  complete fact set, rustiest first, misses re-queued to the back until all
+  correct; finishing washes the dog by construction.
+
 ## Next agreed
+
+- **Pet economy phases 2–4 (approved plan)** — 2: wardrobe (accessory color
+  tiers on counters, worn-state schema v9, dress-up gated behind a completed
+  groom; Biscuit handling TBD by user). 3: Paw Bucks (US-denomination paw
+  cents, append-only transaction ledger for sync, one paw dime per sitting
+  visit — deliberately slow). 4: Pet store (new accessory types + toys,
+  denomination-priced so checkout lines are real ×5/×10 facts, totals are
+  addition; never real money).
+
 
 - **Per-profile visibility controls in Grown-Ups** (home simplification #3).
   The `subjects` config now EXISTS (schema v7; `subjects.little` is its

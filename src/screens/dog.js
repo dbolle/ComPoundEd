@@ -1,5 +1,5 @@
 import { navigate } from '../router.js';
-import { getDog, dogSVG, accessoriesFor, ACCESSORIES } from '../art/dogs.js';
+import { getDog, dogSVG, accessoriesFor, ACCESSORIES, dirtFor } from '../art/dogs.js';
 import { isUnlocked } from '../engine/unlocks.js';
 import { toast, escapeHtml } from '../ui.js';
 
@@ -12,6 +12,8 @@ export function dogScreen(el, params, ctx) {
   const play = ctx.profile.play[dog.id] ?? { walk: 0, feed: 0, fetch: 0 };
   const isBuddy = ctx.profile.avatarDogId === dog.id;
   const worn = accessoriesFor(ctx.profile, dog.id);
+  const dirt = dirtFor(ctx.profile, dog);
+  const groomable = dog.table != null || dog.divTable != null;
   // The nearest unearned accessory, as a gentle goal.
   const total = (play.walk ?? 0) + (play.feed ?? 0) + (play.fetch ?? 0);
   const next = ACCESSORIES.filter((a) => !worn.includes(a.id))
@@ -33,7 +35,7 @@ export function dogScreen(el, params, ctx) {
         ${isBuddy ? '<strong>Your buddy 🐾</strong>' : ''}
       </div>
       <div class="dog-hero">
-        <div class="dog">${dogSVG(dog, 160, worn)}</div>
+        <div class="dog">${dogSVG(dog, 160, worn, dirt)}</div>
         <h1>${escapeHtml(dog.name)}</h1>
         <p class="muted">${knows}</p>
         <p class="play-stats">
@@ -47,11 +49,13 @@ export function dogScreen(el, params, ctx) {
             : `<p class="muted acc-hint">👑 ${escapeHtml(dog.name)} has every accessory!</p>`
         }
       </div>
+      ${dirt > 0 ? `<p class="muted center groom-hint">${escapeHtml(dog.name)} played hard — bath time? 🧼</p>` : ''}
       <h3>Play with ${escapeHtml(dog.name)}</h3>
-      <div class="activity-row">
+      <div class="activity-row${groomable ? ' four' : ''}">
         <button class="btn" data-act="walk">🦮 Walk</button>
         <button class="btn" data-act="feed">🍖 Feed</button>
         <button class="btn" data-act="fetch">🎾 Fetch</button>
+        ${groomable ? '<button class="btn groom-btn" data-act="groom">🧼 Groom</button>' : ''}
       </div>
       ${
         isBuddy
