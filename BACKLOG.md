@@ -32,7 +32,6 @@ them)*
 ## On hold (per user)
 
 - Skip-count warm-up mode for new tables.
-- Durable rewards from play counters (bandanas/hats for dogs).
 
 ## ✅ Also done
 
@@ -57,6 +56,19 @@ them)*
   teach-the-puppy framing for untried tables; D: sniff-the-map coverage
   (n/169 + row badges); E: training-treat first rounds (mostly wins).
 
+- **Little Pup mode + buildout** — per-profile preschool experience
+  (subjects.little, schema v7): 9 icon-first tap-card games (counting,
+  numerals, tap-to-count, feed-N, more/fewer, shapes, patterns, sequences,
+  addition ≤5→10) with spoken prompts + 🔊 repeat, xp-gated tile unlocks,
+  and pet-pool hosts (Whiskers/Sheldon/Kiwi/Peanut).
+- **Home simplification** — smart "Practice next" suggestion, collapsible
+  grids with remembered state, trimmed division padlocks.
+- **Self-paced hints** — wrong answers wait for "Got it!" (no timer).
+- **Device polish** — iPhone viewport fits + scroll locks everywhere, no
+  selectable text, tablet tier scales the game up on iPads (86-test suite).
+- **Distribution** — public GitHub repo (scrubbed history), GitHub Pages
+  deploy on every push (installable PWA anywhere), single-profile
+  export/import for sharing one kid.
 - **Grooming Phase 1** — dirt derives from the dog's own table's due facts
   (capped, always happy; Biscuit and guests never dirty). 🧼 Groom = the
   complete fact set, rustiest first, misses re-queued to the back until all
@@ -79,9 +91,6 @@ them)*
   extend it so a parent selects multiplication/division vs addition/
   subtraction visibility — or grants the child an independent subject
   toggle (`childCanSwitch`) — plus hide-sitting / limit-tables options.
-- **Little Pup expansion** — more games as the 3yo grows: tap-to-count
-  (one-to-one correspondence), what-comes-next, shapes, simple addition
-  within 5. Same tap-card framework.
 
 ## Later / roadmap
 
