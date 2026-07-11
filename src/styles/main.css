@@ -84,6 +84,19 @@ button {
   touch-action: manipulation;
 }
 
+/* Dog art fills its container in these spots, so the tablet tier below can
+   scale the pups by resizing containers. Container sizes match the SVGs'
+   own attributes at phone sizes, so phones render identically. */
+.hero .avatar svg,
+.dog-hero .dog svg,
+.dog-card .dog svg,
+.profile-card .avatar svg,
+.little-hero .avatar svg,
+.sitting-card .avatar svg {
+  width: 100%;
+  height: 100%;
+}
+
 /* ---------- shared components ---------- */
 
 /* Every press visibly darkens the control so kids see the tap register.
@@ -1308,4 +1321,90 @@ button.pressed {
 
 .stat-row span:last-child {
   color: var(--accent-deep);
+}
+
+/* ---------- tablet tier (iPad & up) ----------
+   Everything here is additive behind the media query: phone layouts (and
+   their fit tests) are untouched. min-height excludes landscape phones. */
+@media (min-width: 700px) and (min-height: 700px) {
+  html {
+    font-size: 19px;
+  }
+
+  #app {
+    max-width: 720px;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .hero .avatar {
+    width: 112px;
+    height: 112px;
+  }
+
+  .dog-hero .dog {
+    width: 210px;
+    height: 210px;
+  }
+
+  .dog-card .dog {
+    width: 100px;
+    height: 100px;
+  }
+
+  .pack-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .award-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* Inline height from JS is the phone value; tablets get a roomier scene. */
+  .game-screen .activity-scene {
+    height: 150px !important;
+  }
+
+  .activity-scene .mover svg {
+    width: 76px;
+    height: 76px;
+  }
+
+  .activity-scene .goal {
+    font-size: 2.6rem;
+  }
+
+  .game-screen .numpad .key {
+    padding: 16px 0;
+  }
+
+  .game-screen .answer-box {
+    min-height: 80px;
+  }
+
+  .little-tiles {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .little-tile {
+    min-height: 148px;
+  }
+
+  .little-tile .tile-art {
+    font-size: 2rem;
+  }
+
+  .little-hero .avatar {
+    width: 132px;
+    height: 132px;
+  }
+
+  .little-card {
+    min-height: 78px;
+  }
+
+  .say-again {
+    width: 56px;
+    height: 56px;
+  }
 }
