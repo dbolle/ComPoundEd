@@ -77,7 +77,8 @@ test('e2e: How many? round — errorless retries, xp, buddy play credit', async 
     await page.waitForTimeout(1150);
   }
 
-  await page.waitForSelector('.little-done');
+  await page.waitForSelector('.little-choices.finish .little-done'); // centered finish card
+  await expect(page.locator('.little-prompt-row')).toBeHidden(); // no stray 🔊 at the end
   const profiles = await page.evaluate(
     () =>
       new Promise((resolve) => {
