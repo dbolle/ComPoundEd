@@ -21,12 +21,16 @@ const QUESTIONS_BY_GAME = { count: 5, find: 5, more: 5, tap: 3, feed: 3, shape: 
 // navigates by which animal, not by words.
 const HOSTS = { shape: 'cat-1', pattern: 'turtle-1', next: 'bird-1', add: 'guinea-1' };
 
-const SHAPE_COLORS = ['#ef4444', '#3b82f6', '#22c55e', '#f59e0b', '#8b5cf6'];
+// Okabe–Ito hues: every pair stays distinct under color-vision deficiency
+// (validated ΔE ≥ 17.9 adjacent-pair separation); the soft outline keeps the
+// lighter fills readable on white cards.
+const SHAPE_COLORS = ['#0072B2', '#E69F00', '#009E73', '#CC79A7'];
+const OUTLINE = 'stroke="#4a3f35" stroke-opacity="0.35" stroke-width="2.5" stroke-linejoin="round"';
 const SHAPE_DEFS = [
-  { kind: 'circle', word: 'circle', d: (c) => `<circle cx="30" cy="30" r="22" fill="${c}"/>` },
-  { kind: 'square', word: 'square', d: (c) => `<rect x="10" y="10" width="40" height="40" rx="6" fill="${c}"/>` },
-  { kind: 'triangle', word: 'triangle', d: (c) => `<path d="M30 8 L54 50 L6 50 Z" fill="${c}"/>` },
-  { kind: 'star', word: 'star', d: (c) => `<path d="M30 6 L37 22 L54 24 L41 36 L45 53 L30 44 L15 53 L19 36 L6 24 L23 22 Z" fill="${c}"/>` },
+  { kind: 'circle', word: 'circle', d: (c) => `<circle cx="30" cy="30" r="22" fill="${c}" ${OUTLINE}/>` },
+  { kind: 'square', word: 'square', d: (c) => `<rect x="10" y="10" width="40" height="40" rx="6" fill="${c}" ${OUTLINE}/>` },
+  { kind: 'triangle', word: 'triangle', d: (c) => `<path d="M30 8 L54 50 L6 50 Z" fill="${c}" ${OUTLINE}/>` },
+  { kind: 'star', word: 'star', d: (c) => `<path d="M30 6 L37 22 L54 24 L41 36 L45 53 L30 44 L15 53 L19 36 L6 24 L23 22 Z" fill="${c}" ${OUTLINE}/>` },
 ];
 
 function shapeSVG(def, color, size = 52) {
@@ -296,34 +300,53 @@ export function littleGameScreen(el, params, ctx) {
       const host = getPet(HOSTS.shape);
       const defs = [...SHAPE_DEFS].sort(() => Math.random() - 0.5).slice(0, 3);
       const target = defs[ri(defs.length)];
+      // One color for every choice: shape is the only thing that varies.
+      const col = SHAPE_COLORS[ri(SHAPE_COLORS.length)];
       promptEl.innerHTML = `${petSVG(host, 34)} 🔍`;
       speak(`Find the ${target.word}!`);
       stageEl.dataset.answer = -1;
       stageEl.innerHTML = `<div class="host-spot">${petSVG(host, 60)}</div>`;
       for (const def of defs) {
-        choiceButton(shapeSVG(def, SHAPE_COLORS[ri(SHAPE_COLORS.length)]), def === target);
+        choiceButton(shapeSVG(def, col), def === target);
       }
     } else if (game === 'pattern') {
-      // Patterns with Sheldon: ABAB… what comes next?
+      // Patterns with Sheldon: one dimension at a time. Early questions vary
+      // only shape, then only color; two dimensions change together (the
+      // hardest discrimination) only at the end of a round.
       const host = getPet(HOSTS.pattern);
-      const defA = SHAPE_DEFS[ri(SHAPE_DEFS.length)];
-      let defB = SHAPE_DEFS[ri(SHAPE_DEFS.length)];
-      while (defB === defA) defB = SHAPE_DEFS[ri(SHAPE_DEFS.length)];
-      const colA = SHAPE_COLORS[ri(SHAPE_COLORS.length)];
-      let colB = SHAPE_COLORS[ri(SHAPE_COLORS.length)];
-      while (colB === colA) colB = SHAPE_COLORS[ri(SHAPE_COLORS.length)];
-      const A = shapeSVG(defA, colA, 40);
-      const B = shapeSVG(defB, colB, 40);
+      const stage = index <= 1 ? 'shape' : index === 2 ? 'color' : index === 3 ? 'aab' : 'mixed';
+      const defs = [...SHAPE_DEFS].sort(() => Math.random() - 0.5);
+      const cols = [...SHAPE_COLORS].sort(() => Math.random() - 0.5);
+      let A, B, options;
+      if (stage === 'shape' || stage === 'aab') {
+        A = [defs[0], cols[0]];
+        B = [defs[1], cols[0]];
+        options = [defs[2], cols[0]]; // third shape, same color
+      } else if (stage === 'color') {
+        A = [defs[0], cols[0]];
+        B = [defs[0], cols[1]];
+        options = [defs[0], cols[2]]; // same shape, third color
+      } else {
+        A = [defs[0], cols[0]];
+        B = [defs[1], cols[1]];
+        options = [defs[0], cols[1]]; // right shape, wrong color
+      }
+      // AAB shows A A B A A ❓ (answer B); the rest show A B A B ❓ (answer A).
+      const seq = stage === 'aab' ? [A, A, B, A, A] : [A, B, A, B];
+      const answer = stage === 'aab' ? B : A;
+      const wrong = answer === A ? B : A;
       promptEl.innerHTML = `${petSVG(host, 34)} ➡️❓`;
       speak('What comes next?');
       stageEl.dataset.answer = -1;
-      stageEl.innerHTML = `<div class="pattern-row">${A}${B}${A}${B}<span class="pattern-q">❓</span></div>`;
-      const options = [
-        { html: shapeSVG(defA, colA), good: true },
-        { html: shapeSVG(defB, colB), good: false },
-        { html: shapeSVG(defA, colB), good: false }, // right shape, wrong color
+      stageEl.innerHTML = `<div class="pattern-row">${seq
+        .map(([d, c]) => shapeSVG(d, c, stage === 'aab' ? 34 : 40))
+        .join('')}<span class="pattern-q">❓</span></div>`;
+      const choices = [
+        { html: shapeSVG(answer[0], answer[1]), good: true },
+        { html: shapeSVG(wrong[0], wrong[1]), good: false },
+        { html: shapeSVG(options[0], options[1]), good: false },
       ].sort(() => Math.random() - 0.5);
-      for (const o of options) choiceButton(o.html, o.good);
+      for (const o of choices) choiceButton(o.html, o.good);
     } else if (game === 'next') {
       // What comes next? — number path with Kiwi the bird.
       const host = getPet(HOSTS.next);

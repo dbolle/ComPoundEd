@@ -1192,7 +1192,7 @@ button.pressed {
 
 .tap-items {
   max-width: none;
-  gap: 14px;
+  gap: 12px 14px;
 }
 
 .tap-items .tap-item {
@@ -1284,12 +1284,25 @@ button.pressed {
 }
 
 .little-items {
-  display: inline-flex;
-  flex-wrap: wrap;
+  /* Ten-frame arrangement: a 5-column grid breaks any count into rows of
+     five, so 7 reads as "5 and 2" instead of a long line to recount. */
+  display: inline-grid;
+  grid-template-columns: repeat(5, auto);
   justify-content: center;
-  gap: 6px;
+  gap: 8px 6px;
   font-size: 2rem;
   max-width: 340px;
+}
+
+.little-items .li {
+  background: rgba(74, 63, 53, 0.06);
+  border-radius: 10px;
+  padding: 2px 4px;
+}
+
+.little-items.small .li {
+  background: none;
+  padding: 0;
 }
 
 .little-items.many {
