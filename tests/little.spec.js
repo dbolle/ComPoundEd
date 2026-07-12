@@ -21,7 +21,7 @@ test('migration v6→v7 adds subjects scaffolding + little progression', () => {
   });
   expect(doc.schemaVersion).toBe(SCHEMA_VERSION);
   expect(doc.subjects).toEqual({ little: false });
-  expect(doc.little).toEqual({ xp: 0 });
+  expect(doc.little).toEqual({ xp: 0, skills: {} });
 
   const a = newProfile('A');
   const b = structuredClone(a);
@@ -71,6 +71,10 @@ test('e2e: How many? round — errorless retries, xp, buddy play credit', async 
       await expect(page.locator('.paw.done')).toHaveCount(0);
       await expect(page.locator('.little-fb')).toContainText('🐾');
       await expect(page.locator('.little-card.shake')).toHaveCount(1);
+      // the guided recount takes over: items pulse one by one, then the
+      // question is handed back
+      await expect(page.locator('.li.pulse').first()).toBeVisible({ timeout: 3000 });
+      await expect(page.locator('.li.pulse')).toHaveCount(0, { timeout: 10000 });
       await page.tap('[data-say]'); // 🔊 repeat is present and safe
     }
     await page.locator('.little-card', { hasText: new RegExp(`^${n}$`) }).tap();
