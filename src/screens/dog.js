@@ -1,5 +1,5 @@
 import { navigate } from '../router.js';
-import { getDog, dogSVG, accessoriesFor, ACCESSORIES, dirtFor } from '../art/dogs.js';
+import { getDog, dogSVG, accessoriesFor, wornFor, ACCESSORIES, dirtFor } from '../art/dogs.js';
 import { isUnlocked } from '../engine/unlocks.js';
 import { toast, escapeHtml } from '../ui.js';
 
@@ -11,12 +11,13 @@ export function dogScreen(el, params, ctx) {
   }
   const play = ctx.profile.play[dog.id] ?? { walk: 0, feed: 0, fetch: 0 };
   const isBuddy = ctx.profile.avatarDogId === dog.id;
-  const worn = accessoriesFor(ctx.profile, dog.id);
+  const earned = accessoriesFor(ctx.profile, dog.id);
   const dirt = dirtFor(ctx.profile, dog);
-  const groomable = dog.table != null || dog.divTable != null;
+  const groomable = true; // every pack dog — Biscuit gets a board-wide spa day
+  const hasPass = ctx.session.wardrobePass === dog.id;
   // The nearest unearned accessory, as a gentle goal.
   const total = (play.walk ?? 0) + (play.feed ?? 0) + (play.fetch ?? 0);
-  const next = ACCESSORIES.filter((a) => !worn.includes(a.id))
+  const next = ACCESSORIES.filter((a) => !earned.includes(a.id))
     .map((a) => ({ ...a, left: a.need - (a.kind === 'total' ? total : (play[a.kind] ?? 0)) }))
     .sort((x, y) => x.left - y.left)[0];
   const kindWord = { walk: 'walks', feed: 'meals', fetch: 'fetches', total: 'plays' };
@@ -35,7 +36,7 @@ export function dogScreen(el, params, ctx) {
         ${isBuddy ? '<strong>Your buddy 🐾</strong>' : ''}
       </div>
       <div class="dog-hero">
-        <div class="dog">${dogSVG(dog, 160, worn, dirt)}</div>
+        <div class="dog">${dogSVG(dog, 160, wornFor(ctx.profile, dog.id), dirt)}</div>
         <h1>${escapeHtml(dog.name)}</h1>
         <p class="muted">${knows}</p>
         <p class="play-stats">
@@ -58,6 +59,13 @@ export function dogScreen(el, params, ctx) {
         ${groomable ? '<button class="btn groom-btn" data-act="groom">🧼 Groom</button>' : ''}
       </div>
       ${
+        hasPass
+          ? '<button class="btn groom-btn" data-dress>👕 Dress up!</button>'
+          : earned.length
+            ? '<p class="muted center groom-hint">👕 Groom to change outfits!</p>'
+            : ''
+      }
+      ${
         isBuddy
           ? ''
           : `<button class="btn accent" data-buddy>💛 Make ${escapeHtml(dog.name)} your buddy</button>`
@@ -76,5 +84,7 @@ export function dogScreen(el, params, ctx) {
       dogScreen(el, params, ctx);
     });
   }
+  const dress = el.querySelector('[data-dress]');
+  if (dress) dress.addEventListener('click', () => navigate(`/wardrobe?id=${dog.id}`));
   el.querySelector('[data-back]').addEventListener('click', () => navigate('/pack'));
 }

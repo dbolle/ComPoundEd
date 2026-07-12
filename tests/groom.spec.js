@@ -81,12 +81,12 @@ test('e2e: dusty dog → full-set bath with re-queued miss → squeaky clean', a
   expect(await page.$('.dog-hero [data-dirt]')).not.toBeNull();
   await expect(page.locator('.groom-hint')).toContainText('bath time');
 
-  // Biscuit: never dirty, no groom button
+  // Biscuit: never dirty, but gets a spa-day groom button (Phase 2)
   await page.tap('[data-back]');
   await page.tap('.dog-card:has-text("Biscuit")');
   await page.waitForSelector('.dog-hero');
   expect(await page.$('.dog-hero [data-dirt]')).toBeNull();
-  expect(await page.$('[data-act="groom"]')).toBeNull();
+  expect(await page.$('[data-act="groom"]')).not.toBeNull();
   await page.tap('[data-back]');
   await page.tap('.dog-card:has-text("Daisy")');
   await page.waitForSelector('.dog-hero');

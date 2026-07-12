@@ -11,7 +11,7 @@ import {
 import { sittingReady } from '../engine/selector.js';
 import { suggestNext } from '../engine/suggest.js';
 import { getUiPrefs, setUiPrefs } from '../data/store.js';
-import { getDog, dogSVG, accessoriesFor, dirtFor, GUESTS } from '../art/dogs.js';
+import { getDog, dogSVG, wornFor, dirtFor, GUESTS } from '../art/dogs.js';
 import { littleHomeScreen } from './little.js';
 import { escapeHtml } from '../ui.js';
 
@@ -29,7 +29,7 @@ export async function homeScreen(el, params, ctx) {
   el.innerHTML = `
     <div class="screen">
       <div class="hero">
-        <span class="avatar">${dogSVG(getDog(p.avatarDogId), 84, accessoriesFor(p, p.avatarDogId), dirtFor(p, getDog(p.avatarDogId)))}</span>
+        <span class="avatar">${dogSVG(getDog(p.avatarDogId), 84, wornFor(p, p.avatarDogId), dirtFor(p, getDog(p.avatarDogId)))}</span>
         <div>
           <h1>Hi, ${escapeHtml(p.name)}!</h1>
           <p class="muted">Ready to fetch some facts?</p>
@@ -145,7 +145,7 @@ export async function homeScreen(el, params, ctx) {
     const guest = GUESTS[Math.floor(Date.now() / 86400000) % GUESTS.length];
     const sitBtn = document.createElement('button');
     sitBtn.className = 'sitting-card';
-    sitBtn.innerHTML = `<span class="avatar">${dogSVG(guest, 64, accessoriesFor(p, guest.id))}</span>
+    sitBtn.innerHTML = `<span class="avatar">${dogSVG(guest, 64, wornFor(p, guest.id))}</span>
       <span class="sitting-text"><strong>🏡 Pet sitting</strong>
       <span class="muted">${escapeHtml(guest.name)} needs a sitter today!</span></span>`;
     sitBtn.addEventListener('click', () => navigate(`/activity?sit=${guest.id}`));

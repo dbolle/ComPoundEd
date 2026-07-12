@@ -51,13 +51,74 @@ export function isGuest(id) {
 }
 
 // Accessories are earned through pet play and derived straight from the play
-// counters — no extra stored state. They render on the dog everywhere.
+// counters. Each accessory has a COLOR LADDER — keep playing that activity
+// and new colors unlock. What a dog actually wears is the kid's choice
+// (profile.wear), changed in the wardrobe after a grooming bath.
 export const ACCESSORIES = [
-  { id: 'bandana', emoji: '🧣', name: 'bandana', kind: 'walk', need: 10 },
-  { id: 'bow', emoji: '🎀', name: 'bow', kind: 'feed', need: 10 },
-  { id: 'cap', emoji: '🧢', name: 'cap', kind: 'fetch', need: 10 },
+  {
+    id: 'bandana', emoji: '🧣', name: 'bandana', kind: 'walk', need: 10,
+    colors: [
+      { id: 'red', need: 10, fill: '#f43f5e' },
+      { id: 'blue', need: 25, fill: '#3b82f6' },
+      { id: 'green', need: 50, fill: '#22c55e' },
+      { id: 'gold', need: 100, fill: '#f59e0b' },
+    ],
+  },
+  {
+    id: 'bow', emoji: '🎀', name: 'bow', kind: 'feed', need: 10,
+    colors: [
+      { id: 'pink', need: 10, fill: '#ec4899', deep: '#be185d' },
+      { id: 'purple', need: 25, fill: '#a855f7', deep: '#7e22ce' },
+      { id: 'teal', need: 50, fill: '#14b8a6', deep: '#0f766e' },
+      { id: 'gold', need: 100, fill: '#f59e0b', deep: '#b45309' },
+    ],
+  },
+  {
+    id: 'cap', emoji: '🧢', name: 'cap', kind: 'fetch', need: 10,
+    colors: [
+      { id: 'blue', need: 10, fill: '#3b82f6', deep: '#2563eb' },
+      { id: 'red', need: 25, fill: '#ef4444', deep: '#b91c1c' },
+      { id: 'green', need: 50, fill: '#22c55e', deep: '#15803d' },
+      { id: 'gold', need: 100, fill: '#f59e0b', deep: '#b45309' },
+    ],
+  },
   { id: 'star', emoji: '⭐', name: 'star tag', kind: 'total', need: 40 },
 ];
+
+function playCount(profile, dogId, kind) {
+  const c = profile?.play?.[dogId];
+  if (!c) return 0;
+  if (kind === 'total') return (c.walk ?? 0) + (c.feed ?? 0) + (c.fetch ?? 0);
+  return c[kind] ?? 0;
+}
+
+// Which colors of an accessory this dog has unlocked.
+export function accessoryColorsFor(profile, dogId, accId) {
+  const acc = ACCESSORIES.find((a) => a.id === accId);
+  if (!acc?.colors) return [];
+  const n = playCount(profile, dogId, acc.kind);
+  return acc.colors.filter((c) => n >= c.need).map((c) => c.id);
+}
+
+// The render list: earned accessories in the kid's chosen colors.
+// wear entry undefined → default (first color); 'none' → not worn.
+export function wornFor(profile, dogId) {
+  const earned = accessoriesFor(profile, dogId);
+  const wear = profile?.wear?.[dogId] ?? {};
+  const out = [];
+  for (const id of earned) {
+    const choice = wear[id];
+    if (choice === 'none') continue;
+    if (id === 'star') {
+      out.push('star');
+      continue;
+    }
+    const unlocked = accessoryColorsFor(profile, dogId, id);
+    const color = choice && unlocked.includes(choice) ? choice : unlocked[0];
+    out.push({ id, color });
+  }
+  return out;
+}
 
 // Dirt = the dog's own table gone rusty (due facts), capped at a gentle
 // maximum. Biscuit (the starter) and guests never get dirty. Derived live —
@@ -175,29 +236,49 @@ export function dogSVG(dog, size = 96, accessories = [], dirt = 0) {
 // Shared by every species (pets.js reuses these so any animal can wear
 // earned play accessories).
 export function collarTag(accessories = []) {
-  return accessories.includes('star')
+  const hasStar = accessories.some((e) => e === 'star' || e?.id === 'star');
+  return hasStar
     ? `<path data-acc="star" d="M60 95 L62.2 100.3 L67.8 100.6 L63.5 104.2 L64.9 109.7 L60 106.6 L55.1 109.7 L56.5 104.2 L52.2 100.6 L57.8 100.3 Z" fill="#fcd34d" stroke="#d97706" stroke-width="1.6"/>`
     : `<circle cx="60" cy="103" r="6" fill="#fcd34d" stroke="#d97706" stroke-width="2"/>`;
 }
 
+function accEntry(accessories, id) {
+  for (const e of accessories) {
+    if (e === id) return { id, color: null };
+    if (e && typeof e === 'object' && e.id === id) return e;
+  }
+  return null;
+}
+
+function fillsFor(accId, colorId) {
+  const acc = ACCESSORIES.find((a) => a.id === accId);
+  const color = acc?.colors?.find((c) => c.id === colorId) ?? acc?.colors?.[0];
+  return color ?? {};
+}
+
 export function accessoryOverlays(accessories = []) {
-  const has = (id) => accessories.includes(id);
+  const bandana = accEntry(accessories, 'bandana');
+  const cap = accEntry(accessories, 'cap');
+  const bow = accEntry(accessories, 'bow');
+  const bf = bandana ? fillsFor('bandana', bandana.color) : null;
+  const cf = cap ? fillsFor('cap', cap.color) : null;
+  const wf = bow ? fillsFor('bow', bow.color) : null;
   return `${
-    has('bandana')
-      ? `<g data-acc="bandana"><path d="M36 92 L84 92 L60 112 Z" fill="#f43f5e"/>
+    bandana
+      ? `<g data-acc="bandana" data-color="${bf.id}"><path d="M36 92 L84 92 L60 112 Z" fill="${bf.fill}"/>
          <circle cx="52" cy="97" r="2" fill="#fff"/><circle cx="68" cy="97" r="2" fill="#fff"/><circle cx="60" cy="104" r="2" fill="#fff"/></g>`
       : ''
   }${
-    has('cap')
-      ? `<g data-acc="cap"><path d="M37 34 A23 17 0 0 1 83 34 L83 39 L37 39 Z" fill="#3b82f6"/>
-         <rect x="72" y="33" width="24" height="7" rx="3.5" fill="#2563eb"/>
-         <circle cx="60" cy="19" r="4" fill="#2563eb"/></g>`
+    cap
+      ? `<g data-acc="cap" data-color="${cf.id}"><path d="M37 34 A23 17 0 0 1 83 34 L83 39 L37 39 Z" fill="${cf.fill}"/>
+         <rect x="72" y="33" width="24" height="7" rx="3.5" fill="${cf.deep}"/>
+         <circle cx="60" cy="19" r="4" fill="${cf.deep}"/></g>`
       : ''
   }${
-    has('bow')
-      ? `<g data-acc="bow" transform="rotate(-14 86 32)"><path d="M86 32 L72 24 L72 40 Z" fill="#ec4899"/>
-         <path d="M86 32 L100 24 L100 40 Z" fill="#ec4899"/>
-         <circle cx="86" cy="32" r="4.5" fill="#be185d"/></g>`
+    bow
+      ? `<g data-acc="bow" data-color="${wf.id}" transform="rotate(-14 86 32)"><path d="M86 32 L72 24 L72 40 Z" fill="${wf.fill}"/>
+         <path d="M86 32 L100 24 L100 40 Z" fill="${wf.fill}"/>
+         <circle cx="86" cy="32" r="4.5" fill="${wf.deep}"/></g>`
       : ''
   }`;
 }

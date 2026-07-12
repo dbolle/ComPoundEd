@@ -222,6 +222,29 @@ function buildTrainingRound(profile, table, count = ROUND_SIZE) {
 // has been answered correctly — misses re-queue (handled by the activity).
 // Dogs unlock by mastering their table, so this is always pure review.
 export function buildGroomRound(profile, dog) {
+  // Biscuit's spa day: never dirty, but his bath quizzes the 13 rustiest
+  // facts on the whole board (due first, then weakest), padded with the
+  // easiest fresh facts for young profiles.
+  if (dog.table == null && dog.divTable == null) {
+    const seen = [];
+    const fresh = [];
+    for (const [a, b] of (() => {
+      const pairs = [];
+      for (let x = TABLE_MIN; x <= TABLE_MAX; x++) {
+        for (let y = Math.max(x, FACTOR_MIN); y <= FACTOR_MAX; y++) pairs.push([x, y]);
+      }
+      for (let y = FACTOR_MIN; y < TABLE_MIN; y++) pairs.push([TABLE_MIN, y]);
+      return pairs;
+    })()) {
+      const s = getStat(profile, a, b);
+      if (s.attempts === 0) fresh.push({ a, b, order: a * b });
+      else seen.push({ a, b, due: isDue(s) ? 1 : 0, box: s.box, lastSeen: s.lastSeen });
+    }
+    seen.sort((x, y) => y.due - x.due || x.lastSeen - y.lastSeen || x.box - y.box);
+    fresh.sort((x, y) => x.order - y.order);
+    const picked = [...seen.slice(0, 13), ...fresh].slice(0, 13);
+    return picked.map(({ a, b }) => multQuestion(a, b));
+  }
   const items = [];
   for (let b = FACTOR_MIN; b <= FACTOR_MAX; b++) {
     if (dog.divTable != null) {
