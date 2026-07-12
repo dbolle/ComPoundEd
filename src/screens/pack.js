@@ -1,8 +1,9 @@
 import { navigate } from '../router.js';
 import { DOGS, dogSVG, wornFor, dirtFor } from '../art/dogs.js';
+import { storefrontSVG } from '../art/gear.js';
 import { balanceCents, formatPaw } from '../engine/money.js';
 import { isUnlocked } from '../engine/unlocks.js';
-import { escapeHtml } from '../ui.js';
+import { escapeHtml, toast } from '../ui.js';
 
 export function packScreen(el, params, ctx) {
   const p = ctx.profile;
@@ -43,6 +44,23 @@ export function packScreen(el, params, ctx) {
     }
     grid.appendChild(card);
   }
+
+  // Pet Store teaser (Phase 4b): builds anticipation — and savings — while
+  // the store is under construction. Remove this block to roll back.
+  const store = document.createElement('button');
+  store.className = 'dog-card store-soon';
+  store.setAttribute('aria-label', 'Pet store, opening soon');
+  store.innerHTML = `<span class="dog">${storefrontSVG(76)}</span>
+    <span>Pet store</span>
+    <span class="lock-hint">🚧 Opening soon!</span>`;
+  store.addEventListener('click', () => {
+    const art = store.querySelector('.dog');
+    art.classList.remove('wiggle');
+    void art.offsetWidth; // restart the animation on repeat taps
+    art.classList.add('wiggle');
+    toast('The Pet Store is being built! Keep saving your Paw Bucks 🐾');
+  });
+  grid.appendChild(store);
 
   el.querySelector('[data-wallet]').addEventListener('click', () => navigate('/wallet'));
   el.querySelector('[data-back]').addEventListener('click', () => navigate('/home'));

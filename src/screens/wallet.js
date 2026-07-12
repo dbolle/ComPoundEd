@@ -23,6 +23,7 @@ export function walletScreen(el, params, ctx) {
         <p class="muted" style="margin:4px 0 0">Earned by pet sitting 🏡</p>
       </div>
       <div class="wallet-rows"></div>
+      <p class="muted center" style="font-size:.85rem">Saving up? The Pet Store opens soon! 🏪🚧</p>
       <p class="muted center" style="font-size:.8rem;margin-top:auto">Paw Bucks are game money — just for fun, never real!</p>
     </div>`;
 

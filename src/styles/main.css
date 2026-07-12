@@ -810,6 +810,25 @@ button.pressed {
   background: #fef3c7;
 }
 
+/* Pet Store teaser tile (remove with the pack.js block to roll back) */
+.dog-card.store-soon {
+  border-bottom-style: dashed;
+  border-bottom-color: #d9a520;
+}
+
+.dog-card.store-soon .dog.wiggle {
+  animation: store-wiggle 0.5s ease-in-out;
+}
+
+@keyframes store-wiggle {
+  25% {
+    transform: rotate(-5deg);
+  }
+  75% {
+    transform: rotate(5deg);
+  }
+}
+
 .toast {
   position: fixed;
   left: 50%;

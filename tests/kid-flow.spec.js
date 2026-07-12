@@ -34,7 +34,7 @@ test('first run: create → round → results → progress → pack → heatmap'
   // Pack: starter only; heatmap: 13×13 cells
   await page.tap('[data-nav="/pack"]');
   await page.waitForSelector('.pack-grid .dog-card');
-  expect(await page.$$eval('.dog-card:not(.locked)', (els) => els.length)).toBe(1);
+  expect(await page.$$eval('.dog-card:not(.locked):not(.store-soon)', (els) => els.length)).toBe(1);
   expect(await page.$$eval('.dog-card.locked', (els) => els.length)).toBe(24);
   await page.tap('[data-back]');
   await page.waitForSelector('.table-grid');
