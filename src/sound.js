@@ -63,6 +63,11 @@ export const sfx = {
     safe(() => {
       [523, 659, 784, 1047].forEach((f, i) => tone({ freq: f, at: i * 0.11, dur: 0.14, vol: 0.14 }));
     }),
+  coin: () =>
+    safe(() => {
+      tone({ freq: 988, dur: 0.07, vol: 0.13 });
+      tone({ freq: 1319, at: 0.08, dur: 0.16, vol: 0.13 });
+    }),
   bark: () =>
     safe(() => {
       tone({ freq: 520, slide: 180, dur: 0.09, type: 'sawtooth', vol: 0.12 });

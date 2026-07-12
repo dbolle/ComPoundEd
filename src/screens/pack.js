@@ -1,5 +1,6 @@
 import { navigate } from '../router.js';
 import { DOGS, dogSVG, wornFor, dirtFor } from '../art/dogs.js';
+import { balanceCents, formatPaw } from '../engine/money.js';
 import { isUnlocked } from '../engine/unlocks.js';
 import { escapeHtml } from '../ui.js';
 
@@ -11,6 +12,7 @@ export function packScreen(el, params, ctx) {
       <div class="topbar">
         <button class="btn ghost small" data-back>← Back</button>
         <span class="spacer"></span>
+        <button class="paw-chip" data-wallet aria-label="Wallet">${formatPaw(balanceCents(p))}</button>
         <h2 style="margin:0">My pack 🐶</h2>
       </div>
       <p class="muted center" style="margin:0">Tap a pup to play with them!</p>
@@ -42,5 +44,6 @@ export function packScreen(el, params, ctx) {
     grid.appendChild(card);
   }
 
+  el.querySelector('[data-wallet]').addEventListener('click', () => navigate('/wallet'));
   el.querySelector('[data-back]').addEventListener('click', () => navigate('/home'));
 }
