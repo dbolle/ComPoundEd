@@ -2,7 +2,7 @@
 // migrateProfile() whenever the shape of stored data changes — this is the
 // contract a future sync backend will rely on.
 
-export const SCHEMA_VERSION = 10;
+export const SCHEMA_VERSION = 11;
 
 // v7-era flat achievement ids → stacked { family, tier } (schema v8).
 const LEGACY_ACHIEVEMENTS = {
@@ -95,8 +95,11 @@ export function newProfile(name) {
     // subtraction here, or grant the child an independent subject toggle.
     // `little: true` switches the whole app to the preschool experience.
     subjects: { little: false },
-    // Little-pup progression: xp grows the number range (1–5 → 1–10).
-    little: { xp: 0 },
+    // Little-pup progression. xp fuels the tile trail; skills tracks real
+    // per-quantity mastery, keyed "game:number" → { attempts, streak }
+    // (streak = consecutive first-try corrects; 3+ means the child knows it
+    // rather than guessed it — a guesser fakes that 3.7% of the time).
+    little: { xp: 0, skills: {} },
     // Earned achievement badges: { [achievementId]: earnedAt }
     achievements: {},
     // Lifetime counters that feed the achievement ladders.
@@ -172,6 +175,13 @@ export function migrateProfile(doc) {
   if (doc.schemaVersion === 9) {
     doc.pawBucks = doc.pawBucks ?? { txns: [] };
     doc.schemaVersion = 10;
+  }
+  if (doc.schemaVersion === 10) {
+    // Skills start empty even for high-xp kids: the range re-derives from
+    // demonstrated first-try streaks (xp and unlocked tiles are untouched).
+    doc.little = { xp: 0, ...(doc.little ?? {}) };
+    doc.little.skills = doc.little.skills ?? {};
+    doc.schemaVersion = 11;
   }
   return doc;
 }
@@ -266,7 +276,24 @@ export function mergeProfiles(a, b) {
   // Subjects follow the more recently updated doc (it's a parent setting);
   // little-pup xp never regresses.
   const subjects = { little: false, ...(newer.subjects ?? {}) };
-  const little = { xp: Math.max(a.little?.xp ?? 0, b.little?.xp ?? 0) };
+  const little = {
+    xp: Math.max(a.little?.xp ?? 0, b.little?.xp ?? 0),
+    // Per-skill richer-wins: the device that saw more tries / a longer
+    // streak knows more; neither side's evidence is lost.
+    skills: {},
+  };
+  const skillKeys = new Set([
+    ...Object.keys(a.little?.skills ?? {}),
+    ...Object.keys(b.little?.skills ?? {}),
+  ]);
+  for (const k of skillKeys) {
+    const x = a.little?.skills?.[k] ?? {};
+    const y = b.little?.skills?.[k] ?? {};
+    little.skills[k] = {
+      attempts: Math.max(x.attempts ?? 0, y.attempts ?? 0),
+      streak: Math.max(x.streak ?? 0, y.streak ?? 0),
+    };
+  }
   return {
     ...newer,
     subjects,

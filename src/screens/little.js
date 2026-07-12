@@ -40,12 +40,48 @@ function shapeSVG(def, color, size = 52) {
 const ri = (n) => Math.floor(Math.random() * n);
 
 function ensureLittle(profile) {
-  if (!profile.little) profile.little = { xp: 0 };
+  if (!profile.little) profile.little = { xp: 0, skills: {} };
+  profile.little.skills = profile.little.skills ?? {};
   return profile.little;
 }
 
-// Numbers start small and grow with success.
-const rangeFor = (profile) => ((profile.little?.xp ?? 0) >= 30 ? 10 : 5);
+// --- real mastery signal ---------------------------------------------------
+// Choice games record per-number skills; a number is "known" after three
+// first-try corrects in a row (a guesser fakes that 3.7% of the time, vs 33%
+// per question). Tap & feed stay error-less joy — they never feed the signal.
+const SKILL_GAMES = new Set(['count', 'find', 'more', 'next', 'add']);
+const KNOWN_STREAK = 3;
+
+const knows = (little, g, n) => (little.skills?.[`${g}:${n}`]?.streak ?? 0) >= KNOWN_STREAK;
+
+// Numbers grow 5 → 7 → 10 as the smaller band is genuinely known — not with
+// raw xp, which guessing (and the un-missable games) inflates. Existing kids
+// re-derive: nothing visible is removed, and real knowledge re-proves in a
+// round or two. Exported for the unit tests.
+export function rangeFor(profile, g = 'count') {
+  const little = profile.little ?? {};
+  const band = (lo, hi) => {
+    for (let n = lo; n <= hi; n++) if (!knows(little, g, n)) return false;
+    return true;
+  };
+  if (!band(1, 5)) return 5;
+  if (!band(6, 7)) return 7;
+  return 10;
+}
+
+// Serve the learning frontier: mostly numbers not yet known, with familiar
+// ones mixed in so rounds stay confident.
+function pickN(little, g, range) {
+  const unknown = [];
+  for (let n = 1; n <= range; n++) if (!knows(little, g, n)) unknown.push(n);
+  if (unknown.length && Math.random() < 0.7) return unknown[ri(unknown.length)];
+  return 1 + ri(range);
+}
+
+// Guided recount on a miss (count & find): the items pulse one-by-one with
+// the spoken count before the child answers again — thinking becomes faster
+// than tapping through. Flip to false to roll back to the silent wobble.
+const GUIDED_RECOUNT = true;
 
 function itemRow(item, n, cls = 'li') {
   return Array.from({ length: n }, () => `<span class="${cls}">${item}</span>`).join('');
@@ -217,14 +253,14 @@ export function littleGameScreen(el, params, ctx) {
   }
 
   function newQuestion() {
-    const range = rangeFor(p);
+    const range = rangeFor(p, SKILL_GAMES.has(game) ? game : 'count');
     fbEl.textContent = '';
     stageEl.innerHTML = '';
     choicesEl.innerHTML = '';
     choicesEl.className = 'little-choices';
 
     if (game === 'count') {
-      const n = 1 + ri(range);
+      const n = pickN(little, 'count', range);
       const item = ITEMS[ri(ITEMS.length)];
       promptEl.textContent = `${item}❓`;
       speak('How many?');
@@ -234,7 +270,7 @@ export function littleGameScreen(el, params, ctx) {
       }
       stageEl.dataset.answer = n;
     } else if (game === 'find') {
-      const n = 1 + ri(range);
+      const n = pickN(little, 'find', range);
       const item = ITEMS[ri(ITEMS.length)];
       promptEl.textContent = '🔍❓';
       speak(`Find ${WORDS[n]}!`);
@@ -365,7 +401,7 @@ export function littleGameScreen(el, params, ctx) {
       // Adding within 5 (10 later) with Peanut the guinea pig — two groups
       // of things, one number.
       const host = getPet(HOSTS.add);
-      const maxSum = (p.little?.xp ?? 0) >= 100 ? 10 : 5;
+      const maxSum = [2, 3, 4, 5].every((v) => knows(little, 'add', v)) ? 10 : 5;
       const a = 1 + ri(maxSum - 1);
       const b = 1 + ri(maxSum - a);
       const item = ITEMS[ri(ITEMS.length)];
@@ -404,9 +440,20 @@ export function littleGameScreen(el, params, ctx) {
     }
   }
 
+  function recordSkill() {
+    if (!SKILL_GAMES.has(game)) return;
+    const n = Number(stageEl.dataset.answer);
+    if (!(n >= 1)) return;
+    const key = `${game}:${n}`;
+    const sk = (little.skills[key] = little.skills[key] ?? { attempts: 0, streak: 0 });
+    sk.attempts += 1;
+    sk.streak = firstTry ? sk.streak + 1 : 0;
+  }
+
   function celebrate(btn, { speakWord = true } = {}) {
     busy = true;
     if (firstTry) little.xp += 1;
+    recordSkill();
     paws[index].classList.add('done');
     if (btn) btn.classList.add('win');
     sfx.correct();
@@ -415,6 +462,34 @@ export function littleGameScreen(el, params, ctx) {
     const n = Number(stageEl.dataset.answer);
     if (speakWord && n >= 0 && n <= 10) speak(WORDS[n]);
     setTimeout(next, 1000);
+  }
+
+  function guidedRecount(btn) {
+    // count: recount the stage items; find: recount the pile the child
+    // picked, so they see why it isn't the target.
+    const scope = game === 'count' ? stageEl : btn;
+    const items = [...scope.querySelectorAll('.li')];
+    if (!items.length) {
+      say('Try again!');
+      return;
+    }
+    busy = true;
+    say("Let's count!");
+    items.forEach((item, i) => {
+      setTimeout(() => {
+        item.classList.add('pulse');
+        say(WORDS[i + 1]);
+        buzz(10);
+        if (i === items.length - 1) {
+          setTimeout(() => {
+            for (const it of items) it.classList.remove('pulse');
+            busy = false;
+            const target = Number(stageEl.dataset.answer);
+            say(game === 'find' ? `Find ${WORDS[target]}!` : 'Now you! How many?');
+          }, 800);
+        }
+      }, 600 + i * 700);
+    });
   }
 
   function onChoice(btn, correct) {
@@ -429,7 +504,11 @@ export function littleGameScreen(el, params, ctx) {
       btn.classList.add('shake');
       sfx.wrong();
       fbEl.textContent = '🐾';
-      say('Try again!');
+      if (GUIDED_RECOUNT && (game === 'count' || game === 'find')) {
+        guidedRecount(btn);
+      } else {
+        say('Try again!');
+      }
     }
   }
 
