@@ -53,6 +53,7 @@ function applyAnswer(s, correct, ms, fastMs) {
   const prevBox = s.box;
   const hadMisses = s.attempts - s.correct > 0;
   const firstAttempt = s.attempts === 0;
+  const wasDue = s.attempts > 0 && isDue(s);
   s.attempts += 1;
   if (correct) s.correct += 1;
   s.avgMs = s.avgMs ? Math.round(s.avgMs * 0.7 + ms * 0.3) : Math.round(ms);
@@ -73,6 +74,10 @@ function applyAnswer(s, correct, ms, fastMs) {
     leveledUp: s.box > prevBox,
     firstCorrect: correct && s.correct === 1,
     comeback: correct && hadMisses,
+    // Earning signals (frontier pays): crossing into mastery and polishing
+    // a rusty fact are the moments learning visibly changed.
+    mastered: prevBox < MASTERY_BOX && s.box >= MASTERY_BOX,
+    polished: correct && wasDue,
   };
 }
 

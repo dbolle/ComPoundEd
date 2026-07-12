@@ -1,6 +1,7 @@
 import { navigate } from '../router.js';
 import { buildRound, buildDivisionRound, ROUND_SIZE } from '../engine/selector.js';
 import { recordAnswer, recordDivisionAnswer } from '../engine/leitner.js';
+import { earnFromAnswer } from '../engine/money.js';
 import { checkUnlocks } from '../engine/unlocks.js';
 import { bumpAnswer, bumpRound, checkAchievements } from '../engine/achievements.js';
 import { tableTriedCount, divisionTriedCount } from '../engine/leitner.js';
@@ -41,6 +42,7 @@ export function quizScreen(el, params, ctx) {
     teachDog = dogForDivTable(scope.table);
   }
   const results = [];
+  const coins = []; // frontier earnings, tallied on the results screen
   let index = 0;
   let input = '';
   let busy = false;
@@ -129,6 +131,7 @@ export function quizScreen(el, params, ctx) {
       q.kind === 'div'
         ? recordDivisionAnswer(ctx.profile, q.a, q.b, correct, ms)
         : recordAnswer(ctx.profile, q.a, q.b, correct, ms);
+    coins.push(...earnFromAnswer(ctx.profile, { a: q.a, b: q.b, division: q.kind === 'div' }, r));
     results.push({
       a: q.a,
       b: q.b,
@@ -198,7 +201,7 @@ export function quizScreen(el, params, ctx) {
         if (!sniffedBefore.has(t) && tableTriedCount(ctx.profile, t) === 13) sniffedRows.push(t);
       }
       await ctx.save();
-      ctx.session.lastRound = { scope, results, newUnlocks, newAwards, sniffedRows };
+      ctx.session.lastRound = { scope, results, newUnlocks, newAwards, sniffedRows, coins };
       navigate('/results');
     } else {
       showQuestion();
