@@ -53,13 +53,16 @@ const TOY_ART = {
     <ellipse cx="30" cy="27" rx="24" ry="12" fill="#f78f5e"/>
     <ellipse cx="30" cy="27" rx="12" ry="5.5" fill="#f2743c"/>`,
   bowl: `
-    <path d="M8 26 A22 20 0 0 0 52 26 L52 32 A22 16 0 0 1 8 32 Z" fill="#3b82f6"/>
-    <path d="M8 26 L52 26 L50 38 Q30 50 10 38 Z" fill="#2563eb"/>
-    <g fill="#fff" opacity="0.85">
-      <circle cx="30" cy="33" r="3.4"/>
-      <circle cx="24" cy="28" r="1.7"/><circle cx="28" cy="26" r="1.7"/>
-      <circle cx="32" cy="26" r="1.7"/><circle cx="36" cy="28" r="1.7"/>
-    </g>`,
+    <path d="M8 24 L11 44 A19 7 0 0 0 49 44 L52 24 Z" fill="#c8423e"/>
+    <path d="M8 24 L11 44 A19 7 0 0 0 30 50 L30 24 Z" fill="#d9534f"/>
+    <ellipse cx="30" cy="24" rx="22" ry="8.5" fill="#e5675f"/>
+    <ellipse cx="30" cy="24" rx="17" ry="6" fill="#8f2f2c"/>
+    <g fill="#c99b6a">
+      <circle cx="24" cy="23" r="2.6"/><circle cx="31" cy="25" r="2.6"/>
+      <circle cx="38" cy="23" r="2.6"/><circle cx="27" cy="27" r="2.4"/>
+      <circle cx="35" cy="27" r="2.4"/>
+    </g>
+    <path d="M14 30 Q15 40 19 45" stroke="#f08a83" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0.8"/>`,
   ducky: `
     <ellipse cx="32" cy="38" rx="18" ry="12" fill="#f6d35e"/>
     <circle cx="20" cy="22" r="10" fill="#f6d35e"/>
