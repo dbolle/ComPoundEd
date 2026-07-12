@@ -1,4 +1,5 @@
 import { navigate } from '../router.js';
+import { formatPaw, coinBadges } from '../engine/money.js';
 import {
   tableProgress,
   divisionTableProgress,
@@ -86,6 +87,16 @@ export function resultsScreen(el, params, ctx) {
             </div>`
           : ''
       }
+      ${
+        round.coins?.length
+          ? `<div class="card center coin-reveal">
+              <h3>🐾 You earned ${formatPaw(round.coins.reduce((s, t) => s + t.cents, 0))}!</h3>
+              <div class="badge-row">${coinBadges(round.coins)
+                .map((label) => `<span class="badge">${label}</span>`)
+                .join('')}</div>
+            </div>`
+          : ''
+      }
       <div class="unlocks"></div>
       ${
         goal
@@ -120,6 +131,7 @@ export function resultsScreen(el, params, ctx) {
       setTimeout(() => sfx.celebrate(), 380);
     } else {
       sfx.celebrate();
+      if (round.coins?.length) setTimeout(() => sfx.coin(), 500);
     }
   }
 

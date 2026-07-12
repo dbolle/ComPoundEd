@@ -9,7 +9,7 @@ import { buildRound, buildDivisionRound, buildSittingRound, buildGroomRound } fr
 import { recordAnswer, recordDivisionAnswer } from '../engine/leitner.js';
 import { checkUnlocks, isUnlocked } from '../engine/unlocks.js';
 import { bumpAnswer, bumpActivity, checkAchievements } from '../engine/achievements.js';
-import { earnSitting } from '../engine/money.js';
+import { earnSitting, earnFromAnswer, coinBadges } from '../engine/money.js';
 import { hintFor, divisionHint } from '../engine/hints.js';
 import { getDog, isGuest, GUESTS, dogSVG, accessoriesFor, wornFor, ACCESSORIES, dirtFor } from '../art/dogs.js';
 import { buildNumpad, bindKeyboard, celebrationLine, confetti, escapeHtml } from '../ui.js';
@@ -112,6 +112,7 @@ export function activityScreen(el, params, ctx) {
   let index = 0;
   let input = '';
   let busy = false;
+  const coins = []; // frontier earnings shown on the finish card
   let awaitingNext = false;
   let startT = 0;
   let steps = 0;
@@ -202,6 +203,7 @@ export function activityScreen(el, params, ctx) {
       q.kind === 'div'
         ? recordDivisionAnswer(ctx.profile, q.a, q.b, correct, ms)
         : recordAnswer(ctx.profile, q.a, q.b, correct, ms);
+    coins.push(...earnFromAnswer(ctx.profile, { a: q.a, b: q.b, division: q.kind === 'div' }, r));
     busy = true;
     const stats = bumpAnswer(ctx.profile, r);
     if (correct) {
@@ -286,7 +288,7 @@ export function activityScreen(el, params, ctx) {
     const newAwards = checkAchievements(p);
     await ctx.save();
     sfx.celebrate();
-    if (coin) sfx.coin();
+    if (coin || coins.length) sfx.coin();
     buzz([30, 40, 30]);
     scene.classList.add('celebrate');
     if (askerEl) askerEl.remove();
@@ -295,11 +297,16 @@ export function activityScreen(el, params, ctx) {
     const headline = sitting
       ? `${escapeHtml(dogs[0].name)} had the best day — thanks for pet sitting! 🏡`
       : `${escapeHtml(listNames(dogs))} ${theme.done}`;
-    const payLine = !sitting
-      ? ''
-      : coin
-        ? '<div class="badge-row" style="margin-top:8px"><span class="badge">🪙 +1 paw dime!</span></div>'
-        : '<p class="muted center" style="margin:8px 0 0;font-size:.9rem">🐷 The treat jar is full for today!</p>';
+    const allCoins = [...(coin ? [coin] : []), ...coins];
+    const payLine =
+      (allCoins.length
+        ? `<div class="badge-row" style="margin-top:8px">${coinBadges(allCoins)
+            .map((label) => `<span class="badge">${label}</span>`)
+            .join('')}</div>`
+        : '') +
+      (sitting && !coin
+        ? '<p class="muted center" style="margin:8px 0 0;font-size:.9rem">🐷 The treat jar is full for today!</p>'
+        : '');
     if (kind === 'groom') {
       // The clean reveal: re-render the freshly washed pup in the scene.
       movers[0].innerHTML = dogSVG(dogs[0], 56, wornFor(p, dogs[0].id), 0);

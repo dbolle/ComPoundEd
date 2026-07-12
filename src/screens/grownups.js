@@ -18,7 +18,7 @@ import {
 } from '../data/store.js';
 import { sfx, setSoundOn } from '../sound.js';
 import { totalTiers } from '../engine/achievements.js';
-import { balanceCents, formatPaw, ensureBucks } from '../engine/money.js';
+import { balanceCents, formatPaw, ensureBucks, REASON_LABELS } from '../engine/money.js';
 import { DOGS } from '../art/dogs.js';
 import { toast, escapeHtml } from '../ui.js';
 
@@ -85,7 +85,10 @@ export function grownupsScreen(el, params, ctx) {
       <div style="height:12px"></div>
       <div class="card">
         <h3>Paw Bucks ledger</h3>
-        <p class="muted" style="font-size:.85rem">Earned pet-sitting (first two visits a day pay a paw dime). Game money only — never real currency.</p>
+        <p class="muted" style="font-size:.85rem">Coins follow the learning: a paw nickel when a fact is first mastered, a
+        whole Paw Buck for a whole table, a penny for polishing a rusty fact (up to 5¢ a day), and a paw dime per
+        pet-sitting visit (first two a day). Fully-mastered facts don't pay — practice there earns praise and awards
+        instead. Game money only — never real currency.</p>
         <div data-ledger></div>
       </div>
       <div style="height:12px"></div>
@@ -229,7 +232,7 @@ export function grownupsScreen(el, params, ctx) {
       ? txns
           .map(
             (t) =>
-              `<div class="stat-row"><span>${new Date(t.at).toLocaleDateString()} · ${t.reason}</span><span>${t.cents > 0 ? '+' : ''}${formatPaw(t.cents)}</span></div>`
+              `<div class="stat-row"><span>${new Date(t.at).toLocaleDateString()} · ${REASON_LABELS[t.reason] ?? t.reason}</span><span>${t.cents > 0 ? '+' : ''}${formatPaw(t.cents)}</span></div>`
           )
           .join('')
       : '<p class="muted" style="margin:0">No transactions yet.</p>';

@@ -20,7 +20,7 @@ export function walletScreen(el, params, ctx) {
       </div>
       <div class="card center">
         <div class="wallet-total">${formatPaw(total)}</div>
-        <p class="muted" style="margin:4px 0 0">Earned by pet sitting 🏡</p>
+        <p class="muted" style="margin:4px 0 0">Earned by learning new tricks 🎓 and pet sitting 🏡</p>
       </div>
       <div class="wallet-rows"></div>
       <p class="muted center" style="font-size:.85rem">Saving up? The Pet Store opens soon! 🏪🚧</p>
@@ -42,7 +42,7 @@ export function walletScreen(el, params, ctx) {
     rows.appendChild(row);
   }
   if (!any) {
-    rows.innerHTML = `<div class="card center"><p class="muted" style="margin:0">Look after a visiting pup to earn your first paw dime! 🏡</p></div>`;
+    rows.innerHTML = `<div class="card center"><p class="muted" style="margin:0">Master a new fact or look after a visiting pup to earn your first coins! 🎓🏡</p></div>`;
   }
   el.querySelector('[data-back]').addEventListener('click', () => navigate('/pack'));
 }
