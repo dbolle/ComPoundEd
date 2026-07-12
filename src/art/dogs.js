@@ -256,14 +256,76 @@ function fillsFor(accId, colorId) {
   return color ?? {};
 }
 
+// Store-gear wearables (crown, tiara, …): purchased in Phase 4, rendered
+// here so any dog can wear them the moment they're owned. One default
+// colorway each for now.
+const GEAR_LAYERS = {
+  crown: `<g data-acc="crown">
+    <path d="M36 38 L36 20 L47 31 L60 12 L73 31 L84 20 L84 38 Z" fill="#f5c542" stroke="#d99b1e" stroke-width="2"/>
+    <rect x="35" y="36" width="50" height="7" rx="3.5" fill="#d99b1e"/>
+    <circle cx="47" cy="34" r="2.6" fill="#e04b5a"/>
+    <circle cx="60" cy="33" r="2.8" fill="#3b82f6"/>
+    <circle cx="73" cy="34" r="2.6" fill="#22c55e"/>
+  </g>`,
+  tiara: `<g data-acc="tiara">
+    <path d="M38 34 Q60 22 82 34 L82 38 Q60 28 38 38 Z" fill="#dbe3ea" stroke="#aab6c2" stroke-width="1.6"/>
+    <path d="M48 31 L50 22 L54 29 Z" fill="#dbe3ea"/>
+    <path d="M57 28 L60 17 L63 28 Z" fill="#dbe3ea"/>
+    <path d="M66 29 L70 22 L72 31 Z" fill="#dbe3ea"/>
+    <circle cx="60" cy="24" r="3.2" fill="#ec4899"/>
+    <circle cx="50" cy="26" r="1.9" fill="#7dd3fc"/>
+    <circle cx="70" cy="26" r="1.9" fill="#7dd3fc"/>
+  </g>`,
+  party: `<g data-acc="party">
+    <path d="M50 36 L74 36 L66 6 Z" fill="#8b5cf6"/>
+    <path d="M55.5 25 L69.4 25 L67.3 17.5 L58 17.5 Z" fill="#facc15"/>
+    <circle cx="66" cy="6" r="4.5" fill="#ec4899"/>
+  </g>`,
+  flower: `<g data-acc="flower">
+    <g fill="#fff">
+      <circle cx="88" cy="30" r="4.5"/><circle cx="96" cy="34" r="4.5"/><circle cx="94" cy="43" r="4.5"/>
+      <circle cx="85" cy="44" r="4.5"/><circle cx="81" cy="36" r="4.5"/>
+    </g>
+    <circle cx="89" cy="37" r="4.5" fill="#f6d35e"/>
+  </g>`,
+  glasses: `<g data-acc="glasses" fill="none" stroke="#5b4a3f" stroke-width="3">
+    <circle cx="45" cy="56" r="10.5"/>
+    <circle cx="75" cy="56" r="10.5"/>
+    <path d="M55.5 56 Q60 52 64.5 56"/>
+    <path d="M34.5 54 L24 48 M85.5 54 L96 48"/>
+  </g>`,
+  sunglasses: `<g data-acc="sunglasses">
+    <rect x="34" y="48" width="22" height="15" rx="7" fill="#2b2b33"/>
+    <rect x="64" y="48" width="22" height="15" rx="7" fill="#2b2b33"/>
+    <path d="M56 53 Q60 50 64 53" stroke="#2b2b33" stroke-width="3.4" fill="none"/>
+    <path d="M39 52 q4 -2 8 0" stroke="#6b6b78" stroke-width="2" fill="none"/>
+    <path d="M34 52 L24 47 M86 52 L96 47" stroke="#2b2b33" stroke-width="3"/>
+  </g>`,
+  scarf: `<g data-acc="scarf">
+    <path d="M30 90 a40 40 0 0 0 60 0 l-3 12 a40 40 0 0 1 -54 0 Z" fill="#d9534f"/>
+    <path d="M68 98 L74 118 L62 118 L60 100 Z" fill="#d9534f"/>
+    <path d="M62 118 L74 118 M64 113 L72 113" stroke="#b23c38" stroke-width="2.4"/>
+    <path d="M34 94 Q60 106 86 94" stroke="#b23c38" stroke-width="2.4" fill="none"/>
+  </g>`,
+  bowtie: `<g data-acc="bowtie">
+    <path d="M60 99 L44 91 L44 107 Z" fill="#3b82f6"/>
+    <path d="M60 99 L76 91 L76 107 Z" fill="#3b82f6"/>
+    <circle cx="60" cy="99" r="4.5" fill="#1d4ed8"/>
+  </g>`,
+};
+
 export function accessoryOverlays(accessories = []) {
+  let gear = '';
+  for (const id of Object.keys(GEAR_LAYERS)) {
+    if (accEntry(accessories, id)) gear += GEAR_LAYERS[id];
+  }
   const bandana = accEntry(accessories, 'bandana');
   const cap = accEntry(accessories, 'cap');
   const bow = accEntry(accessories, 'bow');
   const bf = bandana ? fillsFor('bandana', bandana.color) : null;
   const cf = cap ? fillsFor('cap', cap.color) : null;
   const wf = bow ? fillsFor('bow', bow.color) : null;
-  return `${
+  return `${gear}${
     bandana
       ? `<g data-acc="bandana" data-color="${bf.id}"><path d="M36 92 L84 92 L60 112 Z" fill="${bf.fill}"/>
          <circle cx="52" cy="97" r="2" fill="#fff"/><circle cx="68" cy="97" r="2" fill="#fff"/><circle cx="60" cy="104" r="2" fill="#fff"/></g>`
