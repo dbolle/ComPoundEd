@@ -18,6 +18,7 @@ import {
 } from '../data/store.js';
 import { sfx, setSoundOn } from '../sound.js';
 import { totalTiers } from '../engine/achievements.js';
+import { balanceCents, formatPaw, ensureBucks } from '../engine/money.js';
 import { DOGS } from '../art/dogs.js';
 import { toast, escapeHtml } from '../ui.js';
 
@@ -79,6 +80,13 @@ export function grownupsScreen(el, params, ctx) {
         <div class="stat-row"><span>Facts needing a refresh</span><span>${dueCount(p)}</span></div>
         <div class="stat-row"><span>Division facts mastered</span><span>${divisionMasteredCount(p)}</span></div>
         <div class="stat-row"><span>Award tiers earned</span><span>${totalTiers(p)}</span></div>
+        <div class="stat-row"><span>Paw Bucks</span><span>${formatPaw(balanceCents(p))}</span></div>
+      </div>
+      <div style="height:12px"></div>
+      <div class="card">
+        <h3>Paw Bucks ledger</h3>
+        <p class="muted" style="font-size:.85rem">Earned pet-sitting (first two visits a day pay a paw dime). Game money only — never real currency.</p>
+        <div data-ledger></div>
       </div>
       <div style="height:12px"></div>
       <div class="card">
@@ -214,6 +222,17 @@ export function grownupsScreen(el, params, ctx) {
       }
       fileInput.value = '';
     });
+
+    const ledger = panel.querySelector('[data-ledger]');
+    const txns = [...ensureBucks(p).txns].sort((a, b) => b.at - a.at).slice(0, 8);
+    ledger.innerHTML = txns.length
+      ? txns
+          .map(
+            (t) =>
+              `<div class="stat-row"><span>${new Date(t.at).toLocaleDateString()} · ${t.reason}</span><span>${t.cents > 0 ? '+' : ''}${formatPaw(t.cents)}</span></div>`
+          )
+          .join('')
+      : '<p class="muted" style="margin:0">No transactions yet.</p>';
 
     panel.querySelector('[data-switch]').addEventListener('click', () => navigate('/profiles'));
     panel.querySelector('[data-delete]').addEventListener('click', async () => {

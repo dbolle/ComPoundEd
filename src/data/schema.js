@@ -2,7 +2,7 @@
 // migrateProfile() whenever the shape of stored data changes — this is the
 // contract a future sync backend will rely on.
 
-export const SCHEMA_VERSION = 9;
+export const SCHEMA_VERSION = 10;
 
 // v7-era flat achievement ids → stacked { family, tier } (schema v8).
 const LEGACY_ACHIEVEMENTS = {
@@ -104,6 +104,8 @@ export function newProfile(name) {
     // Wardrobe choices per dog: { [dogId]: { bandana: 'blue'|'none', ... } }.
     // Absent entry = default (wear earned gear in its first color).
     wear: {},
+    // Paw Bucks: append-only transaction ledger (see engine/money.js).
+    pawBucks: { txns: [] },
     updatedAt: Date.now(),
   };
 }
@@ -167,6 +169,10 @@ export function migrateProfile(doc) {
     doc.wear = doc.wear ?? {};
     doc.schemaVersion = 9;
   }
+  if (doc.schemaVersion === 9) {
+    doc.pawBucks = doc.pawBucks ?? { txns: [] };
+    doc.schemaVersion = 10;
+  }
   return doc;
 }
 
@@ -213,6 +219,13 @@ export function mergeProfiles(a, b) {
       groom: Math.max(x.groom ?? 0, y.groom ?? 0),
     };
   }
+  // Paw Bucks: union of transactions by id — spends can never be
+  // resurrected and earns are never double-counted.
+  const seenTxns = new Map();
+  for (const t of [...(a.pawBucks?.txns ?? []), ...(b.pawBucks?.txns ?? [])]) {
+    if (t?.id && !seenTxns.has(t.id)) seenTxns.set(t.id, t);
+  }
+  const pawBucks = { txns: [...seenTxns.values()].sort((x, y) => x.at - y.at) };
   // Wardrobe choices are cosmetic: the more recently updated doc wins per dog.
   const wear = { ...(a.updatedAt >= b.updatedAt ? b.wear : a.wear) ?? {}, ...(newer.wear ?? {}) };
   // Speed baseline: the better-calibrated side wins.
@@ -269,5 +282,6 @@ export function mergeProfiles(a, b) {
     achievements,
     stats,
     wear,
+    pawBucks,
   };
 }

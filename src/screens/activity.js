@@ -9,6 +9,7 @@ import { buildRound, buildDivisionRound, buildSittingRound, buildGroomRound } fr
 import { recordAnswer, recordDivisionAnswer } from '../engine/leitner.js';
 import { checkUnlocks, isUnlocked } from '../engine/unlocks.js';
 import { bumpAnswer, bumpActivity, checkAchievements } from '../engine/achievements.js';
+import { earnSitting } from '../engine/money.js';
 import { hintFor, divisionHint } from '../engine/hints.js';
 import { getDog, isGuest, GUESTS, dogSVG, accessoriesFor, wornFor, ACCESSORIES, dirtFor } from '../art/dogs.js';
 import { buildNumpad, bindKeyboard, celebrationLine, confetti, escapeHtml } from '../ui.js';
@@ -280,10 +281,12 @@ export function activityScreen(el, params, ctx) {
     );
     checkUnlocks(p);
     if (kind === 'groom') ctx.session.wardrobePass = dogs[0].id; // bath earns dress-up
+    const coin = sitting ? earnSitting(p) : null;
     bumpActivity(p, { sitting });
     const newAwards = checkAchievements(p);
     await ctx.save();
     sfx.celebrate();
+    if (coin) sfx.coin();
     buzz([30, 40, 30]);
     scene.classList.add('celebrate');
     if (askerEl) askerEl.remove();
@@ -292,6 +295,11 @@ export function activityScreen(el, params, ctx) {
     const headline = sitting
       ? `${escapeHtml(dogs[0].name)} had the best day — thanks for pet sitting! 🏡`
       : `${escapeHtml(listNames(dogs))} ${theme.done}`;
+    const payLine = !sitting
+      ? ''
+      : coin
+        ? '<div class="badge-row" style="margin-top:8px"><span class="badge">🪙 +1 paw dime!</span></div>'
+        : '<p class="muted center" style="margin:8px 0 0;font-size:.9rem">🐷 The treat jar is full for today!</p>';
     if (kind === 'groom') {
       // The clean reveal: re-render the freshly washed pup in the scene.
       movers[0].innerHTML = dogSVG(dogs[0], 56, wornFor(p, dogs[0].id), 0);
@@ -304,6 +312,7 @@ export function activityScreen(el, params, ctx) {
     ansEl.outerHTML = `<div class="card center">
       ${kind === 'groom' ? `<div class="dog clean-reveal">${dogSVG(dogs[0], 110, wornFor(p, dogs[0].id), 0)}</div>` : ''}
       <h2>${headline}</h2>
+      ${payLine}
       ${
         newWear.length
           ? `<div class="badge-row" style="margin-top:8px">${newWear

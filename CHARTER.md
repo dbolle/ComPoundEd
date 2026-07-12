@@ -56,6 +56,10 @@ Every kid can master their multiplication tables through short, joyful, dog-fill
 
 All data (profiles, progress, unlocks) is stored locally on the device in IndexedDB/localStorage. The app makes **zero network requests at runtime** after the app shell is cached. No analytics, no telemetry, no third-party scripts. This is a deliberate, permanent commitment for the kid-facing experience.
 
+The in-game currency (**Paw Bucks**) is fictitious forever: it is earned only
+through practice, mirrors US denominations purely to teach currency math, and
+will never connect to real money, purchases, or payments in any direction.
+
 One opt-in exception, off by default: **Family Backup** (Grown-Ups area) copies profiles to the family's own home server over the local network, so progress survives cleared browsers and device swaps. It talks only to the same origin the app is served from — never a third-party service, never the internet.
 
 ## Technical Decisions
