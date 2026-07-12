@@ -1,103 +1,70 @@
 # Backlog
 
-Ranked and agreed 2026-07-07. Work top-down.
+Reorganized 2026-07-12 around the approved growth-ladder & economy roadmap
+(research-backed: curriculum fluency progressions + mastery-contingent reward
+design). Work top-down. Decision: **no back-pay grant** at earning launch —
+reconsider after calibration.
 
-## ✅ Done
+## Where we are
 
-- **Profile durability** — family backup sync to the home server (opt-in,
-  LAN-only), restore on new devices, file export/import, lossless merges.
-- **Regression test suite** — `npm test`: Playwright tests against a
-  hermetic server (kid flow, migration preservation, play modes, sync,
-  touch). Gates every future change.
-- **Adaptive speed bar** — the ⚡ threshold calibrates per kid from
-  gimme-fact (×0/×1) response speed: 1.5× baseline + 1.5s, clamped 4–10s,
-  default 6s until 5 samples. Schema v4. Grown-Ups shows each kid's bar.
-- **Teach on misses** — wrong answers show a 💡 micro-strategy: structural
-  tricks (×0/×1/×10/×11/×2), else an anchor on a well-known neighbor fact
-  ("you know 7×7=49 — one more 7 makes 56"), else a skip-count tail. A
-  known fact missed in flipped orientation gets the reflexive hint ("7×5 is
-  the same as 5×7").
-- **Time-based review** — per-box freshness windows (1 day → 3 weeks); due
-  facts jump the queue in rounds, show faded on the heatmap ("time for a
-  refresh"), and are counted for parents. Levels/stars/dogs never regress.
-- **Sounds & haptics** — synthesized Web Audio (no assets/network): chime on
-  correct, sparkle on ⚡, soft boop on wrong, arpeggio celebrations, bark on
-  dog unlocks; vibration where supported. Grown-Ups toggle, on by default.
+- Schema **v11**, 107-test suite green, deployed on LAN + GitHub Pages.
+- Big-kid mode: ×1–12 and ÷ tracks (Leitner, adaptive speed bar, hints,
+  achievements, heatmap), 25 dogs + wardrobe + grooming, pet sitting pays
+  2 paw dimes/day (the only faucet), wallet + ledger live.
+- Store **gear assets shipped** (8 wearables incl. crown/tiara, 8 toys) and
+  the **"opening soon" teaser** is live on pack + wallet. No store yet.
+- Little Pup: 9 games, ten-frame quantity layouts, staged patterns
+  (one dimension at a time), CVD-safe palette, **real mastery tracking**
+  (little.skills first-try streaks; known = 3 in a row), adaptive 5→7→10
+  range, guided recount on misses (`GUIDED_RECOUNT` flag rolls back).
 
 ## Prioritized
 
-*(empty — next items come from On hold or Later when the user green-lights
-them)*
+1. **Phase 4a — Earning engine v2 ("frontier pays").** Mastery-contingent
+   payouts: pennies for box climbs, first-mastery nickel per fact, Paw Buck
+   per table/set, capped rusty-refresh pennies; fresh-mastered facts pay
+   nothing (praise/streaks/achievements unchanged). Sitting dimes stay.
+   Go-forward only (no back-pay). Decision points must be answered first.
+2. **Calibration window.** Observe real kid income for ~1–2 weeks (teaser
+   already building anticipation + savings habit). Revisit: back-pay
+   question, payout tuning.
+3. **Phase 4b — Pet Store.** Approved mechanics: denomination prices set
+   from observed time-to-earn (cheap toys ≈ days, wearables ≈ 1–2 weeks,
+   crown/tiara aspirational ≈ a month); checkout lines are real ×5/×10
+   facts, totals are addition; spends = negative ledger txns; nothing
+   expires, no sales pressure.
+4. **Phase 5 — Bridge tracks 1–2 (Little Pup → big kid).** Quick Look
+   subitizing (ten-frame flash → numpad), number bonds of 5/10, teen
+   numbers, then addition facts within 20 rolled out in strategy waves
+   (+0/+1/+2 → doubles → make-ten → near-doubles → rest) with hints,
+   Leitner-tracked; pets as the track's adoptables. **Per-profile
+   visibility controls in Grown-Ups ride along** (subjects config:
+   which tracks a child sees, childCanSwitch, hide-sitting,
+   limit-tables).
+5. **Phase 6 — Subtraction + connectors.** Think-addition subtraction
+   (mirrors the ÷ bridge), fact families, skip-count chains (the on-hold
+   skip-count warm-up lands here, where the research places it).
+6. **Phase 7 — Money math track.** Coin counting (2.MD.8), read-your-own
+   wallet, totals and change — Paw Bucks becomes curriculum.
+7. **Phase 8 — Beyond.** Fraction equivalence recognition first (highest
+   predictive value), then mental math within 100/1000, 10-more/less,
+   squares/primes.
 
-## On hold (per user)
+## Parked / reconsider later
 
-- Skip-count warm-up mode for new tables.
-
-## ✅ Also done
-
-- **Achievements** — 37 laddered awards (uniform value/target model):
-  first-session quick wins, then streak/perfect/speed/comeback/care/pack/
-  mastery ladders. Awards screen with "Next up!" progress; reveals on
-  results and activity finishes. Schema v6 (lifetime stats + earned map).
-
-- **Missing number → division** — ÷t track unlocks when ×t is mastered;
-  missing-factor presentation ("5 × _ = 20") bridges to ÷ form as facts
-  strengthen; 12 new division dogs; inverse-anchored hints. Schema v5.
-
-- **Stacked achievements** — the 37 flat badges became 14 tiered families
-  (Bronze → Legend, endless doubling for counters); legacy earned badges
-  migrated to equivalent tiers (schema v8).
-
-- **Accessories & division map** — dogs wear earned gear from play counters
-  (no schema change); the progress map gained a ×/÷ toggle.
-
-- **Encourage-new-facts bundles (A–E, discrete commits)** — A: first-try
-  misses are streak-neutral; B: 🦁 Brave Paw family rewards attempts; C:
-  teach-the-puppy framing for untried tables; D: sniff-the-map coverage
-  (n/169 + row badges); E: training-treat first rounds (mostly wins).
-
-- **Little Pup mode + buildout** — per-profile preschool experience
-  (subjects.little, schema v7): 9 icon-first tap-card games (counting,
-  numerals, tap-to-count, feed-N, more/fewer, shapes, patterns, sequences,
-  addition ≤5→10) with spoken prompts + 🔊 repeat, xp-gated tile unlocks,
-  and pet-pool hosts (Whiskers/Sheldon/Kiwi/Peanut).
-- **Home simplification** — smart "Practice next" suggestion, collapsible
-  grids with remembered state, trimmed division padlocks.
-- **Self-paced hints** — wrong answers wait for "Got it!" (no timer).
-- **Device polish** — iPhone viewport fits + scroll locks everywhere, no
-  selectable text, tablet tier scales the game up on iPads (86-test suite).
-- **Distribution** — public GitHub repo (scrubbed history), GitHub Pages
-  deploy on every push (installable PWA anywhere), single-profile
-  export/import for sharing one kid.
-- **Grooming Phase 1** — dirt derives from the dog's own table's due facts
-  (capped, always happy; Biscuit and guests never dirty). 🧼 Groom = the
-  complete fact set, rustiest first, misses re-queued to the back until all
-  correct; finishing washes the dog by construction.
-
-## Next agreed
-
-- **Pet economy phases 2–4 (approved plan)** — 2: wardrobe (accessory color
-  tiers on counters, worn-state schema v9, dress-up gated behind a completed
-  groom; Biscuit handling TBD by user). 3: Paw Bucks (US-denomination paw
-  cents, append-only transaction ledger for sync, one paw dime per sitting
-  visit — deliberately slow). 4: Pet store (new accessory types + toys,
-  denomination-priced so checkout lines are real ×5/×10 facts, totals are
-  addition; never real money).
-
-
-- **Per-profile visibility controls in Grown-Ups** (home simplification #3).
-  The `subjects` config now EXISTS (schema v7; `subjects.little` is its
-  first consumer, toggled at profile creation and in Grown-Ups). Remaining:
-  extend it so a parent selects multiplication/division vs addition/
-  subtraction visibility — or grants the child an independent subject
-  toggle (`childCanSwitch`) — plus hide-sitting / limit-tables options.
-
-## Later / roadmap
-
-- **Pet pool ready** — `src/art/pets.js` holds 15 original characters across
-  7 new species (cats, rabbits, guinea pigs, birds, sloths, hedgehogs,
-  turtles), sharing the dogs' style and accessory system — ready for future
-  modes (e.g. +/− packs, new sitting guests, little-pup friends).
-
-- Addition & subtraction fact modes for younger kids.
+- Back-pay grant for pre-earning mastery (after calibration).
+- Biscuit dirt/groom interplay rethink (user is mulling; Biscuit currently
+  never dirty, grooms board-wide rustiest).
+- "Squeaky Clean" achievement family (deferred).
 - Printable/exportable progress reports for grown-ups.
+
+## Done (chronological highlights)
+
+Profile durability + hermetic test suite; adaptive speed bar (v4);
+teach-on-misses; time-based review; sounds & haptics; achievements → tiered
+families (v6, v8); missing-number → division track + 12 division dogs (v5);
+accessories + ÷ heatmap; encourage-new-facts bundles A–E; Little Pup mode
+(v7) + buildout + honing (v11: skills/adaptive range/guided recount);
+home simplification; self-paced hints; iPhone/iPad fit; public repo +
+GitHub Pages; grooming Phase 1; wardrobe Phase 2 (v9); Paw Bucks Phase 3
+(v10); store gear assets + teaser.
