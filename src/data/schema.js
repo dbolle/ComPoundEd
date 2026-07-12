@@ -2,7 +2,7 @@
 // migrateProfile() whenever the shape of stored data changes — this is the
 // contract a future sync backend will rely on.
 
-export const SCHEMA_VERSION = 8;
+export const SCHEMA_VERSION = 9;
 
 // v7-era flat achievement ids → stacked { family, tier } (schema v8).
 const LEGACY_ACHIEVEMENTS = {
@@ -101,6 +101,9 @@ export function newProfile(name) {
     achievements: {},
     // Lifetime counters that feed the achievement ladders.
     stats: EMPTY_STATS(),
+    // Wardrobe choices per dog: { [dogId]: { bandana: 'blue'|'none', ... } }.
+    // Absent entry = default (wear earned gear in its first color).
+    wear: {},
     updatedAt: Date.now(),
   };
 }
@@ -160,6 +163,10 @@ export function migrateProfile(doc) {
     doc.achievements = stacked;
     doc.schemaVersion = 8;
   }
+  if (doc.schemaVersion === 8) {
+    doc.wear = doc.wear ?? {};
+    doc.schemaVersion = 9;
+  }
   return doc;
 }
 
@@ -206,6 +213,8 @@ export function mergeProfiles(a, b) {
       groom: Math.max(x.groom ?? 0, y.groom ?? 0),
     };
   }
+  // Wardrobe choices are cosmetic: the more recently updated doc wins per dog.
+  const wear = { ...(a.updatedAt >= b.updatedAt ? b.wear : a.wear) ?? {}, ...(newer.wear ?? {}) };
   // Speed baseline: the better-calibrated side wins.
   const speed =
     (a.speed?.samples ?? 0) >= (b.speed?.samples ?? 0)
@@ -259,5 +268,6 @@ export function mergeProfiles(a, b) {
     speed,
     achievements,
     stats,
+    wear,
   };
 }

@@ -6,7 +6,7 @@
 // earn real accessories too.
 
 import { navigate } from '../router.js';
-import { getDog, dogSVG, accessoriesFor, DOGS, GUESTS } from '../art/dogs.js';
+import { getDog, dogSVG, wornFor, DOGS, GUESTS } from '../art/dogs.js';
 import { getPet, petSVG } from '../art/pets.js';
 import { sfx, buzz, say } from '../sound.js';
 import { confetti, escapeHtml } from '../ui.js';
@@ -83,13 +83,13 @@ function tiles(p, buddy) {
       game: 'feed',
       minXp: 14,
       caption: 'Feed me!',
-      art: `<span class="tile-dogs">${dogSVG(buddy, 38, accessoriesFor(p, buddy.id))}</span><span class="tile-art small">\u{1F9B4}\u27A1\uFE0F\u{1F963}</span>`,
+      art: `<span class="tile-dogs">${dogSVG(buddy, 38, wornFor(p, buddy.id))}</span><span class="tile-art small">\u{1F9B4}\u27A1\uFE0F\u{1F963}</span>`,
     },
     {
       game: 'more',
       minXp: 20,
       caption: 'Who has more?',
-      art: `<span class="tile-dogs">${dogSVG(buddy, 38, accessoriesFor(p, buddy.id))}${dogSVG(GUESTS[0], 38)}</span><span class="tile-art small">\u{1F9B4}\u{1F9B4} \u00b7 \u{1F9B4}</span>`,
+      art: `<span class="tile-dogs">${dogSVG(buddy, 38, wornFor(p, buddy.id))}${dogSVG(GUESTS[0], 38)}</span><span class="tile-art small">\u{1F9B4}\u{1F9B4} \u00b7 \u{1F9B4}</span>`,
     },
     {
       game: 'shape',
@@ -124,7 +124,7 @@ export function littleHomeScreen(el, params, ctx) {
   el.innerHTML = `
     <div class="screen little-screen">
       <div class="hero little-hero">
-        <span class="avatar">${dogSVG(buddy, 96, accessoriesFor(p, buddy.id))}</span>
+        <span class="avatar">${dogSVG(buddy, 96, wornFor(p, buddy.id))}</span>
         <div>
           <h1>Hi, ${escapeHtml(p.name)}!</h1>
         </div>
@@ -272,7 +272,7 @@ export function littleGameScreen(el, params, ctx) {
       promptEl.textContent = `🦴➡️🥣`;
       speak(`Feed ${buddy.name} ${WORDS[n]} bones!`);
       stageEl.dataset.answer = n;
-      stageEl.innerHTML = `<div class="feed-row">${dogSVG(buddy, 52, accessoriesFor(p, buddy.id))}
+      stageEl.innerHTML = `<div class="feed-row">${dogSVG(buddy, 52, wornFor(p, buddy.id))}
           <span class="little-numeral">${n}</span><span class="feed-bowl">🥣</span>
           <span class="tap-count">0</span></div>
         <div class="little-items tap-items">${Array.from(
@@ -368,7 +368,7 @@ export function littleGameScreen(el, params, ctx) {
       speak('Who has more bones?');
       choicesEl.classList.add('duo');
       choiceButton(
-        `<span class="dog">${dogSVG(buddy, 72, accessoriesFor(p, buddy.id))}</span>
+        `<span class="dog">${dogSVG(buddy, 72, wornFor(p, buddy.id))}</span>
          <span class="little-items small">${itemRow('🦴', a)}</span>`,
         a > b
       );
@@ -435,7 +435,7 @@ export function littleGameScreen(el, params, ctx) {
     choicesEl.className = 'little-choices finish';
     choicesEl.innerHTML = `
       <div class="card center little-done">
-        <div class="dog bounce">${dogSVG(buddy, 104, accessoriesFor(p, buddy.id))}</div>
+        <div class="dog bounce">${dogSVG(buddy, 104, wornFor(p, buddy.id))}</div>
         <div class="nav-row" style="margin-top:10px">
           <button class="btn little-icon-btn" data-again aria-label="Play again">🔁</button>
           <button class="btn accent little-icon-btn" data-home aria-label="Home">🏠</button>

@@ -10,7 +10,7 @@ import { recordAnswer, recordDivisionAnswer } from '../engine/leitner.js';
 import { checkUnlocks, isUnlocked } from '../engine/unlocks.js';
 import { bumpAnswer, bumpActivity, checkAchievements } from '../engine/achievements.js';
 import { hintFor, divisionHint } from '../engine/hints.js';
-import { getDog, isGuest, GUESTS, dogSVG, accessoriesFor, ACCESSORIES, dirtFor } from '../art/dogs.js';
+import { getDog, isGuest, GUESTS, dogSVG, accessoriesFor, wornFor, ACCESSORIES, dirtFor } from '../art/dogs.js';
 import { buildNumpad, bindKeyboard, celebrationLine, confetti, escapeHtml } from '../ui.js';
 import { sfx, buzz } from '../sound.js';
 
@@ -134,7 +134,7 @@ export function activityScreen(el, params, ctx) {
         ${dogs
           .map(
             (d, i) =>
-              `<span class="mover" style="bottom:${4 + i * 10}px;transition-delay:${i * 90}ms">${dogSVG(d, 56, accessoriesFor(ctx.profile, d.id), kind === 'groom' ? dirtFor(ctx.profile, d) : 0)}</span>`
+              `<span class="mover" style="bottom:${4 + i * 10}px;transition-delay:${i * 90}ms">${dogSVG(d, 56, wornFor(ctx.profile, d.id), kind === 'groom' ? dirtFor(ctx.profile, d) : 0)}</span>`
           )
           .join('')}
       </div>
@@ -279,6 +279,7 @@ export function activityScreen(el, params, ctx) {
         .map((id) => ({ dog: d, acc: ACCESSORIES.find((a) => a.id === id) }))
     );
     checkUnlocks(p);
+    if (kind === 'groom') ctx.session.wardrobePass = dogs[0].id; // bath earns dress-up
     bumpActivity(p, { sitting });
     const newAwards = checkAchievements(p);
     await ctx.save();
@@ -293,7 +294,7 @@ export function activityScreen(el, params, ctx) {
       : `${escapeHtml(listNames(dogs))} ${theme.done}`;
     if (kind === 'groom') {
       // The clean reveal: re-render the freshly washed pup in the scene.
-      movers[0].innerHTML = dogSVG(dogs[0], 56, accessoriesFor(p, dogs[0].id), 0);
+      movers[0].innerHTML = dogSVG(dogs[0], 56, wornFor(p, dogs[0].id), 0);
     }
     const doneLabel = sitting
       ? '🏠 Home'
@@ -301,7 +302,7 @@ export function activityScreen(el, params, ctx) {
         ? '🐶 Back to the pack'
         : `🐶 Back to ${escapeHtml(dogs[0].name)}`;
     ansEl.outerHTML = `<div class="card center">
-      ${kind === 'groom' ? `<div class="dog clean-reveal">${dogSVG(dogs[0], 110, accessoriesFor(p, dogs[0].id), 0)}</div>` : ''}
+      ${kind === 'groom' ? `<div class="dog clean-reveal">${dogSVG(dogs[0], 110, wornFor(p, dogs[0].id), 0)}</div>` : ''}
       <h2>${headline}</h2>
       ${
         newWear.length
@@ -324,11 +325,14 @@ export function activityScreen(el, params, ctx) {
         <button class="btn" data-again>🔁 Again!</button>
         <button class="btn accent" data-done>${doneLabel}</button>
       </div>
+      ${kind === 'groom' ? '<div class="nav-row" style="margin-top:8px"><button class="btn groom-btn" data-dress>👕 Dress up!</button></div>' : ''}
     </div>`;
     el.querySelector('.numpad').remove();
     confetti(16);
     el.querySelector('[data-again]').addEventListener('click', () => activityScreen(el, params, ctx));
     el.querySelector('[data-done]').addEventListener('click', () => navigate(backTo));
+    const dress = el.querySelector('[data-dress]');
+    if (dress) dress.addEventListener('click', () => navigate(`/wardrobe?id=${dogs[0].id}`));
   }
 
   el.querySelector('[data-quit]').addEventListener('click', async () => {
