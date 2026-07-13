@@ -77,18 +77,82 @@ export const sfx = {
 
 // Spoken prompts for pre-readers (little-pup mode). Uses the device's local
 // speech voices — nothing leaves the device. Fails silently everywhere else.
-export function say(text) {
+//
+// Voice choice matters: the OS default is often the most robotic voice on
+// the device. We score what's installed and prefer natural/enhanced local
+// English voices (Samantha on iOS, the "Natural" set on Windows, Google US
+// English on Android/Chrome), falling back to the default when nothing
+// scores.
+let pickedVoice = null;
+
+function scoreVoice(v) {
+  const name = v.name.toLowerCase();
+  let s = 0;
+  if (v.localService) s += 2;
+  if (/natural|enhanced|premium|neural/.test(name)) s += 4;
+  if (/samantha|karen|aria|jenny|zira|google us english|google uk english female/.test(name)) s += 3;
+  if (/compact|espeak|eloquence|albert|zarvox|whisper|bad news/.test(name)) s -= 6;
+  return s;
+}
+
+function bestVoice() {
+  try {
+    const en = speechSynthesis.getVoices().filter((v) => v.lang?.toLowerCase().startsWith('en'));
+    if (!en.length) return null;
+    return en.reduce((best, v) => (scoreVoice(v) > scoreVoice(best) ? v : best));
+  } catch {
+    return null;
+  }
+}
+
+try {
+  if ('speechSynthesis' in window) {
+    // voices load async on most browsers; re-pick when the list arrives
+    speechSynthesis.addEventListener?.('voiceschanged', () => {
+      pickedVoice = bestVoice();
+    });
+  }
+} catch {
+  /* speech is optional everywhere */
+}
+
+let sayTimer = 0;
+
+export function say(text, { pitch = 1.1, rate = 0.9 } = {}) {
   if (!on) return;
   try {
     if (!('speechSynthesis' in window)) return;
+    if (!pickedVoice) pickedVoice = bestVoice();
+    clearTimeout(sayTimer);
+    const wasBusy = speechSynthesis.speaking || speechSynthesis.pending;
+    if (wasBusy) speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.rate = 0.85;
-    u.pitch = 1.1;
-    speechSynthesis.cancel();
-    speechSynthesis.speak(u);
+    if (pickedVoice) u.voice = pickedVoice;
+    u.rate = rate;
+    u.pitch = pitch;
+    // A beat between cancel() and speak() stops iOS/Chrome from clipping
+    // the first syllable of the new utterance; resume() un-sticks Chrome's
+    // occasionally-paused engine.
+    sayTimer = setTimeout(
+      () => {
+        try {
+          speechSynthesis.resume();
+          speechSynthesis.speak(u);
+        } catch {
+          /* no voices available — the visuals carry it */
+        }
+      },
+      wasBusy ? 80 : 0
+    );
   } catch {
     /* no voices available — the visuals carry it */
   }
+}
+
+// Praise with sparkle: noticeably higher and livelier than the reading
+// voice, so celebration SOUNDS like celebration.
+export function cheer(text) {
+  say(text, { pitch: 1.4, rate: 1.05 });
 }
 
 export function buzz(pattern) {

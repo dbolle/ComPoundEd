@@ -8,7 +8,7 @@
 import { navigate } from '../router.js';
 import { getDog, dogSVG, wornFor, DOGS, GUESTS } from '../art/dogs.js';
 import { getPet, petSVG } from '../art/pets.js';
-import { sfx, buzz, say } from '../sound.js';
+import { sfx, buzz, say, cheer } from '../sound.js';
 import { confetti, escapeHtml } from '../ui.js';
 
 const ITEMS = ['🦴', '🎾', '🍖'];
@@ -50,6 +50,21 @@ function ensureLittle(profile) {
 // first-try corrects in a row (a guesser fakes that 3.7% of the time, vs 33%
 // per question). Tap & feed stay error-less joy — they never feed the signal.
 const SKILL_GAMES = new Set(['count', 'find', 'more', 'next', 'add']);
+
+// Round-finish praise that matches what the child actually did — shape
+// games shouldn't hear "great counting". A couple of options each so the
+// cheer doesn't wear out.
+const PRAISE_BY_GAME = {
+  count: ['Hooray! Great counting!', 'Wow! You counted them all!'],
+  tap: ['Hooray! Great counting!', 'You counted every single one!'],
+  find: ['You found all the numbers!', 'Hooray! Super number finding!'],
+  feed: ['Yum yum! Perfectly fed!', 'Hooray! What a good helper!'],
+  more: ['Great comparing!', 'You always knew who had more!'],
+  shape: ['Hooray! You know your shapes!', 'Super shape spotting!'],
+  pattern: ['Pattern power! Amazing!', 'You cracked every pattern!'],
+  next: ['You know what comes next!', 'Hooray! Number detective!'],
+  add: ['Hooray! Great adding!', 'Wow! You put them all together!'],
+};
 const KNOWN_STREAK = 3;
 
 const knows = (little, g, n) => (little.skills?.[`${g}:${n}`]?.streak ?? 0) >= KNOWN_STREAK;
@@ -530,7 +545,8 @@ export function littleGameScreen(el, params, ctx) {
     sfx.celebrate();
     buzz([30, 40, 30]);
     confetti(18);
-    say('Hooray! Great counting!');
+    const lines = PRAISE_BY_GAME[game] ?? PRAISE_BY_GAME.count;
+    cheer(lines[ri(lines.length)]);
     el.querySelector('.little-prompt-row').hidden = true;
     stageEl.hidden = true; // stage would otherwise flex-eat the space above
     fbEl.textContent = '';
