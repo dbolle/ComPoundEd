@@ -3,6 +3,15 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.3.0 — 2026-07-14
+
+- Bridge Track 1: three graduation tiles on the little home, gated by
+  demonstrated skill — Quick Look (a flash of the frame, then quick eyes),
+  Number Friends (missing parts of 5, then 10), Teen Numbers (10-and-some).
+- Cozy Corner: zero-maintenance companion pets adopted at bridge
+  milestones and adding waves, grouped by species habitat. Piggy-bank chip
+  on the little home; a penny the first time any number becomes known.
+
 ## v1.2.0 — 2026-07-14
 
 - The Adding track (bridge Track 2): 66 addition facts within 20 in seven

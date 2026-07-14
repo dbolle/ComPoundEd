@@ -277,7 +277,9 @@ test('e2e: tiles unlock with xp; K-tier games work', async ({ page }) => {
   await page.tap('.profile-card:has-text("Grown")');
   await page.waitForSelector('.little-tile');
   expect(await page.$$eval('button.little-tile', (els) => els.length)).toBe(9);
-  expect(await page.$('.little-tile.soon')).toBeNull();
+  // the bridge graduation tiles (skill-gated, not xp-gated) are still ahead,
+  // so the sparkly next-unlock hint stays — there's always a next thing
+  expect(await page.$('.little-tile.soon')).not.toBeNull();
 
   // What comes next? — Kiwi hosts a number path
   await page.tap('[data-game="next"]');

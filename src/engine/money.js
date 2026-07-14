@@ -37,6 +37,7 @@ export const REASON_LABELS = {
   mastery: 'new fact mastered',
   set: 'whole table mastered',
   polish: 'rusty fact polished',
+  skill: 'new number known',
 };
 
 export function ensureBucks(profile) {
@@ -104,13 +105,14 @@ const BADGE_TEXT = {
   mastery: (n) => `🪙 Paw Nickel${n > 1 ? ` ×${n}` : ''} — new trick${n > 1 ? 's' : ''} learned!`,
   polish: (n) => `🪙 Paw Penny${n > 1 ? ` ×${n}` : ''} — rusty fact${n > 1 ? 's' : ''} polished!`,
   sitting: () => '🪙 +1 paw dime!',
+  skill: (n) => `🪙 Paw Penn${n > 1 ? `ies ×${n}` : 'y'} — new number${n > 1 ? 's' : ''} known!`,
 };
 
 export function coinBadges(txns) {
   const groups = {};
   for (const t of txns) groups[t.reason] = (groups[t.reason] ?? 0) + 1;
   // Biggest news first: table bucks, then new tricks, then upkeep.
-  const order = ['set', 'mastery', 'polish', 'sitting'];
+  const order = ['set', 'mastery', 'skill', 'polish', 'sitting'];
   return order
     .filter((r) => groups[r])
     .map((r) => (BADGE_TEXT[r] ?? ((n) => `🪙 ×${n}`))(groups[r]));
@@ -153,6 +155,16 @@ export function earnSetMastery(profile, table, track, now = Date.now()) {
     count: 1,
     reason: 'set',
   };
+  ensureBucks(profile).txns.push(txn);
+  return txn;
+}
+
+// A paw penny the first time a little-pup number becomes "known" (streak
+// of 3). Deterministic id: re-derives and cross-device merges pay once.
+export function earnSkillKnown(profile, skillKey, now = Date.now()) {
+  const id = `skill-${skillKey}`;
+  if (hasTxn(profile, id)) return null;
+  const txn = { id, at: now, cents: 1, denom: 'penny', count: 1, reason: 'skill' };
   ensureBucks(profile).txns.push(txn);
   return txn;
 }

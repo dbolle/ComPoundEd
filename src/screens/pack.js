@@ -21,6 +21,14 @@ export function packScreen(el, params, ctx) {
       <div class="pack-grid"></div>
     </div>`;
 
+  if (p.petUnlocks?.length) {
+    const corner = document.createElement('button');
+    corner.className = 'btn accent';
+    corner.textContent = '🏡 Cozy Corner';
+    corner.addEventListener('click', () => navigate('/corner'));
+    el.querySelector('[data-group-slot]').appendChild(corner);
+  }
+
   const unlockedCount = DOGS.filter((d) => isUnlocked(p, d.id)).length;
   if (unlockedCount >= 2) {
     const groupBtn = document.createElement('button');

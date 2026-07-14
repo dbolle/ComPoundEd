@@ -817,6 +817,15 @@ button.pressed {
   line-height: 1.1;
 }
 
+.habitat-title {
+  margin: 10px 0 6px;
+  font-size: 1.05rem;
+}
+
+.corner-grid .dog.wiggle {
+  animation: store-wiggle 0.5s ease-in-out;
+}
+
 /* Grown-ups: which-tables chips */
 .limit-grid {
   display: grid;

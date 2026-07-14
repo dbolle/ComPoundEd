@@ -1,5 +1,6 @@
 import { navigate } from '../router.js';
 import { formatPaw, coinBadges } from '../engine/money.js';
+import { petSVG } from '../art/pets.js';
 import {
   tableProgress,
   divisionTableProgress,
@@ -97,6 +98,16 @@ export function resultsScreen(el, params, ctx) {
               <h3>🐾 You earned ${formatPaw(round.coins.reduce((s, t) => s + t.cents, 0))}!</h3>
               <div class="badge-row">${coinBadges(round.coins)
                 .map((label) => `<span class="badge">${label}</span>`)
+                .join('')}</div>
+            </div>`
+          : ''
+      }
+      ${
+        round.newPets?.length
+          ? `<div class="card center award-reveal">
+              <h3>🏡 New cozy friend!</h3>
+              <div class="badge-row">${round.newPets
+                .map((u) => `<span class="badge">${petSVG(u.pet, 40)} ${escapeHtml(u.pet.name)}</span>`)
                 .join('')}</div>
             </div>`
           : ''

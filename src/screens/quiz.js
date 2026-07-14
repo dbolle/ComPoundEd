@@ -4,6 +4,7 @@ import { buildAdditionRound, WAVES } from '../engine/waves.js';
 import { recordAnswer, recordDivisionAnswer, recordAdditionAnswer } from '../engine/leitner.js';
 import { earnFromAnswer } from '../engine/money.js';
 import { checkUnlocks } from '../engine/unlocks.js';
+import { checkPetUnlocks } from '../engine/cozy.js';
 import { bumpAnswer, bumpRound, checkAchievements } from '../engine/achievements.js';
 import { tableTriedCount, divisionTriedCount } from '../engine/leitner.js';
 import { dogForTable, dogForDivTable, dogSVG } from '../art/dogs.js';
@@ -222,7 +223,8 @@ export function quizScreen(el, params, ctx) {
         if (!sniffedBefore.has(t) && tableTriedCount(ctx.profile, t) === 13) sniffedRows.push(t);
       }
       await ctx.save();
-      ctx.session.lastRound = { scope, results, newUnlocks, newAwards, sniffedRows, coins };
+      const newPets = scope.type === 'add' ? checkPetUnlocks(ctx.profile) : [];
+      ctx.session.lastRound = { scope, results, newUnlocks, newAwards, sniffedRows, coins, newPets };
       navigate('/results');
     } else {
       showQuestion();

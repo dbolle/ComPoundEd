@@ -34,7 +34,7 @@ reconsider after calibration.
    facts, totals are addition; spends = negative ledger txns; nothing
    expires, no sales pressure.
 4. **Phase 5 — Bridge tracks 1–2 (Little Pup → big kid)** — IN PROGRESS
-   (plan of record: docs/PHASE5.md; parent controls ✅ v1.1.0; Adding track ✅ v1.2.0; remaining: Track 1 tiles, piggy bank, Cozy Corner). Quick Look
+   — ✅ SHIPPED v1.1.0–v1.3.0 (parent controls, Adding waves, Track 1 tiles, piggy bank, Cozy Corner; plan: docs/PHASE5.md). Quick Look
    subitizing (ten-frame flash → numpad), number bonds of 5/10, teen
    numbers, then addition facts within 20 rolled out in strategy waves
    (+0/+1/+2 → doubles → make-ten → near-doubles → rest) with hints,
