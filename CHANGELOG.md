@@ -3,6 +3,12 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.4.1 — 2026-07-14
+
+- Grown-Ups: "Hear the voice" button speaks a sample and refreshes the
+  voice label (iOS reports its voice list only after speech is used);
+  clearer install path for Enhanced voices.
+
 ## v1.4.0 — 2026-07-14
 
 - Speech: the voice re-picks as the device's voice list loads (iOS reports

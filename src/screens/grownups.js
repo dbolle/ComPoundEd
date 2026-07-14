@@ -16,7 +16,7 @@ import {
   setSoundEnabled,
   syncNow,
 } from '../data/store.js';
-import { sfx, setSoundOn, currentVoiceName } from '../sound.js';
+import { sfx, setSoundOn, currentVoiceName, say } from '../sound.js';
 import { totalTiers } from '../engine/achievements.js';
 import { balanceCents, formatPaw, ensureBucks, REASON_LABELS } from '../engine/money.js';
 import { DOGS } from '../art/dogs.js';
@@ -138,10 +138,12 @@ export function grownupsScreen(el, params, ctx) {
         <h3>Settings</h3>
         <div class="nav-row">
           <button class="btn ghost small" data-sound-toggle></button>
+          <button class="btn ghost small" data-voice-test>🗣️ Hear the voice</button>
         </div>
-        <p class="muted" style="font-size:.8rem;margin:10px 0 0">🗣️ Speech voice: ${escapeHtml(currentVoiceName())}.
-        On iPhone/iPad, downloading a nicer voice (Settings → Accessibility → Spoken Content →
-        Voices, look for "Enhanced") makes the app pick it up automatically.</p>
+        <p class="muted" style="font-size:.8rem;margin:10px 0 0" data-voice-line>🗣️ Speech voice: ${escapeHtml(currentVoiceName())}.
+        On iPhone/iPad you can install a nicer voice: Settings → Accessibility → Spoken Content →
+        Voices → English (if Voices is missing, turn on "Speak Selection" first) — download one
+        marked "Enhanced" or "Premium" and the app picks it up automatically.</p>
       </div>
       <div style="height:12px"></div>
       <div class="card">
@@ -189,6 +191,16 @@ export function grownupsScreen(el, params, ctx) {
         <button class="btn danger small" data-delete>🗑️ Delete this player</button>
       </div>
       <p class="muted center" style="font-size:.75rem;margin:14px 0 0">Compounded v${typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'dev'} · saves v${SCHEMA_VERSION}</p>`;
+
+    // iOS only fills the voice list after speech is used — the sample both
+    // demos the voice and refreshes the label.
+    panel.querySelector('[data-voice-test]').addEventListener('click', () => {
+      say(`Hi ${p.name}! Let's count some bones!`);
+      setTimeout(() => {
+        const line = panel.querySelector('[data-voice-line]');
+        if (line) line.firstChild.textContent = `🗣️ Speech voice: ${currentVoiceName()}.`;
+      }, 400);
+    });
 
     const soundBtn = panel.querySelector('[data-sound-toggle]');
     const renderSound = () => {
