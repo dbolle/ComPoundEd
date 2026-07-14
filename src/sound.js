@@ -85,14 +85,22 @@ export const sfx = {
 // scores.
 let pickedVoice = null;
 
+// iOS ships "novelty" voices (Superstar, Bubbles, Zarvox…) alongside the
+// real ones — they must never win, however their names read. Real quality
+// markers are the (Enhanced)/(Premium) suffixes on downloaded voices.
+const NOVELTY =
+  /superstar|good news|bad news|albert|bahh|bells|boing|bubbles|cellos|deranged|hysterical|jester|organ|princess|trinoids|whisper|wobble|zarvox|grandma|grandpa|eddy|flo|reed|rocko|sandy|shelley/;
+
 function scoreVoice(v) {
   const name = `${v.name} ${v.voiceURI ?? ''}`.toLowerCase();
+  if (NOVELTY.test(name)) return -100;
   let s = 0;
   if (v.localService) s += 2;
   if (v.lang?.toLowerCase() === 'en-us') s += 1;
-  if (/natural|enhanced|premium|neural|super/.test(name)) s += 6;
-  if (/ava|allison|susan|serena|nicky|zoe|samantha|karen|aria|jenny|zira|google us english|google uk english female/.test(name)) s += 3;
-  if (/compact|espeak|eloquence|albert|zarvox|whisper|bad news|bahh|bells|boing|bubbles|cellos|jester|organ|trinoids|wobble/.test(name)) s -= 8;
+  if (/premium/.test(name)) s += 8;
+  else if (/enhanced|natural|neural/.test(name)) s += 6;
+  if (/ava|allison|susan|serena|nicky|zoe|samantha|karen|aria|jenny|zira|joelle|noelle|google us english|google uk english female/.test(name)) s += 3;
+  if (/compact|espeak|eloquence/.test(name)) s -= 8;
   return s;
 }
 

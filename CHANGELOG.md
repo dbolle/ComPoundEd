@@ -3,6 +3,12 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.4.2 — 2026-07-14
+
+- Voice fix: iOS novelty voices (Superstar, Bubbles, Zarvox, Grandma…)
+  are hard-blocked from selection — "Superstar" was winning on a loose
+  "super" match. Downloaded (Premium) voices now rank above (Enhanced).
+
 ## v1.4.1 — 2026-07-14
 
 - Grown-Ups: "Hear the voice" button speaks a sample and refreshes the
