@@ -16,16 +16,16 @@ import { seedProfile, selectProfile, playQuestions, openTableGrid, norm, stat } 
 
 test('one-time payouts: deterministic ids pay once ever and merge without double-pay', () => {
   const p = newProfile('Earner');
-  expect(earnFactMastery(p, 4, 3, false).cents).toBe(5);
-  expect(earnFactMastery(p, 3, 4, false)).toBeNull(); // commuted key, same fact
-  expect(earnSetMastery(p, 7, false).cents).toBe(100);
-  expect(earnSetMastery(p, 7, false)).toBeNull();
-  expect(earnSetMastery(p, 7, true).cents).toBe(100); // ÷7 is its own set
+  expect(earnFactMastery(p, 4, 3, 'mul').cents).toBe(5);
+  expect(earnFactMastery(p, 3, 4, 'mul')).toBeNull(); // commuted key, same fact
+  expect(earnSetMastery(p, 7, 'mul').cents).toBe(100);
+  expect(earnSetMastery(p, 7, 'mul')).toBeNull();
+  expect(earnSetMastery(p, 7, 'div').cents).toBe(100); // ÷7 is its own set
 
   // two devices witness the same mastery before syncing → single payment
   const dev = newProfile('Earner');
   dev.id = p.id;
-  earnFactMastery(dev, 3, 4, false);
+  earnFactMastery(dev, 3, 4, 'mul');
   const m = mergeProfiles(p, dev);
   expect(m.pawBucks.txns.filter((t) => t.id === 'mastery-mul-3x4').length).toBe(1);
   expect(balanceCents(m)).toBe(205);

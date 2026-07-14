@@ -810,6 +810,13 @@ button.pressed {
   background: #fef3c7;
 }
 
+.wave-btn .wave-name {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--ink-soft);
+  line-height: 1.1;
+}
+
 /* Grown-ups: which-tables chips */
 .limit-grid {
   display: grid;

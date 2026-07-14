@@ -63,3 +63,20 @@ export function hintFor(profile, a, b) {
   if (anchor) return anchor;
   return `Count by ${lo}s to get there: …, ${ans - 2 * lo}, ${ans - lo}, ${ans}!`;
 }
+
+// Addition strategy hints, matched to the wave the fact belongs to —
+// the same trick the wave teaches is the hint on a miss.
+export function additionHint(a, b) {
+  const [lo, hi] = a <= b ? [a, b] : [b, a];
+  if (lo === 0) return `Adding 0 changes nothing — it stays ${hi}!`;
+  if (lo <= 2) return `Start at ${hi} and count up ${lo}: ${hi + 1}${lo === 2 ? `, ${hi + 2}` : ''}.`;
+  if (lo === hi) return `Double ${lo}! ${lo} + ${lo} = ${lo + lo}.`;
+  if (lo + hi === 10) return `${lo} and ${hi} are number friends — together they make 10!`;
+  if (hi === lo + 1) return `Double ${lo} makes ${lo + lo}, then 1 more is ${lo + lo + 1}.`;
+  if (hi === 10) return `10 and ${lo} — that's just "${lo}teen": ${10 + lo}!`;
+  if (hi >= 8 && lo + hi > 10) {
+    const need = 10 - hi;
+    return `Make ten first: ${hi} + ${need} = 10, then ${lo - need} more is ${lo + hi}.`;
+  }
+  return `Start at ${hi}, the bigger number, and count up ${lo}.`;
+}

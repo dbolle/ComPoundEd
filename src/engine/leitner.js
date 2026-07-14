@@ -108,6 +108,24 @@ export function recordDivisionAnswer(profile, a, b, correct, ms) {
   return applyAnswer(s, correct, ms, fastThresholdMs(profile));
 }
 
+// --- Addition track (the bridge), same Leitner rules on profile.addition.
+// Keys are "a+b" with a ≤ b; addition never feeds the speed baseline.
+
+export function normAddKey(a, b) {
+  return a <= b ? `${a}+${b}` : `${b}+${a}`;
+}
+
+export function getAddStat(profile, a, b) {
+  return (profile.addition ?? {})[normAddKey(a, b)] ?? emptyStat();
+}
+
+export function recordAdditionAnswer(profile, a, b, correct, ms) {
+  if (!profile.addition) profile.addition = {};
+  const key = normAddKey(a, b);
+  const s = profile.addition[key] ?? (profile.addition[key] = emptyStat());
+  return applyAnswer(s, correct, ms, fastThresholdMs(profile));
+}
+
 // The ÷t table opens once the ×t table is mastered.
 export function divisionTableUnlocked(profile, table) {
   return isTableMastered(profile, table);

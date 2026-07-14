@@ -3,6 +3,14 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.2.0 — 2026-07-14
+
+- The Adding track (bridge Track 2): 66 addition facts within 20 in seven
+  strategy waves (Step Ups → Doubles → Make Ten → Near Doubles → Tens &
+  Teens → Ten Bridgers → Grand Finale), sequential unlocks, wave-matched
+  hints on misses, full frontier earning (nickel per fact, Paw Buck per
+  wave). Shown when a parent turns on "Adding games".
+
 ## v1.1.0 — 2026-07-14
 
 - Grown-Ups "What <name> sees" controls: show/hide Little Pup, Adding
