@@ -3,6 +3,20 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.4.0 — 2026-07-14
+
+- Speech: the voice re-picks as the device's voice list loads (iOS reports
+  it late), prefers enhanced/natural voices more strongly, and Grown-Ups
+  shows which voice is in use with a tip for downloading a nicer one.
+- Grown-Ups: Little pup progress card (xp, numbers known 0/81, per-game
+  breakdowns, Cozy Corner count).
+- Feed Me!: the child now serves the bowl with ✅ — bones toggle in and
+  out, confirming a wrong count is a gentle, fixable miss (it previously
+  auto-ended at the right count and could never be wrong).
+- Number Friends: pictures-only first (a frame with empty cells and
+  picture-pile choices), the symbolic ➕ equation appears with mastery,
+  numerals-only last — fresh at each new whole (5, then 10).
+
 ## v1.3.0 — 2026-07-14
 
 - Bridge Track 1: three graduation tiles on the little home, gated by

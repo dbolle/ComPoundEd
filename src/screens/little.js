@@ -386,22 +386,44 @@ export function littleGameScreen(el, params, ctx) {
       stageEl.innerHTML = `<div class="feed-row">${dogSVG(buddy, 52, wornFor(p, buddy.id))}
           <span class="little-numeral">${n}</span><span class="feed-bowl">🥣</span>
           <span class="tap-count">0</span></div>
-        <div class="little-items tap-items">${Array.from(
+        <div class="little-items tap-items feed-items">${Array.from(
           { length: n + 2 },
           () => `<button class="tap-item">🦴</button>`
-        ).join('')}</div>`;
+        ).join('')}</div>
+        <button class="btn little-icon-btn feed-done" aria-label="All done">✅</button>`;
+      // The child decides when the bowl is right: bones toggle in and out,
+      // ✅ serves it. Confirming the wrong count is a real (gentle) miss —
+      // before, the game auto-ended at n and could never be wrong.
       let fed = 0;
       for (const b of stageEl.querySelectorAll('.tap-item')) {
         b.addEventListener('click', () => {
-          if (busy || b.classList.contains('popped')) return;
-          b.classList.add('popped');
-          fed += 1;
+          if (busy) return;
+          const taking = b.classList.contains('popped');
+          b.classList.toggle('popped');
+          fed += taking ? -1 : 1;
           stageEl.querySelector('.tap-count').textContent = fed;
           buzz(15);
-          say(WORDS[fed]);
-          if (fed === n) celebrate(null, { speakWord: false });
+          say(WORDS[fed] ?? String(fed));
         });
       }
+      stageEl.querySelector('.feed-done').addEventListener('click', () => {
+        if (busy) return;
+        if (fed === n) {
+          celebrate(null, { speakWord: false });
+          return;
+        }
+        firstTry = false;
+        sfx.wrong();
+        fbEl.textContent = '🐾';
+        const btn = stageEl.querySelector('.feed-done');
+        btn.classList.add('shake');
+        setTimeout(() => btn.classList.remove('shake'), 450);
+        say(
+          fed < n
+            ? `${WORDS[fed] ?? fed} so far — ${buddy.name} needs ${WORDS[n]}!`
+            : `That's ${WORDS[fed] ?? fed} — too many! ${buddy.name} needs ${WORDS[n]}.`
+        );
+      });
     } else if (game === 'shape') {
       // Shapes with Whiskers: wordless geometry — find the spoken shape.
       const host = getPet(HOSTS.shape);
@@ -509,20 +531,54 @@ export function littleGameScreen(el, params, ctx) {
       }
     } else if (game === 'bond') {
       // Number friends: the missing part of 5, then of 10 once 5 is known.
+      // Presentation follows CRA: pictures only at first, numerals as
+      // mastery grows — concrete → representational → abstract.
       const whole = knowsRange(little, 'bond5', 0, 5) ? 10 : 5;
-      const have = ri(whole + 1);
-      const missing = whole - have;
+      const knownParts = Array.from({ length: whole + 1 }, (_, k) => k).filter((k) =>
+        knows(little, `bond${whole}`, k)
+      ).length;
+      const stage =
+        knownParts < Math.ceil((whole + 1) / 3)
+          ? 'pictures'
+          : knownParts < Math.ceil(((whole + 1) * 2) / 3)
+            ? 'mixed'
+            : 'numbers';
+      // picture stages skip the empty/full frames (0 needs the abstraction)
+      const missing =
+        stage === 'numbers' ? ri(whole + 1) : 1 + ri(whole - 1);
+      const have = whole - missing;
       const item = ITEMS[ri(ITEMS.length)];
       promptEl.textContent = `🤝${whole}`;
       speak(`${WORDS[have]} and how many more make ${WORDS[whole]}?`);
       stageEl.dataset.answer = missing;
       stageEl.dataset.skill = `bond${whole}:${missing}`;
-      stageEl.innerHTML = `<div class="pattern-row add-row">
-        <span class="little-items small">${have ? itemRow(item, have) : '<span class="little-numeral">0</span>'}</span>
-        <span class="pattern-q">➕</span><span class="pattern-q">❓</span>
-        <span class="pattern-q">=</span><span class="little-numeral">${whole}</span></div>`;
+      if (stage === 'numbers') {
+        stageEl.innerHTML = `<div class="pattern-row add-row">
+          <span class="little-numeral">${have}</span>
+          <span class="pattern-q">➕</span><span class="pattern-q">❓</span>
+          <span class="pattern-q">=</span><span class="little-numeral">${whole}</span></div>`;
+      } else {
+        // the frame itself shows the story: filled cells + empty cells;
+        // the symbolic equation row only joins at the mixed stage
+        const cells = Array.from(
+          { length: whole },
+          (_, i) => `<span class="li${i < have ? '' : ' empty'}">${i < have ? item : ''}</span>`
+        ).join('');
+        stageEl.innerHTML = `<div class="little-items">${cells}</div>${
+          stage === 'mixed'
+            ? `<div class="pattern-row"><span class="little-numeral">${have}</span>
+          <span class="pattern-q">➕</span><span class="pattern-q">❓</span>
+          <span class="pattern-q">=</span><span class="little-numeral">${whole}</span></div>`
+            : ''
+        }`;
+      }
       for (const v of pickCounts(missing === 0 ? 1 : missing, whole)) {
-        choiceButton(`<span class="little-numeral">${v}</span>`, v === missing);
+        const good = v === missing;
+        if (stage === 'pictures') {
+          choiceButton(`<span class="little-items small">${itemRow(item, v)}</span>`, good);
+        } else {
+          choiceButton(`<span class="little-numeral">${v}</span>`, good);
+        }
       }
       if (missing === 0 && ![...choicesEl.children].some((c) => c.dataset.good === '1')) {
         choicesEl.children[ri(choicesEl.children.length)].remove();

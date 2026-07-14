@@ -61,7 +61,7 @@ test('skills merge richer-wins; no evidence lost from either device', () => {
 test('e2e: first-try corrects build streaks; a wrong answer resets the number', async ({ page }) => {
   await page.goto('/', { waitUntil: 'networkidle' });
   await page.tap('[data-new]');
-  const name = uniqueName('Streaker');
+  const name = uniqueName('Streak');
   await page.fill('.name-input', name);
   await page.tap('form[data-create] [data-kind="little"]');
   await page.waitForSelector('.little-tile');

@@ -86,12 +86,13 @@ export const sfx = {
 let pickedVoice = null;
 
 function scoreVoice(v) {
-  const name = v.name.toLowerCase();
+  const name = `${v.name} ${v.voiceURI ?? ''}`.toLowerCase();
   let s = 0;
   if (v.localService) s += 2;
-  if (/natural|enhanced|premium|neural/.test(name)) s += 4;
-  if (/samantha|karen|aria|jenny|zira|google us english|google uk english female/.test(name)) s += 3;
-  if (/compact|espeak|eloquence|albert|zarvox|whisper|bad news/.test(name)) s -= 6;
+  if (v.lang?.toLowerCase() === 'en-us') s += 1;
+  if (/natural|enhanced|premium|neural|super/.test(name)) s += 6;
+  if (/ava|allison|susan|serena|nicky|zoe|samantha|karen|aria|jenny|zira|google us english|google uk english female/.test(name)) s += 3;
+  if (/compact|espeak|eloquence|albert|zarvox|whisper|bad news|bahh|bells|boing|bubbles|cellos|jester|organ|trinoids|wobble/.test(name)) s -= 8;
   return s;
 }
 
@@ -117,12 +118,34 @@ try {
 }
 
 let sayTimer = 0;
+let voiceListSize = 0;
+
+// iOS Safari often reports an empty/partial voice list until after the
+// first utterance and rarely fires voiceschanged — so re-pick whenever
+// the list has grown since we last looked.
+function ensureVoice() {
+  try {
+    const size = speechSynthesis.getVoices().length;
+    if (!pickedVoice || size !== voiceListSize) {
+      voiceListSize = size;
+      pickedVoice = bestVoice();
+    }
+  } catch {
+    /* speech is optional */
+  }
+}
+
+// For the Grown-Ups screen: which voice the device gave us.
+export function currentVoiceName() {
+  ensureVoice();
+  return pickedVoice?.name ?? 'system default';
+}
 
 export function say(text, { pitch = 1.1, rate = 0.9 } = {}) {
   if (!on) return;
   try {
     if (!('speechSynthesis' in window)) return;
-    if (!pickedVoice) pickedVoice = bestVoice();
+    ensureVoice();
     clearTimeout(sayTimer);
     const wasBusy = speechSynthesis.speaking || speechSynthesis.pending;
     if (wasBusy) speechSynthesis.cancel();

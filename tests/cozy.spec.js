@@ -72,6 +72,49 @@ test('e2e: graduation tile appears with skill; finishing a round adopts into the
   await expect(page.locator('.habitat-title').first()).toBeVisible();
 });
 
+test('e2e: number friends starts pictures-only, goes symbolic with mastery', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'networkidle' });
+  const fresh = newProfile(uniqueName('Bond'));
+  fresh.id = 'bond-kid-a';
+  fresh.subjects = { ...fresh.subjects, little: true };
+  fresh.little = { xp: 20, skills: { ...skilled('count', 1, 5), ...skilled('look', 1, 5) } };
+  await seedProfile(page, fresh);
+  await selectProfile(page, fresh.name);
+  await page.waitForSelector('.little-tile');
+  await page.tap('[data-game="bond"]');
+  await page.waitForSelector('.little-card');
+  // pictures stage: frame with empty cells, picture-pile choices, no ➕ row
+  await expect(page.locator('.little-stage .li.empty').first()).toBeVisible();
+  expect(await page.$$eval('.little-card .little-items', (els) => els.length)).toBe(3);
+  expect(await page.$('.little-stage .pattern-q')).toBeNull();
+
+  // a kid who knows most parts of 5 sees the symbolic equation
+  await page.evaluate(() => { location.hash = '#/home'; });
+  await page.waitForSelector('.little-tile');
+  await page.evaluate(async () => {
+    await new Promise((res) => {
+      const open = indexedDB.open('compounded');
+      open.onsuccess = () => {
+        const tx = open.result.transaction(['profiles'], 'readwrite');
+        const st = tx.objectStore('profiles');
+        st.get('bond-kid-a').onsuccess = function () {
+          const d = this.result;
+          for (let k = 0; k <= 5; k++) d.little.skills[`bond5:${k}`] = { attempts: 3, streak: 3 };
+          st.put(d);
+        };
+        tx.oncomplete = () => { open.result.close(); res(); };
+      };
+    });
+  });
+  await page.reload({ waitUntil: 'networkidle' }); // resumes the same profile
+  await page.waitForSelector('.little-tile');
+  await page.tap('[data-game="bond"]');
+  await page.waitForSelector('.little-card');
+  // bonds of 5 all known → whole becomes 10, back to pictures for the new whole
+  await expect(page.locator('.little-stage .li.empty').first()).toBeVisible();
+  expect(await page.$eval('.little-stage .little-items', (el) => el.children.length)).toBe(10);
+});
+
 test('e2e: piggy bank chip shows and speaks the balance', async ({ page }) => {
   await page.goto('/', { waitUntil: 'networkidle' });
   const doc = newProfile(uniqueName('Piggy'));

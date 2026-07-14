@@ -203,7 +203,7 @@ test('e2e: tap-to-count — every tap counts up, no way to be wrong', async ({ p
   await page.waitForSelector('.little-done');
 });
 
-test('e2e: feed the puppy — counting out exactly N earns the paw', async ({ page }) => {
+test('e2e: feed the puppy — the child serves the bowl, wrong counts are gentle misses', async ({ page }) => {
   const name = uniqueName('Feeder');
   await page.goto('/', { waitUntil: 'networkidle' });
   await page.tap('[data-new]');
@@ -217,7 +217,14 @@ test('e2e: feed the puppy — counting out exactly N earns the paw', async ({ pa
     Number(document.querySelector('.little-stage').dataset.answer)
   );
   expect(await page.$$eval('.tap-item', (els) => els.length)).toBe(n + 2); // extra bones to stop at N
+  // serving too few is a miss the child can fix — a bone can even come back
+  await page.tap('.tap-item:not(.popped)');
+  await page.tap('.feed-done');
+  await expect(page.locator('.paw.done')).toHaveCount(0);
+  await page.locator('.tap-item.popped').first().tap(); // take it back out
+  await expect(page.locator('.tap-count')).toHaveText('0');
   for (let i = 1; i <= n; i++) await page.tap('.tap-item:not(.popped)');
+  await page.tap('.feed-done');
   await expect(page.locator('.paw.done')).toHaveCount(1);
   await page.tap('[data-quit]');
   await page.waitForSelector('.little-tile');
@@ -231,7 +238,7 @@ test('e2e: feed the puppy — counting out exactly N earns the paw', async ({ pa
     })
   );
   const doc = profiles.find((x) => x.name === name);
-  expect(doc.little.xp).toBeGreaterThanOrEqual(1);
+  expect(doc.little.xp).toBe(0); // the early wrong serve cost the first-try star
 });
 
 test('e2e: shapes with Whiskers — spoken target, wordless choices', async ({ page }) => {
