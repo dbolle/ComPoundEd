@@ -16,15 +16,42 @@ import {
   setSoundEnabled,
   syncNow,
 } from '../data/store.js';
-import { sfx, setSoundOn } from '../sound.js';
+import { sfx, setSoundOn, currentVoiceName } from '../sound.js';
 import { totalTiers } from '../engine/achievements.js';
 import { balanceCents, formatPaw, ensureBucks, REASON_LABELS } from '../engine/money.js';
 import { DOGS } from '../art/dogs.js';
+import { PETS } from '../art/pets.js';
 import { toast, escapeHtml } from '../ui.js';
 import { SCHEMA_VERSION } from '../data/schema.js';
 
 // 90 distinct normalized facts across tables 1–12 with factors 0–12.
 const TOTAL_FACTS = 90;
+
+// Little Pup progress: shown once the profile has any little activity.
+// 81 = every skill key a little pup can make "known" (streak of 3).
+const LITTLE_SKILL_TOTAL = 81;
+
+function littleStatsCard(p) {
+  const skills = p.little?.skills ?? {};
+  const xp = p.little?.xp ?? 0;
+  if (!p.subjects?.little && !xp && !Object.keys(skills).length) return '';
+  const known = (prefix) =>
+    Object.entries(skills).filter(([k, v]) => k.startsWith(prefix) && v.streak >= 3).length;
+  const knownAll = Object.values(skills).filter((v) => v.streak >= 3).length;
+  const pets = (p.petUnlocks ?? []).length;
+  return `
+      <div style="height:12px"></div>
+      <div class="card">
+        <h3>Little pup progress 🐣</h3>
+        <div class="stat-row"><span>Stars collected (xp)</span><span>${xp}</span></div>
+        <div class="stat-row"><span>Numbers known (all games)</span><span>${knownAll} / ${LITTLE_SKILL_TOTAL}</span></div>
+        <div class="stat-row"><span>Counting 1–10</span><span>${known('count:')} / 10</span></div>
+        <div class="stat-row"><span>Quick Look</span><span>${known('look:')} / 10</span></div>
+        <div class="stat-row"><span>Number friends (5 & 10)</span><span>${known('bond')} / 17</span></div>
+        <div class="stat-row"><span>Teen numbers</span><span>${known('teen:')} / 9</span></div>
+        <div class="stat-row"><span>Cozy Corner friends</span><span>${pets} / ${PETS.length}</span></div>
+      </div>`;
+}
 
 export function grownupsScreen(el, params, ctx) {
   el.innerHTML = `
@@ -83,6 +110,7 @@ export function grownupsScreen(el, params, ctx) {
         <div class="stat-row"><span>Award tiers earned</span><span>${totalTiers(p)}</span></div>
         <div class="stat-row"><span>Paw Bucks</span><span>${formatPaw(balanceCents(p))}</span></div>
       </div>
+      ${littleStatsCard(p)}
       <div style="height:12px"></div>
       <div class="card">
         <h3>Paw Bucks ledger</h3>
@@ -111,6 +139,9 @@ export function grownupsScreen(el, params, ctx) {
         <div class="nav-row">
           <button class="btn ghost small" data-sound-toggle></button>
         </div>
+        <p class="muted" style="font-size:.8rem;margin:10px 0 0">🗣️ Speech voice: ${escapeHtml(currentVoiceName())}.
+        On iPhone/iPad, downloading a nicer voice (Settings → Accessibility → Spoken Content →
+        Voices, look for "Enhanced") makes the app pick it up automatically.</p>
       </div>
       <div style="height:12px"></div>
       <div class="card">

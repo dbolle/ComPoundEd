@@ -1249,6 +1249,14 @@ button.pressed {
   pointer-events: none;
 }
 
+/* Feed Me: bones in the bowl stay tappable — the child can take one back
+   (tap-to-count keeps its one-way pop above). */
+.tap-items.feed-items .tap-item.popped {
+  pointer-events: auto;
+  opacity: 0.45;
+  transform: scale(0.8);
+}
+
 .feed-row {
   display: flex;
   align-items: center;
@@ -1340,6 +1348,13 @@ button.pressed {
 }
 
 /* Guided recount: the item being counted lights up and grows */
+.little-items .li.empty {
+  background: none;
+  border: 2px dashed rgba(74, 63, 53, 0.25);
+  min-width: 1.4em;
+  min-height: 1.4em;
+}
+
 .little-items .li.pulse {
   background: #fde68a;
   transform: scale(1.18);
