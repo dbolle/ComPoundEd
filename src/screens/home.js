@@ -10,6 +10,7 @@ import {
 } from '../engine/leitner.js';
 import { sittingReady } from '../engine/selector.js';
 import { suggestNext } from '../engine/suggest.js';
+import { WAVES, waveProgress, waveUnlocked, isWaveMastered } from '../engine/waves.js';
 import { getUiPrefs, setUiPrefs } from '../data/store.js';
 import { getDog, dogSVG, wornFor, dirtFor, GUESTS } from '../art/dogs.js';
 import { littleHomeScreen } from './little.js';
@@ -29,7 +30,8 @@ export async function homeScreen(el, params, ctx) {
     return littleHomeScreen(el, params, ctx);
   }
   const prefs = await getUiPrefs(p.id);
-  const next = suggestNext(p);
+  const showTables = p.subjects?.tables !== false;
+  const next = showTables ? suggestNext(p) : null;
   const masteredM = tables(p).filter((t) => isTableMastered(p, t)).length;
   const masteredD = tables(p).filter((t) => isDivisionTableMastered(p, t)).length;
   const anyMastered = masteredM > 0;
@@ -52,12 +54,17 @@ export async function homeScreen(el, params, ctx) {
             }</button>`
           : ''
       }
-      <button class="btn${next ? ' accent' : ''}" data-mixed>🎲 Mixed round!</button>
+      ${showTables ? `<button class="btn${next ? ' accent' : ''}" data-mixed>🎲 Mixed round!</button>` : ''}
       <div data-sitting-slot></div>
-      <button class="section-toggle${prefs.tablesOpen ? ' open' : ''}" data-toggle="tables" aria-expanded="${!!prefs.tablesOpen}">
+      <div data-adding-slot></div>
+      ${
+        showTables
+          ? `<button class="section-toggle${prefs.tablesOpen ? ' open' : ''}" data-toggle="tables" aria-expanded="${!!prefs.tablesOpen}">
         Pick a table <span class="sub">${masteredM}/${tables(p).length} ⭐</span><span class="chev">▸</span>
       </button>
-      <div class="table-grid" ${prefs.tablesOpen ? '' : 'hidden'}></div>
+      <div class="table-grid" ${prefs.tablesOpen ? '' : 'hidden'}></div>`
+          : ''
+      }
       <div data-division-slot></div>
       <div class="nav-row three">
         <button class="btn accent" data-nav="/pack">🐶 Pack</button>
@@ -75,8 +82,8 @@ export async function homeScreen(el, params, ctx) {
       </div>
     </div>`;
 
-  const grid = el.querySelector('.table-grid');
-  for (const t of tables(p)) {
+  const grid = el.querySelector('.table-grid:not(.add-grid)');
+  for (const t of grid ? tables(p) : []) {
     const { done, total, points, maxPoints } = tableProgress(p, t);
     const mastered = isTableMastered(p, t);
     const btn = document.createElement('button');
@@ -88,10 +95,45 @@ export async function homeScreen(el, params, ctx) {
     grid.appendChild(btn);
   }
 
+  // Adding waves (the bridge): shown when the parent turns on `bridge`.
+  // Waves unlock in the strategy order; the next locked one shows a padlock.
+  if (p.subjects?.bridge) {
+    const slot = el.querySelector('[data-adding-slot]');
+    const masteredW = WAVES.filter((w, i) => isWaveMastered(p, i)).length;
+    slot.innerHTML = `
+      <button class="section-toggle open" data-adding-toggle aria-expanded="true">
+        Adding ➕ <span class="sub">${masteredW}/${WAVES.length} ⭐</span><span class="chev">▸</span>
+      </button>
+      <div class="table-grid add-grid"></div>`;
+    const agrid = slot.querySelector('.add-grid');
+    let lockedShown = false;
+    WAVES.forEach((w, i) => {
+      const open = waveUnlocked(p, i);
+      if (!open && lockedShown) return; // only tease the very next wave
+      const { done, total, points, maxPoints } = waveProgress(p, i);
+      const mastered = done === total;
+      const btn = document.createElement('button');
+      btn.className = `table-btn wave-btn${mastered ? ' mastered' : ''}${open ? '' : ' locked'}`;
+      if (open) {
+        btn.setAttribute('aria-label', `${w.name} adding practice, ${done} of ${total} facts strong`);
+        btn.innerHTML = `<span>${mastered ? '⭐ ' : ''}${w.emoji}</span>
+          <span class="wave-name">${w.name}</span>
+          <span class="meter"><span style="width:${Math.round((points / Math.max(1, maxPoints)) * 100)}%"></span></span>`;
+        btn.addEventListener('click', () => navigate(`/quiz?wave=${i}`));
+      } else {
+        lockedShown = true;
+        btn.disabled = true;
+        btn.setAttribute('aria-label', `Master ${WAVES[i - 1].name} to unlock ${w.name}`);
+        btn.innerHTML = `<span>🔒 ${w.emoji}</span><span class="wave-name">${w.name}</span><span class="meter"><span style="width:0%"></span></span>`;
+      }
+      agrid.appendChild(btn);
+    });
+  }
+
   // Missing number & division: appears once any × table is mastered. Shows
   // only unlocked ÷tables plus the single next locked one — the padlock wall
   // adds nothing.
-  if (anyMastered) {
+  if (anyMastered && showTables) {
     const slot = el.querySelector('[data-division-slot]');
     slot.innerHTML = `
       <button class="section-toggle${prefs.divisionOpen ? ' open' : ''}" data-toggle="division" aria-expanded="${!!prefs.divisionOpen}">
@@ -173,7 +215,7 @@ export async function homeScreen(el, params, ctx) {
   if (next) {
     el.querySelector('[data-suggest]').addEventListener('click', () => navigate(next.href));
   }
-  el.querySelector('[data-mixed]').addEventListener('click', () => navigate('/quiz'));
+  el.querySelector('[data-mixed]')?.addEventListener('click', () => navigate('/quiz'));
   for (const b of el.querySelectorAll('[data-nav]')) {
     b.addEventListener('click', () => navigate(b.dataset.nav));
   }

@@ -1,12 +1,13 @@
 import { navigate } from '../router.js';
 import { buildRound, buildDivisionRound, ROUND_SIZE } from '../engine/selector.js';
-import { recordAnswer, recordDivisionAnswer } from '../engine/leitner.js';
+import { buildAdditionRound, WAVES } from '../engine/waves.js';
+import { recordAnswer, recordDivisionAnswer, recordAdditionAnswer } from '../engine/leitner.js';
 import { earnFromAnswer } from '../engine/money.js';
 import { checkUnlocks } from '../engine/unlocks.js';
 import { bumpAnswer, bumpRound, checkAchievements } from '../engine/achievements.js';
 import { tableTriedCount, divisionTriedCount } from '../engine/leitner.js';
 import { dogForTable, dogForDivTable, dogSVG } from '../art/dogs.js';
-import { hintFor, divisionHint } from '../engine/hints.js';
+import { hintFor, divisionHint, additionHint } from '../engine/hints.js';
 import { escapeHtml } from '../ui.js';
 import { buildNumpad, bindKeyboard, celebrationLine } from '../ui.js';
 import { sfx, buzz } from '../sound.js';
@@ -16,15 +17,20 @@ const CHEERS = ['Woof! 🎉', 'Good dog-gone job! 🐶', 'Fetch-tastic! 🦴', '
 export function quizScreen(el, params, ctx) {
   const table = params.get('table');
   const dtable = params.get('dtable');
-  const scope = dtable
-    ? { type: 'division', table: Number(dtable) }
-    : table
-      ? { type: 'table', table: Number(table) }
-      : { type: 'mixed' };
+  const wave = params.get('wave');
+  const scope = wave
+    ? { type: 'add', wave: Number(wave) }
+    : dtable
+      ? { type: 'division', table: Number(dtable) }
+      : table
+        ? { type: 'table', table: Number(table) }
+        : { type: 'mixed' };
   const questions =
-    scope.type === 'division'
-      ? buildDivisionRound(ctx.profile, scope.table)
-      : buildRound(ctx.profile, scope);
+    scope.type === 'add'
+      ? buildAdditionRound(ctx.profile, scope.wave)
+      : scope.type === 'division'
+        ? buildDivisionRound(ctx.profile, scope.table)
+        : buildRound(ctx.profile, scope);
 
   // Sniff-the-map: remember which rows were fully attempted before this
   // round, so finishing one can celebrate "sniffed every ×t fact".
@@ -57,11 +63,13 @@ export function quizScreen(el, params, ctx) {
         <button class="btn ghost small" data-quit>✕ Stop</button>
         <span class="spacer"></span>
         <strong>${
-          scope.type === 'division'
-            ? `÷${scope.table} missing number`
-            : scope.type === 'table'
-              ? `×${scope.table} table`
-              : 'Mixed round'
+          scope.type === 'add'
+            ? `${WAVES[scope.wave].emoji} ${WAVES[scope.wave].name}`
+            : scope.type === 'division'
+              ? `÷${scope.table} missing number`
+              : scope.type === 'table'
+                ? `×${scope.table} table`
+                : 'Mixed round'
         }</strong>
       </div>
       <div class="quiz-progress" aria-hidden="true">
@@ -128,10 +136,18 @@ export function quizScreen(el, params, ctx) {
     const given = Number(input);
     const correct = given === q.answer;
     const r =
-      q.kind === 'div'
-        ? recordDivisionAnswer(ctx.profile, q.a, q.b, correct, ms)
-        : recordAnswer(ctx.profile, q.a, q.b, correct, ms);
-    coins.push(...earnFromAnswer(ctx.profile, { a: q.a, b: q.b, division: q.kind === 'div' }, r));
+      q.kind === 'add'
+        ? recordAdditionAnswer(ctx.profile, q.a, q.b, correct, ms)
+        : q.kind === 'div'
+          ? recordDivisionAnswer(ctx.profile, q.a, q.b, correct, ms)
+          : recordAnswer(ctx.profile, q.a, q.b, correct, ms);
+    coins.push(
+      ...earnFromAnswer(
+        ctx.profile,
+        { a: q.a, b: q.b, division: q.kind === 'div', add: q.kind === 'add' },
+        r
+      )
+    );
     results.push({
       a: q.a,
       b: q.b,
@@ -163,7 +179,12 @@ export function quizScreen(el, params, ctx) {
       sfx.wrong();
       buzz(60);
       ansEl.classList.add('bad');
-      const hint = q.kind === 'div' ? divisionHint(q.a, q.b) : hintFor(ctx.profile, q.a, q.b);
+      const hint =
+        q.kind === 'add'
+          ? additionHint(q.a, q.b)
+          : q.kind === 'div'
+            ? divisionHint(q.a, q.b)
+            : hintFor(ctx.profile, q.a, q.b);
       const brave = r.firstAttempt
         ? '<span class="hint brave">🦁 Brand-new fact — trying it is the win!</span>'
         : '';

@@ -8,6 +8,7 @@
 // a counter-max merge from another.
 
 import { isTableMastered, isDivisionTableMastered } from './leitner.js';
+import { waveIndexOf, isWaveMastered, WAVES } from './waves.js';
 
 export const DENOMS = [
   { id: 'buck', cents: 100, label: 'Paw Buck', emoji: '💵' },
@@ -99,7 +100,7 @@ export function earnSitting(profile, now = Date.now()) {
 // Finish-screen badge text: earned coins grouped by kind, so ten nickels
 // read as one proud badge instead of ten repeats.
 const BADGE_TEXT = {
-  set: (n) => `💵 Paw Buck${n > 1 ? ` ×${n}` : ''} — whole table mastered!`,
+  set: (n) => `💵 Paw Buck${n > 1 ? ` ×${n}` : ''} — a whole set mastered!`,
   mastery: (n) => `🪙 Paw Nickel${n > 1 ? ` ×${n}` : ''} — new trick${n > 1 ? 's' : ''} learned!`,
   polish: (n) => `🪙 Paw Penny${n > 1 ? ` ×${n}` : ''} — rusty fact${n > 1 ? 's' : ''} polished!`,
   sitting: () => '🪙 +1 paw dime!',
@@ -124,9 +125,10 @@ function hasTxn(profile, id) {
   return ensureBucks(profile).txns.some((t) => t.id === id);
 }
 
-export function earnFactMastery(profile, a, b, division, now = Date.now()) {
-  const key = a <= b ? `${a}x${b}` : `${b}x${a}`;
-  const id = `mastery-${division ? 'div' : 'mul'}-${key}`;
+export function earnFactMastery(profile, a, b, track, now = Date.now()) {
+  const sep = track === 'add' ? '+' : 'x';
+  const key = a <= b ? `${a}${sep}${b}` : `${b}${sep}${a}`;
+  const id = `mastery-${track}-${key}`;
   if (hasTxn(profile, id)) return null;
   const txn = {
     id,
@@ -140,8 +142,8 @@ export function earnFactMastery(profile, a, b, division, now = Date.now()) {
   return txn;
 }
 
-export function earnSetMastery(profile, table, division, now = Date.now()) {
-  const id = `set-${division ? 'div' : 'mul'}-${table}`;
+export function earnSetMastery(profile, table, track, now = Date.now()) {
+  const id = `set-${track}-${table}`;
   if (hasTxn(profile, id)) return null;
   const txn = {
     id,
@@ -185,18 +187,28 @@ export function earnFromAnswer(profile, q, res, now = Date.now()) {
     if (t) earned.push(t);
   }
   if (res.mastered) {
-    const t = earnFactMastery(profile, q.a, q.b, !!q.division, now);
+    const track = q.add ? 'add' : q.division ? 'div' : 'mul';
+    const t = earnFactMastery(profile, q.a, q.b, track, now);
     if (t) earned.push(t);
-    // Did this crossing complete a whole table? (a×b feeds both tables)
-    const tables = q.division ? [q.a] : [...new Set([q.a, q.b])];
-    for (const tb of tables) {
-      if (tb < 1 || tb > 12) continue;
-      const done = q.division
-        ? isDivisionTableMastered(profile, tb)
-        : isTableMastered(profile, tb);
-      if (done) {
-        const st = earnSetMastery(profile, tb, !!q.division, now);
+    if (track === 'add') {
+      // Did this crossing complete the fact's strategy wave?
+      const w = waveIndexOf(q.a, q.b);
+      if (isWaveMastered(profile, w)) {
+        const st = earnSetMastery(profile, `w${WAVES[w].id}`, 'add', now);
         if (st) earned.push(st);
+      }
+    } else {
+      // Did this crossing complete a whole table? (a×b feeds both tables)
+      const tables = q.division ? [q.a] : [...new Set([q.a, q.b])];
+      for (const tb of tables) {
+        if (tb < 1 || tb > 12) continue;
+        const done = q.division
+          ? isDivisionTableMastered(profile, tb)
+          : isTableMastered(profile, tb);
+        if (done) {
+          const st = earnSetMastery(profile, tb, track, now);
+          if (st) earned.push(st);
+        }
       }
     }
   }
