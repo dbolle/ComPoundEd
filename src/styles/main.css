@@ -810,6 +810,28 @@ button.pressed {
   background: #fef3c7;
 }
 
+/* Grown-ups: which-tables chips */
+.limit-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+}
+
+.limit-chip {
+  font-weight: 800;
+  font-size: 0.9rem;
+  padding: 8px 0;
+  border-radius: 12px;
+  background: #f4ede2;
+  color: var(--ink-soft);
+}
+
+.limit-chip.on {
+  background: #fef3c7;
+  color: var(--ink);
+  box-shadow: inset 0 0 0 2px var(--brand);
+}
+
 /* Pet Store teaser tile (remove with the pack.js block to roll back) */
 .dog-card.store-soon {
   border-bottom-style: dashed;

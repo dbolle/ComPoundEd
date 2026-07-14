@@ -1,6 +1,6 @@
 // Little Pup mode: preschool counting games, error-less by design.
 import { test, expect } from '@playwright/test';
-import { newProfile, migrateProfile, mergeProfiles, SCHEMA_VERSION } from '../src/data/schema.js';
+import { newProfile, migrateProfile, mergeProfiles, SCHEMA_VERSION, SUBJECT_DEFAULTS } from '../src/data/schema.js';
 import { readProfile, seedProfile, uniqueName, stat, norm } from './helpers.mjs';
 
 test('migration v6→v7 adds subjects scaffolding + little progression', () => {
@@ -20,7 +20,7 @@ test('migration v6→v7 adds subjects scaffolding + little progression', () => {
     stats: {},
   });
   expect(doc.schemaVersion).toBe(SCHEMA_VERSION);
-  expect(doc.subjects).toEqual({ little: false });
+  expect(doc.subjects).toEqual({ ...SUBJECT_DEFAULTS });
   expect(doc.little).toEqual({ xp: 0, skills: {} });
 
   const a = newProfile('A');
@@ -169,8 +169,8 @@ test('e2e: grown-ups toggle flips a big-kid profile into little mode', async ({ 
   await page.mouse.down();
   await page.waitForTimeout(2300);
   await page.mouse.up();
-  await page.tap('[data-little-toggle]');
-  await expect(page.locator('[data-little-toggle]')).toContainText('on');
+  await page.tap('[data-subj="little"]');
+  await expect(page.locator('[data-subj="little"]')).toContainText('on');
   await page.tap('[data-back]');
   await page.waitForSelector('.little-tile');
   expect(await page.$$eval('button.little-tile', (els) => els.length)).toBe(2);

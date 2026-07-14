@@ -15,15 +15,23 @@ import { getDog, dogSVG, wornFor, dirtFor, GUESTS } from '../art/dogs.js';
 import { littleHomeScreen } from './little.js';
 import { escapeHtml } from '../ui.js';
 
-const tables = () => Array.from({ length: TABLE_MAX - TABLE_MIN + 1 }, (_, i) => TABLE_MIN + i);
+const tables = (p) => {
+  const all = Array.from({ length: TABLE_MAX - TABLE_MIN + 1 }, (_, i) => TABLE_MIN + i);
+  const limit = p?.subjects?.limitTables;
+  return limit?.length ? all.filter((t) => limit.includes(t)) : all;
+};
 
 export async function homeScreen(el, params, ctx) {
   const p = ctx.profile;
-  if (p.subjects?.little) return littleHomeScreen(el, params, ctx);
+  // Little profiles get the counting home — unless the child is allowed to
+  // switch and has hopped over for this session.
+  if (p.subjects?.little && !(p.subjects?.childCanSwitch && ctx.session.bigView)) {
+    return littleHomeScreen(el, params, ctx);
+  }
   const prefs = await getUiPrefs(p.id);
   const next = suggestNext(p);
-  const masteredM = tables().filter((t) => isTableMastered(p, t)).length;
-  const masteredD = tables().filter((t) => isDivisionTableMastered(p, t)).length;
+  const masteredM = tables(p).filter((t) => isTableMastered(p, t)).length;
+  const masteredD = tables(p).filter((t) => isDivisionTableMastered(p, t)).length;
   const anyMastered = masteredM > 0;
 
   el.innerHTML = `
@@ -47,7 +55,7 @@ export async function homeScreen(el, params, ctx) {
       <button class="btn${next ? ' accent' : ''}" data-mixed>🎲 Mixed round!</button>
       <div data-sitting-slot></div>
       <button class="section-toggle${prefs.tablesOpen ? ' open' : ''}" data-toggle="tables" aria-expanded="${!!prefs.tablesOpen}">
-        Pick a table <span class="sub">${masteredM}/12 ⭐</span><span class="chev">▸</span>
+        Pick a table <span class="sub">${masteredM}/${tables(p).length} ⭐</span><span class="chev">▸</span>
       </button>
       <div class="table-grid" ${prefs.tablesOpen ? '' : 'hidden'}></div>
       <div data-division-slot></div>
@@ -56,6 +64,11 @@ export async function homeScreen(el, params, ctx) {
         <button class="btn accent" data-nav="/heatmap">🗺️ Map</button>
         <button class="btn accent" data-nav="/awards">🏆 Awards</button>
       </div>
+      ${
+        p.subjects?.little && p.subjects?.childCanSwitch
+          ? '<button class="btn ghost small" data-little-view>🐣 Back to my games</button>'
+          : ''
+      }
       <div class="nav-row">
         <button class="btn ghost small" data-nav="/profiles">🔄 Switch player</button>
         <button class="btn ghost small" data-nav="/grownups">🔒 Grown-ups</button>
@@ -63,7 +76,7 @@ export async function homeScreen(el, params, ctx) {
     </div>`;
 
   const grid = el.querySelector('.table-grid');
-  for (const t of tables()) {
+  for (const t of tables(p)) {
     const { done, total, points, maxPoints } = tableProgress(p, t);
     const mastered = isTableMastered(p, t);
     const btn = document.createElement('button');
@@ -88,7 +101,7 @@ export async function homeScreen(el, params, ctx) {
     const dgrid = slot.querySelector('.div-grid');
     let lockedShown = false;
     let lockedRemaining = 0;
-    for (const t of tables()) {
+    for (const t of tables(p)) {
       const open = divisionTableUnlocked(p, t);
       if (!open && lockedShown) {
         lockedRemaining += 1;
@@ -141,7 +154,7 @@ export async function homeScreen(el, params, ctx) {
 
   // Pet sitting appears once there's a baseline of solid facts to draw
   // quick wins from; the guest pup rotates daily.
-  if (sittingReady(p)) {
+  if (sittingReady(p) && !p.subjects?.hideSitting) {
     const guest = GUESTS[Math.floor(Date.now() / 86400000) % GUESTS.length];
     const sitBtn = document.createElement('button');
     sitBtn.className = 'sitting-card';
@@ -151,6 +164,11 @@ export async function homeScreen(el, params, ctx) {
     sitBtn.addEventListener('click', () => navigate(`/activity?sit=${guest.id}`));
     el.querySelector('[data-sitting-slot]').appendChild(sitBtn);
   }
+
+  el.querySelector('[data-little-view]')?.addEventListener('click', () => {
+    ctx.session.bigView = false;
+    navigate('/home');
+  });
 
   if (next) {
     el.querySelector('[data-suggest]').addEventListener('click', () => navigate(next.href));

@@ -110,8 +110,27 @@ export function grownupsScreen(el, params, ctx) {
         <h3>Settings</h3>
         <div class="nav-row">
           <button class="btn ghost small" data-sound-toggle></button>
-          <button class="btn ghost small" data-little-toggle></button>
         </div>
+      </div>
+      <div style="height:12px"></div>
+      <div class="card">
+        <h3>What ${escapeHtml(p.name)} sees</h3>
+        <p class="muted" style="font-size:.85rem">Choose the parts of the app this player uses. Progress is always kept, even for hidden parts.</p>
+        <div class="nav-row">
+          <button class="btn ghost small" data-subj="little"></button>
+          <button class="btn ghost small" data-subj="bridge"></button>
+        </div>
+        <div style="height:8px"></div>
+        <div class="nav-row">
+          <button class="btn ghost small" data-subj="tables"></button>
+          <button class="btn ghost small" data-subj="childCanSwitch"></button>
+        </div>
+        <div style="height:8px"></div>
+        <div class="nav-row">
+          <button class="btn ghost small" data-subj="hideSitting"></button>
+        </div>
+        <p class="muted" style="font-size:.85rem;margin:12px 0 6px">Times tables shown (none picked = all):</p>
+        <div class="limit-grid" data-limit></div>
       </div>
       <div style="height:12px"></div>
       <div class="card">
@@ -152,21 +171,56 @@ export function grownupsScreen(el, params, ctx) {
       if (isSoundEnabled()) sfx.correct(); // audible sample of the new state
     });
 
-    const littleBtn = panel.querySelector('[data-little-toggle]');
-    const renderLittle = () => {
-      littleBtn.textContent = p.subjects?.little ? '🐣 Little pup: on' : '🧒 Little pup: off';
+    // Subject visibility switches. Each is a plain boolean on subjects;
+    // the little toggle keeps its friendly toast.
+    const SUBJ_LABELS = {
+      little: (v) => (v ? '🐣 Little pup: on' : '🧒 Little pup: off'),
+      bridge: (v) => (v ? '➕ Adding games: on' : '➕ Adding games: off'),
+      tables: (v) => (v ? '✖️ Times tables: on' : '✖️ Times tables: off'),
+      childCanSwitch: (v) => (v ? '🔀 Child can switch: yes' : '🔀 Child can switch: no'),
+      hideSitting: (v) => (v ? '🏡 Pet sitting: hidden' : '🏡 Pet sitting: shown'),
     };
-    renderLittle();
-    littleBtn.addEventListener('click', async () => {
-      p.subjects = { ...(p.subjects ?? {}), little: !p.subjects?.little };
-      await ctx.save();
-      renderLittle();
-      toast(
-        p.subjects.little
-          ? `${p.name} now sees the counting games 🐣`
-          : `${p.name} now sees the full app 🧒`
-      );
-    });
+    for (const btn of panel.querySelectorAll('[data-subj]')) {
+      const key = btn.dataset.subj;
+      const render = () => {
+        btn.textContent = SUBJ_LABELS[key](!!p.subjects?.[key]);
+      };
+      render();
+      btn.addEventListener('click', async () => {
+        p.subjects = { ...(p.subjects ?? {}), [key]: !p.subjects?.[key] };
+        await ctx.save();
+        render();
+        if (key === 'little') {
+          toast(
+            p.subjects.little
+              ? `${p.name} now sees the counting games 🐣`
+              : `${p.name} now sees the full app 🧒`
+          );
+        }
+      });
+    }
+
+    const limitGrid = panel.querySelector('[data-limit]');
+    const renderLimit = () => {
+      limitGrid.innerHTML = '';
+      const limit = p.subjects?.limitTables ?? [];
+      for (let t = 1; t <= 12; t++) {
+        const chip = document.createElement('button');
+        chip.className = `limit-chip${!limit.length || limit.includes(t) ? ' on' : ''}`;
+        chip.textContent = `×${t}`;
+        chip.addEventListener('click', async () => {
+          let next = limit.length ? [...limit] : [];
+          if (next.includes(t)) next = next.filter((x) => x !== t);
+          else next.push(t);
+          if (next.length === 12) next = []; // all picked = no limit
+          p.subjects = { ...(p.subjects ?? {}), limitTables: next.sort((x, y) => x - y) };
+          await ctx.save();
+          renderLimit();
+        });
+        limitGrid.appendChild(chip);
+      }
+    };
+    renderLimit();
 
     const toggleBtn = panel.querySelector('[data-sync-toggle]');
     const renderToggle = () => {

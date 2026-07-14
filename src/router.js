@@ -7,6 +7,12 @@ export function register(path, renderFn) {
 }
 
 export function navigate(path) {
+  if (location.hash === `#${path}`) {
+    // Same-hash navigation fires no hashchange; re-render explicitly
+    // (used by the little/big home hop, which changes state, not route).
+    window.dispatchEvent(new HashChangeEvent('hashchange'));
+    return;
+  }
   location.hash = `#${path}`;
 }
 

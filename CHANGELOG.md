@@ -3,6 +3,14 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.1.0 — 2026-07-14
+
+- Grown-Ups "What <name> sees" controls: show/hide Little Pup, Adding
+  (bridge), ×/÷ tables; child-can-switch (kid hops between the little and
+  big homes); hide pet sitting; limit which × tables appear.
+- Saves v12 (additive): subjects defaults, addition fact map, Cozy Corner
+  pet unlocks — groundwork for the Phase 5 bridge (docs/PHASE5.md).
+
 ## v1.0.0 — 2026-07-14
 
 First numbered release; everything to date, including this week's work:

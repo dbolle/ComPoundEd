@@ -174,6 +174,8 @@ function tiles(p, buddy) {
 }
 
 export function littleHomeScreen(el, params, ctx) {
+  // A transitioning kid with childCanSwitch can hop to the big-kid home.
+  ctx.session.bigView = false;
   const p = ctx.profile;
   const buddy = getDog(p.avatarDogId);
   el.innerHTML = `
@@ -186,10 +188,16 @@ export function littleHomeScreen(el, params, ctx) {
       </div>
       <div class="little-tiles"></div>
       <div class="nav-row little-nav" style="margin-top:auto">
+        ${p.subjects?.childCanSwitch ? '<button class="btn ghost small" data-big-view aria-label="Big kid games">🧮➡️</button>' : ''}
         <button class="btn ghost small" data-nav="/profiles" aria-label="Switch player">👥</button>
         <button class="btn ghost small" data-nav="/grownups" aria-label="Grown-ups">🔒</button>
       </div>
     </div>`;
+
+  el.querySelector('[data-big-view]')?.addEventListener('click', () => {
+    ctx.session.bigView = true;
+    navigate('/home');
+  });
 
   // Games appear as the little pup grows; one sparkly mystery tile hints at
   // the next unlock without pressuring.
