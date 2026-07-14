@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import pkg from './package.json' with { type: 'json' };
 
 // '/' for the home-server deployment; the GitHub Pages workflow sets
 // VITE_BASE=/ComPoundEd/ since project pages live under a subpath.
@@ -7,6 +8,9 @@ const base = process.env.VITE_BASE ?? '/';
 
 export default defineConfig({
   base,
+  define: {
+    __APP_VERSION__: JSON.stringify(pkg.version),
+  },
   plugins: [
     VitePWA({
       registerType: 'autoUpdate',

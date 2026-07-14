@@ -21,6 +21,7 @@ import { totalTiers } from '../engine/achievements.js';
 import { balanceCents, formatPaw, ensureBucks, REASON_LABELS } from '../engine/money.js';
 import { DOGS } from '../art/dogs.js';
 import { toast, escapeHtml } from '../ui.js';
+import { SCHEMA_VERSION } from '../data/schema.js';
 
 // 90 distinct normalized facts across tables 1–12 with factors 0–12.
 const TOTAL_FACTS = 90;
@@ -136,7 +137,8 @@ export function grownupsScreen(el, params, ctx) {
       <div class="nav-row">
         <button class="btn ghost small" data-switch>🔄 Switch player</button>
         <button class="btn danger small" data-delete>🗑️ Delete this player</button>
-      </div>`;
+      </div>
+      <p class="muted center" style="font-size:.75rem;margin:14px 0 0">Compounded v${typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'dev'} · saves v${SCHEMA_VERSION}</p>`;
 
     const soundBtn = panel.querySelector('[data-sound-toggle]');
     const renderSound = () => {

@@ -23,6 +23,11 @@ preserve existing profile data:
 
 ## Working on this repo
 
+- Documentation is part of every change (user directive): update BACKLOG.md
+  and CHANGELOG.md (bump `package.json` version — it displays in Grown-Ups)
+  in the same commit, plus README.md when user-facing behavior changes.
+  Larger designs live in docs/ (e.g. docs/PHASE5.md).
+
 - Vanilla JS + Vite PWA; no framework. `npm run build` redeploys (the nginx
   container mounts `dist/`). See README.md for URLs, CHARTER.md for product
   principles (kids 7–10, no dark patterns, local-only data).

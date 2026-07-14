@@ -1,7 +1,7 @@
 {
   "name": "compounded",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "A dog-themed PWA that helps kids practice and memorize multiplication tables.",
   "type": "module",
   "scripts": {
