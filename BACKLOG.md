@@ -7,7 +7,7 @@ reconsider after calibration.
 
 ## Where we are
 
-- Schema **v11**, 107-test suite green, deployed on LAN + GitHub Pages.
+- Schema **v12**, 118-test suite green, deployed on LAN + GitHub Pages; v1.x versioning shows in Grown-Ups (CHANGELOG.md).
 - Big-kid mode: ×1–12 and ÷ tracks (Leitner, adaptive speed bar, hints,
   achievements, heatmap), 25 dogs + wardrobe + grooming, pet sitting pays
   2 paw dimes/day (the only faucet), wallet + ledger live.
@@ -33,7 +33,8 @@ reconsider after calibration.
    crown/tiara aspirational ≈ a month); checkout lines are real ×5/×10
    facts, totals are addition; spends = negative ledger txns; nothing
    expires, no sales pressure.
-4. **Phase 5 — Bridge tracks 1–2 (Little Pup → big kid).** Quick Look
+4. **Phase 5 — Bridge tracks 1–2 (Little Pup → big kid)** — IN PROGRESS
+   (plan of record: docs/PHASE5.md; parent controls ✅ shipped v1.1.0). Quick Look
    subitizing (ten-frame flash → numpad), number bonds of 5/10, teen
    numbers, then addition facts within 20 rolled out in strategy waves
    (+0/+1/+2 → doubles → make-ten → near-doubles → rest) with hints,

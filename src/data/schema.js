@@ -2,7 +2,16 @@
 // migrateProfile() whenever the shape of stored data changes — this is the
 // contract a future sync backend will rely on.
 
-export const SCHEMA_VERSION = 11;
+export const SCHEMA_VERSION = 12;
+
+export const SUBJECT_DEFAULTS = {
+  little: false,
+  bridge: false,
+  tables: true,
+  childCanSwitch: false,
+  hideSitting: false,
+  limitTables: [],
+};
 
 // v7-era flat achievement ids → stacked { family, tier } (schema v8).
 const LEGACY_ACHIEVEMENTS = {
@@ -90,11 +99,16 @@ export function newProfile(name) {
     // Typing/reading speed baseline from gimme facts (×0/×1), used to tune
     // the per-kid "fast answer" bar. samples < 5 → default bar applies.
     speed: { avgMs: 0, samples: 0 },
-    // Which parts of the app this player sees. Scaffolded for the roadmap:
-    // parents will be able to select multiplication/division vs addition/
-    // subtraction here, or grant the child an independent subject toggle.
-    // `little: true` switches the whole app to the preschool experience.
-    subjects: { little: false },
+    // Which parts of the app this player sees (parent-set in Grown-Ups).
+    // `little` switches to the preschool home; `bridge` shows the Adding
+    // track; `tables` shows ×/÷; `childCanSwitch` lets the kid hop between
+    // the little and big homes; `limitTables` empty = all tables.
+    subjects: { ...SUBJECT_DEFAULTS },
+    // Addition-track stats (the bridge, waves within 20), same shape as
+    // facts, keyed "a+b" normalized (a ≤ b).
+    addition: {},
+    // Cozy Corner companions earned along the bridge: { petId, milestone, at }
+    petUnlocks: [],
     // Little-pup progression. xp fuels the tile trail; skills tracks real
     // per-quantity mastery, keyed "game:number" → { attempts, streak }
     // (streak = consecutive first-try corrects; 3+ means the child knows it
@@ -183,6 +197,12 @@ export function migrateProfile(doc) {
     doc.little.skills = doc.little.skills ?? {};
     doc.schemaVersion = 11;
   }
+  if (doc.schemaVersion === 11) {
+    doc.subjects = { ...SUBJECT_DEFAULTS, ...(doc.subjects ?? {}) };
+    doc.addition = doc.addition ?? {};
+    doc.petUnlocks = doc.petUnlocks ?? [];
+    doc.schemaVersion = 12;
+  }
   return doc;
 }
 
@@ -212,6 +232,14 @@ export function mergeProfiles(a, b) {
   };
   const facts = mergeStatMap(a.facts, b.facts);
   const division = mergeStatMap(a.division, b.division);
+  const addition = mergeStatMap(a.addition, b.addition);
+  // Cozy Corner: union by petId, keeping the earliest adoption.
+  const petUnlocks = [...(a.petUnlocks ?? [])];
+  for (const u of b.petUnlocks ?? []) {
+    const seen = petUnlocks.find((x) => x.petId === u.petId);
+    if (!seen) petUnlocks.push(u);
+    else seen.at = Math.min(seen.at, u.at);
+  }
   const unlocks = [...a.unlocks];
   for (const u of b.unlocks) {
     const existing = unlocks.find((x) => x.dogId === u.dogId);
@@ -275,7 +303,7 @@ export function mergeProfiles(a, b) {
   }
   // Subjects follow the more recently updated doc (it's a parent setting);
   // little-pup xp never regresses.
-  const subjects = { little: false, ...(newer.subjects ?? {}) };
+  const subjects = { ...SUBJECT_DEFAULTS, ...(newer.subjects ?? {}) };
   const little = {
     xp: Math.max(a.little?.xp ?? 0, b.little?.xp ?? 0),
     // Per-skill richer-wins: the device that saw more tries / a longer
@@ -303,6 +331,8 @@ export function mergeProfiles(a, b) {
     updatedAt: Math.max(a.updatedAt ?? 0, b.updatedAt ?? 0),
     facts,
     division,
+    addition,
+    petUnlocks,
     unlocks,
     play,
     speed,
