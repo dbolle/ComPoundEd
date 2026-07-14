@@ -1,0 +1,52 @@
+// The Cozy Corner: zero-maintenance companion pets adopted along the
+// bridge (docs/PHASE5.md). Dogs are the working pack; pets never get
+// dirty and never need care — they host games and keep the collection
+// warm without adding workload. One pet per milestone, in catalog order.
+
+import { PETS } from '../art/pets.js';
+import { isWaveMastered, WAVES } from './waves.js';
+
+const KNOWN_STREAK = 3;
+const known = (p, key) => (p.little?.skills?.[key]?.streak ?? 0) >= KNOWN_STREAK;
+const rangeKnown = (p, game, lo, hi) => {
+  for (let n = lo; n <= hi; n++) if (!known(p, `${game}:${n}`)) return false;
+  return true;
+};
+
+// Milestone order = adoption order; PETS[i] is the pet for MILESTONES[i].
+export const MILESTONES = [
+  { id: 'look', label: 'Quick Look 1–10', earned: (p) => rangeKnown(p, 'look', 1, 10) },
+  { id: 'bond5', label: 'Number friends of 5', earned: (p) => rangeKnown(p, 'bond5', 0, 5) },
+  { id: 'bond10', label: 'Number friends of 10', earned: (p) => rangeKnown(p, 'bond10', 0, 10) },
+  { id: 'teen', label: 'Teen numbers', earned: (p) => rangeKnown(p, 'teen', 1, 9) },
+  ...WAVES.map((w, i) => ({
+    id: `w${w.id}`,
+    label: `${w.name} adding`,
+    earned: (p) => isWaveMastered(p, i),
+  })),
+];
+
+export function petForMilestone(msId) {
+  const i = MILESTONES.findIndex((m) => m.id === msId);
+  return PETS[i % PETS.length];
+}
+
+export function isPetAdopted(profile, petId) {
+  return (profile.petUnlocks ?? []).some((u) => u.petId === petId);
+}
+
+// Adopts any newly-earned milestones' pets; returns the new adoptions so
+// finish screens can celebrate them.
+export function checkPetUnlocks(profile) {
+  profile.petUnlocks = profile.petUnlocks ?? [];
+  const fresh = [];
+  for (const m of MILESTONES) {
+    if (profile.petUnlocks.some((u) => u.milestone === m.id)) continue;
+    if (!m.earned(profile)) continue;
+    const pet = petForMilestone(m.id);
+    const u = { petId: pet.id, milestone: m.id, at: Date.now() };
+    profile.petUnlocks.push(u);
+    fresh.push({ ...u, pet });
+  }
+  return fresh;
+}

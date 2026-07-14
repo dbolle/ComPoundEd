@@ -9,13 +9,15 @@ import { navigate } from '../router.js';
 import { getDog, dogSVG, wornFor, DOGS, GUESTS } from '../art/dogs.js';
 import { getPet, petSVG } from '../art/pets.js';
 import { sfx, buzz, say, cheer } from '../sound.js';
+import { earnSkillKnown, balanceCents, formatPaw } from '../engine/money.js';
+import { checkPetUnlocks } from '../engine/cozy.js';
 import { confetti, escapeHtml } from '../ui.js';
 
 const ITEMS = ['🦴', '🎾', '🍖'];
 const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 const STARS = ['⭐', '🌟', '🎉', '🐾'];
-const KIND_BY_GAME = { count: 'fetch', find: 'walk', more: 'feed', tap: 'fetch', feed: 'feed', shape: 'walk', pattern: 'feed', next: 'walk', add: 'fetch' };
-const QUESTIONS_BY_GAME = { count: 5, find: 5, more: 5, tap: 3, feed: 3, shape: 5, pattern: 5, next: 5, add: 5 };
+const KIND_BY_GAME = { count: 'fetch', find: 'walk', more: 'feed', tap: 'fetch', feed: 'feed', shape: 'walk', pattern: 'feed', next: 'walk', add: 'fetch', look: 'walk', bond: 'feed', teen: 'fetch' };
+const QUESTIONS_BY_GAME = { count: 5, find: 5, more: 5, tap: 3, feed: 3, shape: 5, pattern: 5, next: 5, add: 5, look: 5, bond: 5, teen: 5 };
 
 // New species from the pet pool host the non-counting games — a pre-reader
 // navigates by which animal, not by words.
@@ -49,12 +51,15 @@ function ensureLittle(profile) {
 // Choice games record per-number skills; a number is "known" after three
 // first-try corrects in a row (a guesser fakes that 3.7% of the time, vs 33%
 // per question). Tap & feed stay error-less joy — they never feed the signal.
-const SKILL_GAMES = new Set(['count', 'find', 'more', 'next', 'add']);
+const SKILL_GAMES = new Set(['count', 'find', 'more', 'next', 'add', 'look', 'bond', 'teen']);
 
 // Round-finish praise that matches what the child actually did — shape
 // games shouldn't hear "great counting". A couple of options each so the
 // cheer doesn't wear out.
 const PRAISE_BY_GAME = {
+  look: ['Quick eyes! Amazing!', 'You saw it in a flash!'],
+  bond: ['Number friends forever!', 'You know the number friends!'],
+  teen: ['Teen numbers, no problem!', 'Ten and more — you got it!'],
   count: ['Hooray! Great counting!', 'Wow! You counted them all!'],
   tap: ['Hooray! Great counting!', 'You counted every single one!'],
   find: ['You found all the numbers!', 'Hooray! Super number finding!'],
@@ -68,6 +73,10 @@ const PRAISE_BY_GAME = {
 const KNOWN_STREAK = 3;
 
 const knows = (little, g, n) => (little.skills?.[`${g}:${n}`]?.streak ?? 0) >= KNOWN_STREAK;
+const knowsRange = (little, g, lo, hi) => {
+  for (let n = lo; n <= hi; n++) if (!knows(little, g, n)) return false;
+  return true;
+};
 
 // Numbers grow 5 → 7 → 10 as the smaller band is genuinely known — not with
 // raw xp, which guessing (and the un-missable games) inflates. Existing kids
@@ -170,6 +179,29 @@ function tiles(p, buddy) {
       caption: 'Adding',
       art: `<span class="tile-dogs">${petSVG(getPet(HOSTS.add), 38)}</span><span class="tile-art small">\u{1F9B4}\u2795\u{1F9B4}\u{1F9B4}</span>`,
     },
+    // Bridge graduation tiles: gated on demonstrated skill, not xp
+    // (docs/PHASE5.md Track 1).
+    {
+      game: 'look',
+      minXp: 0,
+      ready: (p) => knowsRange(p.little ?? {}, 'count', 1, 5),
+      caption: 'Quick look!',
+      art: `<span class="tile-art">\u{1F440}</span><span class="tile-mark">\u26A1</span>`,
+    },
+    {
+      game: 'bond',
+      minXp: 0,
+      ready: (p) => knowsRange(p.little ?? {}, 'look', 1, 5),
+      caption: 'Number friends',
+      art: `<span class="tile-art">\u{1F91D}</span><span class="tile-mark">5\u00b710</span>`,
+    },
+    {
+      game: 'teen',
+      minXp: 0,
+      ready: (p) => knowsRange(p.little ?? {}, 'bond10', 0, 10),
+      caption: 'Teen numbers',
+      art: `<span class="tile-art">\u{1F51F}</span><span class="tile-mark">11\u00b712\u00b713</span>`,
+    },
   ];
 }
 
@@ -188,12 +220,26 @@ export function littleHomeScreen(el, params, ctx) {
       </div>
       <div class="little-tiles"></div>
       <div class="nav-row little-nav" style="margin-top:auto">
+        <button class="btn ghost small" data-piggy aria-label="Piggy bank">🐷 ${formatPaw(balanceCents(p))}</button>
+        ${p.petUnlocks?.length ? '<button class="btn ghost small" data-corner aria-label="Cozy Corner">🏡</button>' : ''}
         ${p.subjects?.childCanSwitch ? '<button class="btn ghost small" data-big-view aria-label="Big kid games">🧮➡️</button>' : ''}
         <button class="btn ghost small" data-nav="/profiles" aria-label="Switch player">👥</button>
         <button class="btn ghost small" data-nav="/grownups" aria-label="Grown-ups">🔒</button>
       </div>
     </div>`;
 
+  el.querySelector('[data-piggy]')?.addEventListener('click', () => {
+    sfx.coin();
+    const cents = balanceCents(p);
+    const bucks = Math.floor(cents / 100);
+    const rest = cents % 100;
+    say(
+      cents
+        ? `You saved ${bucks ? `${bucks} paw buck${bucks > 1 ? 's' : ''} and ` : ''}${rest} paw cents!`
+        : 'Your piggy bank is ready for coins!'
+    );
+  });
+  el.querySelector('[data-corner]')?.addEventListener('click', () => navigate('/corner'));
   el.querySelector('[data-big-view]')?.addEventListener('click', () => {
     ctx.session.bigView = true;
     navigate('/home');
@@ -204,7 +250,8 @@ export function littleHomeScreen(el, params, ctx) {
   const xp = p.little?.xp ?? 0;
   const grid = el.querySelector('.little-tiles');
   const all = tiles(p, buddy);
-  for (const t of all.filter((t) => xp >= t.minXp)) {
+  const isReady = (t) => (t.ready ? t.ready(p) : xp >= t.minXp);
+  for (const t of all.filter(isReady)) {
     const btn = document.createElement('button');
     btn.className = 'little-tile';
     btn.dataset.game = t.game;
@@ -213,7 +260,7 @@ export function littleHomeScreen(el, params, ctx) {
     btn.addEventListener('click', () => navigate(`/little?game=${t.game}`));
     grid.appendChild(btn);
   }
-  const upcoming = all.find((t) => xp < t.minXp);
+  const upcoming = all.find((t) => !isReady(t));
   if (upcoming) {
     const soon = document.createElement('div');
     soon.className = 'little-tile soon';
@@ -238,6 +285,7 @@ export function littleGameScreen(el, params, ctx) {
   let busy = false;
   let firstTry = true;
   let lastSpoken = '';
+  const roundCoins = [];
 
   const speak = (text) => {
     lastSpoken = text;
@@ -439,6 +487,64 @@ export function littleGameScreen(el, params, ctx) {
       for (const v of pickCounts(a + b, Math.max(maxSum, a + b))) {
         choiceButton(`<span class="little-numeral">${v}</span>`, v === a + b);
       }
+    } else if (game === 'look') {
+      // Quick Look: the frame flashes, then hides — quick eyes, no counting.
+      const n = pickN(little, 'look', rangeFor(p, 'look'));
+      const item = ITEMS[ri(ITEMS.length)];
+      promptEl.textContent = '👀⚡';
+      speak('Quick look! How many?');
+      stageEl.dataset.answer = n;
+      stageEl.innerHTML = `<div class="little-items">${itemRow(item, n)}</div>
+        <div class="look-veil little-numeral big" hidden>❓</div>`;
+      setTimeout(() => {
+        const frame = stageEl.querySelector('.little-items');
+        const veil = stageEl.querySelector('.look-veil');
+        if (frame && veil) {
+          frame.hidden = true;
+          veil.hidden = false;
+        }
+      }, 1400);
+      for (const v of pickCounts(n, rangeFor(p, 'look'))) {
+        choiceButton(`<span class="little-numeral">${v}</span>`, v === n);
+      }
+    } else if (game === 'bond') {
+      // Number friends: the missing part of 5, then of 10 once 5 is known.
+      const whole = knowsRange(little, 'bond5', 0, 5) ? 10 : 5;
+      const have = ri(whole + 1);
+      const missing = whole - have;
+      const item = ITEMS[ri(ITEMS.length)];
+      promptEl.textContent = `🤝${whole}`;
+      speak(`${WORDS[have]} and how many more make ${WORDS[whole]}?`);
+      stageEl.dataset.answer = missing;
+      stageEl.dataset.skill = `bond${whole}:${missing}`;
+      stageEl.innerHTML = `<div class="pattern-row add-row">
+        <span class="little-items small">${have ? itemRow(item, have) : '<span class="little-numeral">0</span>'}</span>
+        <span class="pattern-q">➕</span><span class="pattern-q">❓</span>
+        <span class="pattern-q">=</span><span class="little-numeral">${whole}</span></div>`;
+      for (const v of pickCounts(missing === 0 ? 1 : missing, whole)) {
+        choiceButton(`<span class="little-numeral">${v}</span>`, v === missing);
+      }
+      if (missing === 0 && ![...choicesEl.children].some((c) => c.dataset.good === '1')) {
+        choicesEl.children[ri(choicesEl.children.length)].remove();
+        choiceButton('<span class="little-numeral">0</span>', true);
+      }
+    } else if (game === 'teen') {
+      // Teen numbers: ten and some more (K.NBT.1).
+      const n = 1 + ri(9);
+      const item = ITEMS[ri(ITEMS.length)];
+      promptEl.textContent = '🔟➕';
+      speak(`Ten and ${WORDS[n]} make what?`);
+      stageEl.dataset.answer = 10 + n;
+      stageEl.dataset.skill = `teen:${n}`;
+      stageEl.innerHTML = `<div class="pattern-row add-row">
+        <span class="little-items small">${itemRow(item, 10)}</span>
+        <span class="pattern-q">➕</span>
+        <span class="little-items small">${itemRow(item, n)}</span></div>`;
+      const opts = new Set([10 + n]);
+      while (opts.size < 3) opts.add(11 + ri(9));
+      for (const v of [...opts].sort(() => Math.random() - 0.5)) {
+        choiceButton(`<span class="little-numeral">${v}</span>`, v === 10 + n);
+      }
     } else {
       // more: two dogs with bone piles — tap the one with more
       const others = [...DOGS, ...GUESTS].filter((d) => d.id !== buddy.id);
@@ -466,11 +572,18 @@ export function littleGameScreen(el, params, ctx) {
   function recordSkill() {
     if (!SKILL_GAMES.has(game)) return;
     const n = Number(stageEl.dataset.answer);
-    if (!(n >= 1)) return;
-    const key = `${game}:${n}`;
+    const key = stageEl.dataset.skill ?? (n >= 1 ? `${game}:${n}` : null);
+    if (!key) return;
     const sk = (little.skills[key] = little.skills[key] ?? { attempts: 0, streak: 0 });
     sk.attempts += 1;
     sk.streak = firstTry ? sk.streak + 1 : 0;
+    if (sk.streak === KNOWN_STREAK) {
+      const coin = earnSkillKnown(p, key);
+      if (coin) {
+        roundCoins.push(coin);
+        sfx.coin();
+      }
+    }
   }
 
   function celebrate(btn, { speakWord = true } = {}) {
@@ -549,19 +662,24 @@ export function littleGameScreen(el, params, ctx) {
   async function finish() {
     p.play[buddy.id] = p.play[buddy.id] ?? { walk: 0, feed: 0, fetch: 0 };
     p.play[buddy.id][KIND_BY_GAME[game]] += 1;
+    const newPets = checkPetUnlocks(p);
     await ctx.save();
     sfx.celebrate();
     buzz([30, 40, 30]);
     confetti(18);
-    const lines = PRAISE_BY_GAME[game] ?? PRAISE_BY_GAME.count;
-    cheer(lines[ri(lines.length)]);
+    if (newPets.length) cheer(`A new friend! ${newPets[0].pet.name} moved into the Cozy Corner!`);
+    else cheer(PRAISE_BY_GAME[game]?.[ri(2)] ?? PRAISE_BY_GAME.count[ri(2)]);
     el.querySelector('.little-prompt-row').hidden = true;
     stageEl.hidden = true; // stage would otherwise flex-eat the space above
     fbEl.textContent = '';
     choicesEl.className = 'little-choices finish';
     choicesEl.innerHTML = `
       <div class="card center little-done">
-        <div class="dog bounce">${dogSVG(buddy, 104, wornFor(p, buddy.id))}</div>
+        <div class="dog bounce">${
+          newPets.length ? petSVG(newPets[0].pet, 104) : dogSVG(buddy, 104, wornFor(p, buddy.id))
+        }</div>
+        ${newPets.length ? '<div class="badge-row" style="justify-content:center"><span class="badge">🏡 New cozy friend!</span></div>' : ''}
+        ${roundCoins.length ? `<div class="badge-row" style="justify-content:center"><span class="badge">🐷 ${formatPaw(roundCoins.reduce((s, t) => s + t.cents, 0))} saved!</span></div>` : ''}
         <div class="nav-row" style="margin-top:10px">
           <button class="btn little-icon-btn" data-again aria-label="Play again">🔁</button>
           <button class="btn accent little-icon-btn" data-home aria-label="Home">🏠</button>

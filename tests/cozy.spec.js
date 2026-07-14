@@ -1,0 +1,85 @@
+// Track 1 + Cozy Corner: skill-gated graduation tiles, penny-per-known,
+// milestone pet adoptions grouped by habitat.
+import { test, expect } from '@playwright/test';
+import { newProfile } from '../src/data/schema.js';
+import { MILESTONES, checkPetUnlocks, petForMilestone } from '../src/engine/cozy.js';
+import { waveFacts } from '../src/engine/waves.js';
+import { normAddKey } from '../src/engine/leitner.js';
+import { earnSkillKnown, balanceCents } from '../src/engine/money.js';
+import { seedProfile, selectProfile, uniqueName } from './helpers.mjs';
+
+const skilled = (game, lo, hi) => {
+  const skills = {};
+  for (let n = lo; n <= hi; n++) skills[`${game}:${n}`] = { attempts: 3, streak: 3 };
+  return skills;
+};
+
+test('milestones adopt pets once; addition waves adopt too', () => {
+  const p = newProfile('Adopter');
+  expect(checkPetUnlocks(p)).toEqual([]);
+  p.little = { xp: 0, skills: skilled('look', 1, 10) };
+  const fresh = checkPetUnlocks(p);
+  expect(fresh).toHaveLength(1);
+  expect(fresh[0].milestone).toBe('look');
+  expect(fresh[0].pet.id).toBe(petForMilestone('look').id);
+  expect(checkPetUnlocks(p)).toEqual([]); // idempotent
+
+  for (const [a, b] of waveFacts(0)) {
+    p.addition[normAddKey(a, b)] = { attempts: 5, correct: 5, avgMs: 2000, box: 3, lastSeen: Date.now() };
+  }
+  const wavePet = checkPetUnlocks(p);
+  expect(wavePet).toHaveLength(1);
+  expect(wavePet[0].milestone).toBe('w1');
+  expect(MILESTONES).toHaveLength(11);
+});
+
+test('a known number pays one penny, ever', () => {
+  const p = newProfile('Penny');
+  expect(earnSkillKnown(p, 'count:7').cents).toBe(1);
+  expect(earnSkillKnown(p, 'count:7')).toBeNull();
+  expect(balanceCents(p)).toBe(1);
+});
+
+test('e2e: graduation tile appears with skill; finishing a round adopts into the Corner', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'networkidle' });
+  const doc = newProfile(uniqueName('Grad'));
+  doc.id = 'grad-kid';
+  doc.subjects = { ...doc.subjects, little: true };
+  // counting known → Quick Look unlocked; look 1–10 known → milestone due
+  doc.little = { xp: 20, skills: { ...skilled('count', 1, 5), ...skilled('look', 1, 10) } };
+  await seedProfile(page, doc);
+  await selectProfile(page, doc.name);
+
+  await page.waitForSelector('.little-tile');
+  await expect(page.locator('[data-game="look"]')).toBeVisible();
+
+  // finish any skill round → checkPetUnlocks adopts the look pet
+  await page.tap('[data-game="count"]');
+  await page.waitForSelector('.little-card');
+  for (let q = 0; q < 5; q++) {
+    await page.tap('.little-card[data-good="1"]');
+    await expect(page.locator('.paw.done')).toHaveCount(q + 1);
+    if (q < 4) await page.waitForTimeout(1100);
+  }
+  await page.waitForSelector('[data-again]');
+  await expect(page.locator('.badge', { hasText: 'New cozy friend' })).toBeVisible();
+
+  await page.tap('[data-home]');
+  await page.waitForSelector('.little-tile');
+  await page.tap('[data-corner]');
+  await page.waitForSelector('.corner-grid');
+  await expect(page.locator('.dog-card:not(.locked)')).toHaveCount(1);
+  await expect(page.locator('.habitat-title').first()).toBeVisible();
+});
+
+test('e2e: piggy bank chip shows and speaks the balance', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'networkidle' });
+  const doc = newProfile(uniqueName('Piggy'));
+  doc.id = 'piggy-kid';
+  doc.subjects = { ...doc.subjects, little: true };
+  doc.pawBucks = { txns: [{ id: 's1', at: Date.now(), cents: 10, denom: 'dime', count: 1, reason: 'sitting' }] };
+  await seedProfile(page, doc);
+  await selectProfile(page, doc.name);
+  await page.waitForSelector('.little-tile');
+  await expect(page.locator('[data-piggy]')).toContainText('$0.10');
+});
