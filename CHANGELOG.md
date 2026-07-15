@@ -3,6 +3,16 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.5.0 — 2026-07-15
+
+- Grown-Ups: a speech-voice picker — "✨ Automatic" (the scorer) by
+  default, or choose any installed English voice; the pick overrides the
+  scorer everywhere, persists per device, and changing it speaks a
+  sample. Falls back to Automatic if the chosen voice disappears.
+- Automatic scoring: legacy Mac voices (Fred, Ralph, Kathy, Victoria…)
+  are now penalized; stale voice objects re-pick instead of silencing
+  speech.
+
 ## v1.4.2 — 2026-07-14
 
 - Voice fix: iOS novelty voices (Superstar, Bubbles, Zarvox, Grandma…)

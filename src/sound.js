@@ -84,6 +84,28 @@ export const sfx = {
 // English on Android/Chrome), falling back to the default when nothing
 // scores.
 let pickedVoice = null;
+let preferredName = null;
+
+// Parent override from Grown-Ups: an exact voice name, or null for the
+// automatic picker. Falls back to automatic if the named voice vanishes
+// (e.g. the pick was made on another device).
+export function setVoicePreference(name) {
+  preferredName = name || null;
+  pickedVoice = null; // re-resolve on next use
+}
+
+// All English voices the device offers, best-scored first — for the picker.
+export function listVoices() {
+  try {
+    return speechSynthesis
+      .getVoices()
+      .filter((v) => v.lang?.toLowerCase().startsWith('en'))
+      .sort((a, b) => scoreVoice(b) - scoreVoice(a))
+      .map((v) => v.name);
+  } catch {
+    return [];
+  }
+}
 
 // iOS ships "novelty" voices (Superstar, Bubbles, Zarvox…) alongside the
 // real ones — they must never win, however their names read. Real quality
@@ -101,6 +123,8 @@ function scoreVoice(v) {
   else if (/enhanced|natural|neural/.test(name)) s += 6;
   if (/ava|allison|susan|serena|nicky|zoe|samantha|karen|aria|jenny|zira|joelle|noelle|google us english|google uk english female/.test(name)) s += 3;
   if (/compact|espeak|eloquence/.test(name)) s -= 8;
+  // legacy 1990s Mac voices — robotic, but not flagged as novelty by iOS
+  if (/\bfred\b|\bralph\b|\bkathy\b|\bjunior\b|\bbruce\b|\bvicki\b|\bvictoria\b|\bagnes\b/.test(name)) s -= 8;
   return s;
 }
 
@@ -136,7 +160,10 @@ function ensureVoice() {
     const size = speechSynthesis.getVoices().length;
     if (!pickedVoice || size !== voiceListSize) {
       voiceListSize = size;
-      pickedVoice = bestVoice();
+      const wanted = preferredName
+        ? speechSynthesis.getVoices().find((v) => v.name === preferredName)
+        : null;
+      pickedVoice = wanted ?? bestVoice();
     }
   } catch {
     /* speech is optional */
@@ -158,7 +185,11 @@ export function say(text, { pitch = 1.1, rate = 0.9 } = {}) {
     const wasBusy = speechSynthesis.speaking || speechSynthesis.pending;
     if (wasBusy) speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    if (pickedVoice) u.voice = pickedVoice;
+    try {
+      if (pickedVoice) u.voice = pickedVoice;
+    } catch {
+      pickedVoice = null; // stale voice object (list refreshed) — re-pick next time
+    }
     u.rate = rate;
     u.pitch = pitch;
     // A beat between cancel() and speak() stops iOS/Chrome from clipping
