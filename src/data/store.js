@@ -5,12 +5,23 @@ import { pushProfile, pullProfiles, deleteRemoteProfile } from './sync.js';
 let repo;
 let syncEnabled = false;
 let soundEnabled = true;
+let voicePref = null;
 const pushTimers = new Map();
 
 export async function initStore() {
   repo = await openRepo();
   syncEnabled = (await repo.getMeta('syncEnabled')) === true;
   soundEnabled = (await repo.getMeta('soundEnabled')) !== false; // default on
+  voicePref = (await repo.getMeta('voicePref')) ?? null;
+}
+
+export function getVoicePref() {
+  return voicePref;
+}
+
+export async function setVoicePref(name) {
+  voicePref = name || null;
+  await repo.setMeta('voicePref', voicePref);
 }
 
 export function isSoundEnabled() {

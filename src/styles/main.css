@@ -826,6 +826,18 @@ button.pressed {
   animation: store-wiggle 0.5s ease-in-out;
 }
 
+.voice-pick {
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--ink);
+  background: #f4ede2;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 12px;
+  width: 100%;
+}
+
 /* Grown-ups: which-tables chips */
 .limit-grid {
   display: grid;

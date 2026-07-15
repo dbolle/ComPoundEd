@@ -14,9 +14,11 @@ import {
   setSyncEnabled,
   isSoundEnabled,
   setSoundEnabled,
+  getVoicePref,
+  setVoicePref,
   syncNow,
 } from '../data/store.js';
-import { sfx, setSoundOn, currentVoiceName, say } from '../sound.js';
+import { sfx, setSoundOn, currentVoiceName, say, listVoices, setVoicePreference } from '../sound.js';
 import { totalTiers } from '../engine/achievements.js';
 import { balanceCents, formatPaw, ensureBucks, REASON_LABELS } from '../engine/money.js';
 import { DOGS } from '../art/dogs.js';
@@ -140,6 +142,9 @@ export function grownupsScreen(el, params, ctx) {
           <button class="btn ghost small" data-sound-toggle></button>
           <button class="btn ghost small" data-voice-test>🗣️ Hear the voice</button>
         </div>
+        <div style="height:8px"></div>
+        <label class="muted" style="font-size:.85rem" for="voice-pick">Speech voice</label>
+        <select id="voice-pick" class="voice-pick" data-voice-pick></select>
         <p class="muted" style="font-size:.8rem;margin:10px 0 0" data-voice-line>🗣️ Speech voice: ${escapeHtml(currentVoiceName())}.
         On iPhone/iPad you can install a nicer voice: Settings → Accessibility → Spoken Content →
         Voices → English (if Voices is missing, turn on "Speak Selection" first) — download one
@@ -192,14 +197,39 @@ export function grownupsScreen(el, params, ctx) {
       </div>
       <p class="muted center" style="font-size:.75rem;margin:14px 0 0">Compounded v${typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'dev'} · saves v${SCHEMA_VERSION}</p>`;
 
-    // iOS only fills the voice list after speech is used — the sample both
-    // demos the voice and refreshes the label.
+    // Voice picker: Automatic (the scorer) by default; a chosen name
+    // overrides it everywhere speech is used. iOS only fills the voice
+    // list after speech runs, so the options refresh on open and after
+    // each sample.
+    const voicePick = panel.querySelector('[data-voice-pick]');
+    const renderVoices = () => {
+      const chosen = getVoicePref();
+      const names = listVoices();
+      if (chosen && !names.includes(chosen)) names.unshift(chosen); // keep a cross-device pick visible
+      voicePick.innerHTML = [
+        `<option value="">✨ Automatic${chosen ? '' : ` (${escapeHtml(currentVoiceName())})`}</option>`,
+        ...names.map(
+          (n) => `<option value="${escapeHtml(n)}"${n === chosen ? ' selected' : ''}>${escapeHtml(n)}</option>`
+        ),
+      ].join('');
+    };
+    renderVoices();
+    voicePick.addEventListener('focus', renderVoices);
+    voicePick.addEventListener('change', async () => {
+      await setVoicePref(voicePick.value || null);
+      setVoicePreference(voicePick.value || null);
+      say(`Hi ${p.name}! Let's count some bones!`);
+      setTimeout(refreshVoiceLine, 400);
+    });
+
+    const refreshVoiceLine = () => {
+      const line = panel.querySelector('[data-voice-line]');
+      if (line) line.firstChild.textContent = `🗣️ Speech voice: ${currentVoiceName()}.`;
+      renderVoices();
+    };
     panel.querySelector('[data-voice-test]').addEventListener('click', () => {
       say(`Hi ${p.name}! Let's count some bones!`);
-      setTimeout(() => {
-        const line = panel.querySelector('[data-voice-line]');
-        if (line) line.firstChild.textContent = `🗣️ Speech voice: ${currentVoiceName()}.`;
-      }, 400);
+      setTimeout(refreshVoiceLine, 400);
     });
 
     const soundBtn = panel.querySelector('[data-sound-toggle]');
