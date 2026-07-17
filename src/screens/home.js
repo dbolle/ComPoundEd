@@ -10,7 +10,7 @@ import {
 } from '../engine/leitner.js';
 import { sittingReady } from '../engine/selector.js';
 import { suggestNext } from '../engine/suggest.js';
-import { WAVES, waveProgress, waveUnlocked, isWaveMastered } from '../engine/waves.js';
+import { WAVES, waveProgress, waveUnlocked, isWaveMastered, subWaveProgress, subWaveUnlocked, isSubWaveMastered } from '../engine/waves.js';
 import { getUiPrefs, setUiPrefs } from '../data/store.js';
 import { getDog, dogSVG, wornFor, dirtFor, GUESTS } from '../art/dogs.js';
 import { littleHomeScreen } from './little.js';
@@ -57,6 +57,7 @@ export async function homeScreen(el, params, ctx) {
       ${showTables ? `<button class="btn${next ? ' accent' : ''}" data-mixed>🎲 Mixed round!</button>` : ''}
       <div data-sitting-slot></div>
       <div data-adding-slot></div>
+      <div data-sub-slot></div>
       ${
         showTables
           ? `<button class="section-toggle${prefs.tablesOpen ? ' open' : ''}" data-toggle="tables" aria-expanded="${!!prefs.tablesOpen}">
@@ -127,6 +128,41 @@ export async function homeScreen(el, params, ctx) {
         btn.innerHTML = `<span>🔒 ${w.emoji}</span><span class="wave-name">${w.name}</span><span class="meter"><span style="width:0%"></span></span>`;
       }
       agrid.appendChild(btn);
+    });
+  }
+
+  // Taking Away (subtraction): each wave opens when its ADDING wave is
+  // mastered — the section itself appears with the first one.
+  if (p.subjects?.bridge && subWaveUnlocked(p, 0)) {
+    const slot = el.querySelector('[data-sub-slot]');
+    const masteredS = WAVES.filter((w, i) => isSubWaveMastered(p, i)).length;
+    slot.innerHTML = `
+      <button class="section-toggle open" data-sub-toggle aria-expanded="true">
+        Taking away ➖ <span class="sub">${masteredS}/${WAVES.length} ⭐</span><span class="chev">▸</span>
+      </button>
+      <div class="table-grid add-grid sub-grid"></div>`;
+    const sgrid = slot.querySelector('.sub-grid');
+    let lockedShown = false;
+    WAVES.forEach((w, i) => {
+      const open = subWaveUnlocked(p, i);
+      if (!open && lockedShown) return;
+      const { done, total, points, maxPoints } = subWaveProgress(p, i);
+      const mastered = done === total;
+      const btn = document.createElement('button');
+      btn.className = `table-btn wave-btn${mastered ? ' mastered' : ''}${open ? '' : ' locked'}`;
+      if (open) {
+        btn.setAttribute('aria-label', `${w.name} taking-away practice, ${done} of ${total} facts strong`);
+        btn.innerHTML = `<span>${mastered ? '⭐ ' : ''}${w.emoji}</span>
+          <span class="wave-name">${w.name}</span>
+          <span class="meter"><span style="width:${Math.round((points / Math.max(1, maxPoints)) * 100)}%"></span></span>`;
+        btn.addEventListener('click', () => navigate(`/quiz?swave=${i}`));
+      } else {
+        lockedShown = true;
+        btn.disabled = true;
+        btn.setAttribute('aria-label', `Master ${w.name} adding to unlock taking away`);
+        btn.innerHTML = `<span>🔒 ${w.emoji}</span><span class="wave-name">${w.name}</span><span class="meter"><span style="width:0%"></span></span>`;
+      }
+      sgrid.appendChild(btn);
     });
   }
 

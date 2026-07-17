@@ -3,6 +3,18 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.6.0 — 2026-07-17
+
+- Taking Away ➖: subtraction within 20 as think-addition — one entry per
+  fact family (12−8 and 12−4 strengthen "4+8" together), seven waves
+  mirroring Adding, each unlocked by mastering its Adding wave.
+  Missing-addend presentation bridges to the − symbol as families
+  strengthen; hints think addition or count up. Full frontier earning.
+- Charter rewritten for the product reframe: one app, pre-K through upper
+  elementary, drilling the math-fact canon (docs/PHASE6.md).
+- Fix: wrong addition answers showed "undefined" instead of the correction.
+  (saves v13)
+
 ## v1.5.0 — 2026-07-15
 
 - Grown-Ups: a speech-voice picker — "✨ Automatic" (the scorer) by

@@ -126,6 +126,21 @@ export function recordAdditionAnswer(profile, a, b, correct, ms) {
   return applyAnswer(s, correct, ms, fastThresholdMs(profile));
 }
 
+// --- Subtraction track: one stat per fact FAMILY, keyed by the addition
+// fact it inverts (12−8 and 12−4 both live at "4+8") — think-addition is
+// the strategy, so the family is the unit of knowledge.
+
+export function getSubStat(profile, a, b) {
+  return (profile.subtraction ?? {})[normAddKey(a, b)] ?? emptyStat();
+}
+
+export function recordSubtractionAnswer(profile, a, b, correct, ms) {
+  if (!profile.subtraction) profile.subtraction = {};
+  const key = normAddKey(a, b);
+  const s = profile.subtraction[key] ?? (profile.subtraction[key] = emptyStat());
+  return applyAnswer(s, correct, ms, fastThresholdMs(profile));
+}
+
 // The ÷t table opens once the ×t table is mastered.
 export function divisionTableUnlocked(profile, table) {
   return isTableMastered(profile, table);
