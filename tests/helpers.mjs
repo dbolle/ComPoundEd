@@ -66,8 +66,18 @@ export function answerFromText(text) {
     const [q, d] = text.split('÷').map((s) => parseInt(s.trim(), 10));
     return q / d;
   }
+  if (text.includes('−')) {
+    const [c, g] = text.split('−').map((s) => parseInt(s.trim(), 10));
+    return c - g;
+  }
+  const missingAdd = text.match(/(\d+)\s*\+\s*_\s*=\s*(\d+)/);
+  if (missingAdd) return Number(missingAdd[2]) - Number(missingAdd[1]);
   const missing = text.match(/(\d+)\s*×\s*_\s*=\s*(\d+)/);
   if (missing) return Number(missing[2]) / Number(missing[1]);
+  if (text.includes('+')) {
+    const [a, b] = text.split('+').map((s) => parseInt(s.trim(), 10));
+    return a + b;
+  }
   const [a, b] = text.split('×').map((s) => parseInt(s.trim(), 10));
   return a * b;
 }
@@ -79,7 +89,7 @@ export async function playQuestions(page, maxQuestions, options = {}) {
   const seen = [];
   for (let i = 0; i < maxQuestions; i++) {
     await page.waitForFunction(() =>
-      /[×÷]/.test(document.querySelector('.question')?.textContent ?? '')
+      /[×÷+−]/.test(document.querySelector('.question')?.textContent ?? '')
     );
     const text = (await page.textContent('.question')).trim();
     const right = answerFromText(text);

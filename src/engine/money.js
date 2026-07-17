@@ -8,7 +8,7 @@
 // a counter-max merge from another.
 
 import { isTableMastered, isDivisionTableMastered } from './leitner.js';
-import { waveIndexOf, isWaveMastered, WAVES } from './waves.js';
+import { waveIndexOf, isWaveMastered, isSubWaveMastered, WAVES } from './waves.js';
 
 export const DENOMS = [
   { id: 'buck', cents: 100, label: 'Paw Buck', emoji: '💵' },
@@ -128,7 +128,7 @@ function hasTxn(profile, id) {
 }
 
 export function earnFactMastery(profile, a, b, track, now = Date.now()) {
-  const sep = track === 'add' ? '+' : 'x';
+  const sep = track === 'add' || track === 'sub' ? '+' : 'x'; // +/− share family keys
   const key = a <= b ? `${a}${sep}${b}` : `${b}${sep}${a}`;
   const id = `mastery-${track}-${key}`;
   if (hasTxn(profile, id)) return null;
@@ -199,14 +199,15 @@ export function earnFromAnswer(profile, q, res, now = Date.now()) {
     if (t) earned.push(t);
   }
   if (res.mastered) {
-    const track = q.add ? 'add' : q.division ? 'div' : 'mul';
+    const track = q.add ? 'add' : q.sub ? 'sub' : q.division ? 'div' : 'mul';
     const t = earnFactMastery(profile, q.a, q.b, track, now);
     if (t) earned.push(t);
-    if (track === 'add') {
+    if (track === 'add' || track === 'sub') {
       // Did this crossing complete the fact's strategy wave?
       const w = waveIndexOf(q.a, q.b);
-      if (isWaveMastered(profile, w)) {
-        const st = earnSetMastery(profile, `w${WAVES[w].id}`, 'add', now);
+      const done = track === 'add' ? isWaveMastered(profile, w) : isSubWaveMastered(profile, w);
+      if (done) {
+        const st = earnSetMastery(profile, `w${WAVES[w].id}`, track, now);
         if (st) earned.push(st);
       }
     } else {

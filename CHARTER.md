@@ -1,30 +1,51 @@
 # Compounded — Project Charter
 
-*A dog-themed math-facts app for kids.*
+*One dog-filled app a child follows from pre-K through upper elementary,
+building automaticity for the math-fact canon.*
 
 ## Vision
 
-Every kid can master their multiplication tables through short, joyful, dog-filled practice sessions. Compounded turns memorization — usually a chore — into a game where practice earns you a growing pack of dogs, and mastery is something you can *see*.
+A single app that grows with one child for years: counting → subitizing →
+number bonds → addition and subtraction within 20 → multiplication and
+division → money math → fraction and mental-math fluencies. Compounded
+turns memorization — usually a chore — into a trail of short, joyful,
+dog-filled practice sessions where every stage earns companions and coins,
+mastery is something you can *see*, and the next step is always in reach.
+(Reframed 2026-07-17 from the original times-tables scope: the trail is
+the product.)
 
 ## Audience
 
-- **Primary:** kids ages 7–10 learning multiplication facts (0×0 through 12×12).
-- **Little pups:** ages 3–5, via Little Pup mode — tap-only counting and numeral games with spoken prompts, no reading or typing required, and no fail states.
-- **Secondary:** parents and teachers, via a "Grown-Ups" area for viewing progress and managing profiles.
+- **One child, many ages (3 → 11+).** Each stage of the trail speaks its
+  rider's language: tap-only spoken games with no fail states for
+  pre-readers; numpad rounds, strategy hints, and collections for
+  elementary kids.
+- **Parents and teachers**, via a "Grown-Ups" area: progress per track,
+  visibility controls per child, profiles, backup.
 
 ## Goals
 
-1. **Fluency** — fast, accurate recall of multiplication facts 0–12, driven by spaced repetition that targets each kid's weak facts.
-2. **Fun** — kids *want* to come back. Unlockable dogs, celebrations, and visible progress make practice self-motivating.
-3. **Privacy** — no data ever leaves the device. No accounts, no analytics, no ads. COPPA-friendly by construction.
-4. **Anywhere** — installable PWA that works fully offline, on tablets, phones, and desktops.
+1. **Automaticity** — fast, accurate recall of every fact set the research
+   says must be automatic, taught in evidence-backed strategy order and
+   driven by spaced repetition targeting each kid's weak facts. Practice
+   drills; it never replaces teaching.
+2. **Fun** — kids *want* to come back. Unlockable dogs and pets,
+   celebrations, and visible progress make practice self-motivating.
+3. **Privacy** — no data ever leaves the device (opt-in family backup to
+   the family's own server only). No accounts, no analytics, no ads.
+   COPPA-friendly by construction.
+4. **Anywhere, for years** — installable PWA, fully offline, on tablets,
+   phones, and desktops; a profile's progress survives device swaps and
+   spans a childhood.
 
-## Non-Goals (v1)
+## Non-Goals
 
-- No accounts, servers, or cloud sync (architecture allows adding sync later).
-- No ads, in-app purchases, or monetization.
+- No accounts or third-party cloud; sync stays family-owned and opt-in.
+- No ads, in-app purchases, or monetization — and the in-game currency is
+  fictitious forever.
 - No cross-device leaderboards or social features.
-- No other operations yet — addition, subtraction, and division are roadmap items.
+- Not a full math curriculum: concepts, word problems, measurement and
+  geometry belong to school; Compounded drills what must become automatic.
 
 ## Feature Roadmap
 

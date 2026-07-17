@@ -67,10 +67,12 @@ export function resultsScreen(el, params, ctx) {
   }
   // Addition rounds get their pet goal in the Cozy Corner build; until
   // then the dog goal only makes sense for ×/÷ scopes.
-  const goal = round.scope.type === 'add' ? null : nextGoal(ctx.profile, round.scope);
+  const goal = round.scope.type === 'add' || round.scope.type === 'sub' ? null : nextGoal(ctx.profile, round.scope);
   const againHref =
-    round.scope.type === 'add'
-      ? `/quiz?wave=${round.scope.wave}`
+    round.scope.type === 'sub'
+      ? `/quiz?swave=${round.scope.wave}`
+      : round.scope.type === 'add'
+        ? `/quiz?wave=${round.scope.wave}`
       : round.scope.type === 'division'
         ? `/quiz?dtable=${round.scope.table}`
         : round.scope.type === 'table'

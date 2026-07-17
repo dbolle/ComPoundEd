@@ -80,3 +80,16 @@ export function additionHint(a, b) {
   }
   return `Start at ${hi}, the bigger number, and count up ${lo}.`;
 }
+
+// Taking Away hints: think-addition is THE strategy (the family's addition
+// fact is already known — that's what unlocked the wave); counting up
+// covers the close cases.
+export function subtractionHint(q) {
+  const c = q.a + q.b;
+  const { given, answer } = q;
+  if (answer <= 3) {
+    const steps = Array.from({ length: answer }, (_, i) => given + i + 1).join(', ');
+    return `Count up from ${given} to ${c}: ${steps} — that's ${answer} hop${answer > 1 ? 's' : ''}!`;
+  }
+  return `Think addition — you know ${given} + ${answer} = ${c}, so ${c} − ${given} = ${answer}!`;
+}

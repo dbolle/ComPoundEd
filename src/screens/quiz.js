@@ -1,14 +1,14 @@
 import { navigate } from '../router.js';
 import { buildRound, buildDivisionRound, ROUND_SIZE } from '../engine/selector.js';
-import { buildAdditionRound, WAVES } from '../engine/waves.js';
-import { recordAnswer, recordDivisionAnswer, recordAdditionAnswer } from '../engine/leitner.js';
+import { buildAdditionRound, buildSubtractionRound, WAVES } from '../engine/waves.js';
+import { recordAnswer, recordDivisionAnswer, recordAdditionAnswer, recordSubtractionAnswer } from '../engine/leitner.js';
 import { earnFromAnswer } from '../engine/money.js';
 import { checkUnlocks } from '../engine/unlocks.js';
 import { checkPetUnlocks } from '../engine/cozy.js';
 import { bumpAnswer, bumpRound, checkAchievements } from '../engine/achievements.js';
 import { tableTriedCount, divisionTriedCount } from '../engine/leitner.js';
 import { dogForTable, dogForDivTable, dogSVG } from '../art/dogs.js';
-import { hintFor, divisionHint, additionHint } from '../engine/hints.js';
+import { hintFor, divisionHint, additionHint, subtractionHint } from '../engine/hints.js';
 import { escapeHtml } from '../ui.js';
 import { buildNumpad, bindKeyboard, celebrationLine } from '../ui.js';
 import { sfx, buzz } from '../sound.js';
@@ -19,17 +19,22 @@ export function quizScreen(el, params, ctx) {
   const table = params.get('table');
   const dtable = params.get('dtable');
   const wave = params.get('wave');
-  const scope = wave
-    ? { type: 'add', wave: Number(wave) }
-    : dtable
+  const swave = params.get('swave');
+  const scope = swave
+    ? { type: 'sub', wave: Number(swave) }
+    : wave
+      ? { type: 'add', wave: Number(wave) }
+      : dtable
       ? { type: 'division', table: Number(dtable) }
       : table
         ? { type: 'table', table: Number(table) }
         : { type: 'mixed' };
   const questions =
-    scope.type === 'add'
-      ? buildAdditionRound(ctx.profile, scope.wave)
-      : scope.type === 'division'
+    scope.type === 'sub'
+      ? buildSubtractionRound(ctx.profile, scope.wave)
+      : scope.type === 'add'
+        ? buildAdditionRound(ctx.profile, scope.wave)
+        : scope.type === 'division'
         ? buildDivisionRound(ctx.profile, scope.table)
         : buildRound(ctx.profile, scope);
 
@@ -64,8 +69,8 @@ export function quizScreen(el, params, ctx) {
         <button class="btn ghost small" data-quit>✕ Stop</button>
         <span class="spacer"></span>
         <strong>${
-          scope.type === 'add'
-            ? `${WAVES[scope.wave].emoji} ${WAVES[scope.wave].name}`
+          scope.type === 'add' || scope.type === 'sub'
+            ? `${scope.type === 'sub' ? '➖ ' : ''}${WAVES[scope.wave].emoji} ${WAVES[scope.wave].name}`
             : scope.type === 'division'
               ? `÷${scope.table} missing number`
               : scope.type === 'table'
@@ -137,15 +142,17 @@ export function quizScreen(el, params, ctx) {
     const given = Number(input);
     const correct = given === q.answer;
     const r =
-      q.kind === 'add'
-        ? recordAdditionAnswer(ctx.profile, q.a, q.b, correct, ms)
-        : q.kind === 'div'
+      q.kind === 'sub'
+        ? recordSubtractionAnswer(ctx.profile, q.a, q.b, correct, ms)
+        : q.kind === 'add'
+          ? recordAdditionAnswer(ctx.profile, q.a, q.b, correct, ms)
+          : q.kind === 'div'
           ? recordDivisionAnswer(ctx.profile, q.a, q.b, correct, ms)
           : recordAnswer(ctx.profile, q.a, q.b, correct, ms);
     coins.push(
       ...earnFromAnswer(
         ctx.profile,
-        { a: q.a, b: q.b, division: q.kind === 'div', add: q.kind === 'add' },
+        { a: q.a, b: q.b, division: q.kind === 'div', add: q.kind === 'add', sub: q.kind === 'sub' },
         r
       )
     );
@@ -181,9 +188,11 @@ export function quizScreen(el, params, ctx) {
       buzz(60);
       ansEl.classList.add('bad');
       const hint =
-        q.kind === 'add'
-          ? additionHint(q.a, q.b)
-          : q.kind === 'div'
+        q.kind === 'sub'
+          ? subtractionHint(q)
+          : q.kind === 'add'
+            ? additionHint(q.a, q.b)
+            : q.kind === 'div'
             ? divisionHint(q.a, q.b)
             : hintFor(ctx.profile, q.a, q.b);
       const brave = r.firstAttempt
@@ -223,7 +232,7 @@ export function quizScreen(el, params, ctx) {
         if (!sniffedBefore.has(t) && tableTriedCount(ctx.profile, t) === 13) sniffedRows.push(t);
       }
       await ctx.save();
-      const newPets = scope.type === 'add' ? checkPetUnlocks(ctx.profile) : [];
+      const newPets = scope.type === 'add' || scope.type === 'sub' ? checkPetUnlocks(ctx.profile) : [];
       ctx.session.lastRound = { scope, results, newUnlocks, newAwards, sniffedRows, coins, newPets };
       navigate('/results');
     } else {

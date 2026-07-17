@@ -2,7 +2,7 @@
 // migrateProfile() whenever the shape of stored data changes — this is the
 // contract a future sync backend will rely on.
 
-export const SCHEMA_VERSION = 12;
+export const SCHEMA_VERSION = 13;
 
 export const SUBJECT_DEFAULTS = {
   little: false,
@@ -107,6 +107,9 @@ export function newProfile(name) {
     // Addition-track stats (the bridge, waves within 20), same shape as
     // facts, keyed "a+b" normalized (a ≤ b).
     addition: {},
+    // Subtraction-track stats: one entry per fact family, keyed by the
+    // addition fact it inverts ("4+8" covers 12−8 and 12−4).
+    subtraction: {},
     // Cozy Corner companions earned along the bridge: { petId, milestone, at }
     petUnlocks: [],
     // Little-pup progression. xp fuels the tile trail; skills tracks real
@@ -203,6 +206,10 @@ export function migrateProfile(doc) {
     doc.petUnlocks = doc.petUnlocks ?? [];
     doc.schemaVersion = 12;
   }
+  if (doc.schemaVersion === 12) {
+    doc.subtraction = doc.subtraction ?? {};
+    doc.schemaVersion = 13;
+  }
   return doc;
 }
 
@@ -233,6 +240,7 @@ export function mergeProfiles(a, b) {
   const facts = mergeStatMap(a.facts, b.facts);
   const division = mergeStatMap(a.division, b.division);
   const addition = mergeStatMap(a.addition, b.addition);
+  const subtraction = mergeStatMap(a.subtraction, b.subtraction);
   // Cozy Corner: union by petId, keeping the earliest adoption.
   const petUnlocks = [...(a.petUnlocks ?? [])];
   for (const u of b.petUnlocks ?? []) {
@@ -332,6 +340,7 @@ export function mergeProfiles(a, b) {
     facts,
     division,
     addition,
+    subtraction,
     petUnlocks,
     unlocks,
     play,
