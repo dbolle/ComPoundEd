@@ -3,6 +3,12 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.7.0 — 2026-07-17
+
+- Seven new Cozy Corner pets (Inky, Thumper, Waffle, Lemon, Dozer,
+  Thistle, Tidepool) — one new neighbor per habitat, adopted per Taking
+  Away wave mastered. Habitats stay seven readable rows.
+
 ## v1.6.0 — 2026-07-17
 
 - Taking Away ➖: subtraction within 20 as think-addition — one entry per

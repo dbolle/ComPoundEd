@@ -4,7 +4,7 @@
 // warm without adding workload. One pet per milestone, in catalog order.
 
 import { PETS } from '../art/pets.js';
-import { isWaveMastered, WAVES } from './waves.js';
+import { isWaveMastered, isSubWaveMastered, WAVES } from './waves.js';
 
 const KNOWN_STREAK = 3;
 const known = (p, key) => (p.little?.skills?.[key]?.streak ?? 0) >= KNOWN_STREAK;
@@ -23,6 +23,11 @@ export const MILESTONES = [
     id: `w${w.id}`,
     label: `${w.name} adding`,
     earned: (p) => isWaveMastered(p, i),
+  })),
+  ...WAVES.map((w, i) => ({
+    id: `s${w.id}`,
+    label: `${w.name} taking away`,
+    earned: (p) => isSubWaveMastered(p, i),
   })),
 ];
 
