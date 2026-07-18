@@ -22,8 +22,10 @@ test('migration v12→v13 adds subtraction; merge richer-wins', () => {
 
   const a = newProfile('M');
   const b = { ...newProfile('M'), id: a.id };
-  a.subtraction['4+8'] = stat(3);
-  b.subtraction['4+8'] = stat(1);
+  // richer = more attempts (equal attempts tie-break on lastSeen, which
+  // is nondeterministic in a test) — make the richer side unambiguous
+  a.subtraction['4+8'] = { ...stat(3), attempts: 9 };
+  b.subtraction['4+8'] = { ...stat(1), attempts: 2 };
   b.subtraction['2+5'] = stat(2);
   const m = mergeProfiles(a, b);
   expect(m.subtraction['4+8'].box).toBe(3);
