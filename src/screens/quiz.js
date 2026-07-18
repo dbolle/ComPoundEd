@@ -45,6 +45,23 @@ export function quizScreen(el, params, ctx) {
     if (tableTriedCount(ctx.profile, t) === 13) sniffedBefore.add(t);
   }
 
+  // Counting Path warm-up (research: skip counting is the counting→tables
+  // connector): a barely-tried table starts with three unscored chain
+  // questions before the round. Set to false to roll the feature back.
+  const COUNTING_PATH = true;
+  let chains =
+    COUNTING_PATH && scope.type === 'table' && tableTriedCount(ctx.profile, scope.table) <= 3
+      ? Array.from({ length: 3 }, (_, i) => {
+          const t = scope.table;
+          const k = i + 1;
+          return {
+            text: `${k * t}, ${(k + 1) * t}, ${(k + 2) * t}, _`,
+            answer: (k + 3) * t,
+            correction: `${k * t}, ${(k + 1) * t}, ${(k + 2) * t}, ${(k + 3) * t}`,
+          };
+        })
+      : [];
+
   // Untried table: reframe the round — the table's own dog is the one
   // learning, and the kid is the teacher.
   let teachDog = null;
@@ -109,6 +126,17 @@ export function quizScreen(el, params, ctx) {
   }
 
   function showQuestion() {
+    if (chains.length) {
+      const c = chains[0];
+      qEl.textContent = c.text;
+      qEl.classList.add('compact');
+      ansEl.textContent = ' ';
+      ansEl.className = 'answer-box';
+      fbEl.textContent = '🐾 Counting path — warm up!';
+      fbEl.className = 'feedback';
+      startT = performance.now();
+      return;
+    }
     const q = questions[index];
     qEl.textContent = q.text;
     qEl.classList.toggle('compact', q.text.length > 8);
@@ -137,6 +165,25 @@ export function quizScreen(el, params, ctx) {
 
   function submit() {
     if (!input) return;
+    if (chains.length) {
+      const c = chains[0];
+      const good = Number(input) === c.answer;
+      input = '';
+      busy = true;
+      if (good) {
+        sfx.correct();
+        fbEl.textContent = `⭐ ${c.correction}`;
+      } else {
+        sfx.wrong();
+        fbEl.textContent = `${c.correction} — keep hopping!`;
+      }
+      setTimeout(() => {
+        busy = false;
+        chains = chains.slice(1);
+        showQuestion();
+      }, 1300);
+      return;
+    }
     const q = questions[index];
     const ms = performance.now() - startT;
     const given = Number(input);

@@ -17,6 +17,7 @@ import {
   FACTOR_MAX,
 } from './leitner.js';
 import { dogForTable, dogForDivTable } from '../art/dogs.js';
+import { WAVES, waveProgress, waveUnlocked, subWaveProgress, subWaveUnlocked } from './waves.js';
 
 // Gentle pedagogy for brand-new kids: easy patterns first.
 const PED_ORDER = [1, 2, 10, 5, 3, 4, 6, 7, 8, 9, 11, 12];
@@ -28,8 +29,39 @@ export function suggestNext(profile) {
       best = cand;
     }
   };
+  // Bridge waves compete in the same ranking as tables — the closest-to-
+  // done unmastered thing wins, whatever track it lives on.
+  if (profile.subjects?.bridge) {
+    WAVES.forEach((w, i) => {
+      if (waveUnlocked(profile, i)) {
+        const p = waveProgress(profile, i);
+        if (p.done < p.total) {
+          consider({
+            label: `➕ ${w.name}`,
+            href: `/quiz?wave=${i}`,
+            ratio: p.points / Math.max(1, p.maxPoints),
+            rank: i,
+            teach: null,
+          });
+        }
+      }
+      if (subWaveUnlocked(profile, i)) {
+        const p = subWaveProgress(profile, i);
+        if (p.done < p.total) {
+          consider({
+            label: `➖ ${w.name}`,
+            href: `/quiz?swave=${i}`,
+            ratio: p.points / Math.max(1, p.maxPoints),
+            rank: i + 0.5,
+            teach: null,
+          });
+        }
+      }
+    });
+  }
+  const tablesOn = profile.subjects?.tables !== false;
   PED_ORDER.forEach((t, rank) => {
-    if (!isTableMastered(profile, t)) {
+    if (tablesOn && !isTableMastered(profile, t)) {
       const p = tableProgress(profile, t);
       consider({
         label: `×${t}`,
@@ -39,7 +71,7 @@ export function suggestNext(profile) {
         // Untried table: the dog is the learner, not the kid.
         teach: tableTriedCount(profile, t) === 0 ? dogForTable(t).name : null,
       });
-    } else if (divisionTableUnlocked(profile, t) && !isDivisionTableMastered(profile, t)) {
+    } else if (tablesOn && divisionTableUnlocked(profile, t) && !isDivisionTableMastered(profile, t)) {
       // Newly unlocked division content gets a head start so it actually
       // gets suggested once its × table is done.
       const p = divisionTableProgress(profile, t);

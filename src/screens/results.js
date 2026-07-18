@@ -1,6 +1,7 @@
 import { navigate } from '../router.js';
 import { formatPaw, coinBadges } from '../engine/money.js';
 import { petSVG } from '../art/pets.js';
+import { nextPetGoal } from '../engine/cozy.js';
 import {
   tableProgress,
   divisionTableProgress,
@@ -67,7 +68,9 @@ export function resultsScreen(el, params, ctx) {
   }
   // Addition rounds get their pet goal in the Cozy Corner build; until
   // then the dog goal only makes sense for ×/÷ scopes.
-  const goal = round.scope.type === 'add' || round.scope.type === 'sub' ? null : nextGoal(ctx.profile, round.scope);
+  const isWaveRound = round.scope.type === 'add' || round.scope.type === 'sub';
+  const goal = isWaveRound ? null : nextGoal(ctx.profile, round.scope);
+  const petGoal = isWaveRound ? nextPetGoal(ctx.profile) : null;
   const againHref =
     round.scope.type === 'sub'
       ? `/quiz?swave=${round.scope.wave}`
@@ -111,6 +114,14 @@ export function resultsScreen(el, params, ctx) {
               <div class="badge-row">${round.newPets
                 .map((u) => `<span class="badge">${petSVG(u.pet, 40)} ${escapeHtml(u.pet.name)}</span>`)
                 .join('')}</div>
+            </div>`
+          : ''
+      }
+      ${
+        petGoal
+          ? `<div class="card center">
+              <strong>Next friend: ${escapeHtml(petGoal.pet.name)}!</strong>
+              <p class="muted" style="margin:6px 0">${petSVG(petGoal.pet, 56)}<br>Finish ${escapeHtml(petGoal.label)} and ${escapeHtml(petGoal.pet.name)} moves into the Cozy Corner!</p>
             </div>`
           : ''
       }

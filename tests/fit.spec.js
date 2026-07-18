@@ -3,7 +3,7 @@
 // states (hint + Got it!, 3-dog group scenes, sitting rounds).
 import { test, expect } from '@playwright/test';
 import { newProfile } from '../src/data/schema.js';
-import { seedProfile, selectProfile, norm, stat, openTableGrid } from './helpers.mjs';
+import { seedProfile, selectProfile, norm, stat, openTableGrid, clearCountingPath } from './helpers.mjs';
 
 function richDoc(id, name) {
   const doc = newProfile(name);
@@ -39,6 +39,7 @@ test('quiz and activity screens never overflow a 390×600 viewport', async ({ br
   await openTableGrid(page);
   await page.tap('.table-grid .table-btn:nth-child(3)');
   await page.waitForSelector('.question');
+  await clearCountingPath(page);
   expect(await overflow()).toBeLessThanOrEqual(0);
   await page.tap('.numpad .key:text-is("1")');
   await page.tap('.numpad .key.ok');
