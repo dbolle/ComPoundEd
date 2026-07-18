@@ -124,7 +124,7 @@ export async function homeScreen(el, params, ctx) {
       } else {
         lockedShown = true;
         btn.disabled = true;
-        btn.setAttribute('aria-label', `Master ${WAVES[i - 1].name} to unlock ${w.name}`);
+        btn.setAttribute('aria-label', `Get ${WAVES[i - 1].name} strong to unlock ${w.name}`);
         btn.innerHTML = `<span>🔒 ${w.emoji}</span><span class="wave-name">${w.name}</span><span class="meter"><span style="width:0%"></span></span>`;
       }
       agrid.appendChild(btn);
@@ -159,7 +159,7 @@ export async function homeScreen(el, params, ctx) {
       } else {
         lockedShown = true;
         btn.disabled = true;
-        btn.setAttribute('aria-label', `Master ${w.name} adding to unlock taking away`);
+        btn.setAttribute('aria-label', `Get ${w.name} adding strong to unlock taking away`);
         btn.innerHTML = `<span>🔒 ${w.emoji}</span><span class="wave-name">${w.name}</span><span class="meter"><span style="width:0%"></span></span>`;
       }
       sgrid.appendChild(btn);
@@ -200,7 +200,7 @@ export async function homeScreen(el, params, ctx) {
       } else {
         lockedShown = true;
         btn.disabled = true;
-        btn.setAttribute('aria-label', `Master the ×${t} table to unlock division`);
+        btn.setAttribute('aria-label', `Get the ×${t} facts strong to unlock division`);
         btn.innerHTML = `<span>🔒 ÷${t}</span><span class="meter"><span style="width:0%"></span></span>`;
       }
       dgrid.appendChild(btn);

@@ -13,7 +13,8 @@ import {
   ACCESSORIES,
 } from '../art/dogs.js';
 import { isUnlocked } from '../engine/unlocks.js';
-import { escapeHtml } from '../ui.js';
+import { escapeHtml, toast } from '../ui.js';
+import { say } from '../sound.js';
 
 export function wardrobeScreen(el, params, ctx) {
   const dog = getDog(params.get('id'));
@@ -79,8 +80,14 @@ export function wardrobeScreen(el, params, ctx) {
             );
           } else {
             const kindWord = { walk: 'walks', feed: 'meals', fetch: 'fetches' }[acc.kind];
+            const kindEmoji = { walk: '🦮', feed: '🍖', fetch: '🎾' }[acc.kind];
+            // the real color, dimmed, with a visible count — tooltips don't
+            // exist on a tablet, and this is where kids actually look
             swatches.push(
-              `<span class="swatch locked" title="${c.need} ${kindWord}" aria-label="${c.id} ${acc.name} unlocks at ${c.need} ${kindWord}">▫️</span>`
+              `<button class="swatch locked" style="background:${c.fill}" data-need="${c.need}"
+                 data-say="${c.need} ${kindWord} unlocks the ${c.id} ${acc.name}!"
+                 aria-label="${c.id} ${acc.name} unlocks at ${c.need} ${kindWord}">
+                 <span class="swatch-need">${kindEmoji}${c.need}</span></button>`
             );
           }
         }
@@ -103,5 +110,11 @@ export function wardrobeScreen(el, params, ctx) {
 
   renderPreview();
   renderRows();
+  for (const lockBtn of el.querySelectorAll('.swatch.locked[data-say]')) {
+    lockBtn.addEventListener('click', () => {
+      say(lockBtn.dataset.say);
+      toast(`🔒 ${lockBtn.dataset.say}`);
+    });
+  }
   el.querySelector('[data-back]').addEventListener('click', () => navigate(`/dog?id=${dog.id}`));
 }

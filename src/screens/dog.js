@@ -1,7 +1,18 @@
 import { navigate } from '../router.js';
-import { getDog, dogSVG, accessoriesFor, wornFor, ACCESSORIES, dirtFor } from '../art/dogs.js';
+import { getDog, dogSVG, accessoriesFor, wornFor, ACCESSORIES, dirtFor, nextColorGoal } from '../art/dogs.js';
 import { isUnlocked } from '../engine/unlocks.js';
 import { toast, escapeHtml } from '../ui.js';
+
+// Progress toward the accessory's next color, shown as a picture: a tiny
+// meter filling toward the actual swatch. Pre-readers see the "why".
+function rewardChip(profile, dogId, accId) {
+  const goal = nextColorGoal(profile, dogId, accId);
+  if (!goal) return '';
+  const pct = Math.round((goal.have / goal.color.need) * 100);
+  return `<span class="reward-chip" aria-label="${goal.color.need - goal.have} more to the ${goal.color.id} ${goal.acc.name}">
+    <span class="meter mini"><span style="width:${pct}%"></span></span>
+    <span class="swatch mini" style="background:${goal.color.fill}"></span></span>`;
+}
 
 export function dogScreen(el, params, ctx) {
   const dog = getDog(params.get('id'));
@@ -40,9 +51,9 @@ export function dogScreen(el, params, ctx) {
         <h1>${escapeHtml(dog.name)}</h1>
         <p class="muted">${knows}</p>
         <p class="play-stats">
-          <span>🦮 ${play.walk} walks</span>
-          <span>🍖 ${play.feed} meals</span>
-          <span>🎾 ${play.fetch} fetches</span>
+          <span>🦮 ${play.walk} walks ${rewardChip(ctx.profile, dog.id, 'bandana')}</span>
+          <span>🍖 ${play.feed} meals ${rewardChip(ctx.profile, dog.id, 'bow')}</span>
+          <span>🎾 ${play.fetch} fetches ${rewardChip(ctx.profile, dog.id, 'cap')}</span>
         </p>
         ${
           next

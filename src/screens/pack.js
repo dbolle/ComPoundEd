@@ -45,7 +45,7 @@ export function packScreen(el, params, ctx) {
     card.className = `dog-card${unlocked ? '' : ' locked'}${p.avatarDogId === dog.id ? ' buddy' : ''}`;
     card.innerHTML = `<span class="dog">${dogSVG(dog, 76, unlocked ? wornFor(p, dog.id) : [], unlocked ? dirtFor(p, dog) : 0)}</span>
       <span>${unlocked ? escapeHtml(dog.name) : '???'}</span>
-      ${unlocked ? '' : `<span class="lock-hint">Master the ${dog.divTable ? `÷${dog.divTable}` : `×${dog.table}`}s</span>`}`;
+      ${unlocked ? '' : `<span class="lock-hint">Get the ${dog.divTable ? `÷${dog.divTable}` : `×${dog.table}`}s strong ⭐</span>`}`;
     if (unlocked) {
       card.setAttribute('aria-label', `Play with ${dog.name}`);
       card.addEventListener('click', () => navigate(`/dog?id=${dog.id}`));
