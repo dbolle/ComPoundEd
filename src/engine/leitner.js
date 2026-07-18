@@ -126,6 +126,14 @@ export function recordAdditionAnswer(profile, a, b, correct, ms) {
   return applyAnswer(s, correct, ms, fastThresholdMs(profile));
 }
 
+export function additionMasteredCount(profile) {
+  return Object.values(profile.addition ?? {}).filter((s) => s.box >= MASTERY_BOX).length;
+}
+
+export function subtractionMasteredCount(profile) {
+  return Object.values(profile.subtraction ?? {}).filter((s) => s.box >= MASTERY_BOX).length;
+}
+
 // --- Subtraction track: one stat per fact FAMILY, keyed by the addition
 // fact it inverts (12−8 and 12−4 both live at "4+8") — think-addition is
 // the strategy, so the family is the unit of knowledge.

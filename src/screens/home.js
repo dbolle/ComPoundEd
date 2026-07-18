@@ -31,7 +31,7 @@ export async function homeScreen(el, params, ctx) {
   }
   const prefs = await getUiPrefs(p.id);
   const showTables = p.subjects?.tables !== false;
-  const next = showTables ? suggestNext(p) : null;
+  const next = suggestNext(p); // ranks bridge waves and tables together
   const masteredM = tables(p).filter((t) => isTableMastered(p, t)).length;
   const masteredD = tables(p).filter((t) => isDivisionTableMastered(p, t)).length;
   const anyMastered = masteredM > 0;

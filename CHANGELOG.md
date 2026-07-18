@@ -3,6 +3,17 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.8.0 — 2026-07-18
+
+- Counting Path warm-up: a barely-tried × table starts with three
+  unscored skip-count chains ("4, 8, 12, ❓") — the counting→tables
+  connector, gentle either way, recording nothing.
+- "Practice next" now ranks Adding and Taking Away waves alongside
+  tables — one button, whole trail (first brick of the cross-track
+  practice spine).
+- Grown-Ups: Adding x/66 and Taking-away x/66 rows for bridge kids.
+- Wave rounds' results show the next Cozy Corner friend to work toward.
+
 ## v1.7.0 — 2026-07-17
 
 - Seven new Cozy Corner pets (Inky, Thumper, Waffle, Lemon, Dozer,

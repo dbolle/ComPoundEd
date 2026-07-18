@@ -7,7 +7,7 @@ import { suggestNext } from '../src/engine/suggest.js';
 import { buildRound } from '../src/engine/selector.js';
 import { dogForTable } from '../src/art/dogs.js';
 import { newProfile } from '../src/data/schema.js';
-import { createProfileUI, seedProfile, selectProfile, playQuestions, uniqueName, openTableGrid } from './helpers.mjs';
+import { createProfileUI, seedProfile, selectProfile, playQuestions, uniqueName, openTableGrid, clearCountingPath } from './helpers.mjs';
 
 // ---- Bundle A: streak protection for first tries
 
@@ -57,6 +57,7 @@ test('B: e2e — a wrong first try celebrates the attempt', async ({ page }) => 
   await openTableGrid(page);
   await page.tap('.table-grid .table-btn:nth-child(4)');
   await page.waitForSelector('.question');
+  await clearCountingPath(page);
   await page.tap('.numpad .key:text-is("1")');
   await page.tap('.numpad .key:text-is("1")');
   await page.tap('.numpad .key:text-is("1")');
@@ -89,6 +90,7 @@ test('C: e2e — untried table shows the teach banner; tried table does not', as
   await expect(page.locator('.teach-banner')).toContainText(dogForTable(3).name);
 
   // Answer one question, quit, return: table now tried → no banner
+  await clearCountingPath(page);
   await page.waitForFunction(() => /[×÷]/.test(document.querySelector('.question')?.textContent ?? ''));
   const [a, b] = (await page.textContent('.question')).split('×').map((s) => parseInt(s.trim(), 10));
   for (const d of String(a * b)) await page.tap(`.numpad .key:text-is("${d}")`);

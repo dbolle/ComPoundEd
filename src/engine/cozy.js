@@ -55,3 +55,10 @@ export function checkPetUnlocks(profile) {
   }
   return fresh;
 }
+
+// The first milestone not yet earned — the "next friend" goal card.
+export function nextPetGoal(profile) {
+  const owned = new Set((profile.petUnlocks ?? []).map((u) => u.milestone));
+  const m = MILESTONES.find((x) => !owned.has(x.id));
+  return m ? { pet: petForMilestone(m.id), label: m.label } : null;
+}

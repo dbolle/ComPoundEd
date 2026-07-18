@@ -5,6 +5,8 @@ import {
   isCalibrated,
   dueCount,
   divisionMasteredCount,
+  additionMasteredCount,
+  subtractionMasteredCount,
 } from '../engine/leitner.js';
 import {
   deleteProfile,
@@ -109,6 +111,12 @@ export function grownupsScreen(el, params, ctx) {
         <div class="stat-row"><span>Fast-answer bar</span><span>${(fastThresholdMs(p) / 1000).toFixed(1)}s${isCalibrated(p) ? '' : ' (calibrating)'}</span></div>
         <div class="stat-row"><span>Facts needing a refresh</span><span>${dueCount(p)}</span></div>
         <div class="stat-row"><span>Division facts mastered</span><span>${divisionMasteredCount(p)}</span></div>
+        ${
+          p.subjects?.bridge || additionMasteredCount(p) || subtractionMasteredCount(p)
+            ? `<div class="stat-row"><span>Adding facts mastered</span><span>${additionMasteredCount(p)} / 66</span></div>
+        <div class="stat-row"><span>Taking-away families mastered</span><span>${subtractionMasteredCount(p)} / 66</span></div>`
+            : ''
+        }
         <div class="stat-row"><span>Award tiers earned</span><span>${totalTiers(p)}</span></div>
         <div class="stat-row"><span>Paw Bucks</span><span>${formatPaw(balanceCents(p))}</span></div>
       </div>

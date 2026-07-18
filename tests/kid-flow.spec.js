@@ -1,6 +1,6 @@
 // The full first-run kid journey, on an insecure origin like the deployed app.
 import { test, expect } from '@playwright/test';
-import { createProfileUI, playQuestions, uniqueName, openTableGrid } from './helpers.mjs';
+import { createProfileUI, playQuestions, uniqueName, openTableGrid, clearCountingPath } from './helpers.mjs';
 
 test('profile creation works without secure-context APIs', async ({ page, baseURL }) => {
   test.skip(baseURL.includes('127.0.0.1'), 'needs the LAN-IP insecure origin');
@@ -48,6 +48,7 @@ test('wrong answers show the correction and input caps at 3 digits', async ({ pa
   await openTableGrid(page);
   await page.tap('.table-grid .table-btn:nth-child(3)');
   await page.waitForSelector('.question');
+  await clearCountingPath(page);
   for (const d of '99999') await page.tap(`.numpad .key:text-is("${d}")`);
   await expect(page.locator('.answer-box')).toHaveText('999');
   for (let i = 0; i < 3; i++) await page.tap('.numpad .key.del');

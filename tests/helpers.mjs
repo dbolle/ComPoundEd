@@ -85,7 +85,22 @@ export function answerFromText(text) {
 // Plays until the quiz/activity finishes or maxQuestions is hit. Returns the
 // questions seen. options.answerFn(q, i) → value to type (default: correct).
 // options.delayFn(q, i) → ms to wait before answering (for slow-answer tests).
+// A barely-tried table opens with the Counting Path warm-up — three
+// unscored skip-count chains. Plays through any that appear.
+export async function clearCountingPath(page) {
+  await page.waitForSelector('.question');
+  for (let i = 0; i < 4; i++) {
+    const txt = ((await page.textContent('.question')) ?? '').trim();
+    const m = txt.match(/^(\d+), (\d+), (\d+), _$/);
+    if (!m) return;
+    const step = Number(m[2]) - Number(m[1]);
+    await answer(page, Number(m[3]) + step);
+    await page.waitForTimeout(1450);
+  }
+}
+
 export async function playQuestions(page, maxQuestions, options = {}) {
+  await clearCountingPath(page);
   const seen = [];
   for (let i = 0; i < maxQuestions; i++) {
     await page.waitForFunction(() =>
