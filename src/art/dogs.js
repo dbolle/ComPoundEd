@@ -93,6 +93,16 @@ function playCount(profile, dogId, kind) {
 }
 
 // Which colors of an accessory this dog has unlocked.
+// The next color on an accessory's ladder for this dog — the "why" a kid
+// keeps playing this activity. null once the ladder is finished.
+export function nextColorGoal(profile, dogId, accId) {
+  const acc = ACCESSORIES.find((a) => a.id === accId);
+  if (!acc?.colors) return null;
+  const have = playCount(profile, dogId, acc.kind);
+  const next = acc.colors.find((c) => have < c.need);
+  return next ? { acc, color: next, have, left: next.need - have } : null;
+}
+
 export function accessoryColorsFor(profile, dogId, accId) {
   const acc = ACCESSORIES.find((a) => a.id === accId);
   if (!acc?.colors) return [];

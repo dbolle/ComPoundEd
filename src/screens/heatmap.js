@@ -88,7 +88,7 @@ export function heatmapScreen(el, params, ctx) {
               : `${a * b} ÷ ${divisor} = ${(a * b) / divisor}`
             : `${a} × ${b} = ${a * b}`;
         const label = seen
-          ? `${mode === 'div' ? `${a * b} ÷ ${divisor}` : `${a} × ${b}`}: ${LEVEL_NAMES[s.box]}${s.box >= MASTERY_BOX ? ' (mastered)' : ''}${rusty ? ', needs a refresh' : ''}`
+          ? `${mode === 'div' ? `${a * b} ÷ ${divisor}` : `${a} × ${b}`}: ${LEVEL_NAMES[s.box]}${s.box >= MASTERY_BOX ? ' (mastered)' : ''}${rusty ? ', rusty — time for a polish!' : ''}`
           : `${mode === 'div' ? `${a * b} ÷ ${divisor || b}` : `${a} × ${b}`}: not tried yet`;
         cell.setAttribute('aria-label', label);
         cell.title = label;

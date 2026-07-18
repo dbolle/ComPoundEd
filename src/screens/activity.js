@@ -11,7 +11,7 @@ import { checkUnlocks, isUnlocked } from '../engine/unlocks.js';
 import { bumpAnswer, bumpActivity, checkAchievements } from '../engine/achievements.js';
 import { earnSitting, earnFromAnswer, coinBadges } from '../engine/money.js';
 import { hintFor, divisionHint } from '../engine/hints.js';
-import { getDog, isGuest, GUESTS, dogSVG, accessoriesFor, wornFor, ACCESSORIES, dirtFor } from '../art/dogs.js';
+import { getDog, isGuest, GUESTS, dogSVG, accessoriesFor, wornFor, ACCESSORIES, dirtFor , nextColorGoal } from '../art/dogs.js';
 import { buildNumpad, bindKeyboard, celebrationLine, confetti, escapeHtml } from '../ui.js';
 import { sfx, buzz } from '../sound.js';
 
@@ -297,8 +297,23 @@ export function activityScreen(el, params, ctx) {
     const headline = sitting
       ? `${escapeHtml(dogs[0].name)} had the best day — thanks for pet sitting! 🏡`
       : `${escapeHtml(listNames(dogs))} ${theme.done}`;
+    // So-close nudge: the next accessory color within 3 plays gets named
+    // on the finish card — the reward stays visible right where it's earned.
+    const ACC_BY_KIND = { walk: 'bandana', feed: 'bow', fetch: 'cap' };
+    const nudges = [];
+    if (!sitting && ACC_BY_KIND[kind]) {
+      for (const d of dogs) {
+        const goal = nextColorGoal(p, d.id, ACC_BY_KIND[kind]);
+        if (goal && goal.left >= 1 && goal.left <= 3) {
+          nudges.push(
+            `<span class="badge">${goal.acc.emoji} ${escapeHtml(d.name)}'s ${goal.color.id} ${goal.acc.name} — ${goal.left} more!</span>`
+          );
+        }
+      }
+    }
     const allCoins = [...(coin ? [coin] : []), ...coins];
     const payLine =
+      (nudges.length ? `<div class="badge-row" style="margin-top:8px">${nudges.join('')}</div>` : '') +
       (allCoins.length
         ? `<div class="badge-row" style="margin-top:8px">${coinBadges(allCoins)
             .map((label) => `<span class="badge">${label}</span>`)

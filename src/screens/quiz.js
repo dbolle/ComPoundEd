@@ -87,7 +87,7 @@ export function quizScreen(el, params, ctx) {
         <span class="spacer"></span>
         <strong>${
           scope.type === 'add' || scope.type === 'sub'
-            ? `${scope.type === 'sub' ? '➖ ' : ''}${WAVES[scope.wave].emoji} ${WAVES[scope.wave].name}`
+            ? `${scope.type === 'sub' ? '➖' : '➕'} ${WAVES[scope.wave].emoji} ${WAVES[scope.wave].name}`
             : scope.type === 'division'
               ? `÷${scope.table} missing number`
               : scope.type === 'table'

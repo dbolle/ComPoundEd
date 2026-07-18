@@ -26,7 +26,8 @@ preserve existing profile data:
 - Documentation is part of every change (user directive): update BACKLOG.md
   and CHANGELOG.md (bump `package.json` version — it displays in Grown-Ups)
   in the same commit, plus README.md when user-facing behavior changes.
-  Larger designs live in docs/ (e.g. docs/PHASE5.md).
+  Larger designs live in docs/ (e.g. docs/PHASE5.md). Kid-facing strings
+  follow docs/VOCABULARY.md (two registers; enforced by tests/vocab.spec.js).
 
 - Vanilla JS + Vite PWA; no framework. `npm run build` redeploys (the nginx
   container mounts `dist/`). See README.md for URLs, CHARTER.md for product

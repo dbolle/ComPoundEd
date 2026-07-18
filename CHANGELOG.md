@@ -3,6 +3,18 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.9.0 — 2026-07-18
+
+- Reward chips: accessory-color progress is finally visible — tiny meters
+  filling toward the actual next swatch on the dog page, locked wardrobe
+  colors shown in their real color with a visible price (🦮25) that
+  speaks when tapped (tooltips don't exist on tablets), and "2 more
+  walks!" nudges on activity finish cards.
+- Vocabulary canon (docs/VOCABULARY.md): kid register vs grown-up
+  register, enforced by tests. Kid screens now say "Get the ×7s strong ⭐"
+  (never "Master"), "rusty — time for a polish!" everywhere, and Adding
+  headers wear ➕ to match Taking Away's ➖.
+
 ## v1.8.0 — 2026-07-18
 
 - Counting Path warm-up: a barely-tried × table starts with three

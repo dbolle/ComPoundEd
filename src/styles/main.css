@@ -838,6 +838,43 @@ button.pressed {
   width: 100%;
 }
 
+.reward-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  vertical-align: middle;
+}
+
+.reward-chip .meter.mini {
+  width: 34px;
+  height: 6px;
+}
+
+.swatch.mini {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: inset 0 0 0 1.5px rgba(0, 0, 0, 0.15);
+}
+
+/* locked wardrobe colors: the real color, dimmed, need always visible */
+.swatch.locked {
+  opacity: 0.45;
+  position: relative;
+}
+
+.swatch.locked .swatch-need {
+  position: absolute;
+  bottom: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
 /* Grown-ups: which-tables chips */
 .limit-grid {
   display: grid;
