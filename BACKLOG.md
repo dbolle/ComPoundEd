@@ -43,7 +43,7 @@ reconsider after calibration.
    which tracks a child sees, childCanSwitch, hide-sitting,
    limit-tables).
 5. **Phase 6 — Taking Away + connectors** — IN PROGRESS (docs/PHASE6.md;
-   Track 3 engine ✅ v1.6.0; remaining: wave pets v1.7.0, warm-up +
+   Track 3 engine ✅ v1.6.0; wave pets ✅ v1.7.0; remaining: warm-up +
    suggest + Grown-Ups rows v1.8.0).
 6. **Phase 7 — Money math track.** Coin counting (2.MD.8), read-your-own
    wallet, totals and change — Paw Bucks becomes curriculum.

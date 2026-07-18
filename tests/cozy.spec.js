@@ -30,7 +30,16 @@ test('milestones adopt pets once; addition waves adopt too', () => {
   const wavePet = checkPetUnlocks(p);
   expect(wavePet).toHaveLength(1);
   expect(wavePet[0].milestone).toBe('w1');
-  expect(MILESTONES).toHaveLength(11);
+
+  // mastering the matching TAKING AWAY wave adopts its own pet
+  for (const [a, b] of waveFacts(0)) {
+    p.subtraction[normAddKey(a, b)] = { attempts: 5, correct: 5, avgMs: 2000, box: 3, lastSeen: Date.now() };
+  }
+  const subPet = checkPetUnlocks(p);
+  expect(subPet).toHaveLength(1);
+  expect(subPet[0].milestone).toBe('s1');
+  expect(subPet[0].pet.id).not.toBe(wavePet[0].pet.id);
+  expect(MILESTONES).toHaveLength(18); // 4 track-1 + 7 adding + 7 taking-away
 });
 
 test('a known number pays one penny, ever', () => {

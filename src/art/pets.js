@@ -30,6 +30,15 @@ export const PETS = [
   // Turtles
   { id: 'turtle-1', species: 'turtle', name: 'Sheldon', base: '#8fbf6e', shell: '#6b8f4e', shellRim: '#557a3c', collar: '#f59e0b' },
   { id: 'turtle-2', species: 'turtle', name: 'Pebble', base: '#a4c98a', shell: '#8a6f4e', shellRim: '#6d573b', collar: '#2563eb' },
+  // The Taking Away class of '26 — one new neighbor per habitat, adopted
+  // per subtraction wave (docs/PHASE6.md).
+  { id: 'cat-4', species: 'cat', name: 'Inky', base: '#3f434c', inner: '#c9a4b4', muzzle: '#5a5f6a', stripes: '#2c2f36', collar: '#facc15' },
+  { id: 'rabbit-3', species: 'rabbit', name: 'Thumper', base: '#a9adb6', inner: '#f0c9d4', muzzle: '#d9dce2', collar: '#22c55e' },
+  { id: 'guinea-3', species: 'guinea', name: 'Waffle', base: '#c97e4a', ear: '#a05f31', muzzle: '#f2d9bd', patch: '#f3e4cf', collar: '#0ea5e9' },
+  { id: 'bird-3', species: 'bird', name: 'Lemon', base: '#f6d35e', cheek: '#f2a33c', beak: '#e88a2a', tuft: '#e0b73f', collar: '#8b5cf6' },
+  { id: 'sloth-3', species: 'sloth', name: 'Dozer', base: '#c4a98a', face: '#efe3d0', stripe: '#8a7358', collar: '#2563eb' },
+  { id: 'hedgehog-3', species: 'hedgehog', name: 'Thistle', base: '#e8d4be', spikes: '#93602f', muzzle: '#f6ebdb', collar: '#ec4899' },
+  { id: 'turtle-3', species: 'turtle', name: 'Tidepool', base: '#7fb99a', shell: '#4e8f7a', shellRim: '#3c7561', collar: '#ef4444' },
 ];
 
 export function getPet(id) {
