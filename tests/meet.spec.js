@@ -53,6 +53,21 @@ test('e2e: the lesson walks path → groups → tricks, repeats, then flows into
   await expect(page.locator('.topbar strong')).toContainText('×7');
 });
 
+test('e2e: the 👋 topbar button reaches the lesson from any table round', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'networkidle' });
+  const doc = newProfile(uniqueName('Door'));
+  doc.id = 'door-kid';
+  for (let b = 0; b <= 12; b++) doc.facts[norm(5, b)] = stat(4); // fully strong ×5
+  await seedProfile(page, doc);
+  await selectProfile(page, doc.name);
+  await page.waitForSelector('.hero');
+  await page.evaluate(() => { location.hash = '#/quiz?table=5'; });
+  await page.waitForSelector('.question');
+  await page.tap('[data-meet-top]');
+  await page.waitForSelector('.meet-path');
+  await expect(page.locator('.topbar strong')).toContainText('Meet the ×5s');
+});
+
 test('e2e: quiz teach banner offers Meet first; results offer Meet again', async ({ page }) => {
   await page.goto('/', { waitUntil: 'networkidle' });
   const doc = newProfile(uniqueName('Entry'));

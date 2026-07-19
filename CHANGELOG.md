@@ -3,6 +3,13 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.12.1 — 2026-07-19
+
+- Every × table round now carries a 👋 button in its top bar — the
+  always-available, repeatable door into that table's Meet lesson
+  (previous entries only appeared for never-met or not-yet-strong
+  tables, which hid the lesson from experienced profiles).
+
 ## v1.12.0 — 2026-07-19
 
 - Meet the table 👋: an optional, repeatable, unfailable lesson before

@@ -95,6 +95,7 @@ export function quizScreen(el, params, ctx) {
       <div class="topbar">
         <button class="btn ghost small" data-quit>✕ Stop</button>
         <span class="spacer"></span>
+        ${scope.type === 'table' ? `<button class="btn ghost small" data-meet-top aria-label="Meet the ×${scope.table}s">👋</button>` : ''}
         <strong>${
           scope.type === 'add' || scope.type === 'sub'
             ? `${scope.type === 'sub' ? '➖' : '➕'} ${WAVES[scope.wave].emoji} ${WAVES[scope.wave].name}`
@@ -329,6 +330,7 @@ export function quizScreen(el, params, ctx) {
     }
   }
 
+  el.querySelector('[data-meet-top]')?.addEventListener('click', () => navigate(`/meet?table=${scope.table}`));
   el.querySelector('[data-quit]').addEventListener('click', async () => {
     finished = true;
     await ctx.save();
