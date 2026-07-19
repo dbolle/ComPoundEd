@@ -3,6 +3,17 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.12.0 — 2026-07-19
+
+- Meet the table 👋: an optional, repeatable, unfailable lesson before
+  any quiz — the table's dog shows their tricks: a tap-in-order
+  skip-count paw path, tap-to-build groups ("3 groups of 7 make 21!"),
+  and anchor tricks (one more group than ×5, one less than ×10), all
+  spoken. Entries: "Practice next" points never-met tables at the
+  lesson, the quiz teach banner offers "Meet first", and results offer
+  "Meet again" until the table is strong. Finishing flows into
+  practice. No coins — teaching, not testing.
+
 ## v1.11.0 — 2026-07-19
 
 - Echo-first: the very first time any fact appears in a kid's life —

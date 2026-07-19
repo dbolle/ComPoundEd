@@ -50,6 +50,12 @@ reconsider after calibration.
    predictive value), then mental math within 100/1000, 10-more/less,
    squares/primes.
 
+## Recently shipped (July 19)
+
+- Little guidance layer + verification tightening (v1.10.0), vocabulary
+  canon + reward chips (v1.9.0), echo-first fact intros (v1.11.0), Meet
+  the table lessons (v1.12.0) — teach-before-drill now spans the app.
+
 ## Parked / reconsider later
 
 - Back-pay grant for pre-earning mastery (after calibration).

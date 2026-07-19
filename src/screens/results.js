@@ -125,6 +125,11 @@ export function resultsScreen(el, params, ctx) {
             </div>`
           : ''
       }
+      ${
+        round.scope.type === 'table' && !isTableMastered(ctx.profile, round.scope.table)
+          ? `<button class="btn ghost small" data-meet>👋 Meet the ×${round.scope.table}s again</button>`
+          : ''
+      }
       <div class="unlocks"></div>
       ${
         goal
@@ -165,5 +170,6 @@ export function resultsScreen(el, params, ctx) {
 
   el.querySelector('[data-again]').addEventListener('click', () => navigate(againHref));
   el.querySelector('[data-home]').addEventListener('click', () => navigate('/home'));
+  el.querySelector('[data-meet]')?.addEventListener('click', () => navigate(`/meet?table=${round.scope.table}`));
   delete ctx.session.lastRound;
 }

@@ -63,13 +63,15 @@ export function suggestNext(profile) {
   PED_ORDER.forEach((t, rank) => {
     if (tablesOn && !isTableMastered(profile, t)) {
       const p = tableProgress(profile, t);
+      const untried = tableTriedCount(profile, t) === 0;
       consider({
         label: `×${t}`,
-        href: `/quiz?table=${t}`,
+        // Never-met tables suggest MEETING first (optional — the grid
+        // still quizzes); everything else suggests practice.
+        href: untried ? `/meet?table=${t}` : `/quiz?table=${t}`,
         ratio: p.points / p.maxPoints,
         rank,
-        // Untried table: the dog is the learner, not the kid.
-        teach: tableTriedCount(profile, t) === 0 ? dogForTable(t).name : null,
+        teach: untried ? dogForTable(t).name : null,
       });
     } else if (tablesOn && divisionTableUnlocked(profile, t) && !isDivisionTableMastered(profile, t)) {
       // Newly unlocked division content gets a head start so it actually
