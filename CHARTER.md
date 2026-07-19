@@ -27,8 +27,9 @@ the product.)
 
 1. **Automaticity** — fast, accurate recall of every fact set the research
    says must be automatic, taught in evidence-backed strategy order and
-   driven by spaced repetition targeting each kid's weak facts. Practice
-   drills; it never replaces teaching.
+   driven by spaced repetition targeting each kid's weak facts. The app
+   teaches lightly — echo intros, Meet-the-table lessons, strategy
+   hints — but never replaces school teaching of concepts.
 2. **Fun** — kids *want* to come back. Unlockable dogs and pets,
    celebrations, and visible progress make practice self-motivating.
 3. **Privacy** — no data ever leaves the device (opt-in family backup to

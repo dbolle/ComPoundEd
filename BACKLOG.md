@@ -7,10 +7,17 @@ reconsider after calibration.
 
 ## Where we are
 
-- Schema **v13**, 140-test suite green, Phase 6 complete, deployed on LAN + GitHub Pages; v1.x versioning shows in Grown-Ups (CHANGELOG.md).
+- **v1.12.1**, schema v13, 154-test suite green, deployed on LAN
+  (https://compounded.lan + :8091) + GitHub Pages; versions in Grown-Ups
+  footer, releases in CHANGELOG.md.
 - Big-kid mode: ×1–12 and ÷ tracks (Leitner, adaptive speed bar, hints,
-  achievements, heatmap), 25 dogs + wardrobe + grooming, pet sitting pays
-  2 paw dimes/day (the only faucet), wallet + ledger live.
+  achievements, heatmap), 25 dogs + wardrobe + grooming + reward chips,
+  echo-first fact intros, "Meet the table" lessons (👋 from any table
+  round), Counting Path warm-up, frontier earning (mastery nickels, set
+  Paw Bucks, polish pennies, sitting dimes), wallet + ledger.
+- Bridge: Adding + Taking Away (7 waves each, think-addition), Track 1
+  tiles (Quick Look, Number Friends, Teen Numbers), Cozy Corner pets,
+  piggy bank, cross-track suggest.
 - Store **gear assets shipped** (8 wearables incl. crown/tiara, 8 toys) and
   the **"opening soon" teaser** is live on pack + wallet. No store yet.
 - Little Pup: 9 games, ten-frame quantity layouts, staged patterns
@@ -20,12 +27,8 @@ reconsider after calibration.
 
 ## Prioritized
 
-1. **Phase 4a — Earning engine v2 ("frontier pays").** Mastery-contingent
-   payouts: pennies for box climbs, first-mastery nickel per fact, Paw Buck
-   per table/set, capped rusty-refresh pennies; fresh-mastered facts pay
-   nothing (praise/streaks/achievements unchanged). Sitting dimes stay.
-   Go-forward only (no back-pay). Decision points must be answered first.
-2. **Calibration window.** Observe real kid income for ~1–2 weeks (teaser
+1. ~~Phase 4a earning engine~~ ✅ shipped v1.0.0 era (milestones-only).
+2. **Calibration window — CURRENT.** Observe real kid income for ~1–2 weeks (teaser
    already building anticipation + savings habit). Revisit: back-pay
    question, payout tuning.
 3. **Phase 4b — Pet Store.** Approved mechanics: denomination prices set

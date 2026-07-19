@@ -1,4 +1,4 @@
-# Phase 5 — The Bridge (plan of record, scoped 2026-07-14)
+# Phase 5 — The Bridge (SHIPPED: v1.0.0–v1.3.0, 2026-07-14)
 
 Bridges Little Pup (counting) to big-kid mode (multiplication) with the K–2
 fluency band: subitizing → number bonds → addition facts within 20. Decisions

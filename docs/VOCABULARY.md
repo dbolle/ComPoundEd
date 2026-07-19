@@ -14,6 +14,10 @@ Two registers. Every new string picks one and sticks to its column.
 | activity counters | **walks / meals / fetches / plays** | same |
 | tracks | Adding ➕ / Taking away ➖ / tables ×÷ | addition / subtraction facts |
 | little-pup progress | stars, "known" numbers stay invisible | numbers known (streak ≥ 3) |
+| pre-quiz teaching | **Meet the ×7s** 👋, "tricks" the dog shows | lesson (Baroody counting/deriving) |
+| first-ever fact | 📣 "New one! Type it in!" (echo) | echo-first exposure (seen flag) |
+| table warm-up | **Counting Path** 🐾 | skip-count chains |
+| little savings | **piggy bank** 🐷 | Paw Bucks balance |
 
 Rules:
 - Kid strings are concrete dog-world words; never "master", "practice
