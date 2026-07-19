@@ -875,6 +875,40 @@ button.pressed {
   white-space: nowrap;
 }
 
+.little-tile.play-next {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  justify-content: center;
+  gap: 14px;
+  font-size: 1.2rem;
+  background: #fef3c7;
+  border-bottom-color: var(--brand);
+}
+
+.play-next .play-arrow {
+  font-size: 1.8rem;
+}
+
+.little-tile {
+  position: relative;
+}
+
+.little-tile .paw-badge {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  animation: bounce 0.7s ease-in-out infinite alternate;
+}
+
+.little-tile.soon .soon-art {
+  opacity: 0.35;
+  filter: grayscale(0.6);
+}
+
+.little-tile.soon .reward-chip {
+  justify-content: center;
+}
+
 /* Grown-ups: which-tables chips */
 .limit-grid {
   display: grid;

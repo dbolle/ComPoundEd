@@ -51,7 +51,43 @@ function ensureLittle(profile) {
 // Choice games record per-number skills; a number is "known" after three
 // first-try corrects in a row (a guesser fakes that 3.7% of the time, vs 33%
 // per question). Tap & feed stay error-less joy — they never feed the signal.
-const SKILL_GAMES = new Set(['count', 'find', 'more', 'next', 'add', 'look', 'bond', 'teen']);
+const SKILL_GAMES = new Set(['count', 'find', 'more', 'next', 'add', 'look', 'bond', 'teen', 'feed']);
+// Two-choice games are guessable 50/50 — they need a longer streak to
+// count as knowing (12.5% → 6% fake odds).
+const STREAK_NEEDED = { more: 4 };
+// Which numbers each game can actually ask (more can never ask "1", next
+// starts at 4…) — bands only wait on reachable keys.
+const SKILL_DOMAIN = {
+  count: [1, 10], find: [1, 10], look: [1, 10], feed: [1, 10],
+  more: [2, 10], next: [4, 10], add: [2, 10],
+};
+
+// Does this game still have numbers to learn? Drives the Play-next pick.
+function hasFrontier(profile, game) {
+  const little = profile.little ?? {};
+  if (game === 'bond') {
+    for (let k = 0; k <= 5; k++) if (!knows(little, 'bond5', k)) return true;
+    for (let k = 0; k <= 10; k++) if (!knows(little, 'bond10', k)) return true;
+    return false;
+  }
+  if (game === 'teen') {
+    for (let n = 1; n <= 9; n++) if (!knows(little, 'teen', n)) return true;
+    return false;
+  }
+  const dom = SKILL_DOMAIN[game];
+  if (!dom) return false; // tap/shape/pattern: joyful, untracked
+  for (let n = dom[0]; n <= dom[1]; n++) if (!knows(little, game, n)) return true;
+  return false;
+}
+
+// The one tile most worth playing now: the trail-order first ready game
+// with numbers still to learn; falls back to a daily rotation of the
+// untracked games so "Play!" always points somewhere.
+export function littleSuggestNext(profile, readyTiles) {
+  const tracked = readyTiles.filter((t) => hasFrontier(profile, t.game));
+  if (tracked.length) return tracked[0];
+  return readyTiles[Math.floor(Date.now() / 86400000) % readyTiles.length];
+}
 
 // Round-finish praise that matches what the child actually did — shape
 // games shouldn't hear "great counting". A couple of options each so the
@@ -72,7 +108,8 @@ const PRAISE_BY_GAME = {
 };
 const KNOWN_STREAK = 3;
 
-const knows = (little, g, n) => (little.skills?.[`${g}:${n}`]?.streak ?? 0) >= KNOWN_STREAK;
+const knows = (little, g, n) =>
+  (little.skills?.[`${g}:${n}`]?.streak ?? 0) >= (STREAK_NEEDED[g] ?? KNOWN_STREAK);
 const knowsRange = (little, g, lo, hi) => {
   for (let n = lo; n <= hi; n++) if (!knows(little, g, n)) return false;
   return true;
@@ -84,8 +121,11 @@ const knowsRange = (little, g, lo, hi) => {
 // round or two. Exported for the unit tests.
 export function rangeFor(profile, g = 'count') {
   const little = profile.little ?? {};
+  const [dLo, dHi] = SKILL_DOMAIN[g] ?? [1, 10];
   const band = (lo, hi) => {
-    for (let n = lo; n <= hi; n++) if (!knows(little, g, n)) return false;
+    for (let n = Math.max(lo, dLo); n <= Math.min(hi, dHi); n++) {
+      if (!knows(little, g, n)) return false;
+    }
     return true;
   };
   if (!band(1, 5)) return 5;
@@ -185,6 +225,11 @@ function tiles(p, buddy) {
       game: 'look',
       minXp: 0,
       ready: (p) => knowsRange(p.little ?? {}, 'count', 1, 5),
+      gate: (p) => ({
+        icon: '🔢',
+        have: [1, 2, 3, 4, 5].filter((n) => knows(p.little ?? {}, 'count', n)).length,
+        need: 5,
+      }),
       caption: 'Quick look!',
       art: `<span class="tile-art">\u{1F440}</span><span class="tile-mark">\u26A1</span>`,
     },
@@ -192,6 +237,11 @@ function tiles(p, buddy) {
       game: 'bond',
       minXp: 0,
       ready: (p) => knowsRange(p.little ?? {}, 'look', 1, 5),
+      gate: (p) => ({
+        icon: '👀',
+        have: [1, 2, 3, 4, 5].filter((n) => knows(p.little ?? {}, 'look', n)).length,
+        need: 5,
+      }),
       caption: 'Number friends',
       art: `<span class="tile-art">\u{1F91D}</span><span class="tile-mark">5\u00b710</span>`,
     },
@@ -199,6 +249,11 @@ function tiles(p, buddy) {
       game: 'teen',
       minXp: 0,
       ready: (p) => knowsRange(p.little ?? {}, 'bond10', 0, 10),
+      gate: (p) => ({
+        icon: '🤝',
+        have: Array.from({ length: 11 }, (_, k) => k).filter((k) => knows(p.little ?? {}, 'bond10', k)).length,
+        need: 11,
+      }),
       caption: 'Teen numbers',
       art: `<span class="tile-art">\u{1F51F}</span><span class="tile-mark">11\u00b712\u00b713</span>`,
     },
@@ -251,21 +306,44 @@ export function littleHomeScreen(el, params, ctx) {
   const grid = el.querySelector('.little-tiles');
   const all = tiles(p, buddy);
   const isReady = (t) => (t.ready ? t.ready(p) : xp >= t.minXp);
-  for (const t of all.filter(isReady)) {
+  const readyTiles = all.filter(isReady);
+  // "Play!" hero: the most valuable game right now, front and huge.
+  const pick = littleSuggestNext(p, readyTiles);
+  if (pick) {
+    const hero = document.createElement('button');
+    hero.className = 'little-tile play-next';
+    hero.dataset.game = pick.game;
+    hero.setAttribute('aria-label', `Play ${pick.caption}`);
+    hero.innerHTML = `<span class="play-arrow">▶️</span>${pick.art}<span class="tile-caption">${pick.caption}</span>`;
+    hero.addEventListener('click', () => navigate(`/little?game=${pick.game}`));
+    grid.appendChild(hero);
+  }
+  for (const t of readyTiles) {
     const btn = document.createElement('button');
-    btn.className = 'little-tile';
+    btn.className = `little-tile${pick && t.game === pick.game ? ' picked' : ''}`;
     btn.dataset.game = t.game;
     btn.setAttribute('aria-label', t.caption);
-    btn.innerHTML = `${t.art}<span class="tile-caption">${t.caption}</span>`;
+    btn.innerHTML = `${pick && t.game === pick.game ? '<span class="paw-badge">🐾</span>' : ''}${t.art}<span class="tile-caption">${t.caption}</span>`;
     btn.addEventListener('click', () => navigate(`/little?game=${t.game}`));
     grid.appendChild(btn);
   }
   const upcoming = all.find((t) => !isReady(t));
   if (upcoming) {
+    // Goal preview instead of a mute sparkle: the locked game's own art,
+    // dimmed, with a reward chip showing which game feeds it and how close
+    // it is (v1.9.0 pattern — mechanics are shown, never explained).
+    const gate = upcoming.gate
+      ? upcoming.gate(p)
+      : { icon: '⭐', have: Math.min(xp, upcoming.minXp), need: upcoming.minXp };
+    const pct = Math.round((gate.have / Math.max(1, gate.need)) * 100);
     const soon = document.createElement('div');
     soon.className = 'little-tile soon';
-    soon.setAttribute('aria-label', 'More games soon!');
-    soon.innerHTML = `<span class="tile-art">✨</span><span class="tile-caption">···</span>`;
+    soon.setAttribute('aria-label', `${upcoming.caption} unlocks soon — ${gate.have} of ${gate.need}`);
+    soon.innerHTML = `<span class="soon-art">${upcoming.art}</span>
+      <span class="tile-caption">✨ ···</span>
+      <span class="reward-chip">${gate.icon}
+        <span class="meter mini"><span style="width:${pct}%"></span></span>
+        <span class="tile-mark">${gate.have}/${gate.need}</span></span>`;
     grid.appendChild(soon);
   }
   for (const b of el.querySelectorAll('[data-nav]')) {
@@ -327,6 +405,7 @@ export function littleGameScreen(el, params, ctx) {
     const range = rangeFor(p, SKILL_GAMES.has(game) ? game : 'count');
     fbEl.textContent = '';
     stageEl.innerHTML = '';
+    delete stageEl.dataset.teachOnly;
     choicesEl.innerHTML = '';
     choicesEl.className = 'little-choices';
 
@@ -518,6 +597,9 @@ export function littleGameScreen(el, params, ctx) {
       stageEl.dataset.answer = n;
       stageEl.innerHTML = `<div class="little-items">${itemRow(item, n)}</div>
         <div class="look-veil little-numeral big" hidden>❓</div>`;
+      // Quick eyes only: answering is blocked until the frame hides, so
+      // counting it item-by-item can't stand in for subitizing.
+      busy = true;
       setTimeout(() => {
         const frame = stageEl.querySelector('.little-items');
         const veil = stageEl.querySelector('.look-veil');
@@ -525,6 +607,7 @@ export function littleGameScreen(el, params, ctx) {
           frame.hidden = true;
           veil.hidden = false;
         }
+        busy = false;
       }, 1400);
       for (const v of pickCounts(n, rangeFor(p, 'look'))) {
         choiceButton(`<span class="little-numeral">${v}</span>`, v === n);
@@ -537,12 +620,19 @@ export function littleGameScreen(el, params, ctx) {
       const knownParts = Array.from({ length: whole + 1 }, (_, k) => k).filter((k) =>
         knows(little, `bond${whole}`, k)
       ).length;
+      // pictures teach (the empty cells SHOW the answer, so first-tries
+      // there prove frame-reading, not recall): attempts move the ladder
+      // to the mixed stage, where streaks start counting.
+      const bondAttempts = Object.entries(little.skills)
+        .filter(([k]) => k.startsWith(`bond${whole}:`))
+        .reduce((s, [, v]) => s + v.attempts, 0);
       const stage =
-        knownParts < Math.ceil((whole + 1) / 3)
+        bondAttempts < 6
           ? 'pictures'
           : knownParts < Math.ceil(((whole + 1) * 2) / 3)
             ? 'mixed'
             : 'numbers';
+      if (stage === 'pictures') stageEl.dataset.teachOnly = '1';
       // picture stages skip the empty/full frames (0 needs the abstraction)
       const missing =
         stage === 'numbers' ? ri(whole + 1) : 1 + ri(whole - 1);
@@ -632,7 +722,9 @@ export function littleGameScreen(el, params, ctx) {
     if (!key) return;
     const sk = (little.skills[key] = little.skills[key] ?? { attempts: 0, streak: 0 });
     sk.attempts += 1;
-    sk.streak = firstTry ? sk.streak + 1 : 0;
+    if (stageEl.dataset.teachOnly !== '1') {
+      sk.streak = firstTry ? sk.streak + 1 : 0;
+    }
     if (sk.streak === KNOWN_STREAK) {
       const coin = earnSkillKnown(p, key);
       if (coin) {
