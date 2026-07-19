@@ -81,6 +81,35 @@ function applyAnswer(s, correct, ms, fastMs) {
   };
 }
 
+// Echo exposure: the first time a fact exists in a kid's life it is
+// SHOWN, not asked (errorless rep, per incremental-rehearsal practice).
+// Marks the fact as seen so the next appearance is a real question;
+// boxes, speed and coins are untouched.
+function applyEcho(map, key) {
+  const s = map[key] ?? (map[key] = emptyStat());
+  // `seen`, not `attempts`: the first REAL try after an intro must still
+  // count as the brave first attempt (streak-neutral, 🦁 celebrated).
+  s.seen = 1;
+  s.lastSeen = Date.now();
+  return s;
+}
+
+export function recordEcho(profile, q) {
+  if (q.kind === 'add') {
+    if (!profile.addition) profile.addition = {};
+    return applyEcho(profile.addition, normAddKey(q.a, q.b));
+  }
+  if (q.kind === 'sub') {
+    if (!profile.subtraction) profile.subtraction = {};
+    return applyEcho(profile.subtraction, normAddKey(q.a, q.b));
+  }
+  if (q.kind === 'div') {
+    if (!profile.division) profile.division = {};
+    return applyEcho(profile.division, normKey(q.a, q.b));
+  }
+  return applyEcho(profile.facts, normKey(q.a, q.b));
+}
+
 export function recordAnswer(profile, a, b, correct, ms) {
   const key = normKey(a, b);
   const s = profile.facts[key] ?? (profile.facts[key] = emptyStat());
@@ -191,10 +220,13 @@ export function divisionTableDueCount(profile, table) {
 }
 
 // How many of a table's facts have ever been attempted (0 = untried table).
+// "Tried" means MET: an echo intro counts — it retires the teach banner,
+// the training rounds and the warm-up on the same schedule as answering.
 export function tableTriedCount(profile, table) {
   let n = 0;
   for (let b = FACTOR_MIN; b <= FACTOR_MAX; b++) {
-    if (getStat(profile, table, b).attempts > 0) n += 1;
+    const s = getStat(profile, table, b);
+    if (s.attempts > 0 || s.seen) n += 1;
   }
   return n;
 }
@@ -202,7 +234,8 @@ export function tableTriedCount(profile, table) {
 export function divisionTriedCount(profile, table) {
   let n = 0;
   for (let b = FACTOR_MIN; b <= FACTOR_MAX; b++) {
-    if (getDivStat(profile, table, b).attempts > 0) n += 1;
+    const s = getDivStat(profile, table, b);
+    if (s.attempts > 0 || s.seen) n += 1;
   }
   return n;
 }

@@ -121,6 +121,10 @@ test('e2e: fresh division round uses the missing-factor bridge and teaches on mi
   const doc = newProfile('BridgeKid');
   doc.id = 'bridge-kid';
   masteredTable(doc, 3);
+  // met once: brand-new ÷ facts echo (show the answer) before bridging
+  for (let b = 0; b <= 12; b++) {
+    doc.division[norm(3, b)] = { attempts: 1, correct: 0, avgMs: 3000, box: 0, lastSeen: Date.now() };
+  }
   await seedProfile(page, doc);
   await selectProfile(page, 'BridgeKid');
   await openDivisionGrid(page);

@@ -3,6 +3,15 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.11.0 — 2026-07-19
+
+- Echo-first: the very first time any fact appears in a kid's life —
+  across ×, ÷, Adding and Taking Away — it's SHOWN, not asked: the full
+  equation with "📣 New one! Type it in!". Typing it is an errorless
+  first rep (typos wiggle, never punish); the next appearance is a real
+  question. Removes the "ambushed by a stranger" feeling from new
+  tables. No coins, no box movement — exposure only.
+
 ## v1.10.0 — 2026-07-19
 
 - Little Pup guidance: a big "Play!" hero tile picks the most valuable

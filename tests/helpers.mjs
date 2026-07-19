@@ -108,6 +108,14 @@ export async function playQuestions(page, maxQuestions, options = {}) {
     );
     const text = (await page.textContent('.question')).trim();
     const right = answerFromText(text);
+    // Echo-first intros (full equation shown) are un-failable: always type
+    // the shown answer; answerFn/delayFn only shape REAL questions.
+    if (text.includes('=') && !text.includes('_')) {
+      await answer(page, right);
+      await page.waitForTimeout(950);
+      if (await page.$('.big-score, [data-again]')) break;
+      continue;
+    }
     // a/b populated for plain multiplication questions (what most specs use)
     const plain = text.match(/^(\d+)\s*×\s*(\d+)$/);
     const q = {

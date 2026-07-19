@@ -1,7 +1,17 @@
 import { navigate } from '../router.js';
 import { buildRound, buildDivisionRound, ROUND_SIZE } from '../engine/selector.js';
 import { buildAdditionRound, buildSubtractionRound, WAVES } from '../engine/waves.js';
-import { recordAnswer, recordDivisionAnswer, recordAdditionAnswer, recordSubtractionAnswer } from '../engine/leitner.js';
+import {
+  recordAnswer,
+  recordDivisionAnswer,
+  recordAdditionAnswer,
+  recordSubtractionAnswer,
+  recordEcho,
+  getStat,
+  getDivStat,
+  getAddStat,
+  getSubStat,
+} from '../engine/leitner.js';
 import { earnFromAnswer } from '../engine/money.js';
 import { checkUnlocks } from '../engine/unlocks.js';
 import { checkPetUnlocks } from '../engine/cozy.js';
@@ -138,11 +148,19 @@ export function quizScreen(el, params, ctx) {
       return;
     }
     const q = questions[index];
-    qEl.textContent = q.text;
-    qEl.classList.toggle('compact', q.text.length > 8);
+    // Echo-first: a fact's very first appearance in this kid's life is
+    // SHOWN, not asked — the full equation with a "type it!" invitation.
+    // The next appearance is a real question (recordEcho marks exposure).
+    const statOf =
+      q.kind === 'add' ? getAddStat : q.kind === 'sub' ? getSubStat : q.kind === 'div' ? getDivStat : getStat;
+    const st = statOf(ctx.profile, q.a, q.b);
+    q.echo = st.attempts === 0 && !st.seen;
+    qEl.textContent = q.echo ? q.correction : q.text;
+    qEl.classList.toggle('echo', !!q.echo);
+    qEl.classList.toggle('compact', (q.echo ? q.correction : q.text).length > 8);
     ansEl.textContent = ' ';
     ansEl.className = 'answer-box';
-    fbEl.textContent = '';
+    fbEl.textContent = q.echo ? '📣 New one! Type it in!' : '';
     fbEl.className = 'feedback';
     startT = performance.now();
   }
@@ -165,6 +183,28 @@ export function quizScreen(el, params, ctx) {
 
   function submit() {
     if (!input) return;
+    const cur = questions[index];
+    if (!chains.length && cur?.echo) {
+      // errorless: right → gentle win; typo → wiggle and try again
+      if (Number(input) === cur.answer) {
+        recordEcho(ctx.profile, cur);
+        results.push({ a: cur.a, b: cur.b, answer: cur.answer, given: cur.answer, correct: true, ms: 0, fast: false, leveledUp: false, echo: true });
+        busy = true;
+        sfx.correct();
+        buzz(20);
+        paws[index].classList.add('done');
+        fbEl.textContent = '⭐ Now you know one more!';
+        input = '';
+        setTimeout(next, 900);
+      } else {
+        input = '';
+        ansEl.textContent = ' ';
+        ansEl.classList.add('shake');
+        setTimeout(() => ansEl.classList.remove('shake'), 450);
+        sfx.wrong();
+      }
+      return;
+    }
     if (chains.length) {
       const c = chains[0];
       const good = Number(input) === c.answer;

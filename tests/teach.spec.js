@@ -2,7 +2,7 @@
 import { test, expect } from '@playwright/test';
 import { hintFor } from '../src/engine/hints.js';
 import { newProfile } from '../src/data/schema.js';
-import { createProfileUI, uniqueName, norm, stat, openTableGrid, clearCountingPath } from './helpers.mjs';
+import { createProfileUI, seedProfile, selectProfile, uniqueName, norm, stat, openTableGrid, clearCountingPath } from './helpers.mjs';
 
 test('structural tricks cover the special factors', () => {
   const p = newProfile('H');
@@ -55,7 +55,15 @@ test('skip-count tail is the fallback', () => {
 });
 
 test('a wrong answer in a quiz shows the hint', async ({ page }) => {
-  await createProfileUI(page, uniqueName('Hint'));
+  // seeded tried facts: brand-new facts would echo (shown, not asked)
+  // instead of hinting — hints belong to facts the kid has met before
+  await page.goto('/', { waitUntil: 'networkidle' });
+  const doc = newProfile(uniqueName('Hint'));
+  doc.id = 'hint-kid';
+  for (let b = 0; b <= 12; b++) doc.facts[norm(3, b)] = stat(0);
+  await seedProfile(page, doc);
+  await selectProfile(page, doc.name);
+  await page.waitForSelector('.hero');
   await openTableGrid(page);
   await page.tap('.table-grid .table-btn:nth-child(3)'); // ×3 table
   await clearCountingPath(page);

@@ -137,23 +137,23 @@ test('slow-correct answers climb early boxes but not past the cap', async ({ pag
   await page.goto('/', { waitUntil: 'networkidle' });
   const doc = richDoc('play-slow', 'PlaySlow');
   doc.facts[norm(5, 5)] = stat(2, { attempts: 4, correct: 3, avgMs: 8000 });
+  // met once (echoed), still box 0: the slow-climb candidate — truly
+  // fresh facts are now shown (echo), not asked
+  doc.facts[norm(5, 6)] = { attempts: 1, correct: 0, avgMs: 3000, box: 0, lastSeen: Date.now() };
   await seedProfile(page, doc);
   await selectProfile(page, 'PlaySlow');
   await openTableGrid(page);
   await page.tap('.table-grid .table-btn:nth-child(5)'); // ×5 table
   await page.waitForSelector('.question');
 
-  const seededKeys = new Set(Object.keys(doc.facts));
   let slowFresh = null;
   await playQuestions(page, 12, {
     delayFn: (q) => {
       const key = norm(q.a, q.b);
       if (q.text === '5 × 5') return 6600; // at the cap: slow must NOT promote
-      // Pick a genuinely fresh, non-gimme fact for the slow-promotion check
-      // (gimme facts feed speed calibration; seeded facts aren't at box 0).
-      if (!slowFresh && q.a > 1 && q.b > 1 && !seededKeys.has(key)) {
+      if (key === norm(5, 6)) {
         slowFresh = key;
-        return 6600; // fresh fact answered slowly: must promote to box 1
+        return 6600; // box-0 fact answered slowly: must promote to box 1
       }
       return 0;
     },
