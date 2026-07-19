@@ -3,6 +3,20 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.10.0 — 2026-07-19
+
+- Little Pup guidance: a big "Play!" hero tile picks the most valuable
+  game for right now (the learning frontier), a bouncing 🐾 marks it on
+  the shelf, and the sparkle tile became a goal preview — the locked
+  game's art with a meter showing which game feeds it and how close it is.
+- Verification tightening: Quick Look blocks answers until the flash
+  hides (quick eyes, not counting); Number Friends' pictures stage is
+  teach-only (streaks start at the mixed stage); Feed me! now records
+  skill (it's been failable since v1.4.1) — little ceiling 81¢ → 91¢;
+  Who has more? needs a streak of 4 (two choices are guessable).
+- Fixed: more/next/add number ranges could never grow — their bands
+  waited on impossible numbers (a "more" question can't ask about 1).
+
 ## v1.9.0 — 2026-07-18
 
 - Reward chips: accessory-color progress is finally visible — tiny meters

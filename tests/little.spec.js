@@ -44,7 +44,7 @@ async function createLittleProfile(page, name) {
 
 test('e2e: little pup profile gets the counting home, not the grids', async ({ page }) => {
   await createLittleProfile(page, uniqueName('Pup'));
-  expect(await page.$$eval('button.little-tile', (els) => els.length)).toBe(2); // xp 0: count + tap
+  expect(await page.$$eval('button.little-tile:not(.play-next)', (els) => els.length)).toBe(2); // xp 0: count + tap
   expect(await page.$('.little-tile.soon')).not.toBeNull(); // sparkly next-unlock hint
   expect(await page.$('.table-grid')).toBeNull();
   expect(await page.$('[data-suggest]')).toBeNull();
@@ -173,7 +173,7 @@ test('e2e: grown-ups toggle flips a big-kid profile into little mode', async ({ 
   await expect(page.locator('[data-subj="little"]')).toContainText('on');
   await page.tap('[data-back]');
   await page.waitForSelector('.little-tile');
-  expect(await page.$$eval('button.little-tile', (els) => els.length)).toBe(2);
+  expect(await page.$$eval('button.little-tile:not(.play-next)', (els) => els.length)).toBe(2);
 });
 
 test('e2e: tap-to-count — every tap counts up, no way to be wrong', async ({ page }) => {
@@ -238,7 +238,7 @@ test('e2e: feed the puppy — the child serves the bowl, wrong counts are gentle
     })
   );
   const doc = profiles.find((x) => x.name === name);
-  expect(doc.little.xp).toBe(0); // the early wrong serve cost the first-try star
+  expect(doc.little.xp).toBe(0); // the empty-bowl serve cost the first-try star
 });
 
 test('e2e: shapes with Whiskers — spoken target, wordless choices', async ({ page }) => {
@@ -283,7 +283,7 @@ test('e2e: tiles unlock with xp; K-tier games work', async ({ page }) => {
   await seedProfile(page, doc);
   await page.tap('.profile-card:has-text("Grown")');
   await page.waitForSelector('.little-tile');
-  expect(await page.$$eval('button.little-tile', (els) => els.length)).toBe(9);
+  expect(await page.$$eval('button.little-tile:not(.play-next)', (els) => els.length)).toBe(9);
   // the bridge graduation tiles (skill-gated, not xp-gated) are still ahead,
   // so the sparkly next-unlock hint stays — there's always a next thing
   expect(await page.$('.little-tile.soon')).not.toBeNull();
