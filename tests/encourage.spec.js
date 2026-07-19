@@ -7,7 +7,7 @@ import { suggestNext } from '../src/engine/suggest.js';
 import { buildRound } from '../src/engine/selector.js';
 import { dogForTable } from '../src/art/dogs.js';
 import { newProfile } from '../src/data/schema.js';
-import { createProfileUI, seedProfile, selectProfile, playQuestions, uniqueName, openTableGrid, clearCountingPath } from './helpers.mjs';
+import { createProfileUI, seedProfile, selectProfile, playQuestions, uniqueName, openTableGrid, clearCountingPath, norm } from './helpers.mjs';
 
 // ---- Bundle A: streak protection for first tries
 
@@ -53,7 +53,16 @@ test('B: brave tries count first attempts, right OR wrong', () => {
 });
 
 test('B: e2e — a wrong first try celebrates the attempt', async ({ page }) => {
-  await createProfileUI(page, uniqueName('Lion'));
+  // met-but-never-answered facts: brand-new ones echo instead of asking
+  await page.goto('/', { waitUntil: 'networkidle' });
+  const brave = newProfile(uniqueName('Lion'));
+  brave.id = 'lion-kid';
+  for (let b = 0; b <= 12; b++) {
+    brave.facts[norm(4, b)] = { attempts: 0, correct: 0, avgMs: 0, box: 0, lastSeen: Date.now(), seen: 1 };
+  }
+  await seedProfile(page, brave);
+  await selectProfile(page, brave.name);
+  await page.waitForSelector('.hero');
   await openTableGrid(page);
   await page.tap('.table-grid .table-btn:nth-child(4)');
   await page.waitForSelector('.question');

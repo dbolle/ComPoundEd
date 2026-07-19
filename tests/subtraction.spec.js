@@ -85,6 +85,11 @@ test('e2e: Taking Away appears after an adding wave masters; a round plays', asy
   doc.id = 'sub-kid';
   doc.subjects = { ...doc.subjects, bridge: true };
   masterAdditionWave(doc, 0);
+  // met once already: brand-new families echo (show the answer) before
+  // the missing-addend bridge form this test asserts
+  for (const [a, b] of waveFacts(0)) {
+    doc.subtraction[normAddKey(a, b)] = { attempts: 1, correct: 0, avgMs: 3000, box: 0, lastSeen: Date.now() };
+  }
   await seedProfile(page, doc);
   await selectProfile(page, 'Taker');
 
