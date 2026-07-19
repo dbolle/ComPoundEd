@@ -909,6 +909,42 @@ button.pressed {
   justify-content: center;
 }
 
+.meet-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.meet-path {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.meet-step.lit {
+  background: #fef3c7;
+  box-shadow: inset 0 0 0 2px var(--brand);
+}
+
+.meet-groups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.meet-known,
+.meet-reveal {
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
 /* Grown-ups: which-tables chips */
 .limit-grid {
   display: grid;

@@ -47,8 +47,9 @@ test('e2e: collapsed home, suggestion works, expansion persists', async ({ page 
   const suggest = page.locator('[data-suggest]');
   await expect(suggest).toContainText('×1');
   await suggest.tap();
-  await page.waitForSelector('.question');
-  await expect(page.locator('.topbar strong')).toContainText('×1 table');
+  // never-met tables suggest the lesson first (v1.12.0)
+  await page.waitForSelector('.meet-path');
+  await expect(page.locator('.topbar strong')).toContainText('Meet the ×1s');
   await page.tap('[data-quit]');
 
   // Expand tables; state survives reload

@@ -111,7 +111,8 @@ export function quizScreen(el, params, ctx) {
       ${
         teachDog
           ? `<div class="teach-banner">${dogSVG(teachDog, 44)}
-             <span><b>${escapeHtml(teachDog.name)}</b> is still learning the ${scope.type === 'division' ? '÷' : '×'}${scope.table}s — teach them!</span></div>`
+             <span><b>${escapeHtml(teachDog.name)}</b> is still learning the ${scope.type === 'division' ? '÷' : '×'}${scope.table}s — teach them!</span>
+             ${scope.type === 'table' ? `<button class="btn ghost small" data-meet>👋 Meet first</button>` : ''}</div>`
           : ''
       }
       <div class="question"></div>
@@ -128,6 +129,7 @@ export function quizScreen(el, params, ctx) {
 
   buildNumpad(pad, press);
   const banner = el.querySelector('.teach-banner');
+  banner?.querySelector('[data-meet]')?.addEventListener('click', () => navigate(`/meet?table=${scope.table}`));
   if (banner) {
     setTimeout(() => {
       banner.classList.add('leaving');
