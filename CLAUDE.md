@@ -28,6 +28,10 @@ preserve existing profile data:
   in the same commit, plus README.md when user-facing behavior changes.
   Larger designs live in docs/ (e.g. docs/PHASE5.md). Kid-facing strings
   follow docs/VOCABULARY.md (two registers; enforced by tests/vocab.spec.js).
+- New features need an entry point an EXPERIENCED profile can reach —
+  gates like "never tried" or hover tooltips have hidden features twice
+  (wardrobe color needs, Meet lessons). Mechanics are shown, not explained:
+  icon + meter + picture of the reward, at the point of action.
 
 - Vanilla JS + Vite PWA; no framework. `npm run build` redeploys (the nginx
   container mounts `dist/`). See README.md for URLs, CHARTER.md for product

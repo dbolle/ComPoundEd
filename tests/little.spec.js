@@ -217,11 +217,12 @@ test('e2e: feed the puppy — the child serves the bowl, wrong counts are gentle
     Number(document.querySelector('.little-stage').dataset.answer)
   );
   expect(await page.$$eval('.tap-item', (els) => els.length)).toBe(n + 2); // extra bones to stop at N
-  // serving too few is a miss the child can fix — a bone can even come back
-  await page.tap('.tap-item:not(.popped)');
+  // serving the empty bowl is always a miss (n >= 1) the child can fix
   await page.tap('.feed-done');
   await expect(page.locator('.paw.done')).toHaveCount(0);
-  await page.locator('.tap-item.popped').first().tap(); // take it back out
+  await page.tap('.tap-item:not(.popped)'); // a bone can come back out too
+  await expect(page.locator('.tap-count')).toHaveText('1');
+  await page.locator('.tap-item.popped').first().tap();
   await expect(page.locator('.tap-count')).toHaveText('0');
   for (let i = 1; i <= n; i++) await page.tap('.tap-item:not(.popped)');
   await page.tap('.feed-done');

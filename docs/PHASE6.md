@@ -1,4 +1,4 @@
-# Phase 6 — Taking Away + trail integration (plan of record, approved 2026-07-17)
+# Phase 6 — Taking Away + trail integration (SHIPPED: v1.6.0–v1.8.0, 2026-07-17/18)
 
 Completes the K–2 fluency ladder (2.OA.2: add AND subtract within 20) and
 closes the Phase 5 seams. Product context: the 2026-07-17 charter reframe —
@@ -25,13 +25,13 @@ one app, pre-K → upper elementary, the trail IS the product.
 - Also fixed: addition questions were missing `correction` (wrong answers
   rendered "undefined").
 
-## v1.7.0 — pets + Cozy Corner growth
+## v1.7.0 — pets + Cozy Corner growth ✅
 
 Seven new generated CC0 pets, one per existing habitat (plus doubling a
 7-slot spread), adopted per subtraction wave via MILESTONES extension.
 Praise/speech lines for Taking Away rounds.
 
-## v1.8.0 — connectors
+## v1.8.0 — connectors ✅
 
 - Skip-count "Counting Path" warm-up: 3 unscored chain questions before
   table rounds on tables with ≤3 tried facts (the training-round state);
