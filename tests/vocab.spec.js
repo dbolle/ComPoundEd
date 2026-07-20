@@ -38,7 +38,7 @@ test('e2e: dog page shows reward chips; wardrobe locked swatch speaks on tap', a
   await page.tap('.dog-card:not(.locked):not(.store-soon)');
   await page.waitForSelector('.play-stats');
   // 18 walks → chip meters toward the blue (25) bandana
-  expect(await page.$$eval('.reward-chip', (els) => els.length)).toBe(3);
+  expect(await page.$$eval('.reward-chip', (els) => els.length)).toBe(4); // walks/meals/fetches + collar training
   const label = await page.getAttribute('.reward-chip', 'aria-label');
   expect(label).toContain('7 more to the blue bandana');
 

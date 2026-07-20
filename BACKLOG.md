@@ -28,7 +28,9 @@ reconsider after calibration.
 ## Prioritized
 
 1. ~~Phase 4a earning engine~~ ✅ shipped v1.0.0 era (milestones-only).
-2. **Calibration window — CURRENT.** Observe real kid income for ~1–2 weeks (teaser
+2. **Calibration window — CURRENT.** Store backend + prices shipped
+   (v1.14–15: ownership ledger, placements, collar training ladder);
+   ledgers now VERIFY the pinned prices rather than set them. Observe real kid income for ~1–2 weeks (teaser
    already building anticipation + savings habit). Revisit: back-pay
    question, payout tuning.
 3. **Phase 4b — Pet Store.** Approved mechanics: denomination prices set

@@ -1,5 +1,5 @@
 import { navigate, currentRoute } from '../router.js';
-import { getDog, dogSVG, accessoriesFor, wornFor, ACCESSORIES, dirtFor, nextColorGoal } from '../art/dogs.js';
+import { getDog, dogSVG, accessoriesFor, wornFor, ACCESSORIES, dirtFor, nextColorGoal, nextCollarGoal } from '../art/dogs.js';
 import { isUnlocked } from '../engine/unlocks.js';
 import { toast, escapeHtml } from '../ui.js';
 
@@ -10,6 +10,15 @@ function rewardChip(profile, dogId, accId) {
   if (!goal) return '';
   const pct = Math.round((goal.have / goal.color.need) * 100);
   return `<span class="reward-chip" aria-label="${goal.color.need - goal.have} more to the ${goal.color.id} ${goal.acc.name}">
+    <span class="meter mini"><span style="width:${pct}%"></span></span>
+    <span class="swatch mini" style="background:${goal.color.fill}"></span></span>`;
+}
+
+function collarChip(profile, dogId) {
+  const goal = nextCollarGoal(profile, dogId);
+  if (!goal) return '';
+  const pct = Math.round((goal.have / goal.color.need) * 100);
+  return `<span class="reward-chip" aria-label="${goal.left} more training sessions to the ${goal.color.id} collar">
     <span class="meter mini"><span style="width:${pct}%"></span></span>
     <span class="swatch mini" style="background:${goal.color.fill}"></span></span>`;
 }
@@ -54,6 +63,7 @@ export function dogScreen(el, params, ctx) {
           <span>🦮 ${play.walk} walks ${rewardChip(ctx.profile, dog.id, 'bandana')}</span>
           <span>🍖 ${play.feed} meals ${rewardChip(ctx.profile, dog.id, 'bow')}</span>
           <span>🎾 ${play.fetch} fetches ${rewardChip(ctx.profile, dog.id, 'cap')}</span>
+          <span>🐕🐕 ${play.train ?? 0} training ${collarChip(ctx.profile, dog.id)}</span>
         </p>
         ${
           next

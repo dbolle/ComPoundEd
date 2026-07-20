@@ -2,6 +2,7 @@
 import { navigate } from '../router.js';
 import { DOGS, dogSVG, wornFor } from '../art/dogs.js';
 import { isUnlocked } from '../engine/unlocks.js';
+import { isTableMastered, tableDueCount, tableProgress } from '../engine/leitner.js';
 import { escapeHtml } from '../ui.js';
 
 const MAX_DOGS = 3;
@@ -24,6 +25,7 @@ export function groupScreen(el, params, ctx) {
         <button class="btn ghost kind-btn" data-kind="fetch">🎾 Fetch</button>
       </div>
       <p class="muted center" style="margin:0">Pick 2 or 3 pups to bring along!</p>
+      <div data-train-tip></div>
       <div class="pack-grid"></div>
       <button class="btn" data-start disabled>Let's go! 🐾</button>
     </div>`;
@@ -31,9 +33,32 @@ export function groupScreen(el, params, ctx) {
   const grid = el.querySelector('.pack-grid');
   const startBtn = el.querySelector('[data-start]');
 
+  // Training-partner tip: collar credit needs a friend who's still
+  // learning — suggest the pack's weakest table, tap to add them.
+  const partners = unlocked
+    .filter((d) => d.table != null && (!isTableMastered(ctx.profile, d.table) || tableDueCount(ctx.profile, d.table) > 0))
+    .sort((x, y) => {
+      const px = tableProgress(ctx.profile, x.table);
+      const py = tableProgress(ctx.profile, y.table);
+      return px.points / px.maxPoints - py.points / py.maxPoints;
+    });
+  if (partners.length) {
+    const weak = partners[0];
+    const tip = document.createElement('button');
+    tip.className = 'teach-banner train-tip';
+    tip.innerHTML = `${dogSVG(weak, 44, wornFor(ctx.profile, weak.id))}
+      <span><b>${escapeHtml(weak.name)}</b> is still learning the ×${weak.table}s — bring them along for collar training! 🦮</span>`;
+    tip.addEventListener('click', () => {
+      grid.querySelector(`[data-dog="${weak.id}"]`)?.click();
+      tip.remove();
+    });
+    el.querySelector('[data-train-tip]').appendChild(tip);
+  }
+
   for (const dog of unlocked) {
     const card = document.createElement('button');
     card.className = 'dog-card';
+    card.dataset.dog = dog.id;
     card.innerHTML = `<span class="dog">${dogSVG(dog, 76, wornFor(ctx.profile, dog.id))}</span>
       <span>${escapeHtml(dog.name)}</span>`;
     card.setAttribute('aria-pressed', 'false');
