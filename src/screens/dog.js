@@ -1,6 +1,7 @@
 import { navigate, currentRoute } from '../router.js';
 import { getDog, dogSVG, accessoriesFor, wornFor, ACCESSORIES, dirtFor, nextColorGoal, nextCollarGoal } from '../art/dogs.js';
 import { isUnlocked } from '../engine/unlocks.js';
+import { trainingPartnersFor } from '../engine/suggest.js';
 import { toast, escapeHtml } from '../ui.js';
 
 // Progress toward the accessory's next color, shown as a picture: a tiny
@@ -79,6 +80,7 @@ export function dogScreen(el, params, ctx) {
         <button class="btn" data-act="fetch">🎾 Fetch</button>
         ${groomable ? '<button class="btn groom-btn" data-act="groom">🧼 Groom</button>' : ''}
       </div>
+      <div data-playdate-slot></div>
       ${
         hasPass
           ? '<button class="btn groom-btn" data-dress>👕 Dress up!</button>'
@@ -96,6 +98,20 @@ export function dogScreen(el, params, ctx) {
   for (const b of el.querySelectorAll('[data-act]')) {
     b.addEventListener('click', () => navigate(`/activity?dog=${dog.id}&kind=${b.dataset.act}`));
   }
+  // Play date: auto-picks 1–3 friends (needs-practice first) for a group
+  // training round — the from-here door to collar credit.
+  const friends = trainingPartnersFor(ctx.profile, dog.id, 3);
+  if (friends.length) {
+    const pd = document.createElement('button');
+    pd.className = 'btn accent';
+    pd.dataset.playdate = '1';
+    pd.textContent = `🐕🐕 Play date with ${friends.map((f) => f.name).join(', ')}!`;
+    pd.addEventListener('click', () =>
+      navigate(`/activity?dogs=${[dog.id, ...friends.map((f) => f.id)].join(',')}&kind=walk`)
+    );
+    el.querySelector('[data-playdate-slot]').appendChild(pd);
+  }
+
   const buddyBtn = el.querySelector('[data-buddy]');
   if (buddyBtn) {
     buddyBtn.addEventListener('click', async () => {

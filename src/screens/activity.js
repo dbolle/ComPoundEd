@@ -78,7 +78,9 @@ export function activityScreen(el, params, ctx) {
   }
   const theme = KINDS[kind];
   const group = dogs.length > 1;
-  let QUESTIONS = sitting ? 10 : group ? 6 : 5;
+  // Group play dates scale with the party: 6 facts per dog (12/18/24) —
+  // enough interleaved practice to be worth collar credit.
+  let QUESTIONS = sitting ? 10 : group ? 6 * dogs.length : 5;
   if (kind === 'groom') QUESTIONS = 13; // the full set; re-queues don't add paws
   const backTo = sitting ? '/home' : group ? '/pack' : `/dog?id=${dogs[0].id}`;
 
