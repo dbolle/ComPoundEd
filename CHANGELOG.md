@@ -3,6 +3,18 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.15.0 — 2026-07-20
+
+- Wardrobe: a collar row (original color + the blue/green/purple/gold
+  ladder, locked swatches priced 🐕🐕10/25/50/100 with speak-on-tap) and
+  a Closet 🧺 — owned store gear toggles on/off, gifts stay with their
+  pup, treasures show who has them ("↩️ Bring from Scout").
+- Group play: a tap-to-add tip suggests the pack's weakest table as the
+  training partner ("Scout is still learning the ×7s — bring them along
+  for collar training!").
+- Dog pages: a 🐕🐕 training counter with the next-collar reward chip.
+- Toys stay engine-only until the store opens.
+
 ## v1.14.0 — 2026-07-20
 
 - Store backend (no store yet): pinned prices in the catalog (toys
