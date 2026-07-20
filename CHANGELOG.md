@@ -3,6 +3,14 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.13.0 — 2026-07-20
+
+- Pick your buddy 💛: adopted Cozy Corner pets have a "🤍 Pick me!"
+  button — the chosen pet becomes the avatar everywhere (little home
+  hero, games, profile cards, big-kid home) and gets fed in Feed me!.
+  Any dog page's buddy button switches back. Saves v14 (additive
+  avatarPetId; unknown ids fall back to the dog).
+
 ## v1.12.1 — 2026-07-19
 
 - Every × table round now carries a 👋 button in its top bar — the

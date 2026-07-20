@@ -2,7 +2,7 @@
 // migrateProfile() whenever the shape of stored data changes — this is the
 // contract a future sync backend will rely on.
 
-export const SCHEMA_VERSION = 13;
+export const SCHEMA_VERSION = 14;
 
 export const SUBJECT_DEFAULTS = {
   little: false,
@@ -85,6 +85,8 @@ export function newProfile(name) {
     schemaVersion: SCHEMA_VERSION,
     name,
     avatarDogId: 'starter',
+    // A chosen Cozy Corner pet buddy overrides the dog avatar (null = dog).
+    avatarPetId: null,
     createdAt: Date.now(),
     // Per-fact Leitner stats, keyed by normalized fact key ("3x4"):
     // { attempts, correct, avgMs, box, lastSeen }
@@ -209,6 +211,10 @@ export function migrateProfile(doc) {
   if (doc.schemaVersion === 12) {
     doc.subtraction = doc.subtraction ?? {};
     doc.schemaVersion = 13;
+  }
+  if (doc.schemaVersion === 13) {
+    doc.avatarPetId = doc.avatarPetId ?? null;
+    doc.schemaVersion = 14;
   }
   return doc;
 }

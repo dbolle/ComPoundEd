@@ -42,7 +42,7 @@ export function packScreen(el, params, ctx) {
   for (const dog of DOGS) {
     const unlocked = isUnlocked(p, dog.id);
     const card = document.createElement(unlocked ? 'button' : 'div');
-    card.className = `dog-card${unlocked ? '' : ' locked'}${p.avatarDogId === dog.id ? ' buddy' : ''}`;
+    card.className = `dog-card${unlocked ? '' : ' locked'}${p.avatarDogId === dog.id && !p.avatarPetId ? ' buddy' : ''}`;
     card.innerHTML = `<span class="dog">${dogSVG(dog, 76, unlocked ? wornFor(p, dog.id) : [], unlocked ? dirtFor(p, dog) : 0)}</span>
       <span>${unlocked ? escapeHtml(dog.name) : '???'}</span>
       ${unlocked ? '' : `<span class="lock-hint">Get the ${dog.divTable ? `÷${dog.divTable}` : `×${dog.table}`}s strong ⭐</span>`}`;
