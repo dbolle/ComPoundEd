@@ -3,6 +3,19 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.14.0 — 2026-07-20
+
+- Store backend (no store yet): pinned prices in the catalog (toys
+  25¢–$1, gifts $1–$2 per wearer, tiara $8, crown $12 — all 5¢ steps
+  against the ≈$54 lifetime economy); ownership derived from the ledger
+  via deterministic buy txns (two devices buying the same thing merge to
+  one charge); gear placements (saves v15, additive) with gifts bound to
+  their wearer and treasures/toys moving freely; placed gear renders
+  through the normal accessories pipeline.
+- Collar colors: a new ladder (blue 10 / green 25 / purple 50 / gold 100)
+  earned through GROUP sessions that include a training partner — a dog
+  whose table is unmastered or rusty. Interleaving is the reward.
+
 ## v1.13.0 — 2026-07-20
 
 - Pick your buddy 💛: adopted Cozy Corner pets have a "🤍 Pick me!"

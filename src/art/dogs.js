@@ -95,6 +95,27 @@ function playCount(profile, dogId, kind) {
 // Which colors of an accessory this dog has unlocked.
 // The next color on an accessory's ladder for this dog — the "why" a kid
 // keeps playing this activity. null once the ladder is finished.
+// Collar colors: earned through GROUP training sessions (a walk with a
+// friend who still needs the practice) — the interleaving reward. Same
+// ladder numbers as every other accessory (10/25/50/100).
+export const COLLAR_COLORS = [
+  { id: 'blue', need: 10, fill: '#3b82f6' },
+  { id: 'green', need: 25, fill: '#22c55e' },
+  { id: 'purple', need: 50, fill: '#a855f7' },
+  { id: 'gold', need: 100, fill: '#f59e0b' },
+];
+
+export function collarColorsFor(profile, dogId) {
+  const n = playCount(profile, dogId, 'train');
+  return COLLAR_COLORS.filter((c) => n >= c.need).map((c) => c.id);
+}
+
+export function nextCollarGoal(profile, dogId) {
+  const have = playCount(profile, dogId, 'train');
+  const next = COLLAR_COLORS.find((c) => have < c.need);
+  return next ? { color: next, have, left: next.need - have } : null;
+}
+
 export function nextColorGoal(profile, dogId, accId) {
   const acc = ACCESSORIES.find((a) => a.id === accId);
   if (!acc?.colors) return null;
@@ -112,10 +133,18 @@ export function accessoryColorsFor(profile, dogId, accId) {
 
 // The render list: earned accessories in the kid's chosen colors.
 // wear entry undefined → default (first color); 'none' → not worn.
+// Lazy import avoids an art→engine cycle; placedOn is pure over profile.
+import { placedOn } from '../engine/gearshop.js';
+
 export function wornFor(profile, dogId) {
   const earned = accessoriesFor(profile, dogId);
   const wear = profile?.wear?.[dogId] ?? {};
   const out = [];
+  // chosen collar color rides the accessories pipeline as its own entry
+  const collarChoice = wear.collar;
+  if (collarChoice && collarColorsFor(profile, dogId).includes(collarChoice)) {
+    out.push({ id: 'collar', color: collarChoice });
+  }
   for (const id of earned) {
     const choice = wear[id];
     if (choice === 'none') continue;
@@ -127,6 +156,7 @@ export function wornFor(profile, dogId) {
     const color = choice && unlocked.includes(choice) ? choice : unlocked[0];
     out.push({ id, color });
   }
+  out.push(...placedOn(profile, dogId));
   return out;
 }
 
@@ -196,7 +226,11 @@ function dirtLayer(level, uid) {
 }
 
 export function dogSVG(dog, size = 96, accessories = [], dirt = 0) {
-  const d = dog;
+  const collarEntry = accEntry(accessories, 'collar');
+  const collarOverride = collarEntry
+    ? COLLAR_COLORS.find((c) => c.id === (collarEntry.color ?? collarEntry))?.fill
+    : null;
+  const d = collarOverride ? { ...dog, collar: collarOverride } : dog;
   const uid = `dg-${d.id}`;
   const has = (id) => accessories.includes(id);
   const extras = [];

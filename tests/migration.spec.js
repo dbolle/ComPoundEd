@@ -85,7 +85,7 @@ test('mergeProfiles never loses progress from either side', () => {
   expect(merged.unlocks.map((u) => u.dogId)).toEqual(
     expect.arrayContaining(['starter', 'dog-2', 'dog-7'])
   );
-  expect(merged.play.starter).toEqual({ walk: 5, feed: 3, fetch: 0, groom: 0 }); // per-kind max
+  expect(merged.play.starter).toEqual({ walk: 5, feed: 3, fetch: 0, groom: 0, train: 0 }); // per-kind max
   expect(merged.avatarDogId).toBe('dog-2'); // newer doc's identity fields
   expect(merged.schemaVersion).toBe(SCHEMA_VERSION);
 });
