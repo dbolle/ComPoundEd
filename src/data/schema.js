@@ -2,7 +2,7 @@
 // migrateProfile() whenever the shape of stored data changes — this is the
 // contract a future sync backend will rely on.
 
-export const SCHEMA_VERSION = 14;
+export const SCHEMA_VERSION = 15;
 
 export const SUBJECT_DEFAULTS = {
   little: false,
@@ -87,6 +87,9 @@ export function newProfile(name) {
     avatarDogId: 'starter',
     // A chosen Cozy Corner pet buddy overrides the dog avatar (null = dog).
     avatarPetId: null,
+    // Store gear placements: where each OWNED item sits (ownership itself
+    // is derived from the Paw Bucks ledger's buy txns). null = closet.
+    gear: { placements: {} },
     createdAt: Date.now(),
     // Per-fact Leitner stats, keyed by normalized fact key ("3x4"):
     // { attempts, correct, avgMs, box, lastSeen }
@@ -216,6 +219,11 @@ export function migrateProfile(doc) {
     doc.avatarPetId = doc.avatarPetId ?? null;
     doc.schemaVersion = 14;
   }
+  if (doc.schemaVersion === 14) {
+    doc.gear = doc.gear ?? { placements: {} };
+    doc.gear.placements = doc.gear.placements ?? {};
+    doc.schemaVersion = 15;
+  }
   return doc;
 }
 
@@ -227,6 +235,7 @@ export function mergeProfiles(a, b) {
   if (!a) return b;
   if (!b) return a;
   const newer = (a.updatedAt ?? 0) >= (b.updatedAt ?? 0) ? a : b;
+  const older = newer === a ? b : a;
   const mergeStatMap = (ma = {}, mb = {}) => {
     const out = {};
     for (const key of new Set([...Object.keys(ma), ...Object.keys(mb)])) {
@@ -269,6 +278,7 @@ export function mergeProfiles(a, b) {
       feed: Math.max(x.feed ?? 0, y.feed ?? 0),
       fetch: Math.max(x.fetch ?? 0, y.fetch ?? 0),
       groom: Math.max(x.groom ?? 0, y.groom ?? 0),
+      train: Math.max(x.train ?? 0, y.train ?? 0),
     };
   }
   // Paw Bucks: union of transactions by id — spends can never be
@@ -318,6 +328,10 @@ export function mergeProfiles(a, b) {
   // Subjects follow the more recently updated doc (it's a parent setting);
   // little-pup xp never regresses.
   const subjects = { ...SUBJECT_DEFAULTS, ...(newer.subjects ?? {}) };
+  // Gear placements are a preference (like wear): newer doc wins per item.
+  const gear = {
+    placements: { ...(older.gear?.placements ?? {}), ...(newer.gear?.placements ?? {}) },
+  };
   const little = {
     xp: Math.max(a.little?.xp ?? 0, b.little?.xp ?? 0),
     // Per-skill richer-wins: the device that saw more tries / a longer
@@ -354,6 +368,7 @@ export function mergeProfiles(a, b) {
     achievements,
     stats,
     wear,
+    gear,
     pawBucks,
   };
 }

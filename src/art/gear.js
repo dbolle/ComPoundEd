@@ -3,26 +3,29 @@
 // toys are standalone art for shelves and dog pages. No prices here — the
 // store sets those. All original CC0 art, house style.
 
+// Tiers (docs/PHASE store plan, prices pinned 2026-07-20 against the
+// known economy): treasures are one-of-a-kind and move between wearers;
+// gifts are bought FOR a wearer; toys are shared household things.
 export const GEAR_ACCESSORIES = [
-  { id: 'crown', name: 'royal crown', emoji: '👑', slot: 'head' },
-  { id: 'tiara', name: 'sparkle tiara', emoji: '👸', slot: 'head' },
-  { id: 'party', name: 'party hat', emoji: '🥳', slot: 'head' },
-  { id: 'flower', name: 'ear flower', emoji: '🌼', slot: 'ear' },
-  { id: 'glasses', name: 'smart glasses', emoji: '🤓', slot: 'eyes' },
-  { id: 'sunglasses', name: 'cool shades', emoji: '😎', slot: 'eyes' },
-  { id: 'scarf', name: 'cozy scarf', emoji: '🧣', slot: 'neck' },
-  { id: 'bowtie', name: 'fancy bowtie', emoji: '🎀', slot: 'neck' },
+  { id: 'crown', name: 'royal crown', emoji: '👑', slot: 'head', tier: 'treasure', price: 1200 },
+  { id: 'tiara', name: 'sparkle tiara', emoji: '👸', slot: 'head', tier: 'treasure', price: 800 },
+  { id: 'party', name: 'party hat', emoji: '🥳', slot: 'head', tier: 'gift', price: 120 },
+  { id: 'flower', name: 'ear flower', emoji: '🌼', slot: 'ear', tier: 'gift', price: 100 },
+  { id: 'glasses', name: 'smart glasses', emoji: '🤓', slot: 'eyes', tier: 'gift', price: 150 },
+  { id: 'sunglasses', name: 'cool shades', emoji: '😎', slot: 'eyes', tier: 'gift', price: 200 },
+  { id: 'scarf', name: 'cozy scarf', emoji: '🧣', slot: 'neck', tier: 'gift', price: 160 },
+  { id: 'bowtie', name: 'fancy bowtie', emoji: '🎀', slot: 'neck', tier: 'gift', price: 125 },
 ];
 
 export const TOYS = [
-  { id: 'ball', name: 'bouncy ball', emoji: '🎾' },
-  { id: 'bonetoy', name: 'squeaky bone', emoji: '🦴' },
-  { id: 'rope', name: 'tug rope', emoji: '🪢' },
-  { id: 'teddy', name: 'tiny teddy', emoji: '🧸' },
-  { id: 'frisbee', name: 'flying disc', emoji: '🥏' },
-  { id: 'bowl', name: 'deluxe bowl', emoji: '🥣' },
-  { id: 'ducky', name: 'rubber ducky', emoji: '🦆' },
-  { id: 'ring', name: 'chew ring', emoji: '🍩' },
+  { id: 'ball', name: 'bouncy ball', emoji: '🎾', tier: 'toy', price: 25 },
+  { id: 'bonetoy', name: 'squeaky bone', emoji: '🦴', tier: 'toy', price: 40 },
+  { id: 'rope', name: 'tug rope', emoji: '🪢', tier: 'toy', price: 60 },
+  { id: 'teddy', name: 'tiny teddy', emoji: '🧸', tier: 'toy', price: 100 },
+  { id: 'frisbee', name: 'flying disc', emoji: '🥏', tier: 'toy', price: 75 },
+  { id: 'bowl', name: 'deluxe bowl', emoji: '🥣', tier: 'toy', price: 90 },
+  { id: 'ducky', name: 'rubber ducky', emoji: '🦆', tier: 'toy', price: 30 },
+  { id: 'ring', name: 'chew ring', emoji: '🍩', tier: 'toy', price: 50 },
 ];
 
 const TOY_ART = {

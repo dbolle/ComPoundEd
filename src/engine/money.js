@@ -38,6 +38,7 @@ export const REASON_LABELS = {
   set: 'whole table mastered',
   polish: 'rusty fact polished',
   skill: 'new number known',
+  buy: 'pet store',
 };
 
 export function ensureBucks(profile) {

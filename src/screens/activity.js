@@ -6,7 +6,7 @@
 
 import { navigate } from '../router.js';
 import { buildRound, buildDivisionRound, buildSittingRound, buildGroomRound } from '../engine/selector.js';
-import { recordAnswer, recordDivisionAnswer } from '../engine/leitner.js';
+import { recordAnswer, recordDivisionAnswer, isTableMastered, tableDueCount } from '../engine/leitner.js';
 import { checkUnlocks, isUnlocked } from '../engine/unlocks.js';
 import { bumpAnswer, bumpActivity, checkAchievements } from '../engine/achievements.js';
 import { earnSitting, earnFromAnswer, coinBadges } from '../engine/money.js';
@@ -272,9 +272,17 @@ export function activityScreen(el, params, ctx) {
   async function finish() {
     const p = ctx.profile;
     const wornBefore = dogs.map((d) => accessoriesFor(p, d.id));
+    // A training partner still needs the practice: their table unmastered
+    // or rusty. A group session with one earns EVERY member collar credit —
+    // the interleaving reward (collar ladder, 10/25/50/100).
+    const isTrainingPartner = (d) =>
+      d.table != null && (!isTableMastered(p, d.table) || tableDueCount(p, d.table) > 0);
+    const qualifies =
+      !sitting && dogs.length > 1 && dogs.some((d) => isTrainingPartner(d));
     for (const d of dogs) {
       p.play[d.id] = p.play[d.id] ?? { walk: 0, feed: 0, fetch: 0 };
       p.play[d.id][kind] = (p.play[d.id][kind] ?? 0) + 1;
+      if (qualifies) p.play[d.id].train = (p.play[d.id].train ?? 0) + 1;
     }
     const newWear = dogs.flatMap((d, i) =>
       accessoriesFor(p, d.id)
