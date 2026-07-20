@@ -10,6 +10,7 @@ import { getDog, dogSVG, wornFor, DOGS, GUESTS } from '../art/dogs.js';
 import { getPet, petSVG } from '../art/pets.js';
 import { sfx, buzz, say, cheer } from '../sound.js';
 import { earnSkillKnown, balanceCents, formatPaw } from '../engine/money.js';
+import { avatarFor } from '../art/avatar.js';
 import { checkPetUnlocks } from '../engine/cozy.js';
 import { confetti, escapeHtml } from '../ui.js';
 
@@ -187,13 +188,13 @@ function tiles(p, buddy) {
       game: 'feed',
       minXp: 14,
       caption: 'Feed me!',
-      art: `<span class="tile-dogs">${dogSVG(buddy, 38, wornFor(p, buddy.id))}</span><span class="tile-art small">\u{1F9B4}\u27A1\uFE0F\u{1F963}</span>`,
+      art: `<span class="tile-dogs">${buddy.svg(38)}</span><span class="tile-art small">\u{1F9B4}\u27A1\uFE0F\u{1F963}</span>`,
     },
     {
       game: 'more',
       minXp: 20,
       caption: 'Who has more?',
-      art: `<span class="tile-dogs">${dogSVG(buddy, 38, wornFor(p, buddy.id))}${dogSVG(GUESTS[0], 38)}</span><span class="tile-art small">\u{1F9B4}\u{1F9B4} \u00b7 \u{1F9B4}</span>`,
+      art: `<span class="tile-dogs">${buddy.svg(38)}${dogSVG(GUESTS[0], 38)}</span><span class="tile-art small">\u{1F9B4}\u{1F9B4} \u00b7 \u{1F9B4}</span>`,
     },
     {
       game: 'shape',
@@ -264,11 +265,11 @@ export function littleHomeScreen(el, params, ctx) {
   // A transitioning kid with childCanSwitch can hop to the big-kid home.
   ctx.session.bigView = false;
   const p = ctx.profile;
-  const buddy = getDog(p.avatarDogId);
+  const buddy = avatarFor(p);
   el.innerHTML = `
     <div class="screen little-screen">
       <div class="hero little-hero">
-        <span class="avatar">${dogSVG(buddy, 96, wornFor(p, buddy.id))}</span>
+        <span class="avatar">${buddy.svg(96)}</span>
         <div>
           <h1>Hi, ${escapeHtml(p.name)}!</h1>
         </div>
@@ -358,7 +359,7 @@ export function littleGameScreen(el, params, ctx) {
     ? params.get('game')
     : 'count';
   const QUESTIONS = QUESTIONS_BY_GAME[game];
-  const buddy = getDog(p.avatarDogId);
+  const buddy = avatarFor(p);
   let index = 0;
   let busy = false;
   let firstTry = true;
@@ -462,7 +463,7 @@ export function littleGameScreen(el, params, ctx) {
       promptEl.textContent = `🦴➡️🥣`;
       speak(`Feed ${buddy.name} ${WORDS[n]} bones!`);
       stageEl.dataset.answer = n;
-      stageEl.innerHTML = `<div class="feed-row">${dogSVG(buddy, 52, wornFor(p, buddy.id))}
+      stageEl.innerHTML = `<div class="feed-row">${buddy.svg(52)}
           <span class="little-numeral">${n}</span><span class="feed-bowl">🥣</span>
           <span class="tap-count">0</span></div>
         <div class="little-items tap-items feed-items">${Array.from(
@@ -702,7 +703,7 @@ export function littleGameScreen(el, params, ctx) {
       speak('Who has more bones?');
       choicesEl.classList.add('duo');
       choiceButton(
-        `<span class="dog">${dogSVG(buddy, 72, wornFor(p, buddy.id))}</span>
+        `<span class="dog">${buddy.svg(72)}</span>
          <span class="little-items small">${itemRow('🦴', a)}</span>`,
         a > b
       );
@@ -824,7 +825,7 @@ export function littleGameScreen(el, params, ctx) {
     choicesEl.innerHTML = `
       <div class="card center little-done">
         <div class="dog bounce">${
-          newPets.length ? petSVG(newPets[0].pet, 104) : dogSVG(buddy, 104, wornFor(p, buddy.id))
+          newPets.length ? petSVG(newPets[0].pet, 104) : buddy.svg(104)
         }</div>
         ${newPets.length ? '<div class="badge-row" style="justify-content:center"><span class="badge">🏡 New cozy friend!</span></div>' : ''}
         ${roundCoins.length ? `<div class="badge-row" style="justify-content:center"><span class="badge">🐷 ${formatPaw(roundCoins.reduce((s, t) => s + t.cents, 0))} saved!</span></div>` : ''}

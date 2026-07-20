@@ -945,6 +945,21 @@ button.pressed {
   font-weight: 800;
 }
 
+.pet-hello {
+  padding: 0;
+}
+
+.pet-hello .dog {
+  width: 76px;
+  height: 76px;
+  display: inline-block;
+}
+
+.buddy-pick {
+  font-size: 0.8rem;
+  padding: 6px 10px;
+}
+
 /* Grown-ups: which-tables chips */
 .limit-grid {
   display: grid;

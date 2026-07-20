@@ -1,4 +1,4 @@
-import { navigate } from '../router.js';
+import { navigate, currentRoute } from '../router.js';
 import { getDog, dogSVG, accessoriesFor, wornFor, ACCESSORIES, dirtFor, nextColorGoal } from '../art/dogs.js';
 import { isUnlocked } from '../engine/unlocks.js';
 import { toast, escapeHtml } from '../ui.js';
@@ -21,7 +21,7 @@ export function dogScreen(el, params, ctx) {
     return;
   }
   const play = ctx.profile.play[dog.id] ?? { walk: 0, feed: 0, fetch: 0 };
-  const isBuddy = ctx.profile.avatarDogId === dog.id;
+  const isBuddy = ctx.profile.avatarDogId === dog.id && !ctx.profile.avatarPetId;
   const earned = accessoriesFor(ctx.profile, dog.id);
   const dirt = dirtFor(ctx.profile, dog);
   const groomable = true; // every pack dog — Biscuit gets a board-wide spa day
@@ -90,9 +90,11 @@ export function dogScreen(el, params, ctx) {
   if (buddyBtn) {
     buddyBtn.addEventListener('click', async () => {
       ctx.profile.avatarDogId = dog.id;
+      ctx.profile.avatarPetId = null; // a dog buddy replaces a pet buddy
       await ctx.save();
       toast(`${dog.name} is your buddy now! 🐾`);
-      dogScreen(el, params, ctx);
+      // the save is async — only re-render if we're still on this screen
+      if (currentRoute().path === '/dog') dogScreen(el, params, ctx);
     });
   }
   const dress = el.querySelector('[data-dress]');

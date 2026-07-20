@@ -10,6 +10,7 @@ import {
 } from '../engine/leitner.js';
 import { sittingReady } from '../engine/selector.js';
 import { suggestNext } from '../engine/suggest.js';
+import { avatarFor } from '../art/avatar.js';
 import { WAVES, waveProgress, waveUnlocked, isWaveMastered, subWaveProgress, subWaveUnlocked, isSubWaveMastered } from '../engine/waves.js';
 import { getUiPrefs, setUiPrefs } from '../data/store.js';
 import { getDog, dogSVG, wornFor, dirtFor, GUESTS } from '../art/dogs.js';
@@ -39,7 +40,7 @@ export async function homeScreen(el, params, ctx) {
   el.innerHTML = `
     <div class="screen">
       <div class="hero">
-        <span class="avatar">${dogSVG(getDog(p.avatarDogId), 84, wornFor(p, p.avatarDogId), dirtFor(p, getDog(p.avatarDogId)))}</span>
+        <span class="avatar">${avatarFor(p).svg(84, { dirt: true })}</span>
         <div>
           <h1>Hi, ${escapeHtml(p.name)}!</h1>
           <p class="muted">Ready to fetch some facts?</p>

@@ -1,3 +1,4 @@
+import { avatarFor } from '../art/avatar.js';
 import { listProfiles, createProfile, saveProfile, setSyncEnabled, syncNow } from '../data/store.js';
 import { navigate } from '../router.js';
 import { getDog, dogSVG, wornFor } from '../art/dogs.js';
@@ -31,7 +32,7 @@ export async function profilesScreen(el, params, ctx) {
   for (const p of profiles) {
     const btn = document.createElement('button');
     btn.className = 'profile-card';
-    btn.innerHTML = `<span class="avatar">${dogSVG(getDog(p.avatarDogId), 64, wornFor(p, p.avatarDogId))}</span>
+    btn.innerHTML = `<span class="avatar">${avatarFor(p).svg(64)}</span>
       <span>${escapeHtml(p.name)}</span>`;
     btn.addEventListener('click', async () => {
       await ctx.switchProfile(p);

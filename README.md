@@ -33,7 +33,8 @@ licensing.
   raw volume. Wallet, ledger, piggy bank for little pups; Pet Store
   coming (teaser live).
 - **Cozy Corner** — zero-maintenance companion pets adopted at bridge
-  milestones, grouped by species habitat.
+  milestones, grouped by species habitat; any adopted pet can be picked
+  as the kid's buddy/avatar.
 - **Dog accessories** — pups earn a bandana/bow/cap (10 walks/meals/fetches)
   and a star tag (40 plays), worn everywhere they appear.
 - **Awards** — 14 stacked achievement families climbing Bronze → Silver →
