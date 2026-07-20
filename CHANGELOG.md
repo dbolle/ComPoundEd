@@ -3,6 +3,15 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.16.0 — 2026-07-20
+
+- Play date 🐕🐕: one tap on any dog's page invites 1–3 auto-picked
+  friends (whoever most needs the practice leads the invite) into a
+  group training round — 6 facts per dog (12/18/24), earning collar
+  credit when a friend still needs the work. Manual group play and its
+  training tip stay as-is; group rounds everywhere now scale with the
+  party instead of a fixed 6 questions.
+
 ## v1.15.0 — 2026-07-20
 
 - Wardrobe: a collar row (original color + the blue/green/purple/gold

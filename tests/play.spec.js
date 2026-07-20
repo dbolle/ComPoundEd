@@ -70,7 +70,7 @@ test('group play rotates askers, questions match the asking dog', async ({ page 
   expect(await page.$$eval('.mover', (els) => els.length)).toBe(2);
 
   const pairs = [];
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < 14; i++) { // group rounds are now 6 per dog (12 here)
     await page.waitForFunction(() =>
       document.querySelector('.question')?.textContent?.includes('×')
     );

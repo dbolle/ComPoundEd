@@ -4,6 +4,7 @@
 import {
   tableProgress,
   isTableMastered,
+  tableDueCount,
   divisionTableProgress,
   divisionTableUnlocked,
   isDivisionTableMastered,
@@ -16,7 +17,8 @@ import {
   FACTOR_MIN,
   FACTOR_MAX,
 } from './leitner.js';
-import { dogForTable, dogForDivTable } from '../art/dogs.js';
+import { dogForTable, dogForDivTable, DOGS } from '../art/dogs.js';
+import { isUnlocked } from './unlocks.js';
 import { WAVES, waveProgress, waveUnlocked, subWaveProgress, subWaveUnlocked } from './waves.js';
 
 // Gentle pedagogy for brand-new kids: easy patterns first.
@@ -101,4 +103,16 @@ export function suggestNext(profile) {
     }
   }
   return refresh;
+}
+
+// Friends for a play date: dogs whose tables still need the practice
+// come first (weakest ratio), then anyone else fills the party.
+export function trainingPartnersFor(profile, dogId, max = 3) {
+  const others = DOGS.filter((d) => d.id !== dogId && isUnlocked(profile, d.id) && d.table != null);
+  const score = (d) => {
+    const p = tableProgress(profile, d.table);
+    const needs = !isTableMastered(profile, d.table) || tableDueCount(profile, d.table) > 0;
+    return (needs ? 0 : 10) + p.points / Math.max(1, p.maxPoints);
+  };
+  return others.sort((x, y) => score(x) - score(y)).slice(0, max);
 }
