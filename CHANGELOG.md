@@ -3,6 +3,18 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.20.0 — 2026-07-21
+
+- Take away! 🥣: subtraction's concrete stage — bones hop away before
+  their eyes, how many are left? Unlocks from pictorial adding.
+- Counting paths 🐾: skip-count chains for 2s/5s/10s plus counting
+  backward; tap-choices until typing is known, then typed. Unlocks when
+  the Doubles wave masters (doubles ↔ ×2).
+- Type it! now serves decade numbers (20–90) once paths-of-10 is known.
+- Times tables readiness is complete: within-20 waves + first Taking
+  Away waves + the counting paths. Two more milestone pets. The
+  automated trail now runs unbroken from first counts to division.
+
 ## v1.19.0 — 2026-07-21
 
 - Type it! ⌨️: the numpad bridge — a numeral shows and speaks, the child

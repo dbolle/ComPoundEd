@@ -91,6 +91,7 @@ test('quiz and activity screens never overflow a 390×600 viewport', async ({ br
 });
 
 test('worst case: every little game keeps all items inside a 390×600 phone', async ({ page }) => {
+  test.slow(); // 7 games × bounded random draws to reach the biggest question
   await page.setViewportSize({ width: 390, height: 600 });
   await page.goto('/', { waitUntil: 'networkidle' });
   const { newProfile } = await import('../src/data/schema.js');
@@ -121,14 +122,16 @@ test('worst case: every little game keeps all items inside a 390×600 phone', as
     });
 
   // drive each sizeable game to its biggest question (bounded retries)
-  for (const game of ['count', 'find', 'add', 'teen', 'look', 'feed']) {
+  for (const game of ['count', 'find', 'add', 'teen', 'look', 'feed', 'taway']) {
     let biggest = false;
-    for (let i = 0; i < 20 && !biggest; i++) {
+    for (let i = 0; i < 45 && !biggest; i++) {
       await page.evaluate((gm) => { location.hash = `#/little?game=${gm}`; }, game);
-      await page.waitForSelector('.little-stage :first-child');
+      await page.waitForSelector('.little-stage > *', { state: 'attached' }); // look's frame hides after the flash
       await page.waitForTimeout(250);
       const n = await page.evaluate(() => Number(document.querySelector('.little-stage')?.dataset.answer));
-      biggest = game === 'teen' ? n >= 17 : game === 'add' ? n >= 9 : n >= 9 || Number.isNaN(n);
+      const items = await page.$$eval('.little-stage .li', (els) => els.length);
+      biggest =
+        game === 'teen' ? n >= 17 : game === 'add' ? n >= 9 : game === 'taway' ? items >= 9 : n >= 9 || Number.isNaN(n);
       if (biggest) {
         const bad = await offscreen();
         expect(bad, `${game} n=${n}: ${bad.join(' | ')}`).toEqual([]);

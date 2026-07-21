@@ -34,10 +34,11 @@ export function takingAwayReady(p) {
 }
 
 export function tablesReady(p) {
-  // interim predicate (Counting Paths joins in v1.20): the within-20
-  // strategies through Tens & Teens, plus the first two Taking Away waves
+  // within-20 strategies through Tens & Teens, the first two Taking Away
+  // waves, and the skip-count paths (the counting→tables connector)
   for (let w = 0; w <= 4; w++) if (!isWaveMastered(p, w)) return false;
-  return isSubWaveMastered(p, 0) && isSubWaveMastered(p, 1);
+  if (!isSubWaveMastered(p, 0) || !isSubWaveMastered(p, 1)) return false;
+  return [2, 5, 10].every((t) => knows(p, 'path', t));
 }
 
 // --- visibility: override ?? (predicate || history) ------------------------

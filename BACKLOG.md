@@ -55,6 +55,14 @@ reconsider after calibration.
    predictive value), then mental math within 100/1000, 10-more/less,
    squares/primes.
 
+## Recently shipped (July 21)
+
+- The automated readiness trail v1.18–v1.20: tri-state ✨Auto subjects,
+  reveal ratchet (nothing earned ever vanishes), hero rotation, zoom
+  prevention, worst-case fit sweep, Type it! ⌨️, Take away! 🥣,
+  Counting paths 🐾, full tables readiness. Trail runs pre-K → ÷ with
+  no parent gates required.
+
 ## Recently shipped (July 19)
 
 - Little guidance layer + verification tightening (v1.10.0), vocabulary

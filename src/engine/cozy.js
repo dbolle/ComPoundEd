@@ -32,6 +32,8 @@ export const MILESTONES = [
   // Appended (never inserted): milestone→pet mapping is positional and
   // must stay deterministic across app versions and devices.
   { id: 'type', label: 'Type it! 1–10', earned: (p) => rangeKnown(p, 'type', 1, 10) },
+  { id: 'taway', label: 'Take away!', earned: (p) => rangeKnown(p, 'takeaway', 1, 8) },
+  { id: 'paths', label: 'Counting paths (2s, 5s, 10s)', earned: (p) => [2, 5, 10].every((t) => known(p, `path:${t}`)) },
 ];
 
 export function petForMilestone(msId) {

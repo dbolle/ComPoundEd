@@ -962,6 +962,15 @@ button.pressed {
   padding: 6px 10px;
 }
 
+.little-items .li.gone {
+  transition: transform 0.7s ease, opacity 0.7s ease;
+}
+
+.little-items .li.gone.hopped {
+  transform: translateY(-26px) scale(0.6);
+  opacity: 0.15;
+}
+
 .little-numpad {
   max-width: 300px;
 }
