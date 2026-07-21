@@ -29,7 +29,7 @@ test('migration v10→v11 adds empty skills; xp untouched (range re-derives)', (
   old.little = { xp: 80 };
   const doc = migrateProfile(old);
   expect(doc.schemaVersion).toBe(SCHEMA_VERSION);
-  expect(doc.little).toEqual({ xp: 80, skills: {} });
+  expect(doc.little).toEqual({ xp: 80, skills: {}, revealed: [] });
   // high xp no longer unlocks big numbers by itself
   expect(rangeFor(doc, 'count')).toBe(5);
 });

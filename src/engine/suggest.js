@@ -19,6 +19,7 @@ import {
 } from './leitner.js';
 import { dogForTable, dogForDivTable, DOGS } from '../art/dogs.js';
 import { isUnlocked } from './unlocks.js';
+import { bridgeVisible, tablesVisible } from './readiness.js';
 import { WAVES, waveProgress, waveUnlocked, subWaveProgress, subWaveUnlocked } from './waves.js';
 
 // Gentle pedagogy for brand-new kids: easy patterns first.
@@ -33,7 +34,7 @@ export function suggestNext(profile) {
   };
   // Bridge waves compete in the same ranking as tables — the closest-to-
   // done unmastered thing wins, whatever track it lives on.
-  if (profile.subjects?.bridge) {
+  if (bridgeVisible(profile)) {
     WAVES.forEach((w, i) => {
       if (waveUnlocked(profile, i)) {
         const p = waveProgress(profile, i);
@@ -61,7 +62,7 @@ export function suggestNext(profile) {
       }
     });
   }
-  const tablesOn = profile.subjects?.tables !== false;
+  const tablesOn = tablesVisible(profile);
   PED_ORDER.forEach((t, rank) => {
     if (tablesOn && !isTableMastered(profile, t)) {
       const p = tableProgress(profile, t);
@@ -93,10 +94,11 @@ export function suggestNext(profile) {
   // Everything mastered: suggest a refresh of the table with the most
   // rusty facts; null (no button) when nothing needs attention.
   let refresh = null;
-  for (let t = TABLE_MIN; t <= TABLE_MAX; t++) {
+  for (let t = tablesOn ? TABLE_MIN : TABLE_MAX + 1; t <= TABLE_MAX; t++) {
     let due = 0;
     for (let b = FACTOR_MIN; b <= FACTOR_MAX; b++) {
-      if (isDue(getStat(profile, t, b))) due += 1;
+      const st = getStat(profile, t, b);
+      if (st.attempts > 0 && isDue(st)) due += 1;
     }
     if (due > 0 && (!refresh || due > refresh.due)) {
       refresh = { label: `×${t}`, href: `/quiz?table=${t}`, due };

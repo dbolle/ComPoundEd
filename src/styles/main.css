@@ -18,6 +18,8 @@
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
+  /* app-wide: kills double-tap zoom while keeping scroll/pan */
+  touch-action: manipulation;
 }
 
 /* The hidden attribute must always win, even over display:grid/flex rules —
@@ -1506,6 +1508,18 @@ button.pressed {
 .little-items.small .li {
   background: none;
   padding: 0;
+}
+
+/* Big sums/teens: side-by-side frames can't fit a narrow portrait — stack
+   the addends and shrink glyphs so every item stays on screen. */
+.pattern-row.add-row {
+  flex-wrap: wrap;
+  row-gap: 8px;
+  max-width: 340px;
+}
+
+.little-items.small.many {
+  font-size: 0.95rem;
 }
 
 .little-items.many {

@@ -21,7 +21,7 @@ test('migration v6→v7 adds subjects scaffolding + little progression', () => {
   });
   expect(doc.schemaVersion).toBe(SCHEMA_VERSION);
   expect(doc.subjects).toEqual({ ...SUBJECT_DEFAULTS });
-  expect(doc.little).toEqual({ xp: 0, skills: {} });
+  expect(doc.little).toEqual({ xp: 0, skills: {}, revealed: [] });
 
   const a = newProfile('A');
   const b = structuredClone(a);

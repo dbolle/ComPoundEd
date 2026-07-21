@@ -3,6 +3,23 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.18.0 — 2026-07-21
+
+- The automated readiness trail: Adding & Taking Away and the times
+  tables now open THEMSELVES when a child demonstrates readiness
+  (counting + what-comes-next for Adding; the within-20 strategy waves
+  for tables) — anything ever started stays visible, and Grown-Ups
+  chips become ✨Auto / On / Off overrides with a trail-map card.
+- Reveals are a ratchet: once a game or track appears it can never
+  vanish — fixes tiles disappearing when a bored little pup taps wrong
+  answers on purpose. New tiles/tracks celebrate once (confetti+cheer).
+- The little Play! hero rotates through every game with numbers left to
+  learn (one step per round) instead of camping on one game.
+- Pinch/double-tap zoom disabled in the installed app (OS accessibility
+  zoom unaffected); large adding/teen questions wrap and shrink so
+  every item stays on a portrait phone — enforced by a worst-case fit
+  sweep in the suite. (saves v16)
+
 ## v1.17.0 — 2026-07-21
 
 - One name for the outing: **Play date** everywhere ("Play together" is

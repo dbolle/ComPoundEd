@@ -2,12 +2,15 @@
 // migrateProfile() whenever the shape of stored data changes — this is the
 // contract a future sync backend will rely on.
 
-export const SCHEMA_VERSION = 15;
+export const SCHEMA_VERSION = 16;
 
+// bridge/tables are TRI-STATE since v16: 'auto' (readiness engine decides,
+// with any started track always visible) | true (parent forces) | false
+// (parent hides). little stays a plain boolean — auto can't guess an age.
 export const SUBJECT_DEFAULTS = {
   little: false,
-  bridge: false,
-  tables: true,
+  bridge: 'auto',
+  tables: 'auto',
   childCanSwitch: false,
   hideSitting: false,
   limitTables: [],
@@ -121,7 +124,7 @@ export function newProfile(name) {
     // per-quantity mastery, keyed "game:number" → { attempts, streak }
     // (streak = consecutive first-try corrects; 3+ means the child knows it
     // rather than guessed it — a guesser fakes that 3.7% of the time).
-    little: { xp: 0, skills: {} },
+    little: { xp: 0, skills: {}, revealed: [] },
     // Earned achievement badges: { [achievementId]: earnedAt }
     achievements: {},
     // Lifetime counters that feed the achievement ladders.
@@ -223,6 +226,17 @@ export function migrateProfile(doc) {
     doc.gear = doc.gear ?? { placements: {} };
     doc.gear.placements = doc.gear.placements ?? {};
     doc.schemaVersion = 15;
+  }
+  if (doc.schemaVersion === 15) {
+    // booleans → tri-state: everything becomes 'auto' (auto keeps any
+    // started track visible, so no child sees less than before; parents
+    // can still force/hide from Grown-Ups)
+    doc.subjects = { ...doc.subjects };
+    if (doc.subjects.bridge === true || doc.subjects.bridge === false) doc.subjects.bridge = 'auto';
+    if (doc.subjects.tables === true || doc.subjects.tables === false) doc.subjects.tables = 'auto';
+    doc.little = { xp: 0, skills: {}, ...(doc.little ?? {}) };
+    doc.little.revealed = doc.little.revealed ?? [];
+    doc.schemaVersion = 16;
   }
   return doc;
 }
@@ -337,6 +351,8 @@ export function mergeProfiles(a, b) {
     // Per-skill richer-wins: the device that saw more tries / a longer
     // streak knows more; neither side's evidence is lost.
     skills: {},
+    // reveals are a ratchet: union, never removed
+    revealed: [...new Set([...(a.little?.revealed ?? []), ...(b.little?.revealed ?? [])])],
   };
   const skillKeys = new Set([
     ...Object.keys(a.little?.skills ?? {}),
