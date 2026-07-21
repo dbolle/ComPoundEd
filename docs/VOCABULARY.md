@@ -18,6 +18,7 @@ Two registers. Every new string picks one and sticks to its column.
 | first-ever fact | 📣 "New one! Type it in!" (echo) | echo-first exposure (seen flag) |
 | table warm-up | **Counting Path** 🐾 | skip-count chains |
 | little savings | **piggy bank** 🐷 | Paw Bucks balance |
+| the numpad bridge game | **Type it!** ⌨️ | numeral transcription / keypad fluency |
 | any multi-dog outing | **play date** 🐕🐕 (never "play together") | group session |
 | a play date that earns collar colors | **collar training** 🦮✨ (live badge; "training" never stands alone) | qualifying session (training partner / pd=1) |
 

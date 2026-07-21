@@ -21,8 +21,12 @@ const hasHistory = (map) => Object.values(map ?? {}).some((s) => (s.attempts ?? 
 // --- readiness predicates (research-aligned; docs/PHASE5/6) ---------------
 
 export function addingReady(p) {
-  // can count on (counting + what-comes-next); typing joins in v1.19
-  return knowsRange(p, 'count', 1, 10) && knowsRange(p, 'next', 4, 10);
+  // can count on (counting + what-comes-next) and can type answers
+  return (
+    knowsRange(p, 'count', 1, 10) &&
+    knowsRange(p, 'next', 4, 10) &&
+    knowsRange(p, 'type', 1, 10)
+  );
 }
 
 export function takingAwayReady(p) {

@@ -3,6 +3,17 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.19.0 — 2026-07-21
+
+- Type it! ⌨️: the numpad bridge — a numeral shows and speaks, the child
+  types it (teens = two digits, early place value). Unlocks from Find
+  it!; skills type:1–19 pay pennies; its own milestone pet. Adding
+  readiness now requires typing 1–10 (you can't answer waves you can't
+  type).
+- The trail continues in place: Adding ➕ and Taking Away ➖ appear as
+  little-home graduation tiles opening the right wave round directly —
+  no big-kid home needed to keep climbing.
+
 ## v1.18.0 — 2026-07-21
 
 - The automated readiness trail: Adding & Taking Away and the times

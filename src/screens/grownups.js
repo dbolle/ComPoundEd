@@ -34,7 +34,7 @@ const TOTAL_FACTS = 90;
 
 // Little Pup progress: shown once the profile has any little activity.
 // 81 = every skill key a little pup can make "known" (streak of 3).
-const LITTLE_SKILL_TOTAL = 91; // feed joined the signal in v1.10.0
+const LITTLE_SKILL_TOTAL = 110; // + type 1–19 (v1.19.0)
 
 function littleStatsCard(p) {
   const skills = p.little?.skills ?? {};

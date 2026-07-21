@@ -29,6 +29,9 @@ export const MILESTONES = [
     label: `${w.name} taking away`,
     earned: (p) => isSubWaveMastered(p, i),
   })),
+  // Appended (never inserted): milestone→pet mapping is positional and
+  // must stay deterministic across app versions and devices.
+  { id: 'type', label: 'Type it! 1–10', earned: (p) => rangeKnown(p, 'type', 1, 10) },
 ];
 
 export function petForMilestone(msId) {
