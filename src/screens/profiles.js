@@ -74,8 +74,12 @@ export async function profilesScreen(el, params, ctx) {
     const p = await createProfile(name);
     if (e.submitter?.dataset.kind === 'little') {
       p.subjects = { ...(p.subjects ?? {}), little: true };
-      await saveProfile(p);
+    } else {
+      // A brand-new big kid has no history for the trail to grandfather —
+      // the creation choice IS the readiness signal, so tables start on.
+      p.subjects = { ...(p.subjects ?? {}), tables: true };
     }
+    await saveProfile(p);
     await ctx.switchProfile(p);
     navigate('/home');
   });

@@ -21,8 +21,9 @@ test('suggest ranks bridge waves with tables; tables-off yields wave suggestions
   const s2 = suggestNext(both);
   expect(s2.href).toBe('/quiz?wave=0');
 
-  // plain big kid: unchanged behavior
+  // plain big kid (creation sets tables on; auto would wait for readiness)
   const plain = newProfile('S3');
+  plain.subjects = { ...plain.subjects, tables: true };
   expect(suggestNext(plain).href).toContain('table=');
 });
 
@@ -38,6 +39,7 @@ test('e2e: counting path warms up a fresh table, unscored, then the round starts
   await page.goto('/', { waitUntil: 'networkidle' });
   const doc = newProfile('Warmy');
   doc.id = 'warm-kid';
+  doc.subjects = { ...doc.subjects, tables: true }; // fresh big kid: creation would set this
   await seedProfile(page, doc);
   await selectProfile(page, 'Warmy');
 

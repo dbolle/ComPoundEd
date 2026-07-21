@@ -6,6 +6,7 @@ import { seedProfile, selectProfile, uniqueName, norm, stat } from './helpers.mj
 
 test('suggest points never-met tables at the lesson, met tables at practice', () => {
   const fresh = newProfile('MeetMe');
+  fresh.subjects = { ...fresh.subjects, tables: true }; // created-as-big-kid
   expect(suggestNext(fresh).href).toContain('/meet?table=');
   for (let b = 0; b <= 12; b++) fresh.facts[norm(1, b)] = stat(1);
   expect(suggestNext(fresh).href).toContain('/quiz?table=1');

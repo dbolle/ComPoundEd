@@ -12,6 +12,7 @@ import { sfx, buzz, say, cheer } from '../sound.js';
 import { earnSkillKnown, balanceCents, formatPaw } from '../engine/money.js';
 import { avatarFor } from '../art/avatar.js';
 import { checkPetUnlocks } from '../engine/cozy.js';
+import { isRevealed, ratchetReveals } from '../engine/readiness.js';
 import { confetti, escapeHtml } from '../ui.js';
 
 const ITEMS = ['🦴', '🎾', '🍖'];
@@ -86,7 +87,13 @@ function hasFrontier(profile, game) {
 // untracked games so "Play!" always points somewhere.
 export function littleSuggestNext(profile, readyTiles) {
   const tracked = readyTiles.filter((t) => hasFrontier(profile, t.game));
-  if (tracked.length) return tracked[0];
+  // Rotate through every frontier game (one step per round played) so the
+  // hero varies visit to visit instead of camping on one game.
+  const totalPlays = Object.values(profile.play ?? {}).reduce(
+    (s, kinds) => s + Object.values(kinds).reduce((a, n) => a + (n || 0), 0),
+    0
+  );
+  if (tracked.length) return tracked[totalPlays % tracked.length];
   return readyTiles[Math.floor(Date.now() / 86400000) % readyTiles.length];
 }
 
@@ -306,7 +313,21 @@ export function littleHomeScreen(el, params, ctx) {
   const xp = p.little?.xp ?? 0;
   const grid = el.querySelector('.little-tiles');
   const all = tiles(p, buddy);
-  const isReady = (t) => (t.ready ? t.ready(p) : xp >= t.minXp);
+  // The ratchet: once a tile has EVER been ready it stays on the shelf —
+  // tanked streaks (a bored 3-year-old tapping wrong on purpose) can
+  // shrink the numbers served, never the games owned.
+  const liveReady = (t) => (t.ready ? t.ready(p) : xp >= t.minXp);
+  const freshTiles = ratchetReveals(
+    p,
+    all.filter(liveReady).map((t) => `tile:${t.game}`)
+  );
+  if (freshTiles.length) {
+    ctx.save();
+    confetti(12);
+    const newest = all.find((t) => `tile:${t.game}` === freshTiles[freshTiles.length - 1]);
+    if (newest) cheer(`A new game! ${newest.caption}`);
+  }
+  const isReady = (t) => isRevealed(p, `tile:${t.game}`);
   const readyTiles = all.filter(isReady);
   // "Play!" hero: the most valuable game right now, front and huge.
   const pick = littleSuggestNext(p, readyTiles);
@@ -582,9 +603,9 @@ export function littleGameScreen(el, params, ctx) {
       speak(`${WORDS[a]} plus ${WORDS[b]}!`);
       stageEl.dataset.answer = a + b;
       stageEl.innerHTML = `<div class="pattern-row add-row">
-        <span class="little-items small">${itemRow(item, a)}</span>
+        <span class="little-items small${a > 5 ? ' many' : ''}">${itemRow(item, a)}</span>
         <span class="pattern-q">➕</span>
-        <span class="little-items small">${itemRow(item, b)}</span>
+        <span class="little-items small${b > 5 ? ' many' : ''}">${itemRow(item, b)}</span>
         <span class="pattern-q">=</span><span class="pattern-q">❓</span></div>`;
       for (const v of pickCounts(a + b, Math.max(maxSum, a + b))) {
         choiceButton(`<span class="little-numeral">${v}</span>`, v === a + b);
@@ -684,9 +705,9 @@ export function littleGameScreen(el, params, ctx) {
       stageEl.dataset.answer = 10 + n;
       stageEl.dataset.skill = `teen:${n}`;
       stageEl.innerHTML = `<div class="pattern-row add-row">
-        <span class="little-items small">${itemRow(item, 10)}</span>
+        <span class="little-items small many">${itemRow(item, 10)}</span>
         <span class="pattern-q">➕</span>
-        <span class="little-items small">${itemRow(item, n)}</span></div>`;
+        <span class="little-items small${n > 5 ? ' many' : ''}">${itemRow(item, n)}</span></div>`;
       const opts = new Set([10 + n]);
       while (opts.size < 3) opts.add(11 + ri(9));
       for (const v of [...opts].sort(() => Math.random() - 0.5)) {

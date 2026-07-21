@@ -80,6 +80,7 @@ test('B: e2e — a wrong first try celebrates the attempt', async ({ page }) => 
 
 test('C: suggestions name the dog for untried tables only', () => {
   const fresh = newProfile('Teach');
+  fresh.subjects = { ...fresh.subjects, tables: true }; // created-as-big-kid
   const s = suggestNext(fresh);
   expect(s.label).toBe('×1');
   expect(s.teach).toBe(dogForTable(1).name);

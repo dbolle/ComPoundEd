@@ -27,6 +27,7 @@ import { DOGS } from '../art/dogs.js';
 import { PETS } from '../art/pets.js';
 import { toast, escapeHtml } from '../ui.js';
 import { SCHEMA_VERSION } from '../data/schema.js';
+import { bridgeVisible, tablesVisible, trackState, addingReady } from '../engine/readiness.js';
 
 // 90 distinct normalized facts across tables 1–12 with factors 0–12.
 const TOTAL_FACTS = 90;
@@ -112,7 +113,7 @@ export function grownupsScreen(el, params, ctx) {
         <div class="stat-row"><span>Facts needing a refresh</span><span>${dueCount(p)}</span></div>
         <div class="stat-row"><span>Division facts mastered</span><span>${divisionMasteredCount(p)}</span></div>
         ${
-          p.subjects?.bridge || additionMasteredCount(p) || subtractionMasteredCount(p)
+          bridgeVisible(p) || additionMasteredCount(p) || subtractionMasteredCount(p)
             ? `<div class="stat-row"><span>Adding facts mastered</span><span>${additionMasteredCount(p)} / 66</span></div>
         <div class="stat-row"><span>Taking-away families mastered</span><span>${subtractionMasteredCount(p)} / 66</span></div>`
             : ''
@@ -177,6 +178,19 @@ export function grownupsScreen(el, params, ctx) {
         </div>
         <p class="muted" style="font-size:.85rem;margin:12px 0 6px">Times tables shown (none picked = all):</p>
         <div class="limit-grid" data-limit></div>
+      </div>
+      <div style="height:12px"></div>
+      <div class="card">
+        <h3>The trail 🐾</h3>
+        <p class="muted" style="font-size:.85rem">Tracks open themselves as ${escapeHtml(p.name)} shows they're ready (anything started stays open). ✨ Auto follows this; On/Off overrides it.</p>
+        ${['adding', 'takingaway', 'tables', 'division']
+          .map((tr) => {
+            const st = trackState(p, tr);
+            const names = { adding: '➕ Adding', takingaway: '➖ Taking away', division: '➗ Division', tables: '✖️ Times tables' };
+            const badge = st === 'started' ? '🟢 started' : st === 'ready' ? '✨ ready to open' : '⚪ not yet';
+            return `<div class="stat-row"><span>${names[tr]}</span><span>${badge}</span></div>`;
+          })
+          .join('')}
       </div>
       <div style="height:12px"></div>
       <div class="card">
@@ -254,21 +268,30 @@ export function grownupsScreen(el, params, ctx) {
 
     // Subject visibility switches. Each is a plain boolean on subjects;
     // the little toggle keeps its friendly toast.
+    // bridge/tables cycle ✨Auto → On → Off (the trail decides on Auto,
+    // keeping anything started visible); the rest stay simple booleans.
+    const TRI = ['auto', true, false];
+    const triLabel = (name, v) =>
+      `${name}: ${v === true ? 'on' : v === false ? 'off' : '✨ auto'}`;
     const SUBJ_LABELS = {
       little: (v) => (v ? '🐣 Little pup: on' : '🧒 Little pup: off'),
-      bridge: (v) => (v ? '➕ Adding games: on' : '➕ Adding games: off'),
-      tables: (v) => (v ? '✖️ Times tables: on' : '✖️ Times tables: off'),
+      bridge: (v) => `➕ ${triLabel('Adding & taking away', v)}`,
+      tables: (v) => `✖️ ${triLabel('Times tables', v)}`,
       childCanSwitch: (v) => (v ? '🔀 Child can switch: yes' : '🔀 Child can switch: no'),
       hideSitting: (v) => (v ? '🏡 Pet sitting: hidden' : '🏡 Pet sitting: shown'),
     };
     for (const btn of panel.querySelectorAll('[data-subj]')) {
       const key = btn.dataset.subj;
+      const tri = key === 'bridge' || key === 'tables';
       const render = () => {
-        btn.textContent = SUBJ_LABELS[key](!!p.subjects?.[key]);
+        btn.textContent = SUBJ_LABELS[key](tri ? p.subjects?.[key] : !!p.subjects?.[key]);
       };
       render();
       btn.addEventListener('click', async () => {
-        p.subjects = { ...(p.subjects ?? {}), [key]: !p.subjects?.[key] };
+        const next = tri
+          ? TRI[(TRI.indexOf(p.subjects?.[key] ?? 'auto') + 1) % TRI.length]
+          : !p.subjects?.[key];
+        p.subjects = { ...(p.subjects ?? {}), [key]: next };
         await ctx.save();
         render();
         if (key === 'little') {

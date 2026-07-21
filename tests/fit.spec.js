@@ -89,3 +89,53 @@ test('quiz and activity screens never overflow a 390×600 viewport', async ({ br
 
   await ctx.close();
 });
+
+test('worst case: every little game keeps all items inside a 390×600 phone', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 600 });
+  await page.goto('/', { waitUntil: 'networkidle' });
+  const { newProfile } = await import('../src/data/schema.js');
+  const doc = newProfile('Maxed');
+  doc.id = 'maxed-kid';
+  doc.subjects = { ...doc.subjects, little: true };
+  const skills = {};
+  for (const g of ['count', 'find', 'look', 'more', 'next', 'add', 'feed']) {
+    for (let n = 1; n <= 10; n++) skills[`${g}:${n}`] = { attempts: 4, streak: 4 };
+  }
+  for (let k = 0; k <= 10; k++) skills[`bond5:${k}`] = skills[`bond10:${k}`] = { attempts: 4, streak: 4 };
+  doc.little = { xp: 200, skills, revealed: [] };
+  await seedProfile(page, doc);
+  await selectProfile(page, 'Maxed');
+  await page.waitForSelector('.little-tile');
+
+  const offscreen = async () =>
+    page.evaluate(() => {
+      const bad = [];
+      for (const elx of document.querySelectorAll('.little-stage *, .little-choices *')) {
+        const r = elx.getBoundingClientRect();
+        if (r.width === 0 && r.height === 0) continue;
+        if (r.left < -1 || r.right > window.innerWidth + 1 || r.top < -1 || r.bottom > window.innerHeight + 1) {
+          bad.push(`${elx.className}@${Math.round(r.right)},${Math.round(r.bottom)}`);
+        }
+      }
+      return bad;
+    });
+
+  // drive each sizeable game to its biggest question (bounded retries)
+  for (const game of ['count', 'find', 'add', 'teen', 'look', 'feed']) {
+    let biggest = false;
+    for (let i = 0; i < 20 && !biggest; i++) {
+      await page.evaluate((gm) => { location.hash = `#/little?game=${gm}`; }, game);
+      await page.waitForSelector('.little-stage :first-child');
+      await page.waitForTimeout(250);
+      const n = await page.evaluate(() => Number(document.querySelector('.little-stage')?.dataset.answer));
+      biggest = game === 'teen' ? n >= 17 : game === 'add' ? n >= 9 : n >= 9 || Number.isNaN(n);
+      if (biggest) {
+        const bad = await offscreen();
+        expect(bad, `${game} n=${n}: ${bad.join(' | ')}`).toEqual([]);
+      }
+      await page.evaluate(() => { location.hash = '#/home'; });
+      await page.waitForSelector('.little-tile');
+    }
+    expect(biggest, `never saw a big ${game} question`).toBe(true);
+  }
+});

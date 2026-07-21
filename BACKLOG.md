@@ -63,6 +63,10 @@ reconsider after calibration.
 
 ## Parked / reconsider later
 
+- Boredom guard: wrong answers faster than ~600ms stop RESETTING little
+  streaks (still never build them) — awaiting observation of the v1.18
+  ratchet's effect first (user, 2026-07-21).
+
 - Back-pay grant for pre-earning mastery (after calibration).
 - Biscuit dirt/groom interplay rethink (user is mulling; Biscuit currently
   never dirty, grooms board-wide rustiest).

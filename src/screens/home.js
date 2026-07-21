@@ -11,6 +11,7 @@ import {
 import { sittingReady } from '../engine/selector.js';
 import { suggestNext } from '../engine/suggest.js';
 import { avatarFor } from '../art/avatar.js';
+import { bridgeVisible, tablesVisible, ratchetReveals } from '../engine/readiness.js';
 import { WAVES, waveProgress, waveUnlocked, isWaveMastered, subWaveProgress, subWaveUnlocked, isSubWaveMastered } from '../engine/waves.js';
 import { getUiPrefs, setUiPrefs } from '../data/store.js';
 import { getDog, dogSVG, wornFor, dirtFor, GUESTS } from '../art/dogs.js';
@@ -31,7 +32,7 @@ export async function homeScreen(el, params, ctx) {
     return littleHomeScreen(el, params, ctx);
   }
   const prefs = await getUiPrefs(p.id);
-  const showTables = p.subjects?.tables !== false;
+  const showTables = tablesVisible(p);
   const next = suggestNext(p); // ranks bridge waves and tables together
   const masteredM = tables(p).filter((t) => isTableMastered(p, t)).length;
   const masteredD = tables(p).filter((t) => isDivisionTableMastered(p, t)).length;
@@ -99,7 +100,7 @@ export async function homeScreen(el, params, ctx) {
 
   // Adding waves (the bridge): shown when the parent turns on `bridge`.
   // Waves unlock in the strategy order; the next locked one shows a padlock.
-  if (p.subjects?.bridge) {
+  if (bridgeVisible(p)) {
     const slot = el.querySelector('[data-adding-slot]');
     const masteredW = WAVES.filter((w, i) => isWaveMastered(p, i)).length;
     slot.innerHTML = `
@@ -134,7 +135,7 @@ export async function homeScreen(el, params, ctx) {
 
   // Taking Away (subtraction): each wave opens when its ADDING wave is
   // mastered — the section itself appears with the first one.
-  if (p.subjects?.bridge && subWaveUnlocked(p, 0)) {
+  if (bridgeVisible(p) && subWaveUnlocked(p, 0)) {
     const slot = el.querySelector('[data-sub-slot]');
     const masteredS = WAVES.filter((w, i) => isSubWaveMastered(p, i)).length;
     slot.innerHTML = `
@@ -242,6 +243,23 @@ export async function homeScreen(el, params, ctx) {
       <span class="muted">${escapeHtml(guest.name)} needs a sitter today!</span></span>`;
     sitBtn.addEventListener('click', () => navigate(`/activity?sit=${guest.id}`));
     el.querySelector('[data-sitting-slot]').appendChild(sitBtn);
+  }
+
+  // Reveal ceremony: the first time a track earns its place, celebrate once.
+  {
+    const ready = [];
+    if (bridgeVisible(p)) ready.push('track:adding');
+    if (bridgeVisible(p) && subWaveUnlocked(p, 0)) ready.push('track:takingaway');
+    if (showTables) ready.push('track:tables');
+    const fresh = ratchetReveals(p, ready);
+    if (fresh.length && (p.little?.xp || Object.keys(p.little?.skills ?? {}).length)) {
+      // celebrate only for trail kids — long-time big kids just keep their app
+      import('../ui.js').then(({ confetti }) => confetti?.(14));
+      import('../sound.js').then(({ cheer }) =>
+        cheer(fresh.includes('track:tables') ? "You're ready for the big pack!" : 'A new trail opened!')
+      );
+    }
+    if (fresh.length) ctx.save();
   }
 
   el.querySelector('[data-little-view]')?.addEventListener('click', () => {

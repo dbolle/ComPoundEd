@@ -33,6 +33,10 @@ import { grownupsScreen } from './screens/grownups.js';
 
 registerSW({ immediate: true });
 initPressFeedback();
+// Kid-proofing: pinch/double-tap zoom turns imprecise little taps into a
+// zoomed mess. Standalone PWAs honor these; OS accessibility zoom still
+// works for grown-ups. (Verify on-device: browser-tab Safari may ignore.)
+document.addEventListener('gesturestart', (e) => e.preventDefault());
 
 const ctx = {
   profile: null,

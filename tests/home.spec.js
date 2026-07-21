@@ -15,6 +15,7 @@ import {
 
 test('suggestNext: fresh kid → ×1; progress wins; division gets its turn', () => {
   const fresh = newProfile('F');
+  fresh.subjects = { ...fresh.subjects, tables: true }; // created-as-big-kid
   expect(suggestNext(fresh).label).toBe('×1');
 
   const partial = newProfile('P');
