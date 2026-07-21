@@ -17,7 +17,7 @@ export function groupScreen(el, params, ctx) {
       <div class="topbar">
         <button class="btn ghost small" data-back>← Pack</button>
         <span class="spacer"></span>
-        <h2 style="margin:0">Play together 🐕🐕</h2>
+        <h2 style="margin:0">Play date 🐕🐕</h2>
       </div>
       <div class="activity-row">
         <button class="btn ghost kind-btn selected" data-kind="walk">🦮 Walk</button>
@@ -27,6 +27,7 @@ export function groupScreen(el, params, ctx) {
       <p class="muted center" style="margin:0">Pick 2 or 3 pups to bring along!</p>
       <div data-train-tip></div>
       <div class="pack-grid"></div>
+      <p class="center collar-status" data-collar-status hidden></p>
       <button class="btn" data-start disabled>Let's go! 🐾</button>
     </div>`;
 
@@ -72,8 +73,24 @@ export function groupScreen(el, params, ctx) {
       }
       card.setAttribute('aria-pressed', String(selected.has(dog.id)));
       startBtn.disabled = selected.size < 2;
-      startBtn.textContent =
-        selected.size < 2 ? "Let's go! 🐾" : `Let's go with ${selected.size} pups! 🐾`;
+      // Live collar-training badge: the screen reacts as the pack forms,
+      // so the qualifying rule is a picture, never a lesson.
+      const statusEl = el.querySelector('[data-collar-status]');
+      const training = [...selected].some((id) => partners.some((d) => d.id === id));
+      if (selected.size < 2) {
+        statusEl.hidden = true;
+        startBtn.textContent = "Let's go! \u{1F43E}";
+      } else if (training) {
+        statusEl.hidden = false;
+        statusEl.className = 'center collar-status training';
+        statusEl.innerHTML = `\u{1F9AE}\u2728 Collar training! <span class="swatch mini" style="background:#3b82f6"></span>`;
+        startBtn.textContent = `Let's train with ${selected.size} pups! \u{1F9AE}`;
+      } else {
+        statusEl.hidden = false;
+        statusEl.className = 'center collar-status muted';
+        statusEl.textContent = "\u{1F4A4} Just for fun \u2014 add a friend who's still learning!";
+        startBtn.textContent = `Let's go with ${selected.size} pups! \u{1F43E}`;
+      }
     });
     grid.appendChild(card);
   }

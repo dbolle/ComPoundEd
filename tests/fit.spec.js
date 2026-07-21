@@ -65,7 +65,7 @@ test('quiz and activity screens never overflow a 390×600 viewport', async ({ br
 
   // 3-dog group walk (tallest scene)
   await page.waitForSelector('.pack-grid');
-  await page.tap('button:has-text("Play together")');
+  await page.tap('button:has-text("Play date")');
   await page.waitForSelector('.kind-btn');
   await page.tap('.dog-card:has-text("Biscuit")');
   await page.tap('.dog-card:has-text("Daisy")');

@@ -19,7 +19,7 @@ function collarChip(profile, dogId) {
   const goal = nextCollarGoal(profile, dogId);
   if (!goal) return '';
   const pct = Math.round((goal.have / goal.color.need) * 100);
-  return `<span class="reward-chip" aria-label="${goal.left} more training sessions to the ${goal.color.id} collar">
+  return `<span class="reward-chip" aria-label="${goal.left} more play dates to the ${goal.color.id} collar">
     <span class="meter mini"><span style="width:${pct}%"></span></span>
     <span class="swatch mini" style="background:${goal.color.fill}"></span></span>`;
 }
@@ -64,7 +64,7 @@ export function dogScreen(el, params, ctx) {
           <span>🦮 ${play.walk} walks ${rewardChip(ctx.profile, dog.id, 'bandana')}</span>
           <span>🍖 ${play.feed} meals ${rewardChip(ctx.profile, dog.id, 'bow')}</span>
           <span>🎾 ${play.fetch} fetches ${rewardChip(ctx.profile, dog.id, 'cap')}</span>
-          <span>🐕🐕 ${play.train ?? 0} training ${collarChip(ctx.profile, dog.id)}</span>
+          <span>🐕🐕 ${play.train ?? 0} play dates ${collarChip(ctx.profile, dog.id)}</span>
         </p>
         ${
           next
@@ -105,7 +105,7 @@ export function dogScreen(el, params, ctx) {
     const pd = document.createElement('button');
     pd.className = 'btn accent';
     pd.dataset.playdate = '1';
-    pd.textContent = `🐕🐕 Play date with ${friends.map((f) => f.name).join(', ')}!`;
+    pd.textContent = `🐕🐕 Play date with ${friends.map((f) => f.name).join(', ')}! \u{1F9AE}\u2728`;
     pd.addEventListener('click', () =>
       navigate(`/activity?dogs=${[dog.id, ...friends.map((f) => f.id)].join(',')}&kind=walk&pd=1`)
     );

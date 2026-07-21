@@ -73,8 +73,8 @@ export function wardrobeScreen(el, params, ctx) {
           );
         } else {
           swatches.push(
-            `<button class="swatch locked" style="background:${c.fill}" data-say="${c.need} training walks with a friend who's still learning unlocks the ${c.id} collar!"
-               aria-label="${c.id} collar unlocks at ${c.need} training sessions">
+            `<button class="swatch locked" style="background:${c.fill}" data-say="${c.need} play dates with a friend who's still learning unlocks the ${c.id} collar!"
+               aria-label="${c.id} collar unlocks at ${c.need} play dates">
                <span class="swatch-need">🐕🐕${c.need}</span></button>`
           );
         }

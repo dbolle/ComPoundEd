@@ -960,6 +960,15 @@ button.pressed {
   padding: 6px 10px;
 }
 
+.collar-status {
+  margin: 0;
+  font-weight: 800;
+}
+
+.collar-status.training {
+  color: var(--brand-deep);
+}
+
 /* Grown-ups: which-tables chips */
 .limit-grid {
   display: grid;

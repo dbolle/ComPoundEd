@@ -60,7 +60,7 @@ test('group play rotates askers, questions match the asking dog', async ({ page 
   await seedProfile(page, richDoc('play-group', 'PlayGroup'));
   await selectProfile(page, 'PlayGroup');
   await page.tap('[data-nav="/pack"]');
-  await page.tap('button:has-text("Play together")');
+  await page.tap('button:has-text("Play date")');
   await page.waitForSelector('.kind-btn');
   expect(await page.$eval('[data-start]', (e) => e.disabled)).toBe(true);
   await page.tap('.dog-card:has-text("Daisy")');
