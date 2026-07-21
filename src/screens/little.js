@@ -12,14 +12,15 @@ import { sfx, buzz, say, cheer } from '../sound.js';
 import { earnSkillKnown, balanceCents, formatPaw } from '../engine/money.js';
 import { avatarFor } from '../art/avatar.js';
 import { checkPetUnlocks } from '../engine/cozy.js';
-import { isRevealed, ratchetReveals } from '../engine/readiness.js';
-import { confetti, escapeHtml } from '../ui.js';
+import { isRevealed, ratchetReveals, addingReady, takingAwayReady } from '../engine/readiness.js';
+import { WAVES, waveUnlocked, isWaveMastered, subWaveUnlocked, isSubWaveMastered } from '../engine/waves.js';
+import { confetti, escapeHtml, buildNumpad } from '../ui.js';
 
 const ITEMS = ['🦴', '🎾', '🍖'];
 const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 const STARS = ['⭐', '🌟', '🎉', '🐾'];
-const KIND_BY_GAME = { count: 'fetch', find: 'walk', more: 'feed', tap: 'fetch', feed: 'feed', shape: 'walk', pattern: 'feed', next: 'walk', add: 'fetch', look: 'walk', bond: 'feed', teen: 'fetch' };
-const QUESTIONS_BY_GAME = { count: 5, find: 5, more: 5, tap: 3, feed: 3, shape: 5, pattern: 5, next: 5, add: 5, look: 5, bond: 5, teen: 5 };
+const KIND_BY_GAME = { count: 'fetch', find: 'walk', more: 'feed', tap: 'fetch', feed: 'feed', shape: 'walk', pattern: 'feed', next: 'walk', add: 'fetch', look: 'walk', bond: 'feed', teen: 'fetch', type: 'walk' };
+const QUESTIONS_BY_GAME = { count: 5, find: 5, more: 5, tap: 3, feed: 3, shape: 5, pattern: 5, next: 5, add: 5, look: 5, bond: 5, teen: 5, type: 5 };
 
 // New species from the pet pool host the non-counting games — a pre-reader
 // navigates by which animal, not by words.
@@ -53,7 +54,7 @@ function ensureLittle(profile) {
 // Choice games record per-number skills; a number is "known" after three
 // first-try corrects in a row (a guesser fakes that 3.7% of the time, vs 33%
 // per question). Tap & feed stay error-less joy — they never feed the signal.
-const SKILL_GAMES = new Set(['count', 'find', 'more', 'next', 'add', 'look', 'bond', 'teen', 'feed']);
+const SKILL_GAMES = new Set(['count', 'find', 'more', 'next', 'add', 'look', 'bond', 'teen', 'feed', 'type']);
 // Two-choice games are guessable 50/50 — they need a longer streak to
 // count as knowing (12.5% → 6% fake odds).
 const STREAK_NEEDED = { more: 4 };
@@ -61,7 +62,7 @@ const STREAK_NEEDED = { more: 4 };
 // starts at 4…) — bands only wait on reachable keys.
 const SKILL_DOMAIN = {
   count: [1, 10], find: [1, 10], look: [1, 10], feed: [1, 10],
-  more: [2, 10], next: [4, 10], add: [2, 10],
+  more: [2, 10], next: [4, 10], add: [2, 10], type: [1, 19],
 };
 
 // Does this game still have numbers to learn? Drives the Play-next pick.
@@ -101,6 +102,7 @@ export function littleSuggestNext(profile, readyTiles) {
 // games shouldn't hear "great counting". A couple of options each so the
 // cheer doesn't wear out.
 const PRAISE_BY_GAME = {
+  type: ['Typing champion!', 'You typed it just right!'],
   look: ['Quick eyes! Amazing!', 'You saw it in a flash!'],
   bond: ['Number friends forever!', 'You know the number friends!'],
   teen: ['Teen numbers, no problem!', 'Ten and more — you got it!'],
@@ -254,6 +256,18 @@ function tiles(p, buddy) {
       art: `<span class="tile-art">\u{1F91D}</span><span class="tile-mark">5\u00b710</span>`,
     },
     {
+      game: 'type',
+      minXp: 0,
+      ready: (p) => knowsRange(p.little ?? {}, 'find', 1, 5),
+      gate: (p) => ({
+        icon: '5️⃣',
+        have: [1, 2, 3, 4, 5].filter((n) => knows(p.little ?? {}, 'find', n)).length,
+        need: 5,
+      }),
+      caption: 'Type it!',
+      art: `<span class="tile-art">⌨️</span><span class="tile-mark">1️⃣4️⃣</span>`,
+    },
+    {
       game: 'teen',
       minXp: 0,
       ready: (p) => knowsRange(p.little ?? {}, 'bond10', 0, 10),
@@ -264,6 +278,37 @@ function tiles(p, buddy) {
       }),
       caption: 'Teen numbers',
       art: `<span class="tile-art">\u{1F51F}</span><span class="tile-mark">11\u00b712\u00b713</span>`,
+    },
+    // The trail continues in place: Adding and Taking Away live here as
+    // graduation tiles too — a little pup never needs the big-kid home
+    // to keep climbing (docs: readiness trail).
+    {
+      game: 'adding',
+      minXp: 0,
+      ready: (p2) => addingReady(p2) && knowsRange(p2.little ?? {}, 'type', 1, 10),
+      gate: (p2) => ({
+        icon: '⌨️',
+        have: Array.from({ length: 10 }, (_, i) => i + 1).filter((n) => knows(p2.little ?? {}, 'type', n)).length,
+        need: 10,
+      }),
+      caption: 'Adding',
+      art: `<span class="tile-art">➕</span><span class="tile-mark">${WAVES[0].emoji}</span>`,
+      href: (p2) => {
+        const i = WAVES.findIndex((w, ix) => waveUnlocked(p2, ix) && !isWaveMastered(p2, ix));
+        return `/quiz?wave=${Math.max(0, i)}`;
+      },
+    },
+    {
+      game: 'takingaway',
+      minXp: 0,
+      ready: (p2) => takingAwayReady(p2),
+      gate: () => ({ icon: '➕', have: 0, need: 1 }),
+      caption: 'Taking away',
+      art: `<span class="tile-art">➖</span><span class="tile-mark">${WAVES[0].emoji}</span>`,
+      href: (p2) => {
+        const i = WAVES.findIndex((w, ix) => subWaveUnlocked(p2, ix) && !isSubWaveMastered(p2, ix));
+        return `/quiz?swave=${Math.max(0, i)}`;
+      },
     },
   ];
 }
@@ -346,7 +391,9 @@ export function littleHomeScreen(el, params, ctx) {
     btn.dataset.game = t.game;
     btn.setAttribute('aria-label', t.caption);
     btn.innerHTML = `${pick && t.game === pick.game ? '<span class="paw-badge">🐾</span>' : ''}${t.art}<span class="tile-caption">${t.caption}</span>`;
-    btn.addEventListener('click', () => navigate(`/little?game=${t.game}`));
+    btn.addEventListener('click', () =>
+      navigate(t.href ? t.href(p) : `/little?game=${t.game}`)
+    );
     grid.appendChild(btn);
   }
   const upcoming = all.find((t) => !isReady(t));
@@ -610,6 +657,42 @@ export function littleGameScreen(el, params, ctx) {
       for (const v of pickCounts(a + b, Math.max(maxSum, a + b))) {
         choiceButton(`<span class="little-numeral">${v}</span>`, v === a + b);
       }
+    } else if (game === 'type') {
+      // Type it!: the numpad bridge — a numeral shows and speaks, the child
+      // types it (two digits for teens = early place value + keypad
+      // fluency, the entry skill every wave round assumes).
+      const hi = knowsRange(little, 'type', 1, 10) ? 19 : rangeFor(p, 'type');
+      const n = pickN(little, 'type', hi);
+      promptEl.textContent = '⌨️';
+      speak(`Type ${n <= 10 ? WORDS[n] : n}!`);
+      stageEl.dataset.answer = n;
+      stageEl.innerHTML = `<div class="little-numeral big">${n}</div>
+        <div class="type-entry little-numeral">&nbsp;</div>
+        <div class="numpad little-numpad"></div>`;
+      const entry = stageEl.querySelector('.type-entry');
+      let input = '';
+      buildNumpad(stageEl.querySelector('.numpad'), (k) => {
+        if (busy) return;
+        if (k === 'ok') {
+          if (!input) return;
+          if (Number(input) === n) {
+            celebrate(null, { speakWord: false });
+          } else {
+            firstTry = false;
+            input = '';
+            entry.textContent = ' ';
+            entry.classList.add('shake');
+            setTimeout(() => entry.classList.remove('shake'), 400);
+            sfx.wrong();
+            say(`Type ${n <= 10 ? WORDS[n] : n}!`);
+          }
+          return;
+        }
+        if (k === 'del') input = input.slice(0, -1);
+        else if (input.length < 2) input += k;
+        entry.textContent = input || ' ';
+        buzz(10);
+      });
     } else if (game === 'look') {
       // Quick Look: the frame flashes, then hides — quick eyes, no counting.
       const n = pickN(little, 'look', rangeFor(p, 'look'));

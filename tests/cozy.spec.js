@@ -39,7 +39,7 @@ test('milestones adopt pets once; addition waves adopt too', () => {
   expect(subPet).toHaveLength(1);
   expect(subPet[0].milestone).toBe('s1');
   expect(subPet[0].pet.id).not.toBe(wavePet[0].pet.id);
-  expect(MILESTONES).toHaveLength(18); // 4 track-1 + 7 adding + 7 taking-away
+  expect(MILESTONES).toHaveLength(19); // 4 track-1 + 7 adding + 7 taking-away + type
 });
 
 test('a known number pays one penny, ever', () => {

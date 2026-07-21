@@ -47,7 +47,7 @@ test('grandfathering: any history keeps a track visible on auto; parent override
 
   const little = newProfile('L');
   expect(bridgeVisible(little)).toBe(false);
-  little.little.skills = { ...skilled('count', 1, 10), ...skilled('next', 4, 10) };
+  little.little.skills = { ...skilled('count', 1, 10), ...skilled('next', 4, 10), ...skilled('type', 1, 10) };
   expect(addingReady(little)).toBe(true);
   expect(bridgeVisible(little)).toBe(true); // readiness reveals without a parent
 });

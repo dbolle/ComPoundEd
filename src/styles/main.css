@@ -962,6 +962,15 @@ button.pressed {
   padding: 6px 10px;
 }
 
+.little-numpad {
+  max-width: 300px;
+}
+
+.type-entry {
+  min-height: 1.2em;
+  color: var(--brand-deep);
+}
+
 .collar-status {
   margin: 0;
   font-weight: 800;
