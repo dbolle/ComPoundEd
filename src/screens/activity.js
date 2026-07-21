@@ -279,8 +279,13 @@ export function activityScreen(el, params, ctx) {
     // the interleaving reward (collar ladder, 10/25/50/100).
     const isTrainingPartner = (d) =>
       d.table != null && (!isTableMastered(p, d.table) || tableDueCount(p, d.table) > 0);
+    // Auto-picked play dates (pd=1) always qualify: the picker already chose
+    // the most practice-needing friends available, so the kid is never
+    // penalized for having a polished pack. Manual groups keep the rule.
     const qualifies =
-      !sitting && dogs.length > 1 && dogs.some((d) => isTrainingPartner(d));
+      !sitting &&
+      dogs.length > 1 &&
+      (params.get('pd') === '1' || dogs.some((d) => isTrainingPartner(d)));
     for (const d of dogs) {
       p.play[d.id] = p.play[d.id] ?? { walk: 0, feed: 0, fetch: 0 };
       p.play[d.id][kind] = (p.play[d.id][kind] ?? 0) + 1;

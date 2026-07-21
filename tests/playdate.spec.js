@@ -56,3 +56,35 @@ test('e2e: play date from the dog page runs 6 facts per dog and earns train cred
   );
   expect(saved.play['dog-2'].train).toBe(1);
 });
+
+test('e2e: an auto play date with an all-mastered pack still earns collar credit', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'networkidle' });
+  const doc = newProfile(uniqueName('Polished'));
+  doc.id = 'polished-kid';
+  for (let b = 0; b <= 12; b++) {
+    doc.facts[norm(2, b)] = stat(4);
+    doc.facts[norm(3, b)] = stat(4); // both tables mastered & fresh
+  }
+  doc.unlocks.push({ dogId: 'dog-2', table: 2, at: 1 }, { dogId: 'dog-3', table: 3, at: 2 });
+  await seedProfile(page, doc);
+  await selectProfile(page, doc.name);
+  await page.waitForSelector('.hero');
+  await page.evaluate(() => { location.hash = '#/dog?id=dog-2'; });
+  await page.waitForSelector('[data-playdate]');
+  await page.tap('[data-playdate]');
+  await page.waitForSelector('.activity-scene');
+  await playQuestions(page, 30);
+  await page.waitForSelector('[data-again]');
+  const saved = await page.evaluate(
+    (id) => new Promise((res) => {
+      const req = indexedDB.open('compounded', 1);
+      req.onsuccess = () => {
+        const g = req.result.transaction('profiles').objectStore('profiles').get(id);
+        g.onsuccess = () => res(g.result);
+      };
+    }),
+    'polished-kid'
+  );
+  expect(saved.play['dog-2'].train).toBe(1); // pd=1 always qualifies
+  expect(saved.play['dog-3'].train).toBe(1);
+});
