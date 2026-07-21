@@ -19,8 +19,8 @@ import { confetti, escapeHtml, buildNumpad } from '../ui.js';
 const ITEMS = ['🦴', '🎾', '🍖'];
 const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 const STARS = ['⭐', '🌟', '🎉', '🐾'];
-const KIND_BY_GAME = { count: 'fetch', find: 'walk', more: 'feed', tap: 'fetch', feed: 'feed', shape: 'walk', pattern: 'feed', next: 'walk', add: 'fetch', look: 'walk', bond: 'feed', teen: 'fetch', type: 'walk' };
-const QUESTIONS_BY_GAME = { count: 5, find: 5, more: 5, tap: 3, feed: 3, shape: 5, pattern: 5, next: 5, add: 5, look: 5, bond: 5, teen: 5, type: 5 };
+const KIND_BY_GAME = { count: 'fetch', find: 'walk', more: 'feed', tap: 'fetch', feed: 'feed', shape: 'walk', pattern: 'feed', next: 'walk', add: 'fetch', look: 'walk', bond: 'feed', teen: 'fetch', type: 'walk', taway: 'feed', paths: 'fetch' };
+const QUESTIONS_BY_GAME = { count: 5, find: 5, more: 5, tap: 3, feed: 3, shape: 5, pattern: 5, next: 5, add: 5, look: 5, bond: 5, teen: 5, type: 5, taway: 5, paths: 5 };
 
 // New species from the pet pool host the non-counting games — a pre-reader
 // navigates by which animal, not by words.
@@ -54,7 +54,7 @@ function ensureLittle(profile) {
 // Choice games record per-number skills; a number is "known" after three
 // first-try corrects in a row (a guesser fakes that 3.7% of the time, vs 33%
 // per question). Tap & feed stay error-less joy — they never feed the signal.
-const SKILL_GAMES = new Set(['count', 'find', 'more', 'next', 'add', 'look', 'bond', 'teen', 'feed', 'type']);
+const SKILL_GAMES = new Set(['count', 'find', 'more', 'next', 'add', 'look', 'bond', 'teen', 'feed', 'type', 'taway', 'paths']);
 // Two-choice games are guessable 50/50 — they need a longer streak to
 // count as knowing (12.5% → 6% fake odds).
 const STREAK_NEEDED = { more: 4 };
@@ -62,7 +62,7 @@ const STREAK_NEEDED = { more: 4 };
 // starts at 4…) — bands only wait on reachable keys.
 const SKILL_DOMAIN = {
   count: [1, 10], find: [1, 10], look: [1, 10], feed: [1, 10],
-  more: [2, 10], next: [4, 10], add: [2, 10], type: [1, 19],
+  more: [2, 10], next: [4, 10], add: [2, 10], type: [1, 19], taway: [0, 9],
 };
 
 // Does this game still have numbers to learn? Drives the Play-next pick.
@@ -102,6 +102,8 @@ export function littleSuggestNext(profile, readyTiles) {
 // games shouldn't hear "great counting". A couple of options each so the
 // cheer doesn't wear out.
 const PRAISE_BY_GAME = {
+  taway: ['Take-away champion!', 'You knew how many were left!'],
+  paths: ['Path finder! Amazing!', 'You hopped the whole path!'],
   type: ['Typing champion!', 'You typed it just right!'],
   look: ['Quick eyes! Amazing!', 'You saw it in a flash!'],
   bond: ['Number friends forever!', 'You know the number friends!'],
@@ -229,6 +231,18 @@ function tiles(p, buddy) {
       caption: 'Adding',
       art: `<span class="tile-dogs">${petSVG(getPet(HOSTS.add), 38)}</span><span class="tile-art small">\u{1F9B4}\u2795\u{1F9B4}\u{1F9B4}</span>`,
     },
+    {
+      game: 'taway',
+      minXp: 0,
+      ready: (p2) => [2, 3, 4, 5].every((n) => knows(p2.little ?? {}, 'add', n)),
+      gate: (p2) => ({
+        icon: '➕',
+        have: [2, 3, 4, 5].filter((n) => knows(p2.little ?? {}, 'add', n)).length,
+        need: 4,
+      }),
+      caption: 'Take away!',
+      art: `<span class="tile-art">🥣</span><span class="tile-mark">🦴➡️</span>`,
+    },
     // Bridge graduation tiles: gated on demonstrated skill, not xp
     // (docs/PHASE5.md Track 1).
     {
@@ -278,6 +292,17 @@ function tiles(p, buddy) {
       }),
       caption: 'Teen numbers',
       art: `<span class="tile-art">\u{1F51F}</span><span class="tile-mark">11\u00b712\u00b713</span>`,
+    },
+    {
+      game: 'paths',
+      minXp: 0,
+      ready: (p2) => isWaveMastered(p2, 1), // Doubles ↔ ×2, the connector
+      gate: (p2) => {
+        const facts = 8; // doubles wave size
+        return { icon: '👯', have: 0, need: 1 };
+      },
+      caption: 'Counting paths',
+      art: `<span class="tile-art">🐾</span><span class="tile-mark">2·4·6</span>`,
     },
     // The trail continues in place: Adding and Taking Away live here as
     // graduation tiles too — a little pup never needs the big-kid home
@@ -661,8 +686,10 @@ export function littleGameScreen(el, params, ctx) {
       // Type it!: the numpad bridge — a numeral shows and speaks, the child
       // types it (two digits for teens = early place value + keypad
       // fluency, the entry skill every wave round assumes).
+      const decades = knows(little, 'path', 10);
       const hi = knowsRange(little, 'type', 1, 10) ? 19 : rangeFor(p, 'type');
-      const n = pickN(little, 'type', hi);
+      let n = pickN(little, 'type', hi);
+      if (decades && Math.random() < 0.3) n = (2 + ri(8)) * 10; // 20..90
       promptEl.textContent = '⌨️';
       speak(`Type ${n <= 10 ? WORDS[n] : n}!`);
       stageEl.dataset.answer = n;
@@ -693,6 +720,81 @@ export function littleGameScreen(el, params, ctx) {
         entry.textContent = input || ' ';
         buzz(10);
       });
+    } else if (game === 'taway') {
+      // Take away!: the concrete stage of subtraction — n bones, some hop
+      // away before their eyes, how many are left?
+      const n = 2 + ri(9); // 2..10 start
+      const gone = 1 + ri(n - 1); // 1..n-1 leave (0-left needs abstraction)
+      const left = n - gone;
+      const item = ITEMS[ri(ITEMS.length)];
+      promptEl.textContent = '🥣➡️';
+      speak(`${WORDS[n]} bones... ${WORDS[gone]} hop away! How many are left?`);
+      stageEl.dataset.answer = left;
+      stageEl.dataset.skill = `takeaway:${left}`;
+      stageEl.innerHTML = `<div class="little-items">${Array.from(
+        { length: n },
+        (_, i) => `<span class="li${i >= left ? ' gone' : ''}">${item}</span>`
+      ).join('')}</div>`;
+      setTimeout(() => {
+        for (const li of stageEl.querySelectorAll('.li.gone')) li.classList.add('hopped');
+      }, 900);
+      for (const v of pickCounts(left === 0 ? 1 : left, Math.max(3, n))) {
+        choiceButton(`<span class="little-numeral">${v}</span>`, v === left);
+      }
+    } else if (game === 'paths') {
+      // Counting Paths: skip-count chains for 2s/5s/10s — plus descending
+      // paths (counting backward, subtraction's engine). Typed once the
+      // child can type; tap-choices before that.
+      const kind2 = ri(4); // 0:×2 1:×5 2:×10 3:descending
+      const stride = [2, 5, 10][Math.min(kind2, 2)];
+      let seq, answer, skill;
+      if (kind2 === 3) {
+        const s0 = 5 + ri(5); // 9..5 start high enough
+        seq = [s0 + 3, s0 + 2, s0 + 1];
+        answer = s0;
+        skill = null; // descending is enrichment, not gated
+      } else {
+        const k = 1 + ri(3);
+        seq = [k * stride, (k + 1) * stride, (k + 2) * stride];
+        answer = (k + 3) * stride;
+        skill = `path:${stride}`;
+      }
+      promptEl.textContent = '🐾➡️❓';
+      speak(kind2 === 3 ? 'Count backward! What comes next?' : `Count by ${stride}s!`);
+      stageEl.dataset.answer = answer;
+      if (skill) stageEl.dataset.skill = skill;
+      else delete stageEl.dataset.skill;
+      stageEl.innerHTML = `<div class="pattern-row">${seq
+        .map((v) => `<span class="path-num">${v}</span>`)
+        .join('<span class="path-paw">🐾</span>')}<span class="path-paw">🐾</span><span class="pattern-q">❓</span></div>`;
+      if (knowsRange(little, 'type', 1, 10)) {
+        stageEl.innerHTML += `<div class="type-entry little-numeral">&nbsp;</div><div class="numpad little-numpad"></div>`;
+        const entry = stageEl.querySelector('.type-entry');
+        let input = '';
+        buildNumpad(stageEl.querySelector('.numpad'), (k) => {
+          if (busy) return;
+          if (k === 'ok') {
+            if (!input) return;
+            if (Number(input) === answer) celebrate(null, { speakWord: false });
+            else {
+              firstTry = false;
+              input = '';
+              entry.textContent = ' ';
+              sfx.wrong();
+            }
+            return;
+          }
+          if (k === 'del') input = input.slice(0, -1);
+          else if (input.length < 2) input += k;
+          entry.textContent = input || ' ';
+        });
+      } else {
+        const opts = new Set([answer]);
+        while (opts.size < 3) opts.add(Math.max(1, answer + (ri(2) ? stride || 1 : -(stride || 1)) * (1 + ri(2))));
+        for (const v of [...opts].sort(() => Math.random() - 0.5)) {
+          choiceButton(`<span class="little-numeral">${v}</span>`, v === answer);
+        }
+      }
     } else if (game === 'look') {
       // Quick Look: the frame flashes, then hides — quick eyes, no counting.
       const n = pickN(little, 'look', rangeFor(p, 'look'));

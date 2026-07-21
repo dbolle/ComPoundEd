@@ -14,7 +14,7 @@ const skilled = (game, lo, hi, streak = 3) => {
 };
 
 test('type milestone appended last; adding readiness needs typing', () => {
-  expect(MILESTONES[MILESTONES.length - 1].id).toBe('type');
+  expect(MILESTONES.slice(-3).map((m) => m.id)).toEqual(['type', 'taway', 'paths']); // appended, never inserted
   const p = newProfile('R');
   p.little.skills = { ...skilled('count', 1, 10), ...skilled('next', 4, 10) };
   expect(addingReady(p)).toBe(false); // can count on but can't type yet

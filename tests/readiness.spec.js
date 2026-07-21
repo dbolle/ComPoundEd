@@ -52,12 +52,18 @@ test('grandfathering: any history keeps a track visible on auto; parent override
   expect(bridgeVisible(little)).toBe(true); // readiness reveals without a parent
 });
 
-test('tables readiness: adding w1–w5 + taking away w1–w2', () => {
+test('tables readiness: adding w1–w5 + taking away w1–w2 + counting paths', () => {
   const p = newProfile('T');
   for (let w = 0; w <= 4; w++) masterWave(p, w);
   expect(tablesReady(p)).toBe(false);
   masterWave(p, 0, 'subtraction');
   masterWave(p, 1, 'subtraction');
+  expect(tablesReady(p)).toBe(false); // paths still missing (v1.20)
+  p.little.skills = {
+    'path:2': { attempts: 3, streak: 3 },
+    'path:5': { attempts: 3, streak: 3 },
+    'path:10': { attempts: 3, streak: 3 },
+  };
   expect(tablesReady(p)).toBe(true);
 });
 
