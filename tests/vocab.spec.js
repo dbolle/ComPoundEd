@@ -19,6 +19,14 @@ test('rusty is the kid word everywhere; "needs a refresh" is gone', () => {
   expect(src('heatmap.js')).toContain('rusty');
 });
 
+test('group vocabulary: play date everywhere, collar training as the badge', () => {
+  for (const f of ['pack.js', 'group.js', 'dog.js']) {
+    expect(src(f)).not.toContain('Play together');
+  }
+  expect(src('group.js')).toContain('Collar training');
+  expect(src('dog.js')).toContain('play dates');
+});
+
 test('wardrobe locked colors are visible with their price, not tooltips', () => {
   const w = src('wardrobe.js');
   expect(w).not.toContain('title=');

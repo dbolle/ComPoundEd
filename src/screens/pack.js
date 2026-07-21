@@ -33,7 +33,7 @@ export function packScreen(el, params, ctx) {
   if (unlockedCount >= 2) {
     const groupBtn = document.createElement('button');
     groupBtn.className = 'btn accent';
-    groupBtn.textContent = '🐕🐕 Play together';
+    groupBtn.textContent = '🐕🐕 Play date';
     groupBtn.addEventListener('click', () => navigate('/group'));
     el.querySelector('[data-group-slot]').appendChild(groupBtn);
   }

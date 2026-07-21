@@ -3,6 +3,17 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.17.0 — 2026-07-21
+
+- One name for the outing: **Play date** everywhere ("Play together" is
+  gone); "training" only ever appears as **collar training**. The dog
+  page counter reads "N play dates"; wardrobe collar prices speak in
+  play dates too.
+- The group screen now shows live whether the picked pack counts:
+  "🦮✨ Collar training!" as soon as a still-learning friend is aboard,
+  "💤 Just for fun — add a friend who's still learning!" when not, and
+  the start button echoes it ("Let's train!" vs "Let's go!").
+
 ## v1.16.1 — 2026-07-21
 
 - Auto-picked play dates always earn collar credit — the picker already

@@ -27,6 +27,16 @@ test('e2e: group screen suggests the weakest partner; tapping the tip selects th
   await expect(page.locator('.train-tip')).toContainText('Scout'); // ×7 dog, weakest
   await page.tap('.train-tip');
   await expect(page.locator('[data-dog="dog-7"]')).toHaveClass(/selected/);
+
+  // live badge: weak partner selected + one more = collar training
+  await page.tap('[data-dog="dog-2"]');
+  await expect(page.locator('[data-collar-status]')).toContainText('Collar training');
+  await expect(page.locator('[data-start]')).toContainText("Let's train");
+  // swap the weak partner out: just-for-fun state, gentle nudge
+  await page.tap('[data-dog="dog-7"]');
+  await page.tap('[data-dog="starter"]');
+  await expect(page.locator('[data-collar-status]')).toContainText('Just for fun');
+  await expect(page.locator('[data-start]')).toContainText("Let's go");
 });
 
 test('e2e: wardrobe shows the collar ladder + closet; treasures move between wearers', async ({ page }) => {
@@ -44,7 +54,7 @@ test('e2e: wardrobe shows the collar ladder + closet; treasures move between wea
   // earn the wardrobe pass with a groom, then dress up
   await page.evaluate(() => { location.hash = '#/dog?id=dog-2'; });
   await page.waitForSelector('[data-act="groom"]');
-  await expect(page.locator('.play-stats')).toContainText('12 training');
+  await expect(page.locator('.play-stats')).toContainText('12 play dates');
   await page.tap('[data-act="groom"]');
   await page.waitForSelector('.activity-scene');
   await playQuestions(page, 16);
