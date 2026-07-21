@@ -107,7 +107,7 @@ export function dogScreen(el, params, ctx) {
     pd.dataset.playdate = '1';
     pd.textContent = `🐕🐕 Play date with ${friends.map((f) => f.name).join(', ')}!`;
     pd.addEventListener('click', () =>
-      navigate(`/activity?dogs=${[dog.id, ...friends.map((f) => f.id)].join(',')}&kind=walk`)
+      navigate(`/activity?dogs=${[dog.id, ...friends.map((f) => f.id)].join(',')}&kind=walk&pd=1`)
     );
     el.querySelector('[data-playdate-slot]').appendChild(pd);
   }

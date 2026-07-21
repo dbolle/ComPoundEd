@@ -3,6 +3,13 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.16.1 — 2026-07-21
+
+- Auto-picked play dates always earn collar credit — the picker already
+  chose the most practice-needing friends available, so a fully polished
+  pack no longer blocks the ladder. Manually-built groups keep the
+  training-partner rule.
+
 ## v1.16.0 — 2026-07-20
 
 - Play date 🐕🐕: one tap on any dog's page invites 1–3 auto-picked
