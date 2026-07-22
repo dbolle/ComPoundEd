@@ -12,6 +12,8 @@ import {
   syncNow,
 } from './data/store.js';
 import { register, startRouter } from './router.js';
+import { isBeta, BETA_ROUTES } from './engine/beta.js';
+import { storeScreen } from './screens/store.js';
 import { initPressFeedback } from './ui.js';
 import { setSoundOn, setVoicePreference } from './sound.js';
 import { profilesScreen } from './screens/profiles.js';
@@ -63,6 +65,7 @@ register('/little', littleGameScreen);
 register('/wardrobe', wardrobeScreen);
 register('/wallet', walletScreen);
 register('/corner', cornerScreen);
+register('/store', storeScreen);
 register('/meet', meetScreen);
 register('/activity', activityScreen);
 register('/heatmap', heatmapScreen);
@@ -71,6 +74,7 @@ register('/grownups', grownupsScreen);
 // Every screen except profile-select needs an active profile.
 function guard(path) {
   if (!ctx.profile && path !== '/profiles') return '/profiles';
+  if (BETA_ROUTES.includes(path) && !isBeta(ctx.profile)) return '/pack';
   return null;
 }
 

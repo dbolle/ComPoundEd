@@ -3,6 +3,19 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.24.0 — 2026-07-22
+
+- 🧪 Beta preview flag (Grown-Ups): explicitly flagged profiles can reach
+  in-development features; beta surfaces are preservation-exempt and may
+  change or lose their data as they develop (warning shown).
+- BETA: the Pet Store is open — shelves by tier with the pinned prices,
+  and paying is the full coin math: the price decomposes into Paw Buck /
+  quarter / dime / nickel lines the child multiplies out, plus an
+  addition total ("3 × 25", "1 × 10", "1 × 5", then 75 + 10 + 5). Gifts
+  ask who they're for and arrive being worn; toys land in the toy box.
+- BETA: coin swaps in the wallet — both directions (10 dimes → a Paw
+  Buck, a Paw Buck → 4 quarters…), net-zero money, real place value.
+
 ## v1.23.0 — 2026-07-22
 
 - More skins, same skills: Quick Look flashes rotate through ten-frames,

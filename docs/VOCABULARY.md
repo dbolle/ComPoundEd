@@ -18,6 +18,8 @@ Two registers. Every new string picks one and sticks to its column.
 | first-ever fact | 📣 "New one! Type it in!" (echo) | echo-first exposure (seen flag) |
 | table warm-up | **Counting Path** 🐾 | skip-count chains |
 | little savings | **piggy bank** 🐷 | Paw Bucks balance |
+| in-development previews | 🧪 **Beta preview** (Grown-Ups only) | preservation-exempt features |
+| coin exchange | **Swap coins** 🔁 | denomination equivalence |
 | the mixed-games round | **Surprise!** 🎁 | interleaved little round |
 | concrete subtraction game | **Take away!** 🥣 | CRA concrete stage |
 | skip-count / count-back game | **Counting paths** 🐾 | chains (tables connector) |

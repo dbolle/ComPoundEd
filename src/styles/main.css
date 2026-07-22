@@ -974,6 +974,10 @@ button.pressed {
 /* Inside the centered flex stage the grid's 1fr columns collapse to
    min-content — give the pad a real width and chunky keys for little
    fingers. */
+.store-item.owned {
+  opacity: 0.75;
+}
+
 .dice-grid {
   display: grid;
   grid-template-columns: repeat(3, 56px);

@@ -33,7 +33,7 @@ reconsider after calibration.
    ledgers now VERIFY the pinned prices rather than set them. Observe real kid income for ~1–2 weeks (teaser
    already building anticipation + savings habit). Revisit: back-pay
    question, payout tuning.
-3. **Phase 4b — Pet Store.** Approved mechanics: denomination prices set
+3. **Phase 4b — Pet Store: IN BETA (v1.24.0)** behind the 🧪 flag. Approved mechanics: denomination prices set
    from observed time-to-earn (cheap toys ≈ days, wearables ≈ 1–2 weeks,
    crown/tiara aspirational ≈ a month); checkout lines are real ×5/×10
    facts, totals are addition; spends = negative ledger txns; nothing
