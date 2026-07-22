@@ -10,6 +10,7 @@ license doesn't require attribution.
 | Pet pool (cats, rabbits, guinea pigs, birds, sloths, hedgehogs, turtles — `pets.js`) | Original, generated SVG art created for Compounded | CC0 (dedicated to the public domain) |
 | Store gear — wearables incl. crown & tiara, and toys (`gear.js`, `dogs.js`) | Original, generated SVG art created for Compounded | CC0 (dedicated to the public domain) |
 | Taking Away pets — Inky, Thumper, Waffle, Lemon, Dozer, Thistle, Tidepool (`pets.js`) | Original, generated SVG art created for Compounded | CC0 (dedicated to the public domain) |
+| First-friends pets — Nibbles, Pesto, Pistachio, Sprout (`pets.js`) | Original, generated SVG art created for Compounded | CC0 (dedicated to the public domain) |
 | App icon & paw motifs (`public/icons/`) | Original SVG art created for Compounded | CC0 (dedicated to the public domain) |
 
 ## Vetted CC0 sources for future assets

@@ -39,6 +39,12 @@ export const PETS = [
   { id: 'sloth-3', species: 'sloth', name: 'Dozer', base: '#c4a98a', face: '#efe3d0', stripe: '#8a7358', collar: '#2563eb' },
   { id: 'hedgehog-3', species: 'hedgehog', name: 'Thistle', base: '#e8d4be', spikes: '#93602f', muzzle: '#f6ebdb', collar: '#ec4899' },
   { id: 'turtle-3', species: 'turtle', name: 'Tidepool', base: '#7fb99a', shell: '#4e8f7a', shellRim: '#3c7561', collar: '#ef4444' },
+  // First-friends batch (v1.21): early milestones deserve early faces —
+  // appended so existing milestone→pet mappings never shift.
+  { id: 'rabbit-4', species: 'rabbit', name: 'Nibbles', base: '#e8d9c3', inner: '#f2c4ce', muzzle: '#f7eddd', collar: '#14b8a6' },
+  { id: 'bird-4', species: 'bird', name: 'Pesto', base: '#7fae5c', cheek: '#f2a33c', beak: '#e88a2a', tuft: '#5d8f41', collar: '#ef4444' },
+  { id: 'guinea-4', species: 'guinea', name: 'Pistachio', base: '#b9c98a', ear: '#93a35f', muzzle: '#eef2d9', patch: '#8fa35a', collar: '#8b5cf6' },
+  { id: 'hedgehog-4', species: 'hedgehog', name: 'Sprout', base: '#ead9c0', spikes: '#6b7a3f', muzzle: '#f6ecd9', collar: '#0ea5e9' },
 ];
 
 export function getPet(id) {
