@@ -85,15 +85,20 @@ function applyAnswer(s, correct, ms, fastMs) {
 // SHOWN, not asked (errorless rep, per incremental-rehearsal practice).
 // Marks the fact as seen so the next appearance is a real question;
 // boxes, speed and coins are untouched.
-function applyEcho(map, key) {
+function applyEcho(map, key, flag = 'seen') {
   const s = map[key] ?? (map[key] = emptyStat());
-  // `seen`, not `attempts`: the first REAL try after an intro must still
+  // a flag, not `attempts`: the first REAL try after an intro must still
   // count as the brave first attempt (streak-neutral, 🦁 celebrated).
-  s.seen = 1;
+  s[flag] = 1;
   s.lastSeen = Date.now();
   return s;
 }
 
+// Bridged tracks (÷, −) don't echo their FIRST form — the missing-factor/
+// missing-addend scaffold IS the intro, and the restated ×/+ fact is one
+// the child already mastered to unlock the track. They echo once at the
+// OPERATOR'S DEBUT instead (`seenOp`): the first "20 ÷ 5" is shown, not
+// asked.
 export function recordEcho(profile, q) {
   if (q.kind === 'add') {
     if (!profile.addition) profile.addition = {};
@@ -101,11 +106,11 @@ export function recordEcho(profile, q) {
   }
   if (q.kind === 'sub') {
     if (!profile.subtraction) profile.subtraction = {};
-    return applyEcho(profile.subtraction, normAddKey(q.a, q.b));
+    return applyEcho(profile.subtraction, normAddKey(q.a, q.b), 'seenOp');
   }
   if (q.kind === 'div') {
     if (!profile.division) profile.division = {};
-    return applyEcho(profile.division, normKey(q.a, q.b));
+    return applyEcho(profile.division, normKey(q.a, q.b), 'seenOp');
   }
   return applyEcho(profile.facts, normKey(q.a, q.b));
 }
