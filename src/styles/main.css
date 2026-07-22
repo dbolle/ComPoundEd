@@ -974,6 +974,19 @@ button.pressed {
 /* Inside the centered flex stage the grid's 1fr columns collapse to
    min-content — give the pad a real width and chunky keys for little
    fingers. */
+.li.cup {
+  font-size: 2.4rem;
+  background: #fde68a;
+}
+
+.bark-dog {
+  padding: 6px;
+}
+
+.bark-dog:active {
+  transform: scale(0.94);
+}
+
 .little-numpad {
   width: min(320px, 92vw);
   max-width: none;

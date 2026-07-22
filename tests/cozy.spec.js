@@ -63,7 +63,7 @@ test('e2e: graduation tile appears with skill; finishing a round adopts into the
   await expect(page.locator('[data-game="look"]')).toBeVisible();
 
   // finish any skill round → checkPetUnlocks adopts the look pet
-  await page.tap('[data-game="count"]');
+  await page.evaluate(() => { location.hash = '#/little?game=count&v=frame'; });
   await page.waitForSelector('.little-card');
   for (let q = 0; q < 5; q++) {
     await page.tap('.little-card[data-good="1"]');

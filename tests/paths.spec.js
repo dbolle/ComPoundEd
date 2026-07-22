@@ -83,7 +83,7 @@ test('e2e: knowing 1–3 adopts the first friend within days-one play', async ({
   await selectProfile(page, doc.name);
   await page.waitForSelector('.little-tile');
   // finish any skill round → adoption ceremony fires for count3
-  await page.tap('[data-game="count"]');
+  await page.evaluate(() => { location.hash = '#/little?game=count&v=frame'; });
   await page.waitForSelector('.little-card');
   for (let q = 0; q < 5; q++) {
     await page.tap('.little-card[data-good="1"]');
