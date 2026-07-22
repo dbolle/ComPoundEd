@@ -1,6 +1,7 @@
 import { navigate } from '../router.js';
 import { DOGS, dogSVG, wornFor, dirtFor } from '../art/dogs.js';
 import { storefrontSVG } from '../art/gear.js';
+import { isBeta } from '../engine/beta.js';
 import { balanceCents, formatPaw } from '../engine/money.js';
 import { isUnlocked } from '../engine/unlocks.js';
 import { escapeHtml, toast } from '../ui.js';
@@ -58,10 +59,15 @@ export function packScreen(el, params, ctx) {
   const store = document.createElement('button');
   store.className = 'dog-card store-soon';
   store.setAttribute('aria-label', 'Pet store, opening soon');
+  const open = isBeta(p);
   store.innerHTML = `<span class="dog">${storefrontSVG(76)}</span>
     <span>Pet store</span>
-    <span class="lock-hint">🚧 Opening soon!</span>`;
+    <span class="lock-hint">${open ? '🎉 Open!' : '🚧 Opening soon!'}</span>`;
   store.addEventListener('click', () => {
+    if (open) {
+      navigate('/store');
+      return;
+    }
     const art = store.querySelector('.dog');
     art.classList.remove('wiggle');
     void art.offsetWidth; // restart the animation on repeat taps

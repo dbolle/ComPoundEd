@@ -23,6 +23,9 @@ preserve existing profile data:
 
 ## Working on this repo
 
+- BETA EXEMPTION: features gated by `isBeta()` (subjects.beta, Grown-Ups
+  🧪 chip) are previews — their schema/data may change or be purged WITHOUT
+  migration. Everything else keeps the hard preservation rule above.
 - Documentation is part of every change (user directive): update BACKLOG.md
   and CHANGELOG.md (bump `package.json` version — it displays in Grown-Ups)
   in the same commit, plus README.md when user-facing behavior changes.

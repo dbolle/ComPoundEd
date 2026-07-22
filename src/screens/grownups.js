@@ -175,7 +175,9 @@ export function grownupsScreen(el, params, ctx) {
         <div style="height:8px"></div>
         <div class="nav-row">
           <button class="btn ghost small" data-subj="hideSitting"></button>
+          <button class="btn ghost small" data-subj="beta"></button>
         </div>
+        <p class="muted" style="font-size:.8rem;margin:8px 0 0">⚠️ Beta features are previews — they may be unstable, change, or lose their data as they develop.</p>
         <p class="muted" style="font-size:.85rem;margin:12px 0 6px">Times tables shown (none picked = all):</p>
         <div class="limit-grid" data-limit></div>
       </div>
@@ -279,6 +281,7 @@ export function grownupsScreen(el, params, ctx) {
       tables: (v) => `✖️ ${triLabel('Times tables', v)}`,
       childCanSwitch: (v) => (v ? '🔀 Child can switch: yes' : '🔀 Child can switch: no'),
       hideSitting: (v) => (v ? '🏡 Pet sitting: hidden' : '🏡 Pet sitting: shown'),
+      beta: (v) => (v ? '🧪 Beta preview: on' : '🧪 Beta preview: off'),
     };
     for (const btn of panel.querySelectorAll('[data-subj]')) {
       const key = btn.dataset.subj;

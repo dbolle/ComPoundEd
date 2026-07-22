@@ -39,7 +39,40 @@ export const REASON_LABELS = {
   polish: 'rusty fact polished',
   skill: 'new number known',
   buy: 'pet store',
+  swap: 'coin swap',
 };
+
+// Coin swaps run both directions: consolidate up, break a big coin down.
+// Each is two net-zero txns, so balances never move — only the coins do.
+const D = { buck: 100, quarter: 25, dime: 10, nickel: 5, penny: 1 };
+export const SWAPS = [
+  { give: { denom: 'quarter', n: 4 }, get: { denom: 'buck', n: 1 } },
+  { give: { denom: 'dime', n: 10 }, get: { denom: 'buck', n: 1 } },
+  { give: { denom: 'nickel', n: 5 }, get: { denom: 'quarter', n: 1 } },
+  { give: { denom: 'nickel', n: 2 }, get: { denom: 'dime', n: 1 } },
+  { give: { denom: 'penny', n: 10 }, get: { denom: 'dime', n: 1 } },
+  { give: { denom: 'penny', n: 5 }, get: { denom: 'nickel', n: 1 } },
+  { give: { denom: 'buck', n: 1 }, get: { denom: 'quarter', n: 4 } },
+  { give: { denom: 'buck', n: 1 }, get: { denom: 'dime', n: 10 } },
+  { give: { denom: 'quarter', n: 1 }, get: { denom: 'nickel', n: 5 } },
+  { give: { denom: 'dime', n: 1 }, get: { denom: 'nickel', n: 2 } },
+  { give: { denom: 'nickel', n: 1 }, get: { denom: 'penny', n: 5 } },
+];
+
+export function canSwap(profile, rule) {
+  return (coinCounts(profile)[rule.give.denom] ?? 0) >= rule.give.n;
+}
+
+export function swapCoins(profile, rule, now = Date.now()) {
+  if (!canSwap(profile, rule)) return false;
+  const cents = D[rule.give.denom] * rule.give.n;
+  const rid = Math.random().toString(36).slice(2, 8);
+  ensureBucks(profile).txns.push(
+    { id: `swap-${now.toString(36)}-${rid}-a`, at: now, cents: -cents, denom: rule.give.denom, count: -rule.give.n, reason: 'swap' },
+    { id: `swap-${now.toString(36)}-${rid}-b`, at: now, cents, denom: rule.get.denom, count: rule.get.n, reason: 'swap' }
+  );
+  return true;
+}
 
 export function ensureBucks(profile) {
   if (!profile.pawBucks) profile.pawBucks = { txns: [] };
@@ -57,11 +90,13 @@ export function formatPaw(cents) {
 // The literal coins earned (net of spends, oldest coins spent first later —
 // Phase 4). For now every positive txn carries its denomination.
 export function coinCounts(profile) {
+  // Count-netting: any txn carrying a denom moves that coin's count
+  // (earns +1, swap give negative, swap get positive). Buys carry no
+  // denom — spending doesn't pick which coins leave (Phase 4b keeps it
+  // simple; the balance is the truth).
   const counts = {};
   for (const t of ensureBucks(profile).txns) {
-    if (t.cents > 0 && t.denom) {
-      counts[t.denom] = (counts[t.denom] ?? 0) + (t.count ?? 1);
-    }
+    if (t.denom) counts[t.denom] = (counts[t.denom] ?? 0) + (t.count ?? (t.cents > 0 ? 1 : 0));
   }
   return counts;
 }

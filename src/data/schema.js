@@ -14,6 +14,8 @@ export const SUBJECT_DEFAULTS = {
   childCanSwitch: false,
   hideSitting: false,
   limitTables: [],
+  // Beta preview opt-in (parent-set; beta features are preservation-exempt)
+  beta: false,
 };
 
 // v7-era flat achievement ids → stacked { family, tier } (schema v8).
