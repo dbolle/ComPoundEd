@@ -13,7 +13,7 @@ async function littleProfile(page, base) {
 
 test('counting items lay out as rows of five, not one long line', async ({ page }) => {
   await littleProfile(page, 'Framer');
-  await page.evaluate(() => { location.hash = '#/little?game=count'; });
+  await page.evaluate(() => { location.hash = '#/little?game=count&v=frame'; });
   await page.waitForSelector('.little-items');
   const cols = await page.$eval(
     '.little-items',

@@ -974,6 +974,18 @@ button.pressed {
 /* Inside the centered flex stage the grid's 1fr columns collapse to
    min-content — give the pad a real width and chunky keys for little
    fingers. */
+.dice-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 56px);
+  gap: 6px;
+  justify-content: center;
+  font-size: 2rem;
+}
+
+.dice-grid .empty-cell {
+  background: none;
+}
+
 .li.cup {
   font-size: 2.4rem;
   background: #fde68a;
