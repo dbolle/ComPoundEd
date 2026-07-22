@@ -3,6 +3,14 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.24.1 — 2026-07-22
+
+- Division and Taking Away no longer double-introduce facts: the
+  missing-number bridge form IS the intro (the restated ×/+ fact was
+  already mastered to unlock the track), so the echo now happens once at
+  the operator's debut — the first "20 ÷ 5" or "12 − 8" is shown and
+  typed, not asked.
+
 ## v1.24.0 — 2026-07-22
 
 - 🧪 Beta preview flag (Grown-Ups): explicitly flagged profiles can reach

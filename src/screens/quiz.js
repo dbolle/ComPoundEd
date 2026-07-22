@@ -157,7 +157,13 @@ export function quizScreen(el, params, ctx) {
     const statOf =
       q.kind === 'add' ? getAddStat : q.kind === 'sub' ? getSubStat : q.kind === 'div' ? getDivStat : getStat;
     const st = statOf(ctx.profile, q.a, q.b);
-    q.echo = st.attempts === 0 && !st.seen;
+    if (q.kind === 'div' || q.kind === 'sub') {
+      // bridged tracks: echo only when the ÷/− symbol itself debuts —
+      // the missing-number form is already the scaffolded introduction
+      q.echo = /[÷−]/.test(q.text) && !st.seenOp;
+    } else {
+      q.echo = st.attempts === 0 && !st.seen;
+    }
     qEl.textContent = q.echo ? q.correction : q.text;
     qEl.classList.toggle('echo', !!q.echo);
     qEl.classList.toggle('compact', (q.echo ? q.correction : q.text).length > 8);

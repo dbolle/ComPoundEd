@@ -89,6 +89,9 @@ test('e2e: unlock ÷2, play the missing-number round, earn Willow', async ({ pag
   // ÷2 nearly mastered: 12 facts done, one at box 2 → this round finishes it
   masteredTable(doc, 2, { division: true, box: MASTERY_BOX });
   doc.division[norm(2, 5)] = stat(2);
+  // these facts show the ÷ form as REAL questions — mark the symbol met
+  // (a never-met ÷ debut now arrives as an echo, shown not asked)
+  for (const k of Object.keys(doc.division)) doc.division[k].seenOp = 1;
   await seedProfile(page, doc);
   await selectProfile(page, 'DivKid');
 
