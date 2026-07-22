@@ -3,6 +3,14 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.21.0 — 2026-07-21
+
+- Early friends: two easily-reached milestones — First counts (knowing
+  1–3) and Counting to five — so brand-new little pups adopt their
+  first Cozy Corner friends within their first days of play, connecting
+  correct answers to new friends from the start. Four new pets join the
+  habitats: Nibbles 🐰, Pesto 🐦, Pistachio 🐹 and Sprout 🦔.
+
 ## v1.20.0 — 2026-07-21
 
 - Take away! 🥣: subtraction's concrete stage — bones hop away before

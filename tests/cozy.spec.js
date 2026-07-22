@@ -39,7 +39,7 @@ test('milestones adopt pets once; addition waves adopt too', () => {
   expect(subPet).toHaveLength(1);
   expect(subPet[0].milestone).toBe('s1');
   expect(subPet[0].pet.id).not.toBe(wavePet[0].pet.id);
-  expect(MILESTONES).toHaveLength(21); // track-1 ×4, waves ×14, type/taway/paths
+  expect(MILESTONES).toHaveLength(23); // + the two early-friend milestones
 });
 
 test('a known number pays one penny, ever', () => {
@@ -77,7 +77,8 @@ test('e2e: graduation tile appears with skill; finishing a round adopts into the
   await page.waitForSelector('.little-tile');
   await page.tap('[data-corner]');
   await page.waitForSelector('.corner-grid');
-  await expect(page.locator('.dog-card:not(.locked)')).toHaveCount(1);
+  // count 1–5 + look 1–10 known → count3 + count5 + look all adopt
+  await expect(page.locator('.dog-card:not(.locked)')).toHaveCount(3);
   await expect(page.locator('.habitat-title').first()).toBeVisible();
 });
 

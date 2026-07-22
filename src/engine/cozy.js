@@ -34,6 +34,11 @@ export const MILESTONES = [
   { id: 'type', label: 'Type it! 1–10', earned: (p) => rangeKnown(p, 'type', 1, 10) },
   { id: 'taway', label: 'Take away!', earned: (p) => rangeKnown(p, 'takeaway', 1, 8) },
   { id: 'paths', label: 'Counting paths (2s, 5s, 10s)', earned: (p) => [2, 5, 10].every((t) => known(p, `path:${t}`)) },
+  // Early friends: the first pets arrive FAST so correct answers and new
+  // friends connect from day one. Appended (mapping stability); surfaced
+  // first via `sort`.
+  { id: 'count3', label: 'First counts (1–3)', sort: -2, earned: (p) => rangeKnown(p, 'count', 1, 3) },
+  { id: 'count5', label: 'Counting to five', sort: -1, earned: (p) => rangeKnown(p, 'count', 1, 5) },
 ];
 
 export function petForMilestone(msId) {
@@ -64,6 +69,8 @@ export function checkPetUnlocks(profile) {
 // The first milestone not yet earned — the "next friend" goal card.
 export function nextPetGoal(profile) {
   const owned = new Set((profile.petUnlocks ?? []).map((u) => u.milestone));
-  const m = MILESTONES.find((x) => !owned.has(x.id));
+  const m = [...MILESTONES]
+    .sort((a, b) => (a.sort ?? MILESTONES.indexOf(a)) - (b.sort ?? MILESTONES.indexOf(b)))
+    .find((x) => !owned.has(x.id));
   return m ? { pet: petForMilestone(m.id), label: m.label } : null;
 }

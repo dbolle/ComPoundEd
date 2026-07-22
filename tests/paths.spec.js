@@ -71,3 +71,25 @@ test('e2e: Counting Paths unlocks from Doubles; choices before typing is known',
   await page.tap('.little-card[data-good="1"]');
   await expect(page.locator('.paw.done')).toHaveCount(1);
 });
+
+
+test('e2e: knowing 1–3 adopts the first friend within days-one play', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'networkidle' });
+  const doc = newProfile(uniqueName('First'));
+  doc.id = 'first-kid';
+  doc.subjects = { ...doc.subjects, little: true };
+  doc.little = { xp: 4, skills: skilled('count', 1, 3), revealed: [] };
+  await seedProfile(page, doc);
+  await selectProfile(page, doc.name);
+  await page.waitForSelector('.little-tile');
+  // finish any skill round → adoption ceremony fires for count3
+  await page.tap('[data-game="count"]');
+  await page.waitForSelector('.little-card');
+  for (let q = 0; q < 5; q++) {
+    await page.tap('.little-card[data-good="1"]');
+    await expect(page.locator('.paw.done')).toHaveCount(q + 1);
+    if (q < 4) await page.waitForTimeout(1100);
+  }
+  await page.waitForSelector('[data-again]');
+  await expect(page.locator('.badge', { hasText: 'New cozy friend' })).toBeVisible();
+});

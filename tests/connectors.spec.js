@@ -27,12 +27,15 @@ test('suggest ranks bridge waves with tables; tables-off yields wave suggestions
   expect(suggestNext(plain).href).toContain('table=');
 });
 
-test('nextPetGoal walks the milestone order', () => {
+test('nextPetGoal surfaces the easy first friends before Quick Look', () => {
   const p = newProfile('Goal');
   const g = nextPetGoal(p);
-  expect(g.label).toContain('Quick Look');
-  p.petUnlocks = [{ petId: g.pet.id, milestone: 'look', at: 1 }];
-  expect(nextPetGoal(p).label).toContain('friends of 5');
+  expect(g.label).toContain('First counts');
+  p.petUnlocks = [
+    { petId: g.pet.id, milestone: 'count3', at: 1 },
+    { petId: 'y', milestone: 'count5', at: 2 },
+  ];
+  expect(nextPetGoal(p).label).toContain('Quick Look');
 });
 
 test('e2e: counting path warms up a fresh table, unscored, then the round starts', async ({ page }) => {
