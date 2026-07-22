@@ -95,3 +95,41 @@ test('e2e: Surprise! unlocks at 3 revealed games and samples across them', async
   const saved = await page.evaluate(byId, 'box-kid');
   expect(Object.values(saved.little.skills).reduce((s, v) => s + v.attempts, 0)).toBeGreaterThan(30);
 });
+
+test('e2e: v1.23 skins — dice flash, ears find, park stories, receivers, co-hosts', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'networkidle' });
+  const doc = newProfile(uniqueName('Skins'));
+  doc.id = 'skin-kid';
+  doc.subjects = { ...doc.subjects, little: true };
+  doc.little = { xp: 30, skills: { ...skilled('count', 1, 5), ...skilled('add', 2, 5) }, revealed: [] };
+  doc.petUnlocks = [{ petId: 'cat-3', milestone: 'count3', at: 1 }];
+  await seedProfile(page, doc);
+  await selectProfile(page, doc.name);
+  await page.waitForSelector('.little-tile');
+
+  // dice flash (forced): 3×3 arrangement, then hides
+  await page.evaluate(() => { location.hash = '#/little?game=look&v=dice'; });
+  await page.waitForSelector('.dice-grid');
+  await expect(page.locator('.look-veil')).toBeVisible({ timeout: 3000 });
+  await page.evaluate(() => { location.hash = '#/home'; });
+  await page.waitForSelector('.little-tile');
+
+  // ears find: no numeral crutch on stage
+  await page.evaluate(() => { location.hash = '#/little?game=find&v=ears'; });
+  await page.waitForSelector('.little-card');
+  await expect(page.locator('.little-stage .little-numeral')).toHaveText('🔊');
+  await page.evaluate(() => { location.hash = '#/home'; });
+  await page.waitForSelector('.little-tile');
+
+  // park story adding: pups, park prompt, same add skill space
+  await page.evaluate(() => { location.hash = '#/little?game=add&v=story'; });
+  await page.waitForSelector('.little-card');
+  await expect(page.locator('.little-prompt')).toContainText('🏞️');
+  await page.evaluate(() => { location.hash = '#/home'; });
+  await page.waitForSelector('.little-tile');
+
+  // co-host: the adopted pet (Pearl, cat-3) presents the add game
+  await page.evaluate(() => { location.hash = '#/little?game=add&v=frame'; });
+  await page.waitForSelector('.little-card');
+  await expect(page.locator('.little-prompt [aria-label*="Pearl"]')).toBeVisible();
+});

@@ -53,7 +53,7 @@ test('e2e: little pup profile gets the counting home, not the grids', async ({ p
 test('e2e: How many? round — errorless retries, xp, buddy play credit', async ({ page }) => {
   const name = uniqueName('Count');
   await createLittleProfile(page, name);
-  await page.tap('[data-game="count"]');
+  await page.evaluate(() => { location.hash = '#/little?game=count&v=frame'; });
   await page.waitForSelector('.little-card');
 
   for (let i = 0; i < 5; i++) {
@@ -303,7 +303,7 @@ test('e2e: tiles unlock with xp; K-tier games work', async ({ page }) => {
   await page.waitForSelector('.little-tile');
 
   // Adding with Peanut — two groups, one number
-  await page.tap('[data-game="add"]');
+  await page.evaluate(() => { location.hash = '#/little?game=add&v=frame'; });
   await page.waitForSelector('.little-card');
   await expect(page.locator('.little-prompt [aria-label*="Peanut"]')).toBeVisible();
   const groups = await page.$$eval('.add-row .little-items', (els) =>

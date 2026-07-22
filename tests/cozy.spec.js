@@ -91,7 +91,7 @@ test('e2e: number friends starts pictures-only, goes symbolic with mastery', asy
   await seedProfile(page, fresh);
   await selectProfile(page, fresh.name);
   await page.waitForSelector('.little-tile');
-  await page.tap('[data-game="bond"]');
+  await page.evaluate(() => { location.hash = '#/little?game=bond&v=frame'; });
   await page.waitForSelector('.little-card');
   // pictures stage: frame with empty cells, picture-pile choices, no ➕ row
   await expect(page.locator('.little-stage .li.empty').first()).toBeVisible();
@@ -118,7 +118,7 @@ test('e2e: number friends starts pictures-only, goes symbolic with mastery', asy
   });
   await page.reload({ waitUntil: 'networkidle' }); // resumes the same profile
   await page.waitForSelector('.little-tile');
-  await page.tap('[data-game="bond"]');
+  await page.evaluate(() => { location.hash = '#/little?game=bond&v=frame'; });
   await page.waitForSelector('.little-card');
   // bonds of 5 all known → whole becomes 10, back to pictures for the new whole
   await expect(page.locator('.little-stage .li.empty').first()).toBeVisible();

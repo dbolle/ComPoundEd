@@ -16,7 +16,17 @@ import { isRevealed, ratchetReveals, addingReady, takingAwayReady } from '../eng
 import { WAVES, waveUnlocked, isWaveMastered, subWaveUnlocked, isSubWaveMastered } from '../engine/waves.js';
 import { confetti, escapeHtml, buildNumpad } from '../ui.js';
 
-const ITEMS = ['🦴', '🎾', '🍖'];
+// Daily item themes: the counting objects change with the day — picnic
+// bones today, beach shells tomorrow. Same numbers, fresher world.
+const THEMES = [
+  ['🦴', '🎾', '🍖'], // classic
+  ['🍎', '🥪', '🍇'], // picnic day
+  ['🐚', '🦀', '⭐'], // beach day
+  ['❄️', '⛄', '🧤'], // snow day
+  ['🌼', '🍓', '🥕'], // garden day
+];
+export const THEME_ITEMS = THEMES[Math.floor(Date.now() / 86400000) % THEMES.length];
+const ITEMS = THEME_ITEMS;
 const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 const STARS = ['⭐', '🌟', '🎉', '🐾'];
 const KIND_BY_GAME = { count: 'fetch', find: 'walk', more: 'feed', tap: 'fetch', feed: 'feed', shape: 'walk', pattern: 'feed', next: 'walk', add: 'fetch', look: 'walk', bond: 'feed', teen: 'fetch', type: 'walk', taway: 'feed', paths: 'fetch', surprise: 'fetch' };
@@ -25,6 +35,15 @@ const QUESTIONS_BY_GAME = { count: 5, find: 5, more: 5, tap: 3, feed: 3, shape: 
 // New species from the pet pool host the non-counting games — a pre-reader
 // navigates by which animal, not by words.
 const HOSTS = { shape: 'cat-1', pattern: 'turtle-1', next: 'bird-1', add: 'guinea-1' };
+// Adopted friends co-host: the collection pays off in person. Falls back
+// to the classic hosts until friends move in.
+function hostFor(profile, g) {
+  const adopted = profile.petUnlocks ?? [];
+  if (!adopted.length) return getPet(HOSTS[g] ?? 'cat-1');
+  const day = Math.floor(Date.now() / 86400000);
+  const gi = ['shape', 'pattern', 'next', 'add', 'bond', 'teen'].indexOf(g);
+  return getPet(adopted[(day + Math.max(0, gi)) % adopted.length].petId);
+}
 
 // Okabe–Ito hues: every pair stays distinct under color-vision deficiency
 // (validated ΔE ≥ 17.9 adjacent-pair separation); the soft outline keeps the
@@ -212,25 +231,25 @@ function tiles(p, buddy) {
       game: 'shape',
       minXp: 28,
       caption: 'Shapes',
-      art: `<span class="tile-dogs">${petSVG(getPet(HOSTS.shape), 38)}</span><span class="tile-art small">${shapeSVG(SHAPE_DEFS[0], SHAPE_COLORS[0], 18)}${shapeSVG(SHAPE_DEFS[2], SHAPE_COLORS[1], 18)}${shapeSVG(SHAPE_DEFS[1], SHAPE_COLORS[2], 18)}</span>`,
+      art: `<span class="tile-dogs">${petSVG(hostFor(p, 'shape'), 38)}</span><span class="tile-art small">${shapeSVG(SHAPE_DEFS[0], SHAPE_COLORS[0], 18)}${shapeSVG(SHAPE_DEFS[2], SHAPE_COLORS[1], 18)}${shapeSVG(SHAPE_DEFS[1], SHAPE_COLORS[2], 18)}</span>`,
     },
     {
       game: 'pattern',
       minXp: 38,
       caption: 'Patterns',
-      art: `<span class="tile-dogs">${petSVG(getPet(HOSTS.pattern), 38)}</span><span class="tile-art small">${shapeSVG(SHAPE_DEFS[0], SHAPE_COLORS[0], 16)}${shapeSVG(SHAPE_DEFS[0], SHAPE_COLORS[1], 16)}${shapeSVG(SHAPE_DEFS[0], SHAPE_COLORS[0], 16)}\u2753</span>`,
+      art: `<span class="tile-dogs">${petSVG(hostFor(p, 'pattern'), 38)}</span><span class="tile-art small">${shapeSVG(SHAPE_DEFS[0], SHAPE_COLORS[0], 16)}${shapeSVG(SHAPE_DEFS[0], SHAPE_COLORS[1], 16)}${shapeSVG(SHAPE_DEFS[0], SHAPE_COLORS[0], 16)}\u2753</span>`,
     },
     {
       game: 'next',
       minXp: 55,
       caption: 'What comes next?',
-      art: `<span class="tile-dogs">${petSVG(getPet(HOSTS.next), 38)}</span><span class="tile-art small"><span class="tile-mark">2\u00b73\u00b7\u2753</span></span>`,
+      art: `<span class="tile-dogs">${petSVG(hostFor(p, 'next'), 38)}</span><span class="tile-art small"><span class="tile-mark">2\u00b73\u00b7\u2753</span></span>`,
     },
     {
       game: 'add',
       minXp: 70,
       caption: 'Adding',
-      art: `<span class="tile-dogs">${petSVG(getPet(HOSTS.add), 38)}</span><span class="tile-art small">\u{1F9B4}\u2795\u{1F9B4}\u{1F9B4}</span>`,
+      art: `<span class="tile-dogs">${petSVG(hostFor(p, 'add'), 38)}</span><span class="tile-art small">\u{1F9B4}\u2795\u{1F9B4}\u{1F9B4}</span>`,
     },
     {
       game: 'taway',
@@ -543,6 +562,7 @@ export function littleGameScreen(el, params, ctx) {
         speak('Listen! How many barks?');
         stageEl.dataset.answer = n;
         stageEl.innerHTML = `<button class="bark-dog" aria-label="Hear the barks again">${buddy.svg(110)}</button>`;
+        busy = true; // input stays blocked from render until the barks end
         const playBarks = () => {
           busy = true;
           for (let i = 0; i < n; i++) setTimeout(() => sfx.bark(), 600 + i * 620);
@@ -570,9 +590,13 @@ export function littleGameScreen(el, params, ctx) {
     } else if (g === 'find') {
       const n = pickN(little, 'find', range);
       const item = ITEMS[ri(ITEMS.length)];
-      promptEl.textContent = '🔍❓';
+      const ears = forced ? forced === 'ears' : ri(10) < 3;
+      promptEl.textContent = ears ? '👂🔍' : '🔍❓';
       speak(`Find ${WORDS[n]}!`);
-      stageEl.innerHTML = `<div class="little-numeral big">${n}</div>`;
+      // ears: no numeral shown — listening alone carries the target
+      stageEl.innerHTML = ears
+        ? `<div class="little-numeral big">🔊</div>`
+        : `<div class="little-numeral big">${n}</div>`;
       choicesEl.classList.add('stacked');
       for (const v of pickCounts(n, range)) {
         choiceButton(`<span class="little-items small">${itemRow(item, v)}</span>`, v === n);
@@ -607,15 +631,21 @@ export function littleGameScreen(el, params, ctx) {
       // Feed the puppy N: counting OUT a quantity — tap bones into the bowl
       // until the buddy has enough.
       const n = 1 + ri(range);
-      promptEl.textContent = `🦴➡️🥣`;
-      speak(`Feed ${buddy.name} ${WORDS[n]} bones!`);
+      const RECEIVERS = [
+        { icon: '🥣', item: '🦴', line: (w) => `Feed ${buddy.name} ${w} bones!` },
+        { icon: '🧸', item: '🎾', line: (w) => `Put ${w} toys in the toy box!` },
+        { icon: '🌼', item: '💧', line: (w) => `Water ${w} flowers!` },
+      ];
+      const recv = RECEIVERS[forced === 'bowl' ? 0 : ri(RECEIVERS.length)];
+      promptEl.textContent = `${recv.item}➡️${recv.icon}`;
+      speak(recv.line(WORDS[n]));
       stageEl.dataset.answer = n;
       stageEl.innerHTML = `<div class="feed-row">${buddy.svg(52)}
-          <span class="little-numeral">${n}</span><span class="feed-bowl">🥣</span>
+          <span class="little-numeral">${n}</span><span class="feed-bowl">${recv.icon}</span>
           <span class="tap-count">0</span></div>
         <div class="little-items tap-items feed-items">${Array.from(
           { length: n + 2 },
-          () => `<button class="tap-item">🦴</button>`
+          () => `<button class="tap-item">${recv.item}</button>`
         ).join('')}</div>
         <button class="btn little-icon-btn feed-done" aria-label="All done">✅</button>`;
       // The child decides when the bowl is right: bones toggle in and out,
@@ -653,7 +683,7 @@ export function littleGameScreen(el, params, ctx) {
       });
     } else if (g === 'shape') {
       // Shapes with Whiskers: wordless geometry — find the spoken shape.
-      const host = getPet(HOSTS.shape);
+      const host = hostFor(p, 'shape');
       const defs = [...SHAPE_DEFS].sort(() => Math.random() - 0.5).slice(0, 3);
       const target = defs[ri(defs.length)];
       // One color for every choice: shape is the only thing that varies.
@@ -669,7 +699,7 @@ export function littleGameScreen(el, params, ctx) {
       // Patterns with Sheldon: one dimension at a time. Early questions vary
       // only shape, then only color; two dimensions change together (the
       // hardest discrimination) only at the end of a round.
-      const host = getPet(HOSTS.pattern);
+      const host = hostFor(p, 'pattern');
       const stage = index <= 1 ? 'shape' : index === 2 ? 'color' : index === 3 ? 'aab' : 'mixed';
       const defs = [...SHAPE_DEFS].sort(() => Math.random() - 0.5);
       const cols = [...SHAPE_COLORS].sort(() => Math.random() - 0.5);
@@ -705,7 +735,7 @@ export function littleGameScreen(el, params, ctx) {
       for (const o of choices) choiceButton(o.html, o.good);
     } else if (g === 'next') {
       // What comes next? — number path with Kiwi the bird.
-      const host = getPet(HOSTS.next);
+      const host = hostFor(p, 'next');
       const s0 = 1 + ri(Math.max(1, range - 3));
       const answer = s0 + 3;
       promptEl.innerHTML = `${petSVG(host, 34)} ➡️❓`;
@@ -720,13 +750,18 @@ export function littleGameScreen(el, params, ctx) {
     } else if (g === 'add') {
       // Adding within 5 (10 later) with Peanut the guinea pig — two groups
       // of things, one number.
-      const host = getPet(HOSTS.add);
+      const host = hostFor(p, 'add');
       const maxSum = [2, 3, 4, 5].every((v) => knows(little, 'add', v)) ? 10 : 5;
       const a = 1 + ri(maxSum - 1);
       const b = 1 + ri(maxSum - a);
-      const item = ITEMS[ri(ITEMS.length)];
-      promptEl.innerHTML = `${petSVG(host, 34)} ➕`;
-      speak(`${WORDS[a]} plus ${WORDS[b]}!`);
+      const story = forced ? forced === 'story' : ri(10) < 3;
+      const item = story ? '🐶' : ITEMS[ri(ITEMS.length)];
+      promptEl.innerHTML = story ? '🏞️ ➕' : `${petSVG(host, 34)} ➕`;
+      speak(
+        story
+          ? `${WORDS[a]} pups were playing at the park... ${WORDS[b]} more came! How many now?`
+          : `${WORDS[a]} plus ${WORDS[b]}!`
+      );
       stageEl.dataset.answer = a + b;
       stageEl.innerHTML = `<div class="pattern-row add-row">
         <span class="little-items small${a > 5 ? ' many' : ''}">${itemRow(item, a)}</span>
@@ -780,9 +815,14 @@ export function littleGameScreen(el, params, ctx) {
       const n = 2 + ri(9); // 2..10 start
       const gone = 1 + ri(n - 1); // 1..n-1 leave (0-left needs abstraction)
       const left = n - gone;
-      const item = ITEMS[ri(ITEMS.length)];
-      promptEl.textContent = '🥣➡️';
-      speak(`${WORDS[n]} bones... ${WORDS[gone]} hop away! How many are left?`);
+      const story = forced ? forced === 'story' : ri(10) < 3;
+      const item = story ? '🐶' : ITEMS[ri(ITEMS.length)];
+      promptEl.textContent = story ? '🏞️➡️💤' : '🥣➡️';
+      speak(
+        story
+          ? `${WORDS[n]} pups at the park... ${WORDS[gone]} went home for a nap! How many are still playing?`
+          : `${WORDS[n]} bones... ${WORDS[gone]} hop away! How many are left?`
+      );
       stageEl.dataset.answer = left;
       stageEl.dataset.skill = `takeaway:${left}`;
       stageEl.innerHTML = `<div class="little-items">${Array.from(
@@ -851,18 +891,30 @@ export function littleGameScreen(el, params, ctx) {
       }
     } else if (g === 'look') {
       // Quick Look: the frame flashes, then hides — quick eyes, no counting.
+      // Representations rotate: ten-frame, dice pattern, paw pads —
+      // subitizing across arrangements is the actual skill.
       const n = pickN(little, 'look', rangeFor(p, 'look'));
-      const item = ITEMS[ri(ITEMS.length)];
+      const rep = forced ?? (n <= 6 ? ['frame', 'dice', 'paws'][ri(3)] : 'frame');
+      const item = rep === 'paws' ? '🐾' : ITEMS[ri(ITEMS.length)];
       promptEl.textContent = '👀⚡';
       speak('Quick look! How many?');
       stageEl.dataset.answer = n;
-      stageEl.innerHTML = `<div class="little-items">${itemRow(item, n)}</div>
+      const DICE = {
+        1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8],
+      };
+      const body =
+        (rep === 'dice' || rep === 'paws') && DICE[n]
+          ? `<div class="dice-grid">${Array.from({ length: 9 }, (_, i) =>
+              DICE[n].includes(i) ? `<span class="li">${item}</span>` : '<span class="li empty-cell"></span>'
+            ).join('')}</div>`
+          : `<div class="little-items">${itemRow(item, n)}</div>`;
+      stageEl.innerHTML = `${body}
         <div class="look-veil little-numeral big" hidden>❓</div>`;
       // Quick eyes only: answering is blocked until the frame hides, so
       // counting it item-by-item can't stand in for subitizing.
       busy = true;
       setTimeout(() => {
-        const frame = stageEl.querySelector('.little-items');
+        const frame = stageEl.querySelector('.little-items, .dice-grid');
         const veil = stageEl.querySelector('.look-veil');
         if (frame && veil) {
           frame.hidden = true;

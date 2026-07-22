@@ -3,6 +3,18 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.23.0 — 2026-07-22
+
+- More skins, same skills: Quick Look flashes rotate through ten-frames,
+  dice patterns and paw pads; Find it! sometimes gives only a spoken
+  target (👂 no numeral crutch); Adding and Take away! sometimes play as
+  park stories (pups arrive, pups nap); Feed me! rotates receivers
+  (bowl, toy box, flowers).
+- Adopted Cozy Corner friends now take turns co-hosting the games — the
+  collection shows up to play.
+- Daily item themes: the counting objects change with the day (classic
+  bones, picnic, beach, snow, garden).
+
 ## v1.22.0 — 2026-07-22
 
 - Same skills, new looks: How many? sometimes asks by EAR (the buddy

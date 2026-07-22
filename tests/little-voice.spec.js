@@ -20,7 +20,7 @@ async function littleProfileWithEars(page, base) {
 }
 
 async function playChoiceRound(page, game, questions = 5) {
-  await page.evaluate((g) => { location.hash = `#/little?game=${g}`; }, game);
+  await page.evaluate((g) => { location.hash = `#/little?game=${g}&v=frame`; }, game);
   await page.waitForSelector('.little-card');
   for (let q = 0; q < questions; q++) {
     await page.tap('.little-card[data-good="1"]');
