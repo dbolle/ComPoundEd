@@ -13,6 +13,7 @@ import {
 } from './data/store.js';
 import { register, startRouter } from './router.js';
 import { isBeta, BETA_ROUTES } from './engine/beta.js';
+import { pushProfile } from './data/sync.js';
 import { storeScreen } from './screens/store.js';
 import { initPressFeedback } from './ui.js';
 import { setSoundOn, setVoicePreference } from './sound.js';
@@ -33,12 +34,32 @@ import { activityScreen } from './screens/activity.js';
 import { heatmapScreen } from './screens/heatmap.js';
 import { grownupsScreen } from './screens/grownups.js';
 
-registerSW({ immediate: true });
+const updateSW = registerSW({
+  immediate: true,
+  onRegisteredSW(swUrl, reg) {
+    // Long-lived installed PWAs never re-check the SW on their own —
+    // poll hourly and whenever the app returns to the foreground.
+    if (!reg) return;
+    setInterval(() => reg.update().catch(() => {}), 60 * 60 * 1000);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') reg.update().catch(() => {});
+    });
+  },
+});
 initPressFeedback();
 // Kid-proofing: pinch/double-tap zoom turns imprecise little taps into a
 // zoomed mess. Standalone PWAs honor these; OS accessibility zoom still
 // works for grown-ups. (Verify on-device: browser-tab Safari may ignore.)
 document.addEventListener('gesturestart', (e) => e.preventDefault());
+// Last-chance sync flush: when the app is hidden or killed, push the
+// active profile with keepalive so a device switch can't strand a round.
+const flush = () => {
+  if (ctx.profile && isSyncEnabled()) pushProfile(ctx.profile);
+};
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') flush();
+});
+window.addEventListener('pagehide', flush);
 
 const ctx = {
   profile: null,
