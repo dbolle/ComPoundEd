@@ -971,13 +971,30 @@ button.pressed {
   opacity: 0.15;
 }
 
+/* Inside the centered flex stage the grid's 1fr columns collapse to
+   min-content — give the pad a real width and chunky keys for little
+   fingers. */
 .little-numpad {
-  max-width: 300px;
+  width: min(320px, 92vw);
+  max-width: none;
+  margin-top: 4px;
+}
+
+.little-numpad .key {
+  min-height: 54px;
+  font-size: 1.5rem;
+  padding: 8px 0;
 }
 
 .type-entry {
   min-height: 1.2em;
   color: var(--brand-deep);
+}
+
+/* the numeral being copied: big enough to model, small enough to leave
+   room for the pad on a 600px phone */
+.little-stage .type-target {
+  font-size: 2.4rem;
 }
 
 .collar-status {

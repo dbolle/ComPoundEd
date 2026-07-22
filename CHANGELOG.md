@@ -3,6 +3,13 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.21.1 — 2026-07-22
+
+- Type it!'s numpad was collapsing to min-content inside the centered
+  stage (squished keys). It now has a real width (320px / 92vw) with
+  chunky 54px-tall keys, and the model numeral shrank just enough to
+  keep the whole game on a 600px phone with zero scrolling.
+
 ## v1.21.0 — 2026-07-21
 
 - Early friends: two easily-reached milestones — First counts (knowing

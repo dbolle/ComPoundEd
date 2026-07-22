@@ -693,7 +693,7 @@ export function littleGameScreen(el, params, ctx) {
       promptEl.textContent = '⌨️';
       speak(`Type ${n <= 10 ? WORDS[n] : n}!`);
       stageEl.dataset.answer = n;
-      stageEl.innerHTML = `<div class="little-numeral big">${n}</div>
+      stageEl.innerHTML = `<div class="little-numeral big type-target">${n}</div>
         <div class="type-entry little-numeral">&nbsp;</div>
         <div class="numpad little-numpad"></div>`;
       const entry = stageEl.querySelector('.type-entry');
