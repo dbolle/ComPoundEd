@@ -65,7 +65,7 @@ test('e2e: first-try corrects build streaks; a wrong answer resets the number', 
   await page.fill('.name-input', name);
   await page.tap('form[data-create] [data-kind="little"]');
   await page.waitForSelector('.little-tile');
-  await page.evaluate(() => { location.hash = '#/little?game=count'; });
+  await page.evaluate(() => { location.hash = '#/little?game=count&v=frame'; });
   await page.waitForSelector('.little-card');
 
   for (let q = 0; q < 5; q++) {
@@ -89,7 +89,7 @@ test('e2e: a miss triggers the guided recount, then hands the question back', as
   await page.fill('.name-input', name);
   await page.tap('form[data-create] [data-kind="little"]');
   await page.waitForSelector('.little-tile');
-  await page.evaluate(() => { location.hash = '#/little?game=count'; });
+  await page.evaluate(() => { location.hash = '#/little?game=count&v=frame'; });
   await page.waitForSelector('.little-card');
 
   // Miss every question once: each miss must recount, block input, then

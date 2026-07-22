@@ -19,8 +19,8 @@ import { confetti, escapeHtml, buildNumpad } from '../ui.js';
 const ITEMS = ['🦴', '🎾', '🍖'];
 const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 const STARS = ['⭐', '🌟', '🎉', '🐾'];
-const KIND_BY_GAME = { count: 'fetch', find: 'walk', more: 'feed', tap: 'fetch', feed: 'feed', shape: 'walk', pattern: 'feed', next: 'walk', add: 'fetch', look: 'walk', bond: 'feed', teen: 'fetch', type: 'walk', taway: 'feed', paths: 'fetch' };
-const QUESTIONS_BY_GAME = { count: 5, find: 5, more: 5, tap: 3, feed: 3, shape: 5, pattern: 5, next: 5, add: 5, look: 5, bond: 5, teen: 5, type: 5, taway: 5, paths: 5 };
+const KIND_BY_GAME = { count: 'fetch', find: 'walk', more: 'feed', tap: 'fetch', feed: 'feed', shape: 'walk', pattern: 'feed', next: 'walk', add: 'fetch', look: 'walk', bond: 'feed', teen: 'fetch', type: 'walk', taway: 'feed', paths: 'fetch', surprise: 'fetch' };
+const QUESTIONS_BY_GAME = { count: 5, find: 5, more: 5, tap: 3, feed: 3, shape: 5, pattern: 5, next: 5, add: 5, look: 5, bond: 5, teen: 5, type: 5, taway: 5, paths: 5, surprise: 5 };
 
 // New species from the pet pool host the non-counting games — a pre-reader
 // navigates by which animal, not by words.
@@ -102,6 +102,7 @@ export function littleSuggestNext(profile, readyTiles) {
 // games shouldn't hear "great counting". A couple of options each so the
 // cheer doesn't wear out.
 const PRAISE_BY_GAME = {
+  surprise: ['Surprise superstar!', 'You can play anything!'],
   taway: ['Take-away champion!', 'You knew how many were left!'],
   paths: ['Path finder! Amazing!', 'You hopped the whole path!'],
   type: ['Typing champion!', 'You typed it just right!'],
@@ -292,6 +293,21 @@ function tiles(p, buddy) {
       }),
       caption: 'Teen numbers',
       art: `<span class="tile-art">\u{1F51F}</span><span class="tile-mark">11\u00b712\u00b713</span>`,
+    },
+    {
+      game: 'surprise',
+      minXp: 0,
+      ready: (p2) =>
+        ['count', 'find', 'more', 'next', 'add', 'look', 'bond', 'teen', 'taway'].filter((x) =>
+          (p2.little?.revealed ?? []).includes(`tile:${x}`)
+        ).length >= 3,
+      gate: (p2) => ({
+        icon: '🎲',
+        have: Math.min(3, ['count', 'find', 'more', 'next', 'add', 'look', 'bond', 'teen', 'taway'].filter((x) => (p2.little?.revealed ?? []).includes(`tile:${x}`)).length),
+        need: 3,
+      }),
+      caption: 'Surprise!',
+      art: `<span class="tile-art">🎁</span><span class="tile-mark">❓❓</span>`,
     },
     {
       game: 'paths',
@@ -495,16 +511,54 @@ export function littleGameScreen(el, params, ctx) {
     choicesEl.appendChild(btn);
   }
 
+  // Surprise rounds sample the child's own revealed games; everything
+  // downstream (skills, recounts, praise) follows the EFFECTIVE game via
+  // stageEl.dataset.game.
+  const SURPRISE_POOL = ['count', 'find', 'more', 'next', 'add', 'look', 'bond', 'teen', 'taway'];
+
   function newQuestion() {
-    const range = rangeFor(p, SKILL_GAMES.has(game) ? game : 'count');
+    const g =
+      game === 'surprise'
+        ? (() => {
+            const pool = SURPRISE_POOL.filter((x) => isRevealed(p, `tile:${x}`));
+            return pool[ri(pool.length)] ?? 'count';
+          })()
+        : game;
+    const range = rangeFor(p, SKILL_GAMES.has(g) ? g : 'count');
     fbEl.textContent = '';
     stageEl.innerHTML = '';
     delete stageEl.dataset.teachOnly;
     choicesEl.innerHTML = '';
     choicesEl.className = 'little-choices';
 
-    if (game === 'count') {
+    stageEl.dataset.game = g;
+    const forced = params.get('v');
+    if (g === 'count') {
       const n = pickN(little, 'count', range);
+      const barks = forced ? forced === 'barks' : ri(10) < 3;
+      if (barks) {
+        // Bark counting: nothing to see — the buddy barks n times and the
+        // child counts by EAR (same count:n skill, different sense).
+        promptEl.textContent = '👂❓';
+        speak('Listen! How many barks?');
+        stageEl.dataset.answer = n;
+        stageEl.innerHTML = `<button class="bark-dog" aria-label="Hear the barks again">${buddy.svg(110)}</button>`;
+        const playBarks = () => {
+          busy = true;
+          for (let i = 0; i < n; i++) setTimeout(() => sfx.bark(), 600 + i * 620);
+          setTimeout(() => {
+            busy = false;
+          }, 600 + n * 620);
+        };
+        stageEl.querySelector('.bark-dog').addEventListener('click', () => {
+          if (!busy) playBarks();
+        });
+        setTimeout(playBarks, 300);
+        for (const v of pickCounts(n, range)) {
+          choiceButton(`<span class="little-numeral">${v}</span>`, v === n);
+        }
+        return;
+      }
       const item = ITEMS[ri(ITEMS.length)];
       promptEl.textContent = `${item}❓`;
       speak('How many?');
@@ -513,7 +567,7 @@ export function littleGameScreen(el, params, ctx) {
         choiceButton(`<span class="little-numeral">${v}</span>`, v === n);
       }
       stageEl.dataset.answer = n;
-    } else if (game === 'find') {
+    } else if (g === 'find') {
       const n = pickN(little, 'find', range);
       const item = ITEMS[ri(ITEMS.length)];
       promptEl.textContent = '🔍❓';
@@ -524,7 +578,7 @@ export function littleGameScreen(el, params, ctx) {
         choiceButton(`<span class="little-items small">${itemRow(item, v)}</span>`, v === n);
       }
       stageEl.dataset.answer = n;
-    } else if (game === 'tap') {
+    } else if (g === 'tap') {
       // Tap-to-count: one-to-one correspondence — tap each item, the count
       // speaks and grows, no choices and no way to be wrong.
       const n = 1 + ri(range);
@@ -549,7 +603,7 @@ export function littleGameScreen(el, params, ctx) {
           if (tapped === n) celebrate(null, { speakWord: false });
         });
       }
-    } else if (game === 'feed') {
+    } else if (g === 'feed') {
       // Feed the puppy N: counting OUT a quantity — tap bones into the bowl
       // until the buddy has enough.
       const n = 1 + ri(range);
@@ -597,7 +651,7 @@ export function littleGameScreen(el, params, ctx) {
             : `That's ${WORDS[fed] ?? fed} — too many! ${buddy.name} needs ${WORDS[n]}.`
         );
       });
-    } else if (game === 'shape') {
+    } else if (g === 'shape') {
       // Shapes with Whiskers: wordless geometry — find the spoken shape.
       const host = getPet(HOSTS.shape);
       const defs = [...SHAPE_DEFS].sort(() => Math.random() - 0.5).slice(0, 3);
@@ -611,7 +665,7 @@ export function littleGameScreen(el, params, ctx) {
       for (const def of defs) {
         choiceButton(shapeSVG(def, col), def === target);
       }
-    } else if (game === 'pattern') {
+    } else if (g === 'pattern') {
       // Patterns with Sheldon: one dimension at a time. Early questions vary
       // only shape, then only color; two dimensions change together (the
       // hardest discrimination) only at the end of a round.
@@ -649,7 +703,7 @@ export function littleGameScreen(el, params, ctx) {
         { html: shapeSVG(options[0], options[1]), good: false },
       ].sort(() => Math.random() - 0.5);
       for (const o of choices) choiceButton(o.html, o.good);
-    } else if (game === 'next') {
+    } else if (g === 'next') {
       // What comes next? — number path with Kiwi the bird.
       const host = getPet(HOSTS.next);
       const s0 = 1 + ri(Math.max(1, range - 3));
@@ -663,7 +717,7 @@ export function littleGameScreen(el, params, ctx) {
       for (const v of pickCounts(answer, Math.max(range, answer))) {
         choiceButton(`<span class="little-numeral">${v}</span>`, v === answer);
       }
-    } else if (game === 'add') {
+    } else if (g === 'add') {
       // Adding within 5 (10 later) with Peanut the guinea pig — two groups
       // of things, one number.
       const host = getPet(HOSTS.add);
@@ -682,7 +736,7 @@ export function littleGameScreen(el, params, ctx) {
       for (const v of pickCounts(a + b, Math.max(maxSum, a + b))) {
         choiceButton(`<span class="little-numeral">${v}</span>`, v === a + b);
       }
-    } else if (game === 'type') {
+    } else if (g === 'type') {
       // Type it!: the numpad bridge — a numeral shows and speaks, the child
       // types it (two digits for teens = early place value + keypad
       // fluency, the entry skill every wave round assumes).
@@ -720,7 +774,7 @@ export function littleGameScreen(el, params, ctx) {
         entry.textContent = input || ' ';
         buzz(10);
       });
-    } else if (game === 'taway') {
+    } else if (g === 'taway') {
       // Take away!: the concrete stage of subtraction — n bones, some hop
       // away before their eyes, how many are left?
       const n = 2 + ri(9); // 2..10 start
@@ -741,7 +795,7 @@ export function littleGameScreen(el, params, ctx) {
       for (const v of pickCounts(left === 0 ? 1 : left, Math.max(3, n))) {
         choiceButton(`<span class="little-numeral">${v}</span>`, v === left);
       }
-    } else if (game === 'paths') {
+    } else if (g === 'paths') {
       // Counting Paths: skip-count chains for 2s/5s/10s — plus descending
       // paths (counting backward, subtraction's engine). Typed once the
       // child can type; tap-choices before that.
@@ -795,7 +849,7 @@ export function littleGameScreen(el, params, ctx) {
           choiceButton(`<span class="little-numeral">${v}</span>`, v === answer);
         }
       }
-    } else if (game === 'look') {
+    } else if (g === 'look') {
       // Quick Look: the frame flashes, then hides — quick eyes, no counting.
       const n = pickN(little, 'look', rangeFor(p, 'look'));
       const item = ITEMS[ri(ITEMS.length)];
@@ -819,7 +873,7 @@ export function littleGameScreen(el, params, ctx) {
       for (const v of pickCounts(n, rangeFor(p, 'look'))) {
         choiceButton(`<span class="little-numeral">${v}</span>`, v === n);
       }
-    } else if (game === 'bond') {
+    } else if (g === 'bond') {
       // Number friends: the missing part of 5, then of 10 once 5 is known.
       // Presentation follows CRA: pictures only at first, numerals as
       // mastery grows — concrete → representational → abstract.
@@ -854,6 +908,14 @@ export function littleGameScreen(el, params, ctx) {
           <span class="little-numeral">${have}</span>
           <span class="pattern-q">➕</span><span class="pattern-q">❓</span>
           <span class="pattern-q">=</span><span class="little-numeral">${whole}</span></div>`;
+      } else if (forced ? forced === 'cup' : ri(10) < 4) {
+        // The cup game: same missing part, more theater — some bones are
+        // HIDING under the bowl. (Doesn't show the answer as empty cells,
+        // so it verifies rather than teaches: no teach-only flag.)
+        delete stageEl.dataset.teachOnly;
+        speak(`${WORDS[whole]} bones... but some are hiding under the bowl! How many are hiding?`);
+        stageEl.innerHTML = `<div class="pattern-row"><span class="little-numeral">${whole}</span><span class="pattern-q">${item}</span></div>
+          <div class="little-items">${itemRow(item, have)}<span class="li cup">🥣</span></div>`;
       } else {
         // the frame itself shows the story: filled cells + empty cells;
         // the symbolic equation row only joins at the mixed stage
@@ -881,7 +943,7 @@ export function littleGameScreen(el, params, ctx) {
         choicesEl.children[ri(choicesEl.children.length)].remove();
         choiceButton('<span class="little-numeral">0</span>', true);
       }
-    } else if (game === 'teen') {
+    } else if (g === 'teen') {
       // Teen numbers: ten and some more (K.NBT.1).
       const n = 1 + ri(9);
       const item = ITEMS[ri(ITEMS.length)];
@@ -923,9 +985,10 @@ export function littleGameScreen(el, params, ctx) {
   }
 
   function recordSkill() {
-    if (!SKILL_GAMES.has(game)) return;
+    const g = stageEl.dataset.game ?? game;
+    if (!SKILL_GAMES.has(g)) return;
     const n = Number(stageEl.dataset.answer);
-    const key = stageEl.dataset.skill ?? (n >= 1 ? `${game}:${n}` : null);
+    const key = stageEl.dataset.skill ?? (n >= 1 ? `${g}:${n}` : null);
     if (!key) return;
     const sk = (little.skills[key] = little.skills[key] ?? { attempts: 0, streak: 0 });
     sk.attempts += 1;
@@ -958,7 +1021,7 @@ export function littleGameScreen(el, params, ctx) {
   function guidedRecount(btn) {
     // count: recount the stage items; find: recount the pile the child
     // picked, so they see why it isn't the target.
-    const scope = game === 'count' ? stageEl : btn;
+    const scope = (stageEl.dataset.game ?? game) === 'count' ? stageEl : btn;
     const items = [...scope.querySelectorAll('.li')];
     if (!items.length) {
       say('Try again!');
@@ -976,7 +1039,7 @@ export function littleGameScreen(el, params, ctx) {
             for (const it of items) it.classList.remove('pulse');
             busy = false;
             const target = Number(stageEl.dataset.answer);
-            say(game === 'find' ? `Find ${WORDS[target]}!` : 'Now you! How many?');
+            say((stageEl.dataset.game ?? game) === 'find' ? `Find ${WORDS[target]}!` : 'Now you! How many?');
           }, 800);
         }
       }, 600 + i * 700);
@@ -995,7 +1058,8 @@ export function littleGameScreen(el, params, ctx) {
       btn.classList.add('shake');
       sfx.wrong();
       fbEl.textContent = '🐾';
-      if (GUIDED_RECOUNT && (game === 'count' || game === 'find')) {
+      const g2 = stageEl.dataset.game ?? game;
+      if (GUIDED_RECOUNT && (g2 === 'count' || g2 === 'find')) {
         guidedRecount(btn);
       } else {
         say('Try again!');

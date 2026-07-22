@@ -71,7 +71,7 @@ test('e2e: feed now records skill; bond pictures stage records attempts, not str
   await page.waitForSelector('.little-tile');
 
   // one bond round in the pictures stage: every first-try right
-  await page.evaluate(() => { location.hash = '#/little?game=bond'; });
+  await page.evaluate(() => { location.hash = '#/little?game=bond&v=frame'; });
   await page.waitForSelector('.little-card');
   for (let q = 0; q < 5; q++) {
     await page.tap('.little-card[data-good="1"]');

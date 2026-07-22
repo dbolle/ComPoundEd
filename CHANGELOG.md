@@ -3,6 +3,14 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.22.0 — 2026-07-22
+
+- Same skills, new looks: How many? sometimes asks by EAR (the buddy
+  barks, count the barks); Number Friends sometimes plays the cup game
+  (bones hiding under the bowl — pure verification, no answer shown).
+- Surprise! 🎁 — a mixed round sampling the child's own revealed games
+  (unlocks at three): interleaved practice, little-pup style.
+
 ## v1.21.1 — 2026-07-22
 
 - Type it!'s numpad was collapsing to min-content inside the centered
