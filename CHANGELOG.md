@@ -3,6 +3,18 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.25.0 — 2026-07-22
+
+- Family backup now writes to the server IMMEDIATELY after every save
+  (every finished round/activity/purchase), with one retry and a
+  last-chance keepalive push when the app is hidden or closed — device
+  switches can no longer strand a round's transactions on the old device.
+- Fixed devices sticking on old versions: the server never told browsers
+  to revalidate the ROOT url (only /index.html), so Safari could
+  heuristic-cache the app shell for days; `/` is now no-cache, and the
+  installed app checks for updates hourly and on every return to the
+  foreground.
+
 ## v1.24.1 — 2026-07-22
 
 - Division and Taking Away no longer double-introduce facts: the

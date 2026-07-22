@@ -42,12 +42,20 @@ export async function setSyncEnabled(v) {
   await repo.setMeta('syncEnabled', syncEnabled);
 }
 
+// Push IMMEDIATELY on every save: kids switch devices (or iOS kills the
+// tab) faster than any debounce window, and that lost transactions. The
+// PUT is fire-and-forget with keepalive; one delayed retry covers a
+// flaky first attempt.
 function schedulePush(profile) {
   clearTimeout(pushTimers.get(profile.id));
-  pushTimers.set(
-    profile.id,
-    setTimeout(() => pushProfile(profile), 1500)
-  );
+  pushProfile(profile).then((ok) => {
+    if (!ok) {
+      pushTimers.set(
+        profile.id,
+        setTimeout(() => pushProfile(profile), 4000)
+      );
+    }
+  });
 }
 
 // Pull remote profiles, merge them into local storage (never losing progress
