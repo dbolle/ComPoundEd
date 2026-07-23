@@ -164,7 +164,7 @@ export function wardrobeScreen(el, params, ctx) {
       btn.addEventListener('click', async () => {
         const itemId = btn.dataset.closet;
         const worn = placementOf(p, itemId, btn.dataset.for || null) === dog.id;
-        placeGear(p, itemId, worn ? null : dog.id);
+        placeGear(p, itemId, worn ? null : dog.id, btn.dataset.for || null);
         await ctx.save();
         renderPreview();
         renderRows();

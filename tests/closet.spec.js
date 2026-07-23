@@ -72,6 +72,12 @@ test('e2e: wardrobe shows the collar ladder + closet; treasures move between wea
   // closet: the scarf is Daisy's (arrived worn); the crown is with Scout
   const scarfRow = page.locator('.wardrobe-row', { hasText: 'cozy scarf' });
   await expect(scarfRow).toContainText('Wearing it');
+  // a gift can come OFF (and go back on) — undressing broke when placeGear
+  // derived the gift's owner from the null target wearer
+  await scarfRow.locator('[data-closet]').tap();
+  await expect(page.locator('.wardrobe-row', { hasText: 'cozy scarf' })).toContainText('Put it on');
+  await page.locator('.wardrobe-row', { hasText: 'cozy scarf' }).locator('[data-closet]').tap();
+  await expect(page.locator('.wardrobe-row', { hasText: 'cozy scarf' })).toContainText('Wearing it');
   const crownRow = page.locator('.wardrobe-row', { hasText: 'royal crown' });
   await expect(crownRow).toContainText('Bring from Scout');
   await crownRow.locator('[data-closet]').tap();
