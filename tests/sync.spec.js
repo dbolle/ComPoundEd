@@ -1,6 +1,7 @@
 // Family backup against the hermetic in-memory /sync/ store (tests/server.mjs)
 // — never the real home server.
 import { test, expect } from '@playwright/test';
+import { newProfile } from '../src/data/schema.js';
 import {
   seedProfile,
   readProfile,
@@ -153,4 +154,79 @@ test('single-profile export carries only that kid and round-trips', async ({ pag
   expect(await readProfile(C, 'solo-a')).not.toBeNull();
   expect(await readProfile(C, 'solo-b')).toBeNull();
   await ctxC.close();
+});
+
+test('check-ins: a stale device pulls the pets and the Cozy Corner appears by itself', async ({ page }) => {
+  // "server" already holds the little pup WITH adopted pets…
+  const rich = newProfile('Mover');
+  rich.id = 'mover-kid';
+  rich.subjects = { ...rich.subjects, little: true };
+  rich.little = { xp: 20, skills: {}, revealed: ['tile:count', 'tile:tap'] };
+  rich.petUnlocks = [{ petId: 'cat-1', milestone: 'count3', at: 1 }];
+  rich.updatedAt = Date.now();
+  await page.goto('/', { waitUntil: 'networkidle' });
+  await page.evaluate(async (doc) => {
+    await fetch(`/sync/profiles/${doc.id}.json`, {
+      method: 'PUT',
+      body: JSON.stringify(doc),
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }, rich);
+
+  // …the "new device" has an older copy without them, and backup on
+  const stale = { ...newProfile('Mover'), id: 'mover-kid' };
+  stale.subjects = { ...stale.subjects, little: true };
+  stale.little = { xp: 20, skills: {}, revealed: ['tile:count', 'tile:tap'] };
+  stale.updatedAt = rich.updatedAt - 100000;
+  await seedProfile(page, stale);
+  await page.evaluate(async () => {
+    await new Promise((res) => {
+      const req = indexedDB.open('compounded', 1);
+      req.onsuccess = () => {
+        const tx = req.result.transaction('meta', 'readwrite');
+        tx.objectStore('meta').put(true, 'syncEnabled');
+        tx.oncomplete = res;
+      };
+    });
+  });
+  await page.reload({ waitUntil: 'networkidle' });
+  await selectProfile(page, 'Mover');
+  // the switch-in check-in pulls, merges, refreshes, re-renders:
+  await expect(page.locator('[data-corner]')).toBeVisible({ timeout: 10000 });
+});
+
+test('check-ins heal a stale SERVER copy without requiring a new save', async ({ page }) => {
+  const local = newProfile('Healer');
+  local.id = 'healer-kid';
+  local.petUnlocks = [{ petId: 'cat-1', milestone: 'count3', at: 1 }];
+  local.subjects = { ...local.subjects, tables: true };
+  local.updatedAt = Date.now();
+  const serverDoc = { ...newProfile('Healer'), id: 'healer-kid', updatedAt: local.updatedAt - 500000 };
+  await page.goto('/', { waitUntil: 'networkidle' });
+  await page.evaluate(async (doc) => {
+    await fetch(`/sync/profiles/${doc.id}.json`, {
+      method: 'PUT',
+      body: JSON.stringify(doc),
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }, serverDoc);
+  await seedProfile(page, local);
+  await page.evaluate(async () => {
+    await new Promise((res) => {
+      const req = indexedDB.open('compounded', 1);
+      req.onsuccess = () => {
+        const tx = req.result.transaction('meta', 'readwrite');
+        tx.objectStore('meta').put(true, 'syncEnabled');
+        tx.oncomplete = res;
+      };
+    });
+  });
+  await page.reload({ waitUntil: 'networkidle' }); // boot runs syncNow
+  await selectProfile(page, 'Healer');
+  await page.waitForTimeout(800);
+  const server = await page.evaluate(async () => {
+    const res = await fetch('/sync/profiles/healer-kid.json');
+    return res.json();
+  });
+  expect(server.petUnlocks).toHaveLength(1); // pushed back without any save
 });

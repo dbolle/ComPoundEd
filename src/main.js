@@ -11,7 +11,7 @@ import {
   getVoicePref,
   syncNow,
 } from './data/store.js';
-import { register, startRouter } from './router.js';
+import { register, startRouter, currentRoute, navigate } from './router.js';
 import { isBeta, BETA_ROUTES } from './engine/beta.js';
 import { pushProfile } from './data/sync.js';
 import { storeScreen } from './screens/store.js';
@@ -61,6 +61,39 @@ document.addEventListener('visibilitychange', () => {
 });
 window.addEventListener('pagehide', flush);
 
+// Regular CHECK-INS, not just pushes: moving between devices was
+// inconsistent because pulls only happened at boot or by hand (a stale
+// Cozy Corner hid a little pup's adopted pets on the new device). Sync
+// two-way, then refresh the in-memory profile — but ONLY on passive
+// screens: swapping ctx.profile mid-round would strand the round's
+// in-flight mutations on the old object.
+const PASSIVE_ROUTES = ['/home', '/profiles', '/pack', '/corner', '/wallet', '/awards', '/heatmap'];
+let lastCheckIn = 0;
+async function backgroundSync(force = false) {
+  if (!isSyncEnabled()) return;
+  const now = Date.now();
+  if (!force && now - lastCheckIn < 45_000) return;
+  lastCheckIn = now;
+  try {
+    await syncNow(); // pushes local docs too — heals stale server copies
+    if (!ctx.profile) return;
+    if (!PASSIVE_ROUTES.includes(currentRoute().path)) return;
+    const fresh = await loadProfile(ctx.profile.id);
+    if (fresh && fresh.updatedAt !== ctx.profile.updatedAt) {
+      ctx.profile = fresh;
+      navigate(currentRoute().path); // same-hash re-render shows the news
+    }
+  } catch {
+    /* offline / away from home — try again on the next trigger */
+  }
+}
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') backgroundSync();
+});
+window.addEventListener('hashchange', () => {
+  if (currentRoute().path === '/home') backgroundSync();
+});
+
 const ctx = {
   profile: null,
   session: {},
@@ -71,6 +104,8 @@ const ctx = {
     this.profile = profile;
     this.session = {};
     await setActiveProfileId(profile ? profile.id : null);
+    // a fresh pair of hands may be a fresh device — check in right away
+    if (profile) setTimeout(() => backgroundSync(true), 50);
   },
 };
 

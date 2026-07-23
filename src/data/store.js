@@ -69,6 +69,10 @@ export async function syncNow() {
     const local = await repo.getProfile(r.id);
     const merged = mergeProfiles(local ? migrateProfile(local) : null, r);
     await repo.saveProfile(merged);
+    // Heal stale server copies: if the merge knows more than the server
+    // (e.g. progress from the old debounced-push era that never landed),
+    // push it back — not just profiles the server is missing entirely.
+    if ((merged.updatedAt ?? 0) > (r.updatedAt ?? 0)) pushProfile(merged);
   }
   const remoteIds = new Set(remote.filter(Boolean).map((r) => r.id));
   for (const local of await listProfiles()) {

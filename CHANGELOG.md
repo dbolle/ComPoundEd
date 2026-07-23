@@ -3,6 +3,17 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.27.0 — 2026-07-23
+
+- Cross-device sync now CHECKS IN, not just pushes: the app pulls and
+  merges on boot, on returning to the foreground, on visiting home, and
+  immediately after picking a player (throttled to 45s) — and the
+  running app refreshes its in-memory profile on passive screens, so a
+  little pup's Cozy Corner appears on the new device by itself.
+- Check-ins also heal stale server copies: if the merge knows more than
+  the server (progress from the old debounced-push era that never
+  landed), it pushes back without waiting for a new save.
+
 ## v1.26.2 — 2026-07-23 (beta)
 
 - Store shelves show the actual accessory art (the real crown, scarf,
