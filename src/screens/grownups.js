@@ -390,7 +390,7 @@ export function grownupsScreen(el, params, ctx) {
     });
 
     const ledger = panel.querySelector('[data-ledger]');
-    const txns = [...ensureBucks(p).txns].sort((a, b) => b.at - a.at).slice(0, 8);
+    const txns = [...ensureBucks(p).txns].filter((t) => t.cents !== 0).sort((a, b) => b.at - a.at).slice(0, 8);
     ledger.innerHTML = txns.length
       ? txns
           .map(

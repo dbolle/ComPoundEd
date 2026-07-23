@@ -6,36 +6,13 @@
 
 import { navigate } from '../router.js';
 import { CATALOG, buyGear, isOwned, ownedGear, itemOf } from '../engine/gearshop.js';
-import { balanceCents, formatPaw } from '../engine/money.js';
+import { balanceCents, formatPaw, coinCounts, canMakeExact, DENOMS } from '../engine/money.js';
 import { GEAR_ACCESSORIES, TOYS, toySVG } from '../art/gear.js';
 import { DOGS, dogSVG, wornFor } from '../art/dogs.js';
 import { PETS, petSVG } from '../art/pets.js';
 import { isUnlocked } from '../engine/unlocks.js';
-import { buildNumpad, confetti, escapeHtml, toast } from '../ui.js';
+import { confetti, escapeHtml, toast } from '../ui.js';
 import { sfx, buzz, cheer } from '../sound.js';
-
-const LINE_DENOMS = [
-  { cents: 100, label: '💵 Paw Bucks' },
-  { cents: 25, label: '🪙 quarters' },
-  { cents: 10, label: '🪙 dimes' },
-  { cents: 5, label: '🪙 nickels' },
-];
-
-// Greedy largest-first decomposition — every price is a 5¢ multiple, so
-// this always terminates with counts a kid can multiply (≤ 12 per line
-// for the whole catalog).
-export function coinLines(price) {
-  const lines = [];
-  let rem = price;
-  for (const d of LINE_DENOMS) {
-    const count = Math.floor(rem / d.cents);
-    if (count > 0) {
-      lines.push({ count, value: d.cents, label: d.label, product: count * d.cents });
-      rem -= count * d.cents;
-    }
-  }
-  return lines;
-}
 
 export function storeScreen(el, params, ctx) {
   const p = ctx.profile;
@@ -154,70 +131,90 @@ export function storeScreen(el, params, ctx) {
     renderShelves();
   }
 
-  // The coin-math checkout: one multiplication per coin line, then the
-  // addition total when there's more than one line.
+  // Exact-change checkout: count out real coins from the wallet, like
+  // paying at a real store. Coins move from the wallet trays to the pay
+  // pile (and back); Pay unlocks only at the exact price. No running
+  // total is done FOR the child beyond showing it — choosing the
+  // denominations is the math.
   function runCheckout(item, forId) {
     shelves.hidden = true;
     checkoutEl.hidden = false;
-    const lines = coinLines(item.price);
-    const steps = lines.map((ln) => ({
-      text: `${ln.count} × ${ln.value}`,
-      answer: ln.product,
-      say: `${ln.count} ${ln.label}`,
-    }));
-    if (lines.length > 1) {
-      steps.push({
-        text: lines.map((ln) => ln.product).join(' + '),
-        answer: item.price,
-        say: 'Add them all up!',
-      });
+    const wallet = coinCounts(p);
+    if (!canMakeExact(wallet, item.price)) {
+      // affordable, but no combination hits the price exactly — time to
+      // make change (the wallet's swap table exists for exactly this)
+      checkoutEl.innerHTML = `
+        <div class="card center">
+          <h3>${item.emoji} ${escapeHtml(item.name)} — ${formatPaw(item.price)}</h3>
+          <p class="muted">You have enough Paw Bucks, but not the right coins for exact change!</p>
+          <button class="btn accent" data-to-wallet>🔁 Make change at the wallet</button>
+          <button class="btn ghost small" data-cancel>← Back to the shelves</button>
+        </div>`;
+      checkoutEl.querySelector('[data-to-wallet]').addEventListener('click', () => navigate('/wallet'));
+      checkoutEl.querySelector('[data-cancel]').addEventListener('click', closeCheckout);
+      return;
     }
-    let step = 0;
-    let input = '';
+    const paying = {};
+    const paidCents = () =>
+      DENOMS.reduce((sum, d) => sum + (paying[d.id] ?? 0) * d.cents, 0);
     checkoutEl.innerHTML = `
       <h3 class="center">${item.emoji} ${escapeHtml(item.name)} — ${formatPaw(item.price)}</h3>
-      <p class="muted center" data-say-line style="margin:0"></p>
-      <div class="question compact" data-q></div>
-      <div class="answer-box" aria-live="assertive">&nbsp;</div>
-      <div class="numpad"></div>
+      <p class="muted center" style="margin:0">Count out exact change! 🪙</p>
+      <div data-trays></div>
+      <div class="card center pay-pile">
+        <div data-pile class="pile-row">&nbsp;</div>
+        <div class="little-numeral" data-paid>0¢</div>
+        <button class="btn" data-pay disabled>💰 Pay ${formatPaw(item.price)}</button>
+      </div>
       <button class="btn ghost small" data-cancel>✕ Not today</button>`;
-    const qEl = checkoutEl.querySelector('[data-q]');
-    const sayEl = checkoutEl.querySelector('[data-say-line]');
-    const ansEl = checkoutEl.querySelector('.answer-box');
-    const showStep = () => {
-      const s = steps[step];
-      qEl.textContent = `${s.text} = ?`;
-      sayEl.textContent = `Count out ${s.say}`;
-      ansEl.textContent = ' ';
-      input = '';
-    };
-    buildNumpad(checkoutEl.querySelector('.numpad'), (k) => {
-      if (k === 'ok') {
-        if (!input) return;
-        if (Number(input) === steps[step].answer) {
-          sfx.correct();
-          step += 1;
-          if (step >= steps.length) return completePurchase(item, forId);
-          showStep();
-        } else {
-          input = '';
-          ansEl.textContent = ' ';
-          ansEl.classList.add('shake');
-          setTimeout(() => ansEl.classList.remove('shake'), 400);
-          sfx.wrong();
-        }
-        return;
+    const traysEl = checkoutEl.querySelector('[data-trays]');
+    const render = () => {
+      const paid = paidCents();
+      traysEl.innerHTML = DENOMS.map((d) => {
+        const have = (wallet[d.id] ?? 0) - (paying[d.id] ?? 0);
+        if ((wallet[d.id] ?? 0) === 0) return '';
+        return `<div class="card wallet-row">
+          <span class="coin ${d.id}"></span>
+          <span class="wr-label">${escapeHtml(d.label)}</span>
+          <span class="wallet-count">×${have}</span>
+          <button class="btn ghost small" data-give="${d.id}" ${have === 0 || paid + d.cents > item.price ? 'disabled' : ''}>➕ Pay one</button>
+        </div>`;
+      }).join('');
+      checkoutEl.querySelector('[data-pile]').innerHTML =
+        DENOMS.map((d) =>
+          Array.from({ length: paying[d.id] ?? 0 })
+            .map(() => `<button class="coin ${d.id} pile-coin" data-take="${d.id}" aria-label="Take a ${d.label} back"></button>`)
+            .join('')
+        ).join('') || '&nbsp;';
+      const paidEl = checkoutEl.querySelector('[data-paid]');
+      paidEl.textContent = paid >= 100 ? formatPaw(paid) : `${paid}¢`;
+      const exact = paid === item.price;
+      checkoutEl.querySelector('[data-pay]').disabled = !exact;
+      if (exact) sfx.correct();
+      for (const b of traysEl.querySelectorAll('[data-give]')) {
+        b.addEventListener('click', () => {
+          paying[b.dataset.give] = (paying[b.dataset.give] ?? 0) + 1;
+          buzz(10);
+          render();
+        });
       }
-      if (k === 'del') input = input.slice(0, -1);
-      else if (input.length < 4) input += k;
-      ansEl.textContent = input || ' ';
+      for (const c of checkoutEl.querySelectorAll('[data-take]')) {
+        c.addEventListener('click', () => {
+          paying[c.dataset.take] -= 1;
+          buzz(10);
+          render();
+        });
+      }
+    };
+    checkoutEl.querySelector('[data-pay]').addEventListener('click', () => {
+      if (paidCents() === item.price) completePurchase(item, forId, { ...paying });
     });
     checkoutEl.querySelector('[data-cancel]').addEventListener('click', closeCheckout);
-    showStep();
+    render();
   }
 
-  async function completePurchase(item, forId) {
-    const txn = buyGear(p, item.id, forId);
+  async function completePurchase(item, forId, coins = null) {
+    const txn = buyGear(p, item.id, forId, Date.now(), coins);
     if (!txn) {
       toast('Hmm, that purchase did not go through.');
       return closeCheckout();

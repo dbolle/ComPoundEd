@@ -33,7 +33,7 @@ export function ownedGear(profile) {
 
 // Buys an item (for a specific wearer when it's a gift). Refuses when the
 // wallet can't cover it or it's already owned. Fictitious forever.
-export function buyGear(profile, itemId, forId = null, now = Date.now()) {
+export function buyGear(profile, itemId, forId = null, now = Date.now(), coins = null) {
   const item = itemOf(itemId);
   if (!item) return null;
   if (item.tier === 'gift' && !forId) return null;
@@ -49,6 +49,23 @@ export function buyGear(profile, itemId, forId = null, now = Date.now()) {
     for: item.tier === 'gift' ? forId : null,
   };
   ensureBucks(profile).txns.push(txn);
+  // Exact-change checkout: record WHICH coins paid, as zero-cent companion
+  // txns (the buy txn is the only cents carrier; these net the coin
+  // counts). Deterministic ids ride the buy id, so merges stay idempotent.
+  if (coins) {
+    for (const [denom, n] of Object.entries(coins)) {
+      if (n > 0) {
+        ensureBucks(profile).txns.push({
+          id: `${txn.id}-c-${denom}`,
+          at: now,
+          cents: 0,
+          denom,
+          count: -n,
+          reason: 'spend',
+        });
+      }
+    }
+  }
   // gifts arrive being worn; other purchases start in the closet
   if (item.tier === 'gift') placeGear(profile, itemId, forId);
   return txn;

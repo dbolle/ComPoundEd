@@ -3,6 +3,16 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.26.0 — 2026-07-23 (beta)
+
+- Paying at the store is now EXACT CHANGE: the child counts out real
+  coins from their own wallet (tap coins into the pay pile, take them
+  back, Pay unlocks at the exact price). A lone Paw Buck can't pay 90¢ —
+  the store sends you to the wallet to make change first (the swap
+  table's whole purpose). Paid coins genuinely leave the wallet.
+  Replaces the multiplication-line checkout — times tables live
+  everywhere else; the store teaches money.
+
 ## v1.25.0 — 2026-07-22
 
 - Family backup now writes to the server IMMEDIATELY after every save
