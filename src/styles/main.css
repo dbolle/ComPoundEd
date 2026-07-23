@@ -974,6 +974,18 @@ button.pressed {
 /* Inside the centered flex stage the grid's 1fr columns collapse to
    min-content — give the pad a real width and chunky keys for little
    fingers. */
+.pile-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  min-height: 30px;
+}
+
+.pile-coin {
+  cursor: pointer;
+}
+
 .store-item.owned {
   opacity: 0.75;
 }

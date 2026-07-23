@@ -40,6 +40,7 @@ export const REASON_LABELS = {
   skill: 'new number known',
   buy: 'pet store',
   swap: 'coin swap',
+  spend: 'coins paid',
 };
 
 // Coin swaps run both directions: consolidate up, break a big coin down.
@@ -58,6 +59,26 @@ export const SWAPS = [
   { give: { denom: 'dime', n: 1 }, get: { denom: 'nickel', n: 2 } },
   { give: { denom: 'nickel', n: 1 }, get: { denom: 'penny', n: 5 } },
 ];
+
+// Can these coin counts make EXACTLY `price`? Bounded DP over the coin
+// piles (counts are small) — greedy fails with limited coins.
+export function canMakeExact(counts, price) {
+  let reachable = new Set([0]);
+  for (const { id, cents } of DENOMS) {
+    const n = counts[id] ?? 0;
+    if (!n) continue;
+    const next = new Set();
+    for (const base of reachable) {
+      for (let k = 0; k <= n; k++) {
+        const v = base + k * cents;
+        if (v > price) break;
+        next.add(v);
+      }
+    }
+    reachable = next;
+  }
+  return reachable.has(price);
+}
 
 export function canSwap(profile, rule) {
   return (coinCounts(profile)[rule.give.denom] ?? 0) >= rule.give.n;
