@@ -990,6 +990,16 @@ button.pressed {
   opacity: 0.75;
 }
 
+/* saving-up items stay fully visible — you should SEE what you want,
+   just know it costs more than you have (meter shows the distance) */
+.store-item.cant-afford {
+  opacity: 0.85;
+}
+
+.store-item.cant-afford .dog {
+  filter: saturate(0.75);
+}
+
 .dice-grid {
   display: grid;
   grid-template-columns: repeat(3, 56px);

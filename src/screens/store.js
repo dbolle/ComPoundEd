@@ -8,7 +8,7 @@ import { navigate } from '../router.js';
 import { CATALOG, buyGear, isOwned, ownedGear, itemOf } from '../engine/gearshop.js';
 import { balanceCents, formatPaw, coinCounts, canMakeExact, DENOMS } from '../engine/money.js';
 import { GEAR_ACCESSORIES, TOYS, toySVG } from '../art/gear.js';
-import { DOGS, dogSVG, wornFor } from '../art/dogs.js';
+import { DOGS, dogSVG, wornFor, gearSVG } from '../art/dogs.js';
 import { PETS, petSVG } from '../art/pets.js';
 import { isUnlocked } from '../engine/unlocks.js';
 import { confetti, escapeHtml, toast } from '../ui.js';
@@ -34,9 +34,7 @@ export function storeScreen(el, params, ctx) {
   const checkoutEl = el.querySelector('[data-checkout]');
 
   const artFor = (item) =>
-    item.tier === 'toy'
-      ? toySVG(item.id, 64)
-      : `<span style="font-size:2.6rem">${item.emoji}</span>`;
+    item.tier === 'toy' ? toySVG(item.id, 64) : gearSVG(item.id, 64);
 
   function renderShelves() {
     el.querySelector('[data-balance]').textContent = formatPaw(balanceCents(p));
@@ -65,7 +63,7 @@ export function storeScreen(el, params, ctx) {
         const owned = item.tier !== 'gift' && isOwned(p, item.id);
         const afford = balanceCents(p) >= item.price;
         const card = document.createElement(owned ? 'div' : 'button');
-        card.className = `dog-card store-item${owned ? ' owned' : ''}${!owned && !afford ? ' locked' : ''}`;
+        card.className = `dog-card store-item${owned ? ' owned' : ''}${!owned && !afford ? ' cant-afford' : ''}`;
         card.dataset.item = item.id;
         const pct = Math.min(100, Math.round((balanceCents(p) / item.price) * 100));
         card.innerHTML = `<span class="dog">${artFor(item)}</span>

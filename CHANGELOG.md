@@ -3,6 +3,12 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.26.2 — 2026-07-23 (beta)
+
+- Store shelves show the actual accessory art (the real crown, scarf,
+  glasses… cropped from the wearable renders) instead of emoji
+  stand-ins. Toys already used their real art.
+
 ## v1.26.1 — 2026-07-23
 
 - Fixed: gifts couldn't be taken off in the closet — undressing looked

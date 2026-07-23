@@ -82,6 +82,9 @@ test('e2e: the grown-ups 🧪 chip opens the store; full checkout buys the bowl 
   await expect(page.locator('.store-soon')).toContainText('Open!');
   await page.tap('.store-soon');
   await page.waitForSelector('[data-shelves]');
+  // shelves show the real accessory art, not emoji stand-ins
+  await expect(page.locator('[data-item="crown"] svg[data-gear="crown"]')).toBeVisible();
+  await expect(page.locator('[data-item="scarf"] svg[data-gear="scarf"]')).toBeVisible();
 
   // buy the deluxe bowl (90¢) with exact change from real coins
   await page.tap('[data-item="bowl"]');

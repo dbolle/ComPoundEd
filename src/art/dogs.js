@@ -326,7 +326,7 @@ const GEAR_LAYERS = {
     <circle cx="66" cy="6" r="4.5" fill="#ec4899"/>
   </g>`,
   flower: `<g data-acc="flower">
-    <g fill="#fff">
+    <g fill="#fff" stroke="#dfd2b8" stroke-width="1.4">
       <circle cx="88" cy="30" r="4.5"/><circle cx="96" cy="34" r="4.5"/><circle cx="94" cy="43" r="4.5"/>
       <circle cx="85" cy="44" r="4.5"/><circle cx="81" cy="36" r="4.5"/>
     </g>
@@ -357,6 +357,27 @@ const GEAR_LAYERS = {
     <circle cx="60" cy="99" r="4.5" fill="#1d4ed8"/>
   </g>`,
 };
+
+// Standalone gear art for the store shelves: each wearable cropped out
+// of the dog-template coordinate space so the item itself fills the
+// frame (no model needed).
+const GEAR_CROPS = {
+  crown: '30 8 60 40',
+  tiara: '34 12 52 30',
+  party: '44 0 36 40',
+  flower: '75 21 27 30',
+  glasses: '20 42 80 30',
+  sunglasses: '20 42 80 26',
+  scarf: '24 86 72 36',
+  bowtie: '40 85 40 26',
+};
+
+export function gearSVG(accId, size = 56) {
+  const layer = GEAR_LAYERS[accId];
+  const crop = GEAR_CROPS[accId];
+  if (!layer || !crop) return '';
+  return `<svg viewBox="${crop}" width="${size}" height="${size}" role="img" data-gear="${accId}" xmlns="http://www.w3.org/2000/svg">${layer}</svg>`;
+}
 
 export function accessoryOverlays(accessories = []) {
   let gear = '';
