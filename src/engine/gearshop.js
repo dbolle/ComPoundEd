@@ -80,12 +80,15 @@ export function placementOf(profile, itemId, forId = null) {
 }
 
 // Moves an owned item onto a wearer (or null = closet). Gifts only ever
-// go on their own wearer; treasures and toys go anywhere.
-export function placeGear(profile, itemId, wearerId) {
+// go on their own wearer; treasures and toys go anywhere. For gifts,
+// `giftFor` names the owner — deriving it from the TARGET wearer broke
+// undressing (taking off passes wearerId null, which isn't an owner).
+export function placeGear(profile, itemId, wearerId, giftFor = null) {
   const item = itemOf(itemId);
   if (!item) return false;
-  const forId = item.tier === 'gift' ? wearerId : null;
+  const forId = item.tier === 'gift' ? (giftFor ?? wearerId) : null;
   if (!isOwned(profile, itemId, forId)) return false;
+  if (item.tier === 'gift' && wearerId != null && wearerId !== forId) return false;
   if (!profile.gear) profile.gear = { placements: {} };
   profile.gear.placements[placementKey(itemId, forId)] = wearerId ?? null;
   return true;

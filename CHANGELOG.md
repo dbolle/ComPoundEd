@@ -3,6 +3,12 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.26.1 — 2026-07-23
+
+- Fixed: gifts couldn't be taken off in the closet — undressing looked
+  up the gift's owner from the (empty) target wearer and refused.
+  Treasures were unaffected.
+
 ## v1.26.0 — 2026-07-23 (beta)
 
 - Paying at the store is now EXACT CHANGE: the child counts out real
