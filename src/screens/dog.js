@@ -2,7 +2,7 @@ import { navigate, currentRoute } from '../router.js';
 import { getDog, dogSVG, accessoriesFor, wornFor, ACCESSORIES, dirtFor, nextColorGoal, nextCollarGoal } from '../art/dogs.js';
 import { isUnlocked } from '../engine/unlocks.js';
 import { trainingPartnersFor } from '../engine/suggest.js';
-import { toast, escapeHtml } from '../ui.js';
+import { toast, escapeHtml, plural } from '../ui.js';
 
 // Progress toward the accessory's next color, shown as a picture: a tiny
 // meter filling toward the actual swatch. Pre-readers see the "why".
@@ -19,7 +19,7 @@ function collarChip(profile, dogId) {
   const goal = nextCollarGoal(profile, dogId);
   if (!goal) return '';
   const pct = Math.round((goal.have / goal.color.need) * 100);
-  return `<span class="reward-chip" aria-label="${goal.left} more play dates to the ${goal.color.id} collar">
+  return `<span class="reward-chip" aria-label="${goal.left} more ${plural(goal.left, 'play date')} to the ${goal.color.id} collar">
     <span class="meter mini"><span style="width:${pct}%"></span></span>
     <span class="swatch mini" style="background:${goal.color.fill}"></span></span>`;
 }
@@ -61,10 +61,10 @@ export function dogScreen(el, params, ctx) {
         <h1>${escapeHtml(dog.name)}</h1>
         <p class="muted">${knows}</p>
         <p class="play-stats">
-          <span>🦮 ${play.walk} walks ${rewardChip(ctx.profile, dog.id, 'bandana')}</span>
-          <span>🍖 ${play.feed} meals ${rewardChip(ctx.profile, dog.id, 'bow')}</span>
-          <span>🎾 ${play.fetch} fetches ${rewardChip(ctx.profile, dog.id, 'cap')}</span>
-          <span>🐕🐕 ${play.train ?? 0} play dates ${collarChip(ctx.profile, dog.id)}</span>
+          <span>🦮 ${play.walk} ${plural(play.walk, 'walk')} ${rewardChip(ctx.profile, dog.id, 'bandana')}</span>
+          <span>🍖 ${play.feed} ${plural(play.feed, 'meal')} ${rewardChip(ctx.profile, dog.id, 'bow')}</span>
+          <span>🎾 ${play.fetch} ${plural(play.fetch, 'fetch', 'fetches')} ${rewardChip(ctx.profile, dog.id, 'cap')}</span>
+          <span>🐕🐕 ${play.train ?? 0} ${plural(play.train ?? 0, 'play date')} ${collarChip(ctx.profile, dog.id)}</span>
         </p>
         ${
           next

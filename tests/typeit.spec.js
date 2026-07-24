@@ -46,7 +46,7 @@ test('e2e: Type it! unlocks from Find it!, types a numeral, records skill; wrong
     for (const d of String(n)) await page.tap(`.little-numpad .key:text-is("${d}")`);
     await page.tap('.little-numpad .key.ok');
     await expect(page.locator('.paw.done')).toHaveCount(q + 1);
-    if (q < 4) await page.waitForTimeout(1100);
+    if (q < 4) await page.waitForTimeout(1800);
   }
   await page.waitForSelector('[data-again]');
   const saved = await page.evaluate(

@@ -47,6 +47,10 @@ export function confetti(count = 26) {
 
 // One line of celebration for a correct answer, picking the most exciting
 // thing that just happened. `r` is the flags object from recordAnswer.
+// Number–noun agreement, everywhere kids read or hear counts:
+// plural(1, 'bone') → 'bone'; plural(3, 'bone') → 'bones'.
+export const plural = (n, one, many = `${one}s`) => (n === 1 ? one : many);
+
 export function celebrationLine(r, streak, fallback) {
   let msg;
   if ([3, 5, 8, 10].includes(streak)) msg = `🔥 ${streak} in a row!`;

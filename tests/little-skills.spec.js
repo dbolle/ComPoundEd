@@ -71,7 +71,7 @@ test('e2e: first-try corrects build streaks; a wrong answer resets the number', 
   for (let q = 0; q < 5; q++) {
     await page.tap('.little-card[data-good="1"]');
     await expect(page.locator('.paw.done')).toHaveCount(q + 1);
-    if (q < 4) await page.waitForTimeout(1100);
+    if (q < 4) await page.waitForTimeout(1800);
   }
   await page.waitForSelector('[data-again]');
   const doc = await profileByName(page, name);
@@ -104,7 +104,7 @@ test('e2e: a miss triggers the guided recount, then hands the question back', as
     await expect(page.locator('.li.pulse')).toHaveCount(0, { timeout: 10000 });
     await page.tap('.little-card[data-good="1"]');
     await expect(page.locator('.paw.done')).toHaveCount(q + 1);
-    if (q < 4) await page.waitForTimeout(1100);
+    if (q < 4) await page.waitForTimeout(1800);
   }
   await page.waitForSelector('[data-again]');
   const doc = await profileByName(page, name);

@@ -55,7 +55,7 @@ test('e2e: the cup game hides the missing part and verifies (no teach-only)', as
   for (let q = 0; q < 5; q++) {
     await page.tap('.little-card[data-good="1"]');
     await expect(page.locator('.paw.done')).toHaveCount(q + 1);
-    if (q < 4) await page.waitForTimeout(1100);
+    if (q < 4) await page.waitForTimeout(1800);
   }
   await page.waitForSelector('[data-again]');
   const saved = await page.evaluate(byId, 'cup-kid');
@@ -88,7 +88,7 @@ test('e2e: Surprise! unlocks at 3 revealed games and samples across them', async
     if (g === 'look') await expect(page.locator('.look-veil')).toBeVisible({ timeout: 3000 }); // input opens after the flash
     await page.tap('.little-card[data-good="1"]');
     await expect(page.locator('.paw.done')).toHaveCount(q + 1);
-    if (q < 4) await page.waitForTimeout(1100);
+    if (q < 4) await page.waitForTimeout(1800);
   }
   await page.waitForSelector('[data-again]');
   expect([...seenGames].every((x) => POOL.includes(x))).toBe(true); // ratcheting may add look etc.

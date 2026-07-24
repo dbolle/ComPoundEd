@@ -78,7 +78,7 @@ test('e2e: How many? round — errorless retries, xp, buddy play credit', async 
       await page.tap('[data-say]'); // 🔊 repeat is present and safe
     }
     await page.locator('.little-card', { hasText: new RegExp(`^${n}$`) }).tap();
-    await page.waitForTimeout(1150);
+    await page.waitForTimeout(1800);
   }
 
   await page.waitForSelector('.little-choices.finish .little-done'); // centered finish card
@@ -139,7 +139,7 @@ test('e2e: little screens fit a small iPhone viewport with zero scrolling', asyn
           break;
         }
       }
-      await page.waitForTimeout(1100);
+      await page.waitForTimeout(1800);
       if (await page.$('.little-done')) break;
     }
     if (await page.$('.little-done')) {
@@ -198,7 +198,7 @@ test('e2e: tap-to-count — every tap counts up, no way to be wrong', async ({ p
       }
     }
     await expect(page.locator('.paw.done')).toHaveCount(q + 1);
-    await page.waitForTimeout(1150);
+    await page.waitForTimeout(1800);
   }
   await page.waitForSelector('.little-done');
 });

@@ -3,6 +3,21 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.28.0 — 2026-07-24
+
+- Feed me!, tuned by watching a real 3-year-old: the serve button sits
+  well clear of the bones (knuckle grazes), greys out during
+  celebrations, and celebrations now burst BIG mid-stage where eyes are
+  (the bottom feedback hides under a tapping hand).
+- Settle delay: for a beat after each new question appears (after the
+  first), little taps are ignored — carryover tapping can no longer
+  answer the next question by accident.
+- Friends eat their own food: a turtle buddy gets greens, a cat gets
+  fish — no more bones for Tidepool.
+- Number–noun agreement everywhere counts are spoken or shown: "one
+  bone", "one walk", "three leaves" (irregulars included), across the
+  little games, dog pages, and story lines.
+
 ## v1.27.0 — 2026-07-23
 
 - Cross-device sync now CHECKS IN, not just pushes: the app pulls and

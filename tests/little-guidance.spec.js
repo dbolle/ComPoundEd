@@ -76,7 +76,7 @@ test('e2e: feed now records skill; bond pictures stage records attempts, not str
   for (let q = 0; q < 5; q++) {
     await page.tap('.little-card[data-good="1"]');
     await expect(page.locator('.paw.done')).toHaveCount(q + 1);
-    if (q < 4) await page.waitForTimeout(1100);
+    if (q < 4) await page.waitForTimeout(1800);
   }
   await page.waitForSelector('[data-again]');
   const saved = await page.evaluate(
