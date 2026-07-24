@@ -24,7 +24,7 @@ test('group vocabulary: play date everywhere, collar training as the badge', () 
     expect(src(f)).not.toContain('Play together');
   }
   expect(src('group.js')).toContain('Collar training');
-  expect(src('dog.js')).toContain('play dates');
+  expect(src('dog.js')).toContain("plural(play.train ?? 0, 'play date')"); // number–noun agreement form
 });
 
 test('wardrobe locked colors are visible with their price, not tooltips', () => {

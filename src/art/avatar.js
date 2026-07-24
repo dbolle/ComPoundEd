@@ -9,7 +9,7 @@ export function avatarFor(profile) {
   // strict lookup: an unknown/removed pet id falls back to the dog
   const pet = profile.avatarPetId ? PETS.find((x) => x.id === profile.avatarPetId) : null;
   if (pet) {
-    return { kind: 'pet', id: pet.id, name: pet.name, svg: (size) => petSVG(pet, size) };
+    return { kind: 'pet', id: pet.id, name: pet.name, species: pet.species, svg: (size) => petSVG(pet, size) };
   }
   const dog = getDog(profile.avatarDogId);
   return {

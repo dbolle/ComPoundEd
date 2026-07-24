@@ -68,7 +68,7 @@ test('e2e: graduation tile appears with skill; finishing a round adopts into the
   for (let q = 0; q < 5; q++) {
     await page.tap('.little-card[data-good="1"]');
     await expect(page.locator('.paw.done')).toHaveCount(q + 1);
-    if (q < 4) await page.waitForTimeout(1100);
+    if (q < 4) await page.waitForTimeout(1800);
   }
   await page.waitForSelector('[data-again]');
   await expect(page.locator('.badge', { hasText: 'New cozy friend' })).toBeVisible();

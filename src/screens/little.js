@@ -14,7 +14,7 @@ import { avatarFor } from '../art/avatar.js';
 import { checkPetUnlocks } from '../engine/cozy.js';
 import { isRevealed, ratchetReveals, addingReady, takingAwayReady } from '../engine/readiness.js';
 import { WAVES, waveUnlocked, isWaveMastered, subWaveUnlocked, isSubWaveMastered } from '../engine/waves.js';
-import { confetti, escapeHtml, buildNumpad } from '../ui.js';
+import { confetti, escapeHtml, buildNumpad, plural } from '../ui.js';
 
 // Daily item themes: the counting objects change with the day — picnic
 // bones today, beach shells tomorrow. Same numbers, fresher world.
@@ -27,6 +27,28 @@ const THEMES = [
 ];
 export const THEME_ITEMS = THEMES[Math.floor(Date.now() / 86400000) % THEMES.length];
 const ITEMS = THEME_ITEMS;
+
+// What things are called when spoken — number–noun agreement everywhere,
+// irregular plurals included ([one, many]; a bare string takes +s).
+const ITEM_WORDS = {
+  '🦴': 'bone', '🎾': 'ball', '🍖': 'treat', '🍎': 'apple', '🥪': 'sandwich',
+  '🍇': 'grape', '🐚': 'shell', '🦀': 'crab', '⭐': 'star', '❄️': 'snowflake',
+  '⛄': ['snowman', 'snowmen'], '🧤': 'mitten', '🌼': 'flower',
+  '🍓': ['berry', 'berries'], '🥕': 'carrot', '🐟': ['fish', 'fish'],
+  '🌻': 'seed', '🍃': ['leaf', 'leaves'], '🥬': ['leaf', 'leaves'],
+  '💧': 'drop', '🐶': 'pup',
+};
+export const wordFor = (item, n = 2) => {
+  const w = ITEM_WORDS[item] ?? 'thing';
+  return Array.isArray(w) ? plural(n, w[0], w[1]) : plural(n, w);
+};
+
+// The right food for the friend being fed — a turtle doesn't want bones.
+export const FOOD_BY_SPECIES = {
+  cat: '🐟', rabbit: '🥕', guinea: '🥬', bird: '🌻',
+  sloth: '🍃', hedgehog: '🍓', turtle: '🥬',
+};
+const foodFor = (buddy) => (buddy.kind === 'pet' ? FOOD_BY_SPECIES[buddy.species] ?? '🥕' : '🦴');
 const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 const STARS = ['⭐', '🌟', '🎉', '🐾'];
 const KIND_BY_GAME = { count: 'fetch', find: 'walk', more: 'feed', tap: 'fetch', feed: 'feed', shape: 'walk', pattern: 'feed', next: 'walk', add: 'fetch', look: 'walk', bond: 'feed', teen: 'fetch', type: 'walk', taway: 'feed', paths: 'fetch', surprise: 'fetch' };
@@ -492,6 +514,7 @@ export function littleGameScreen(el, params, ctx) {
   let busy = false;
   let firstTry = true;
   let lastSpoken = '';
+  let inputReadyAt = 0;
   const roundCoins = [];
 
   const speak = (text) => {
@@ -545,6 +568,10 @@ export function littleGameScreen(el, params, ctx) {
         : game;
     const range = rangeFor(p, SKILL_GAMES.has(g) ? g : 'count');
     fbEl.textContent = '';
+    // the settle delay: little hands are still tapping when the next
+    // question appears - ignore input for a beat (the round's first
+    // question has no previous answer to carry taps over from)
+    inputReadyAt = index > 0 ? performance.now() + 600 : 0;
     stageEl.innerHTML = '';
     delete stageEl.dataset.teachOnly;
     choicesEl.innerHTML = '';
@@ -618,7 +645,7 @@ export function littleGameScreen(el, params, ctx) {
       let tapped = 0;
       for (const b of stageEl.querySelectorAll('.tap-item')) {
         b.addEventListener('click', () => {
-          if (busy || b.classList.contains('popped')) return;
+          if (busy || b.classList.contains('popped') || performance.now() < inputReadyAt) return;
           b.classList.add('popped');
           tapped += 1;
           stageEl.querySelector('.tap-count').textContent = tapped;
@@ -631,14 +658,15 @@ export function littleGameScreen(el, params, ctx) {
       // Feed the puppy N: counting OUT a quantity — tap bones into the bowl
       // until the buddy has enough.
       const n = 1 + ri(range);
+      const food = foodFor(buddy);
       const RECEIVERS = [
-        { icon: '🥣', item: '🦴', line: (w) => `Feed ${buddy.name} ${w} bones!` },
-        { icon: '🧸', item: '🎾', line: (w) => `Put ${w} toys in the toy box!` },
-        { icon: '🌼', item: '💧', line: (w) => `Water ${w} flowers!` },
+        { icon: '🥣', item: food, line: (w, n2) => `Feed ${buddy.name} ${w} ${wordFor(food, n2)}!` },
+        { icon: '🧸', item: '🎾', line: (w, n2) => `Put ${w} ${plural(n2, 'toy')} in the toy box!` },
+        { icon: '🌼', item: '💧', line: (w, n2) => `Water ${w} ${plural(n2, 'flower')}!` },
       ];
       const recv = RECEIVERS[forced === 'bowl' ? 0 : ri(RECEIVERS.length)];
       promptEl.textContent = `${recv.item}➡️${recv.icon}`;
-      speak(recv.line(WORDS[n]));
+      speak(recv.line(WORDS[n], n));
       stageEl.dataset.answer = n;
       stageEl.innerHTML = `<div class="feed-row">${buddy.svg(52)}
           <span class="little-numeral">${n}</span><span class="feed-bowl">${recv.icon}</span>
@@ -654,7 +682,7 @@ export function littleGameScreen(el, params, ctx) {
       let fed = 0;
       for (const b of stageEl.querySelectorAll('.tap-item')) {
         b.addEventListener('click', () => {
-          if (busy) return;
+          if (busy || performance.now() < inputReadyAt) return;
           const taking = b.classList.contains('popped');
           b.classList.toggle('popped');
           fed += taking ? -1 : 1;
@@ -664,7 +692,7 @@ export function littleGameScreen(el, params, ctx) {
         });
       }
       stageEl.querySelector('.feed-done').addEventListener('click', () => {
-        if (busy) return;
+        if (busy || performance.now() < inputReadyAt) return;
         if (fed === n) {
           celebrate(null, { speakWord: false });
           return;
@@ -759,7 +787,7 @@ export function littleGameScreen(el, params, ctx) {
       promptEl.innerHTML = story ? '🏞️ ➕' : `${petSVG(host, 34)} ➕`;
       speak(
         story
-          ? `${WORDS[a]} pups were playing at the park... ${WORDS[b]} more came! How many now?`
+          ? `${WORDS[a]} ${plural(a, 'pup')} were playing at the park... ${WORDS[b]} more came! How many now?`
           : `${WORDS[a]} plus ${WORDS[b]}!`
       );
       stageEl.dataset.answer = a + b;
@@ -788,7 +816,7 @@ export function littleGameScreen(el, params, ctx) {
       const entry = stageEl.querySelector('.type-entry');
       let input = '';
       buildNumpad(stageEl.querySelector('.numpad'), (k) => {
-        if (busy) return;
+        if (busy || performance.now() < inputReadyAt) return;
         if (k === 'ok') {
           if (!input) return;
           if (Number(input) === n) {
@@ -820,8 +848,8 @@ export function littleGameScreen(el, params, ctx) {
       promptEl.textContent = story ? '🏞️➡️💤' : '🥣➡️';
       speak(
         story
-          ? `${WORDS[n]} pups at the park... ${WORDS[gone]} went home for a nap! How many are still playing?`
-          : `${WORDS[n]} bones... ${WORDS[gone]} hop away! How many are left?`
+          ? `${WORDS[n]} ${plural(n, 'pup')} at the park... ${WORDS[gone]} went home for a nap! How many are still playing?`
+          : `${WORDS[n]} ${wordFor(item, n)}... ${WORDS[gone]} ${gone === 1 ? 'hops' : 'hop'} away! How many are left?`
       );
       stageEl.dataset.answer = left;
       stageEl.dataset.skill = `takeaway:${left}`;
@@ -866,7 +894,7 @@ export function littleGameScreen(el, params, ctx) {
         const entry = stageEl.querySelector('.type-entry');
         let input = '';
         buildNumpad(stageEl.querySelector('.numpad'), (k) => {
-          if (busy) return;
+          if (busy || performance.now() < inputReadyAt) return;
           if (k === 'ok') {
             if (!input) return;
             if (Number(input) === answer) celebrate(null, { speakWord: false });
@@ -1062,9 +1090,16 @@ export function littleGameScreen(el, params, ctx) {
     recordSkill();
     paws[index].classList.add('done');
     if (btn) btn.classList.add('win');
+    stageEl.querySelector('.feed-done')?.setAttribute('disabled', '');
     sfx.correct();
     buzz(20);
     fbEl.textContent = `${STARS[ri(STARS.length)]}${STARS[ri(STARS.length)]}`;
+    // a hand covers the bottom feedback right after a tap - burst BIG in
+    // the middle of the stage where eyes already are
+    const burst = document.createElement('div');
+    burst.className = 'big-cheer';
+    burst.textContent = STARS[ri(STARS.length)];
+    stageEl.appendChild(burst);
     const n = Number(stageEl.dataset.answer);
     if (speakWord && n >= 0 && n <= 10) speak(WORDS[n]);
     setTimeout(next, 1000);
@@ -1099,7 +1134,7 @@ export function littleGameScreen(el, params, ctx) {
   }
 
   function onChoice(btn, correct) {
-    if (busy) return;
+    if (busy || performance.now() < inputReadyAt) return;
     if (correct) {
       celebrate(btn);
     } else {

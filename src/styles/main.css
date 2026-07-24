@@ -1480,6 +1480,31 @@ button.pressed {
   pointer-events: none;
 }
 
+.feed-done {
+  margin-top: 28px;
+  align-self: center;
+}
+
+.feed-done:disabled {
+  opacity: 0.4;
+}
+
+.big-cheer {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  transform: translate(-50%, -50%);
+  font-size: 4.5rem;
+  animation: cheer-pop 0.9s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes cheer-pop {
+  0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+  35% { transform: translate(-50%, -50%) scale(1.25); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+}
+
 /* Feed Me: bones in the bowl stay tappable — the child can take one back
    (tap-to-count keeps its one-way pop above). */
 .tap-items.feed-items .tap-item.popped {
@@ -1550,6 +1575,7 @@ button.pressed {
 /* The stage flexes to fill the screen's middle, so game content is
    centered and can use the space (bigger targets for little fingers). */
 .little-stage {
+  position: relative; /* anchors the big-cheer burst */
   text-align: center;
   flex: 1;
   min-height: 0;

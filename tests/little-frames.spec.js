@@ -43,18 +43,18 @@ test('pattern round: shapes-only first, colors mid-round, mixed only at the end'
     expect(labels.length).toBe(3);
     await page.tap('.little-card[data-good="1"]');
     await expect(page.locator('.paw.done')).toHaveCount(q + 1);
-    await page.waitForTimeout(1100);
+    await page.waitForTimeout(1800);
   }
   // Q3 (color stage): one shape, three colors
   const q3 = await fillsAndShapes();
   expect(q3.labels.length).toBe(1);
   expect(q3.fills.length).toBe(3);
   await page.tap('.little-card[data-good="1"]');
-  await page.waitForTimeout(1100);
+  await page.waitForTimeout(1800);
   // Q4 (AAB): the sequence shows five marks
   expect(await page.$$eval('.pattern-row svg', (els) => els.length)).toBe(5);
   await page.tap('.little-card[data-good="1"]');
-  await page.waitForTimeout(1100);
+  await page.waitForTimeout(1800);
   // Q5 (mixed): both dimensions vary across the choices
   const q5 = await fillsAndShapes();
   expect(q5.fills.length).toBeGreaterThan(1);

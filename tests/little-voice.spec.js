@@ -25,7 +25,7 @@ async function playChoiceRound(page, game, questions = 5) {
   for (let q = 0; q < questions; q++) {
     await page.tap('.little-card[data-good="1"]');
     await expect(page.locator('.paw.done')).toHaveCount(q + 1);
-    if (q < questions - 1) await page.waitForTimeout(1100);
+    if (q < questions - 1) await page.waitForTimeout(1800);
   }
   await page.waitForSelector('[data-again]');
   await page.waitForTimeout(300); // deferred utterance lands
