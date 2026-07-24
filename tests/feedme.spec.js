@@ -61,20 +61,13 @@ test('e2e: settle delay ignores carryover taps; the serve button greys during ce
   await page.tap('.tap-item:not(.popped)');
   await expect(page.locator('.tap-count')).toHaveText('1');
 
-  // 4) number–noun agreement in the spoken prompt when n is 1
-  let sawSingular = false;
-  for (let tries = 0; tries < 15 && !sawSingular; tries++) {
-    await page.evaluate(() => { location.hash = '#/home'; });
-    await page.waitForSelector('.little-tile');
-    await page.evaluate(() => { location.hash = '#/little?game=feed&v=bowl'; });
-    await page.waitForSelector('.tap-item');
-    const k = await page.evaluate(() => Number(document.querySelector('.little-stage').dataset.answer));
-    if (k === 1) {
-      const spoken = await page.evaluate(() => window.__spoken);
-      const line = spoken[spoken.length - 1];
-      expect(line).toContain('one leaf!');
-      sawSingular = true;
-    }
-  }
-  expect(sawSingular).toBe(true);
+  // 4) number–noun agreement in the spoken prompt when n is 1 (v=one
+  // forces the single-item question — hunting a random 1 flaked)
+  await page.evaluate(() => { location.hash = '#/home'; });
+  await page.waitForSelector('.little-tile');
+  await page.evaluate(() => { location.hash = '#/little?game=feed&v=one'; });
+  await page.waitForSelector('.tap-item');
+  await page.waitForTimeout(300);
+  const spoken = await page.evaluate(() => window.__spoken);
+  expect(spoken[spoken.length - 1]).toContain('one leaf!');
 });

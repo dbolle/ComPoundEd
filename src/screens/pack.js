@@ -2,6 +2,8 @@ import { navigate } from '../router.js';
 import { DOGS, dogSVG, wornFor, dirtFor } from '../art/dogs.js';
 import { storefrontSVG } from '../art/gear.js';
 import { isBeta } from '../engine/beta.js';
+import { boxedToys, itemOf } from '../engine/gearshop.js';
+import { toySVG } from '../art/gear.js';
 import { balanceCents, formatPaw } from '../engine/money.js';
 import { isUnlocked } from '../engine/unlocks.js';
 import { escapeHtml, toast } from '../ui.js';
@@ -28,6 +30,18 @@ export function packScreen(el, params, ctx) {
     corner.textContent = '🏡 Cozy Corner';
     corner.addEventListener('click', () => navigate('/corner'));
     el.querySelector('[data-group-slot]').appendChild(corner);
+  }
+
+  // The toy box: owned toys not yet handed to a pup. Hand-outs happen on
+  // each dog's page (their toy shelf).
+  const boxed = boxedToys(p);
+  if (boxed.length) {
+    const box = document.createElement('div');
+    box.className = 'card toybox-card';
+    box.innerHTML = `<h3 style="margin:0 0 6px">Toy box 🧺</h3>
+      <div class="toy-shelf">${boxed.map((id) => `<span class="toy-chip" title="${itemOf(id).name}">${toySVG(id, 40)}</span>`).join('')}</div>
+      <p class="muted" style="font-size:.8rem;margin:6px 0 0">Visit a pup to hand these out!</p>`;
+    el.querySelector('[data-group-slot]').appendChild(box);
   }
 
   const unlockedCount = DOGS.filter((d) => isUnlocked(p, d.id)).length;

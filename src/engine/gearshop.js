@@ -102,3 +102,20 @@ export function placedOn(profile, wearerId) {
     .map(([key]) => key.split(':')[0])
     .filter((itemId) => itemOf(itemId)?.slot); // toys aren't wearable
 }
+
+// Toys placed with a wearer (placedOn filters to wearables for the
+// accessories pipeline — this is its toy sibling).
+export function toysOn(profile, wearerId) {
+  const placements = profile.gear?.placements ?? {};
+  return Object.entries(placements)
+    .filter(([key, who]) => who === wearerId && itemOf(key.split(':')[0])?.tier === 'toy')
+    .map(([key]) => key.split(':')[0]);
+}
+
+// Owned toys currently in the box (no wearer).
+export function boxedToys(profile) {
+  return ownedGear(profile)
+    .filter(({ item }) => itemOf(item)?.tier === 'toy')
+    .map(({ item }) => item)
+    .filter((id) => !(profile.gear?.placements?.[id]));
+}

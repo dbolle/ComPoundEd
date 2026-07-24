@@ -2,6 +2,8 @@ import { navigate, currentRoute } from '../router.js';
 import { getDog, dogSVG, accessoriesFor, wornFor, ACCESSORIES, dirtFor, nextColorGoal, nextCollarGoal } from '../art/dogs.js';
 import { isUnlocked } from '../engine/unlocks.js';
 import { trainingPartnersFor } from '../engine/suggest.js';
+import { toysOn, boxedToys, placeGear, itemOf } from '../engine/gearshop.js';
+import { toySVG } from '../art/gear.js';
 import { toast, escapeHtml, plural } from '../ui.js';
 
 // Progress toward the accessory's next color, shown as a picture: a tiny
@@ -81,6 +83,7 @@ export function dogScreen(el, params, ctx) {
         ${groomable ? '<button class="btn groom-btn" data-act="groom">🧼 Groom</button>' : ''}
       </div>
       <div data-playdate-slot></div>
+      <div data-toys-slot></div>
       ${
         hasPass
           ? '<button class="btn groom-btn" data-dress>👕 Dress up!</button>'
@@ -111,6 +114,47 @@ export function dogScreen(el, params, ctx) {
     );
     el.querySelector('[data-playdate-slot]').appendChild(pd);
   }
+
+  // Toy shelf: this pup's toys (tap to put back in the box) and the box's
+  // toys (tap to hand over). Only renders once any toy is owned.
+  const renderToys = () => {
+    const slot = el.querySelector('[data-toys-slot]');
+    const mine = toysOn(ctx.profile, dog.id);
+    const boxed = boxedToys(ctx.profile);
+    if (!mine.length && !boxed.length) {
+      slot.innerHTML = '';
+      return;
+    }
+    slot.innerHTML = `<h3>${escapeHtml(dog.name)}'s toys 🧺</h3>
+      <div class="toy-shelf">
+        ${mine
+          .map(
+            (id) => `<button class="toy-chip has" data-toy-back="${id}" aria-label="Put the ${itemOf(id).name} back in the box">${toySVG(id, 44)}</button>`
+          )
+          .join('')}
+        ${boxed
+          .map(
+            (id) => `<button class="toy-chip boxed" data-toy-give="${id}" aria-label="Give ${escapeHtml(dog.name)} the ${itemOf(id).name}">${toySVG(id, 44)}<span class="toy-give">➕</span></button>`
+          )
+          .join('')}
+      </div>`;
+    for (const b of slot.querySelectorAll('[data-toy-give]')) {
+      b.addEventListener('click', async () => {
+        placeGear(ctx.profile, b.dataset.toyGive, dog.id);
+        await ctx.save();
+        toast(`${dog.name} loves the ${itemOf(b.dataset.toyGive).name}! 🎉`);
+        renderToys();
+      });
+    }
+    for (const b of slot.querySelectorAll('[data-toy-back]')) {
+      b.addEventListener('click', async () => {
+        placeGear(ctx.profile, b.dataset.toyBack, null);
+        await ctx.save();
+        renderToys();
+      });
+    }
+  };
+  renderToys();
 
   const buddyBtn = el.querySelector('[data-buddy]');
   if (buddyBtn) {
