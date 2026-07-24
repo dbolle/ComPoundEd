@@ -18,6 +18,13 @@ export const GEAR_ACCESSORIES = [
 ];
 
 export const TOYS = [
+  // Micro toys (10–15¢): first purchases sized for little-pup savings.
+  { id: 'mouse', name: 'squeaky mouse', emoji: '🐭', tier: 'toy', price: 10 },
+  { id: 'bell', name: 'jingle bell', emoji: '🔔', tier: 'toy', price: 10 },
+  { id: 'stick', name: 'perfect stick', emoji: '🪵', tier: 'toy', price: 10 },
+  { id: 'feather', name: 'tickly feather', emoji: '🪶', tier: 'toy', price: 15 },
+  { id: 'sock', name: 'lucky sock', emoji: '🧦', tier: 'toy', price: 15 },
+  { id: 'pinecone', name: 'pinecone', emoji: '🌰', tier: 'toy', price: 15 },
   { id: 'ball', name: 'bouncy ball', emoji: '🎾', tier: 'toy', price: 25 },
   { id: 'bonetoy', name: 'squeaky bone', emoji: '🦴', tier: 'toy', price: 40 },
   { id: 'rope', name: 'tug rope', emoji: '🪢', tier: 'toy', price: 60 },
@@ -29,6 +36,37 @@ export const TOYS = [
 ];
 
 const TOY_ART = {
+  mouse: `
+    <ellipse cx="32" cy="36" rx="17" ry="12" fill="#b9c0cb"/>
+    <circle cx="17" cy="30" r="8" fill="#b9c0cb"/>
+    <circle cx="13" cy="23" r="4.5" fill="#e8b7c4"/>
+    <circle cx="22" cy="22" r="4.5" fill="#e8b7c4"/>
+    <circle cx="15" cy="30" r="1.6" fill="#35281e"/>
+    <path d="M48 38 Q58 34 56 25" stroke="#9aa2af" stroke-width="3" fill="none" stroke-linecap="round"/>`,
+  bell: `
+    <path d="M30 12 a13 13 0 0 1 13 13 v10 h-26 v-10 a13 13 0 0 1 13-13" fill="#f5c542" stroke="#d99b1e" stroke-width="2"/>
+    <rect x="14" y="35" width="32" height="6" rx="3" fill="#d99b1e"/>
+    <circle cx="30" cy="46" r="5" fill="#b97c14"/>
+    <circle cx="30" cy="10" r="3.5" fill="#d99b1e"/>`,
+  stick: `
+    <path d="M12 46 L44 16" stroke="#a5713d" stroke-width="8" stroke-linecap="round"/>
+    <path d="M30 30 L40 34" stroke="#a5713d" stroke-width="6" stroke-linecap="round"/>
+    <path d="M20 39 L15 33" stroke="#8a5a2c" stroke-width="5" stroke-linecap="round"/>`,
+  feather: `
+    <path d="M18 48 Q16 20 42 10 Q46 34 24 46 Z" fill="#7fb6e8"/>
+    <path d="M18 48 Q28 34 42 12" stroke="#4f8fd9" stroke-width="2.4" fill="none"/>
+    <path d="M14 52 L20 44" stroke="#8a6a4a" stroke-width="3" stroke-linecap="round"/>`,
+  sock: `
+    <path d="M22 8 h14 v22 q0 6 6 8 q8 3 6 11 q-2 8 -12 6 q-8 -2 -12 -8 l-2 -4 Z" fill="#e06b6b"/>
+    <rect x="20" y="6" width="18" height="8" rx="3" fill="#f4f1ec"/>
+    <path d="M24 22 h10 M24 28 h10" stroke="#c14f4f" stroke-width="2.4"/>`,
+  pinecone: `
+    <ellipse cx="30" cy="32" rx="14" ry="19" fill="#8a5a2c"/>
+    <g fill="#a5713d">
+      <path d="M22 20 q8 -5 16 0 l-3 6 q-5 -3 -10 0 Z"/>
+      <path d="M19 30 q11 -6 22 0 l-3 6 q-8 -4 -16 0 Z"/>
+      <path d="M20 41 q10 -5 20 0 l-4 6 q-6 -3 -12 0 Z"/>
+    </g>`,
   ball: `
     <circle cx="30" cy="30" r="22" fill="#c6e544"/>
     <path d="M12 20 Q30 30 12 40 M48 20 Q30 30 48 40" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>`,

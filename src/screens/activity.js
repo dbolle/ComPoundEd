@@ -10,6 +10,8 @@ import { recordAnswer, recordDivisionAnswer, isTableMastered, tableDueCount } fr
 import { checkUnlocks, isUnlocked } from '../engine/unlocks.js';
 import { bumpAnswer, bumpActivity, checkAchievements } from '../engine/achievements.js';
 import { earnSitting, earnFromAnswer, coinBadges } from '../engine/money.js';
+import { toysOn } from '../engine/gearshop.js';
+import { toySVG } from '../art/gear.js';
 import { hintFor, divisionHint } from '../engine/hints.js';
 import { getDog, isGuest, GUESTS, dogSVG, accessoriesFor, wornFor, ACCESSORIES, dirtFor , nextColorGoal } from '../art/dogs.js';
 import { buildNumpad, bindKeyboard, celebrationLine, confetti, escapeHtml } from '../ui.js';
@@ -132,6 +134,11 @@ export function activityScreen(el, params, ctx) {
       </div>
       ${kind === 'groom' ? `<div class="quiz-progress suds" aria-hidden="true">${'<span class="paw">🫧</span>'.repeat(QUESTIONS)}</div>` : ''}
       <div class="activity-scene" style="height:${sceneHeight}px">
+        <span class="scene-toys" aria-hidden="true">${dogs
+          .flatMap((d2) => toysOn(ctx.profile, d2.id))
+          .slice(0, 4)
+          .map((id) => toySVG(id, 30))
+          .join('')}</span>
         ${group ? '<span class="asker-overlay"></span>' : ''}
         <span class="goal">${theme.goal}</span>
         ${theme.deco.map((d, i) => `<span class="deco" style="left:${18 + i * 22}%">${d}</span>`).join('')}

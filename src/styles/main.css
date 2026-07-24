@@ -986,6 +986,41 @@ button.pressed {
   cursor: pointer;
 }
 
+.toy-shelf {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.toy-chip {
+  position: relative;
+  background: var(--card);
+  border-radius: 14px;
+  padding: 6px;
+  box-shadow: var(--shadow);
+}
+
+.toy-chip.boxed {
+  opacity: 0.8;
+  border: 2px dashed #e0d2b4;
+}
+
+.toy-chip .toy-give {
+  position: absolute;
+  right: -4px;
+  top: -4px;
+  font-size: 0.85rem;
+}
+
+.scene-toys {
+  position: absolute;
+  left: 8px;
+  bottom: 6px;
+  display: flex;
+  gap: 4px;
+}
+
 .store-item.owned {
   opacity: 0.75;
 }

@@ -657,14 +657,14 @@ export function littleGameScreen(el, params, ctx) {
     } else if (g === 'feed') {
       // Feed the puppy N: counting OUT a quantity — tap bones into the bowl
       // until the buddy has enough.
-      const n = 1 + ri(range);
+      const n = forced === 'one' ? 1 : 1 + ri(range); // v=one: test hook
       const food = foodFor(buddy);
       const RECEIVERS = [
         { icon: '🥣', item: food, line: (w, n2) => `Feed ${buddy.name} ${w} ${wordFor(food, n2)}!` },
         { icon: '🧸', item: '🎾', line: (w, n2) => `Put ${w} ${plural(n2, 'toy')} in the toy box!` },
         { icon: '🌼', item: '💧', line: (w, n2) => `Water ${w} ${plural(n2, 'flower')}!` },
       ];
-      const recv = RECEIVERS[forced === 'bowl' ? 0 : ri(RECEIVERS.length)];
+      const recv = RECEIVERS[forced === 'bowl' || forced === 'one' ? 0 : ri(RECEIVERS.length)];
       promptEl.textContent = `${recv.item}➡️${recv.icon}`;
       speak(recv.line(WORDS[n], n));
       stageEl.dataset.answer = n;

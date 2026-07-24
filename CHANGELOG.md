@@ -3,6 +3,17 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.29.0 — 2026-07-24
+
+- Toys live somewhere now: a Toy box card on the pack screen holds
+  unassigned toys; each dog's page grows a toy shelf (tap a boxed toy to
+  hand it over, tap it again to take it back); and a pup's toys sit in
+  their activity scenes during walks and games.
+- Six micro toys (10–15¢): squeaky mouse, jingle bell, perfect stick,
+  tickly feather, lucky sock, pinecone — first purchases sized for
+  little-pup savings (littles still shop via a grown-up for now; their
+  own storefront comes later).
+
 ## v1.28.0 — 2026-07-24
 
 - Feed me!, tuned by watching a real 3-year-old: the serve button sits
