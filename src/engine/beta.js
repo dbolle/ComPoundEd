@@ -3,7 +3,9 @@
 // preservation guarantee — they may change or lose their data as they
 // develop (see CLAUDE.md). The flag itself rides subjects (merge-safe).
 
-export const BETA_ROUTES = ['/store'];
+// Nothing is route-gated right now (the store released in v1.32.0);
+// the flag and this list stay for the next preview feature.
+export const BETA_ROUTES = [];
 
 export function isBeta(profile) {
   return profile?.subjects?.beta === true;

@@ -44,7 +44,7 @@ test('swaps: both directions, net-zero balance, round trip restores counts', () 
   expect(swapCoins(p, SWAPS.find((r) => r.give.denom === 'penny'))).toBe(false); // no pennies
 });
 
-test('e2e: non-beta profiles are redirected and keep the teaser', async ({ page }) => {
+test('e2e: no beta flag needed — the store opens for plain profiles', async ({ page }) => {
   await page.goto('/', { waitUntil: 'networkidle' });
   const doc = newProfile(uniqueName('NoBeta'));
   doc.id = 'nobeta-kid';
@@ -53,9 +53,8 @@ test('e2e: non-beta profiles are redirected and keep the teaser', async ({ page 
   await selectProfile(page, doc.name);
   await page.waitForSelector('.hero');
   await page.evaluate(() => { location.hash = '#/store'; });
-  await page.waitForSelector('.pack-grid'); // bounced to /pack
-  await expect(page).toHaveURL(/#\/pack/);
-  await expect(page.locator('.store-btn')).toContainText('🚧');
+  await page.waitForSelector('[data-shelves]'); // no bounce — straight in
+  await expect(page).toHaveURL(/#\/store/);
 });
 
 test('e2e: the grown-ups 🧪 chip opens the store; full checkout buys the bowl and a gift', async ({ page }) => {
@@ -157,28 +156,6 @@ test('e2e: leaving the store lands littles in the Cozy Corner, dog-earners in th
   await page.waitForSelector('[data-shelves]');
   await expect(page.locator('[data-back]')).toContainText('Cozy Corner');
   await page.tap('[data-back]');
-  await expect(page).toHaveURL(/#\/corner/);
-
-  // beta off: the route guard bounces to the corner too
-  await page.evaluate(async () => {
-    const db = await new Promise((res) => { const r = indexedDB.open('compounded'); r.onsuccess = () => res(r.result); });
-    const doc2 = await new Promise((res) => {
-      const tx = db.transaction('profiles', 'readonly');
-      const rq = tx.objectStore('profiles').get('little-shop-kid');
-      rq.onsuccess = () => res(rq.result);
-    });
-    doc2.subjects.beta = false;
-    await new Promise((res) => { const tx = db.transaction('profiles', 'readwrite'); tx.objectStore('profiles').put(doc2); tx.oncomplete = res; });
-  });
-  await page.reload({ waitUntil: 'networkidle' });
-  // boot may auto-resume onto the pre-reload hash or show the picker
-  await page.waitForSelector('.screen');
-  if (await page.$('.profile-card')) {
-    await selectProfile(page, doc.name);
-  }
-  await page.evaluate(() => { location.hash = '#/home'; });
-  await page.waitForSelector('.little-hero');
-  await page.evaluate(() => { location.hash = '#/store'; });
   await expect(page).toHaveURL(/#\/corner/);
 
   // a second unlocked dog flips the exit back to the pack

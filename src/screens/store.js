@@ -1,5 +1,5 @@
-// The Pet Store (BETA — reachable only via the Grown-Ups 🧪 flag; see
-// src/engine/beta.js). Buying is money math: the price decomposes into
+// The Pet Store (released v1.32.0 after its beta run). Buying is money
+// math: the price decomposes into
 // coin lines (Paw Bucks ×100, quarters ×25, dimes ×10, nickels ×5) the
 // kid multiplies out, plus an addition total when there's more than one
 // line. Checkout questions record nothing — applied math, not drill.
@@ -11,7 +11,6 @@ import { GEAR_ACCESSORIES, TOYS, toySVG } from '../art/gear.js';
 import { DOGS, dogSVG, wornFor, gearSVG } from '../art/dogs.js';
 import { PETS, petSVG } from '../art/pets.js';
 import { isUnlocked } from '../engine/unlocks.js';
-import { isBeta } from '../engine/beta.js';
 import { confetti, escapeHtml, toast } from '../ui.js';
 import { sfx, buzz, cheer } from '../sound.js';
 
@@ -25,23 +24,12 @@ export function storeHome(p) {
 }
 
 // Compact store entry for the top rows of the pack and Cozy Corner.
-// Beta profiles go shopping; everyone else keeps the anticipation toast.
-export function storeButton(p) {
-  const open = isBeta(p);
+export function storeButton() {
   const btn = document.createElement('button');
   btn.className = 'btn accent store-btn';
-  btn.textContent = open ? '🏪 Pet store' : '🏪 Pet store 🚧';
-  btn.setAttribute('aria-label', open ? 'Pet store' : 'Pet store, opening soon');
-  btn.addEventListener('click', () => {
-    if (open) {
-      navigate('/store');
-      return;
-    }
-    btn.classList.remove('wiggle');
-    void btn.offsetWidth; // restart the animation on repeat taps
-    btn.classList.add('wiggle');
-    toast('The Pet Store is being built! Keep saving your Paw Bucks 🐾');
-  });
+  btn.textContent = '🏪 Pet store';
+  btn.setAttribute('aria-label', 'Pet store');
+  btn.addEventListener('click', () => navigate('/store'));
   return btn;
 }
 
@@ -56,7 +44,7 @@ export function storeScreen(el, params, ctx) {
         <span class="paw-chip" data-balance>${formatPaw(balanceCents(p))}</span>
         <h2 style="margin:0">Pet Store 🏪</h2>
       </div>
-      <p class="muted center" style="margin:0">🧪 Beta — paying is real coin math!</p>
+      <p class="muted center" style="margin:0">Buy something for your pet!</p>
       <div data-shelves></div>
       <div data-checkout hidden></div>
     </div>`;

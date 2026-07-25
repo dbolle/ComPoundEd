@@ -1,11 +1,10 @@
-// Pet Store "coming soon" teaser: a store button in the pack's top action
-// row (and atop the Cozy Corner) plus a savings hint in the wallet —
-// anticipation only, nothing for sale.
+// The Pet Store is OPEN (v1.32.0): every profile reaches it from the
+// pack row, the Cozy Corner, and the wallet link — no beta flag needed.
 import { test, expect } from '@playwright/test';
 import { newProfile } from '../src/data/schema.js';
 import { seedProfile, selectProfile } from './helpers.mjs';
 
-test('pack shows the boarded-up store; tapping toasts, never navigates; wallet teases', async ({ page }) => {
+test('the store is open for everyone: pack, corner, and wallet all lead in', async ({ page }) => {
   await page.goto('/', { waitUntil: 'networkidle' });
   const doc = newProfile('Shopper');
   doc.id = 'teaser-kid';
@@ -15,16 +14,13 @@ test('pack shows the boarded-up store; tapping toasts, never navigates; wallet t
   await page.tap('[data-nav="/pack"]');
   const btn = page.locator('.pack-actions .store-btn');
   await expect(btn).toBeVisible();
-  await expect(btn).toContainText('Pet store 🚧');
-
+  await expect(btn).not.toContainText('🚧');
   await btn.tap();
-  await expect(page.locator('.toast')).toContainText('Paw Bucks');
-  await expect(page).toHaveURL(/#\/pack/); // still on the pack — no store route yet
+  await page.waitForSelector('[data-shelves]');
+  await expect(page.locator('.screen')).toContainText('Buy something for your pet!');
 
+  await page.tap('[data-back]');
   await page.tap('[data-wallet]');
-  await expect(page.locator('.screen')).toContainText('The Pet Store opens soon');
-
-  // the Cozy Corner tops out with the same button
-  await page.evaluate(() => { location.hash = '#/corner'; });
-  await expect(page.locator('.pack-actions .store-btn')).toBeVisible();
+  await page.tap('[data-store]');
+  await page.waitForSelector('[data-shelves]');
 });
