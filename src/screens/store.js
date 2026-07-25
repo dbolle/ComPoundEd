@@ -11,8 +11,30 @@ import { GEAR_ACCESSORIES, TOYS, toySVG } from '../art/gear.js';
 import { DOGS, dogSVG, wornFor, gearSVG } from '../art/dogs.js';
 import { PETS, petSVG } from '../art/pets.js';
 import { isUnlocked } from '../engine/unlocks.js';
+import { isBeta } from '../engine/beta.js';
 import { confetti, escapeHtml, toast } from '../ui.js';
 import { sfx, buzz, cheer } from '../sound.js';
+
+// Compact store entry for the top rows of the pack and Cozy Corner.
+// Beta profiles go shopping; everyone else keeps the anticipation toast.
+export function storeButton(p) {
+  const open = isBeta(p);
+  const btn = document.createElement('button');
+  btn.className = 'btn accent store-btn';
+  btn.textContent = open ? '🏪 Pet store' : '🏪 Pet store 🚧';
+  btn.setAttribute('aria-label', open ? 'Pet store' : 'Pet store, opening soon');
+  btn.addEventListener('click', () => {
+    if (open) {
+      navigate('/store');
+      return;
+    }
+    btn.classList.remove('wiggle');
+    void btn.offsetWidth; // restart the animation on repeat taps
+    btn.classList.add('wiggle');
+    toast('The Pet Store is being built! Keep saving your Paw Bucks 🐾');
+  });
+  return btn;
+}
 
 export function storeScreen(el, params, ctx) {
   const p = ctx.profile;

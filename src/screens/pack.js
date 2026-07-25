@@ -1,12 +1,11 @@
 import { navigate } from '../router.js';
 import { DOGS, dogSVG, wornFor, dirtFor } from '../art/dogs.js';
-import { storefrontSVG } from '../art/gear.js';
-import { isBeta } from '../engine/beta.js';
 import { boxedToys, itemOf } from '../engine/gearshop.js';
 import { toySVG } from '../art/gear.js';
 import { balanceCents, formatPaw } from '../engine/money.js';
 import { isUnlocked } from '../engine/unlocks.js';
-import { escapeHtml, toast } from '../ui.js';
+import { escapeHtml } from '../ui.js';
+import { storeButton } from './store.js';
 
 export function packScreen(el, params, ctx) {
   const p = ctx.profile;
@@ -24,12 +23,15 @@ export function packScreen(el, params, ctx) {
       <div class="pack-grid"></div>
     </div>`;
 
+  const actions = document.createElement('div');
+  actions.className = 'pack-actions';
+  el.querySelector('[data-group-slot]').appendChild(actions);
   if (p.petUnlocks?.length) {
     const corner = document.createElement('button');
     corner.className = 'btn accent';
     corner.textContent = '🏡 Cozy Corner';
     corner.addEventListener('click', () => navigate('/corner'));
-    el.querySelector('[data-group-slot]').appendChild(corner);
+    actions.appendChild(corner);
   }
 
   // The toy box: owned toys not yet handed to a pup. Hand-outs happen on
@@ -50,8 +52,9 @@ export function packScreen(el, params, ctx) {
     groupBtn.className = 'btn accent';
     groupBtn.textContent = '🐕🐕 Play date';
     groupBtn.addEventListener('click', () => navigate('/group'));
-    el.querySelector('[data-group-slot]').appendChild(groupBtn);
+    actions.appendChild(groupBtn);
   }
+  actions.appendChild(storeButton(p));
 
   const grid = el.querySelector('.pack-grid');
   for (const dog of DOGS) {
@@ -68,27 +71,6 @@ export function packScreen(el, params, ctx) {
     grid.appendChild(card);
   }
 
-  // Pet Store teaser (Phase 4b): builds anticipation — and savings — while
-  // the store is under construction. Remove this block to roll back.
-  const store = document.createElement('button');
-  store.className = 'dog-card store-soon';
-  store.setAttribute('aria-label', 'Pet store, opening soon');
-  const open = isBeta(p);
-  store.innerHTML = `<span class="dog">${storefrontSVG(76)}</span>
-    <span>Pet store</span>
-    <span class="lock-hint">${open ? '🎉 Open!' : '🚧 Opening soon!'}</span>`;
-  store.addEventListener('click', () => {
-    if (open) {
-      navigate('/store');
-      return;
-    }
-    const art = store.querySelector('.dog');
-    art.classList.remove('wiggle');
-    void art.offsetWidth; // restart the animation on repeat taps
-    art.classList.add('wiggle');
-    toast('The Pet Store is being built! Keep saving your Paw Bucks 🐾');
-  });
-  grid.appendChild(store);
 
   el.querySelector('[data-wallet]').addEventListener('click', () => navigate('/wallet'));
   el.querySelector('[data-back]').addEventListener('click', () => navigate('/home'));

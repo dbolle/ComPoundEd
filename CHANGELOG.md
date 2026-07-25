@@ -3,6 +3,13 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.29.1 — 2026-07-25
+
+- The Pet store moved off the pack grid and into the top button row,
+  next to Cozy Corner and Play date — and the Cozy Corner now has the
+  same button up top. Beta profiles go shopping; everyone else keeps
+  the "opening soon" tap.
+
 ## v1.29.0 — 2026-07-24
 
 - Toys live somewhere now: a Toy box card on the pack screen holds
