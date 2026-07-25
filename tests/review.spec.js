@@ -5,7 +5,7 @@ import { test, expect } from '@playwright/test';
 import { isDue, dueCount, tableProgress, isTableMastered } from '../src/engine/leitner.js';
 import { buildRound } from '../src/engine/selector.js';
 import { newProfile } from '../src/data/schema.js';
-import { seedProfile, selectProfile, norm, stat, openTableGrid } from './helpers.mjs';
+import { holdGrownupsGate, seedProfile, selectProfile, norm, stat, openTableGrid } from './helpers.mjs';
 
 const DAY = 86400e3;
 
@@ -73,12 +73,7 @@ test('heatmap fades due facts and grown-ups counts them', async ({ page }) => {
 
   await page.tap('[data-back]');
   await page.tap('[data-nav="/grownups"]');
-  await page.waitForSelector('[data-hold]');
-  const box = await (await page.$('[data-hold]')).boundingBox();
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  await page.mouse.down();
-  await page.waitForTimeout(2300);
-  await page.mouse.up();
+  await holdGrownupsGate(page);
   const row = page.locator('.stat-row', { hasText: 'refresh' });
   await expect(row).toContainText('1');
 });

@@ -90,6 +90,9 @@ test('group play rotates askers, questions match the asking dog', async ({ page 
   const askers = new Set(pairs.map((p) => p.asker));
   expect(askers.size).toBe(2);
 
+  // the walk credit saves at round end — wait for the ceremony screen so
+  // the profile read can't race the save under full-suite load
+  await page.waitForSelector('[data-again]');
   const doc = await readProfile(page, 'play-group');
   expect(doc.play['dog-2'].walk).toBe(1);
   expect(doc.play['dog-7'].walk).toBe(1);

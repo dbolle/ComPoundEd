@@ -2,6 +2,7 @@
 // limits, sitting hide, and the child's own home-hopping button.
 import { test, expect } from '@playwright/test';
 import { newProfile, migrateProfile, mergeProfiles, SCHEMA_VERSION, SUBJECT_DEFAULTS } from '../src/data/schema.js';
+import { sittingReady } from '../src/engine/selector.js';
 import { seedProfile, selectProfile, holdGrownupsGate, norm, stat, uniqueName } from './helpers.mjs';
 
 test('migration v11→v12: subject defaults land, little kept, addition/petUnlocks added', () => {
@@ -29,6 +30,55 @@ test('merge: addition richer-wins, petUnlocks union with earliest adoption', () 
   expect(m.addition['3+4'].attempts).toBe(9);
   expect(m.petUnlocks).toHaveLength(2);
   expect(m.petUnlocks.find((u) => u.petId === 'cat-1').at).toBe(50);
+});
+
+test('e2e: the grown-ups prime gate blocks wrong picks and re-deals', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'networkidle' });
+  const doc = newProfile(uniqueName('Gate'));
+  doc.id = 'gate-kid';
+  await seedProfile(page, doc);
+  await selectProfile(page, doc.name);
+  await page.evaluate(() => { location.hash = '#/grownups'; });
+  await page.waitForSelector('[data-cell]');
+  const before = await page.$$eval('[data-cell]', (els) => els.map((e) => e.dataset.cell).join(','));
+  // tap a composite (never prime) and try to unlock
+  const isPrime = (n) => { for (let d = 2; d * d <= n; d++) if (n % d === 0) return false; return n > 1; };
+  const nums = before.split(',').map(Number);
+  const composite = nums.find((n) => !isPrime(n));
+  await page.tap(`[data-cell="${composite}"]`);
+  await page.tap('[data-gate-check]');
+  await expect(page.locator('.toast')).toContainText('Not quite');
+  await expect(page.locator('[data-panel]')).toBeHidden();
+  // the grid re-dealt: selections cleared (a fresh deal has none)
+  await expect(page.locator('[data-cell].sel')).toHaveCount(0);
+  // and the real solve still works
+  const nums2 = await page.$$eval('[data-cell]', (els) => els.map((e) => Number(e.dataset.cell)));
+  for (const n of nums2) if (isPrime(n)) await page.tap(`[data-cell="${n}"]`);
+  await page.tap('[data-gate-check]');
+  await page.waitForSelector('.stat-row');
+});
+
+test('sittingReady: mastered quick wins alone decide — finished kids keep sitting', () => {
+  const stat = (box) => ({ attempts: 5, correct: 5, avgMs: 2000, box, lastSeen: 1 });
+  const fill = (p, tables, box) => {
+    for (const t of tables) for (let b = 0; b <= 12; b++) p.facts[`${Math.min(t, b)}x${Math.max(t, b)}`] = stat(box);
+  };
+  // brand new: hidden
+  expect(sittingReady(newProfile('Fresh'))).toBe(false);
+  // every fact fully mastered (the Daddy case): firm bucket is empty but
+  // sitting must stay — it's pure retention upkeep now
+  const done = newProfile('Done');
+  fill(done, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 5);
+  expect(sittingReady(done)).toBe(true);
+  // eight tables mastered crisply, the rest untouched: the 9–12×9–12
+  // corner is weak, firm is empty — still ready
+  const lopsided = newProfile('Lop');
+  fill(lopsided, [1, 2, 3, 4, 5, 6, 7, 8], 5);
+  expect(sittingReady(lopsided)).toBe(true);
+  // a handful mastered isn't enough for a mostly-wins round yet
+  const early = newProfile('Early');
+  for (let b = 0; b <= 5; b++) early.facts[`2x${b}`] = stat(5);
+  expect(sittingReady(early)).toBe(false);
 });
 
 test('e2e: parent controls — hide sitting, limit tables; version in the footer', async ({ page }) => {

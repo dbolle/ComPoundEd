@@ -1,7 +1,7 @@
 // Little Pup mode: preschool counting games, error-less by design.
 import { test, expect } from '@playwright/test';
 import { newProfile, migrateProfile, mergeProfiles, SCHEMA_VERSION, SUBJECT_DEFAULTS } from '../src/data/schema.js';
-import { readProfile, seedProfile, uniqueName, stat, norm } from './helpers.mjs';
+import { holdGrownupsGate, readProfile, seedProfile, uniqueName, stat, norm } from './helpers.mjs';
 
 test('migration v6→v7 adds subjects scaffolding + little progression', () => {
   const doc = migrateProfile({
@@ -163,12 +163,7 @@ test('e2e: grown-ups toggle flips a big-kid profile into little mode', async ({ 
   expect(await page.$('.little-tile')).toBeNull();
 
   await page.tap('[data-nav="/grownups"]');
-  await page.waitForSelector('[data-hold]');
-  const box = await (await page.$('[data-hold]')).boundingBox();
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  await page.mouse.down();
-  await page.waitForTimeout(2300);
-  await page.mouse.up();
+  await holdGrownupsGate(page);
   await page.tap('[data-subj="little"]');
   await expect(page.locator('[data-subj="little"]')).toContainText('on');
   await page.tap('[data-back]');
