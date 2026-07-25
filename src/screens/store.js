@@ -5,7 +5,7 @@
 // line. Checkout questions record nothing — applied math, not drill.
 
 import { navigate } from '../router.js';
-import { CATALOG, buyGear, isOwned, ownedGear, itemOf } from '../engine/gearshop.js';
+import { CATALOG, buyGear, isOwned, ownedGear, itemOf, placedOn } from '../engine/gearshop.js';
 import { balanceCents, formatPaw, coinCounts, canMakeExact, DENOMS } from '../engine/money.js';
 import { GEAR_ACCESSORIES, TOYS, toySVG } from '../art/gear.js';
 import { DOGS, dogSVG, wornFor, gearSVG } from '../art/dogs.js';
@@ -254,7 +254,7 @@ export function storeScreen(el, params, ctx) {
           wearer
             ? wearer.table !== undefined
               ? dogSVG(wearer, 110, wornFor(p, wearer.id))
-              : petSVG(wearer, 110)
+              : petSVG(wearer, 110, placedOn(p, wearer.id))
             : artFor(item)
         }</div>
         <p class="muted">${

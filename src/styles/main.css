@@ -1114,6 +1114,28 @@ button.pressed {
   box-shadow: inset 0 0 0 2px var(--brand);
 }
 
+/* Toys on Cozy Corner pet cards and beside the little-home buddy */
+.corner-toys {
+  justify-content: center;
+  gap: 4px;
+}
+
+.corner-toys .toy-chip {
+  padding: 2px;
+}
+
+.little-hero .avatar {
+  position: relative;
+}
+
+.buddy-toys {
+  position: absolute;
+  right: -10px;
+  bottom: -2px;
+  display: flex;
+  gap: 2px;
+}
+
 /* Grown-ups gate: the 3×3 prime grid */
 .gate-grid {
   display: grid;

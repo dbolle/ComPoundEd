@@ -15,6 +15,8 @@ import { checkPetUnlocks } from '../engine/cozy.js';
 import { isRevealed, ratchetReveals, addingReady, takingAwayReady } from '../engine/readiness.js';
 import { WAVES, waveUnlocked, isWaveMastered, subWaveUnlocked, isSubWaveMastered } from '../engine/waves.js';
 import { confetti, escapeHtml, buildNumpad, plural } from '../ui.js';
+import { toysOn } from '../engine/gearshop.js';
+import { toySVG } from '../art/gear.js';
 
 // Daily item themes: the counting objects change with the day — picnic
 // bones today, beach shells tomorrow. Same numbers, fresher world.
@@ -59,6 +61,16 @@ const QUESTIONS_BY_GAME = { count: 5, find: 5, more: 5, tap: 3, feed: 3, shape: 
 const HOSTS = { shape: 'cat-1', pattern: 'turtle-1', next: 'bird-1', add: 'guinea-1' };
 // Adopted friends co-host: the collection pays off in person. Falls back
 // to the classic hosts until friends move in.
+// A host with their toys beside them — the collection (and the store
+// purchase) pays off in person during play.
+function hostArt(profile, host, size = 34) {
+  const toys = toysOn(profile, host.id)
+    .slice(0, 2)
+    .map((id) => toySVG(id, Math.max(16, Math.round(size * 0.45))))
+    .join('');
+  return `${petSVG(host, size)}${toys}`;
+}
+
 function hostFor(profile, g) {
   const adopted = profile.petUnlocks ?? [];
   if (!adopted.length) return getPet(HOSTS[g] ?? 'cat-1');
@@ -403,7 +415,14 @@ export function littleHomeScreen(el, params, ctx) {
   el.innerHTML = `
     <div class="screen little-screen">
       <div class="hero little-hero">
-        <span class="avatar">${buddy.svg(96)}</span>
+        <span class="avatar">${buddy.svg(96)}${
+          toysOn(p, buddy.id).length
+            ? `<span class="buddy-toys">${toysOn(p, buddy.id)
+                .slice(0, 3)
+                .map((id) => toySVG(id, 26))
+                .join('')}</span>`
+            : ''
+        }</span>
         <div>
           <h1>Hi, ${escapeHtml(p.name)}!</h1>
         </div>
@@ -716,10 +735,10 @@ export function littleGameScreen(el, params, ctx) {
       const target = defs[ri(defs.length)];
       // One color for every choice: shape is the only thing that varies.
       const col = SHAPE_COLORS[ri(SHAPE_COLORS.length)];
-      promptEl.innerHTML = `${petSVG(host, 34)} 🔍`;
+      promptEl.innerHTML = `${hostArt(p, host)} 🔍`;
       speak(`Find the ${target.word}!`);
       stageEl.dataset.answer = -1;
-      stageEl.innerHTML = `<div class="host-spot">${petSVG(host, 60)}</div>`;
+      stageEl.innerHTML = `<div class="host-spot">${hostArt(p, host, 60)}</div>`;
       for (const def of defs) {
         choiceButton(shapeSVG(def, col), def === target);
       }
@@ -749,7 +768,7 @@ export function littleGameScreen(el, params, ctx) {
       const seq = stage === 'aab' ? [A, A, B, A, A] : [A, B, A, B];
       const answer = stage === 'aab' ? B : A;
       const wrong = answer === A ? B : A;
-      promptEl.innerHTML = `${petSVG(host, 34)} ➡️❓`;
+      promptEl.innerHTML = `${hostArt(p, host)} ➡️❓`;
       speak('What comes next?');
       stageEl.dataset.answer = -1;
       stageEl.innerHTML = `<div class="pattern-row">${seq
@@ -766,7 +785,7 @@ export function littleGameScreen(el, params, ctx) {
       const host = hostFor(p, 'next');
       const s0 = 1 + ri(Math.max(1, range - 3));
       const answer = s0 + 3;
-      promptEl.innerHTML = `${petSVG(host, 34)} ➡️❓`;
+      promptEl.innerHTML = `${hostArt(p, host)} ➡️❓`;
       speak('What comes next?');
       stageEl.dataset.answer = answer;
       stageEl.innerHTML = `<div class="pattern-row">${[s0, s0 + 1, s0 + 2]
@@ -784,7 +803,7 @@ export function littleGameScreen(el, params, ctx) {
       const b = 1 + ri(maxSum - a);
       const story = forced ? forced === 'story' : ri(10) < 3;
       const item = story ? '🐶' : ITEMS[ri(ITEMS.length)];
-      promptEl.innerHTML = story ? '🏞️ ➕' : `${petSVG(host, 34)} ➕`;
+      promptEl.innerHTML = story ? '🏞️ ➕' : `${hostArt(p, host)} ➕`;
       speak(
         story
           ? `${WORDS[a]} ${plural(a, 'pup')} were playing at the park... ${WORDS[b]} more came! How many now?`

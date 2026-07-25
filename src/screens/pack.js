@@ -42,7 +42,7 @@ export function packScreen(el, params, ctx) {
     box.className = 'card toybox-card';
     box.innerHTML = `<h3 style="margin:0 0 6px">Toy box 🧺</h3>
       <div class="toy-shelf">${boxed.map((id) => `<span class="toy-chip" title="${itemOf(id).name}">${toySVG(id, 40)}</span>`).join('')}</div>
-      <p class="muted" style="font-size:.8rem;margin:6px 0 0">Visit a pup to hand these out!</p>`;
+      <p class="muted" style="font-size:.8rem;margin:6px 0 0">Visit a pup — or a Cozy Corner friend!</p>`;
     el.querySelector('[data-group-slot]').appendChild(box);
   }
 

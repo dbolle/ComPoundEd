@@ -50,6 +50,9 @@ licensing.
   bonds…) with spoken prompts, guided recounts on misses, per-number
   mastery tracking, a Play-next hero tile, and a goal preview for the next
   unlock. Numbers grow 1–5 → 1–10 as they're genuinely known.
+- **Toys & gifts for every friend** — store toys can be handed to pack
+  dogs or Cozy Corner pets (one-tap give chips, no reading), and show up
+  in walks, little-pup games, and on the little home buddy.
 - **Grown-Ups controls** — behind a find-the-primes gate; per-child
   visibility (little/bridge/tables, child-can-switch, hide sitting,
   limit tables), per-track progress, Paw Bucks ledger, speech-voice

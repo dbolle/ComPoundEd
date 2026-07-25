@@ -80,6 +80,11 @@ reconsider after calibration.
   migration collapsed true/false→'auto', so pre-trail manual enables are
   indistinguishable from auto reveals when diagnosing these.
 
+- ~~Little pups can't use the store~~ ✅ resolved v1.29–1.31: store
+  reachable from the Cozy Corner; micro toys (10–15¢) sized to little
+  savings; pets receive toys via corner give-chips. Still open: a
+  little-home piggy swap UI (see parked list).
+
 ## Parked / reconsider later
 
 - Boredom guard: wrong answers faster than ~600ms stop RESETTING little

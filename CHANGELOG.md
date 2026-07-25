@@ -3,6 +3,19 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.31.0 — 2026-07-25
+
+- Cozy Corner friends take toys now: a toy box row at the top of the
+  Corner shows what's waiting, and every adopted friend's card offers a
+  one-tap ➕ chip — tap the toy under a friend to give it to them, tap
+  it again to take it back. No reading needed.
+- Toys pay off in play: a pet's toys sit beside them when they host
+  little-pup games, and the buddy keeps theirs on the little home.
+- Gifts bought for a pet finally show ON the pet (corner cards, the
+  buddy, and the store's "It's yours!" art).
+- Any toy can go to a dog or a pet — micro toys aren't restricted,
+  they're just the cheap end of the shelf.
+
 ## v1.30.0 — 2026-07-25
 
 - Pet sitting no longer disappears for kids who finish: readiness now
