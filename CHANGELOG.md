@@ -3,6 +3,17 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.32.0 — 2026-07-25
+
+- **The Pet Store is open for everyone!** 🏪 Out of beta after its
+  preview run: no flag needed, the pack and Cozy Corner buttons go
+  straight in, and the wallet's coin swaps (buck ↔ quarters/dimes,
+  and the rest) are on for all. The store banner now reads "Buy
+  something for your pet!". Store purchases were always on the real
+  Paw Bucks ledger, so beta-era buys carry over untouched.
+- The 🧪 Beta preview flag stays in Grown-Ups, empty until the next
+  preview feature.
+
 ## v1.31.1 — 2026-07-25
 
 - Leaving the Pet store now lands little pups back in the Cozy Corner

@@ -4,7 +4,6 @@
 
 import { navigate } from '../router.js';
 import { DENOMS, balanceCents, coinCounts, formatPaw, SWAPS, canSwap, swapCoins } from '../engine/money.js';
-import { isBeta } from '../engine/beta.js';
 import { say } from '../sound.js';
 import { escapeHtml } from '../ui.js';
 
@@ -26,9 +25,7 @@ export function walletScreen(el, params, ctx) {
       </div>
       <div class="wallet-rows"></div>
       ${
-        isBeta(p)
-          ? '<button class="btn accent small center" data-store style="align-self:center">🏪 The Pet Store is open!</button>'
-          : '<p class="muted center" style="font-size:.85rem">Saving up? The Pet Store opens soon! 🏪🚧</p>'
+        '<button class="btn accent small center" data-store style="align-self:center">🏪 The Pet Store is open!</button>'
       }
       <div data-swaps></div>
       <p class="muted center" style="font-size:.8rem;margin-top:auto">Paw Bucks are game money — just for fun, never real!</p>
@@ -53,10 +50,10 @@ export function walletScreen(el, params, ctx) {
   }
   el.querySelector('[data-store]')?.addEventListener('click', () => navigate('/store'));
 
-  // Coin swaps (beta): trade coins both ways — ten dimes make a Paw Buck,
-  // and a Paw Buck breaks back into quarters or dimes. Net-zero money,
-  // real place-value practice.
-  if (isBeta(p)) {
+  // Coin swaps: trade coins both ways — ten dimes make a Paw Buck, and a
+  // Paw Buck breaks back into quarters or dimes. Net-zero money, real
+  // place-value practice.
+  {
     const swapsEl = el.querySelector('[data-swaps]');
     const label = (d) => DENOMS.find((x) => x.id === d)?.label ?? d;
     const renderSwaps = () => {
