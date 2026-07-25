@@ -69,6 +69,17 @@ reconsider after calibration.
   canon + reward chips (v1.9.0), echo-first fact intros (v1.11.0), Meet
   the table lessons (v1.12.0) — teach-before-drill now spans the app.
 
+## Prioritized (new)
+
+- **Readiness gates can't see skills proven above them** (Edie case,
+  2026-07-25): `addingReady` only reads little-pup counting skills, so a
+  child onboarded mid-trail (straight into tables) can never auto-qualify
+  for the tracks below — parents must force them on. Options: strength
+  above implies readiness below (any multiplication history satisfies
+  addingReady), or a one-time placement shortcut. Related: the v16
+  migration collapsed true/false→'auto', so pre-trail manual enables are
+  indistinguishable from auto reveals when diagnosing these.
+
 ## Parked / reconsider later
 
 - Boredom guard: wrong answers faster than ~600ms stop RESETTING little

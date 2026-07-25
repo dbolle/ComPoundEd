@@ -50,9 +50,10 @@ licensing.
   bonds…) with spoken prompts, guided recounts on misses, per-number
   mastery tracking, a Play-next hero tile, and a goal preview for the next
   unlock. Numbers grow 1–5 → 1–10 as they're genuinely known.
-- **Grown-Ups controls** — per-child visibility (little/bridge/tables,
-  child-can-switch, hide sitting, limit tables), per-track progress,
-  Paw Bucks ledger, speech-voice picker, backup and export.
+- **Grown-Ups controls** — behind a find-the-primes gate; per-child
+  visibility (little/bridge/tables, child-can-switch, hide sitting,
+  limit tables), per-track progress, Paw Bucks ledger, speech-voice
+  picker, backup and export.
 - **Private by construction** — installable, fully offline PWA; all data stays
   on the device. No accounts, ads, analytics, or network calls.
 - **Family backup (opt-in, off by default)** — Grown-Ups area can back

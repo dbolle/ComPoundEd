@@ -145,12 +145,14 @@ export async function playQuestions(page, maxQuestions, options = {}) {
 }
 
 export async function holdGrownupsGate(page) {
-  await page.waitForSelector('[data-hold]');
-  const box = await (await page.$('[data-hold]')).boundingBox();
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  await page.mouse.down();
-  await page.waitForTimeout(2300);
-  await page.mouse.up();
+  await page.waitForSelector('[data-cell]');
+  const isPrime = (n) => {
+    for (let d = 2; d * d <= n; d++) if (n % d === 0) return false;
+    return n > 1;
+  };
+  const nums = await page.$$eval('[data-cell]', (els) => els.map((e) => Number(e.dataset.cell)));
+  for (const n of nums) if (isPrime(n)) await page.tap(`[data-cell="${n}"]`);
+  await page.tap('[data-gate-check]');
   await page.waitForSelector('.stat-row');
 }
 

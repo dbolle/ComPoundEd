@@ -3,6 +3,16 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.30.0 — 2026-07-25
+
+- Pet sitting no longer disappears for kids who finish: readiness now
+  needs only 6 mastered facts (the old firm-facts requirement emptied
+  out at exactly full mastery — the round builder already composes
+  retention rounds from whatever's there).
+- The Grown-Ups gate is now a 3×3 prime hunt: tap every prime under 50
+  (tricky odd composites like 49 and 39 included), then unlock. A wrong
+  pick deals a fresh grid, so it can't be whittled down by guessing.
+
 ## v1.29.1 — 2026-07-25
 
 - The Pet store moved off the pack grid and into the top button row,

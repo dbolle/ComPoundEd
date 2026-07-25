@@ -69,9 +69,11 @@ export function bucketizeFacts(profile) {
 }
 
 // The baseline: enough solid facts that a sitting round can be mostly wins.
+// Mastered alone decides — requiring firm facts hid sitting from exactly
+// the kids who finish (all boxes 4+ leaves the firm bucket empty), and
+// buildSittingRound already composes sensibly from whatever buckets exist.
 export function sittingReady(profile) {
-  const { firm, mastered } = bucketizeFacts(profile);
-  return mastered.length >= 6 && firm.length >= 3;
+  return bucketizeFacts(profile).mastered.length >= 6;
 }
 
 // 10–20% weak/unknown, 20–30% firm, the rest fully mastered. Rounds start

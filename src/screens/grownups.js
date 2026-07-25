@@ -32,6 +32,30 @@ import { bridgeVisible, tablesVisible, trackState, addingReady } from '../engine
 // 90 distinct normalized facts across tables 1–12 with factors 0–12.
 const TOTAL_FACTS = 90;
 
+// The gate: find every prime in a 3×3 grid — adult math, kid-proof-ish.
+// Composites lean on the prime-looking odd ones (49, 39, 27…), never
+// obvious evens only.
+const GATE_PRIMES = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47];
+const GATE_COMPOSITES = [9, 15, 21, 25, 27, 33, 35, 39, 45, 49, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22];
+
+function buildGateGrid() {
+  const pick = (arr, n) => {
+    const pool = [...arr];
+    const out = [];
+    while (out.length < n) out.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+    return out;
+  };
+  const nPrimes = 2 + Math.floor(Math.random() * 2); // 2–3 primes
+  const primes = pick(GATE_PRIMES, nPrimes);
+  // Tricky odd composites first (they're listed first), topped up randomly.
+  const cells = [...primes, ...pick(GATE_COMPOSITES, 9 - nPrimes)];
+  for (let i = cells.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [cells[i], cells[j]] = [cells[j], cells[i]];
+  }
+  return { cells, primes: new Set(primes) };
+}
+
 // Little Pup progress: shown once the profile has any little activity.
 // 81 = every skill key a little pup can make "known" (streak of 3).
 const LITTLE_SKILL_TOTAL = 130; // + take-away, paths, decades (v1.20.0)
@@ -68,32 +92,44 @@ export function grownupsScreen(el, params, ctx) {
       </div>
       <div class="card center" data-gate>
         <p><strong>Grown-ups only!</strong></p>
-        <p class="muted">Press and hold the bone for 2 seconds.</p>
-        <button class="btn hold-btn" data-hold>🦴 Hold me<span class="fill"></span></button>
+        <p class="muted">Tap every prime number, then unlock.</p>
+        <div class="gate-grid" data-gate-grid></div>
+        <button class="btn" data-gate-check>🔓 Unlock</button>
       </div>
       <div data-panel hidden></div>
     </div>`;
 
   const gate = el.querySelector('[data-gate]');
   const panel = el.querySelector('[data-panel]');
-  const holdBtn = el.querySelector('[data-hold]');
-  const fill = holdBtn.querySelector('.fill');
+  const gridEl = el.querySelector('[data-gate-grid]');
 
-  let timer = null;
-  const startHold = () => {
-    fill.style.transition = 'width 2s linear';
-    fill.style.width = '100%';
-    timer = setTimeout(openPanel, 2000);
+  let gatePrimes;
+  const dealGate = () => {
+    const { cells, primes } = buildGateGrid();
+    gatePrimes = primes;
+    gridEl.innerHTML = cells
+      .map((n) => `<button class="gate-cell" data-cell="${n}" aria-pressed="false">${n}</button>`)
+      .join('');
+    for (const btn of gridEl.querySelectorAll('[data-cell]')) {
+      btn.addEventListener('click', () => {
+        const on = btn.getAttribute('aria-pressed') === 'true';
+        btn.setAttribute('aria-pressed', String(!on));
+        btn.classList.toggle('sel', !on);
+      });
+    }
   };
-  const cancelHold = () => {
-    clearTimeout(timer);
-    fill.style.transition = 'none';
-    fill.style.width = '0%';
-  };
-  holdBtn.addEventListener('pointerdown', startHold);
-  holdBtn.addEventListener('pointerup', cancelHold);
-  holdBtn.addEventListener('pointerleave', cancelHold);
-  holdBtn.addEventListener('contextmenu', (e) => e.preventDefault());
+  dealGate();
+  el.querySelector('[data-gate-check]').addEventListener('click', () => {
+    const picked = [...gridEl.querySelectorAll('[data-cell].sel')].map((b) => Number(b.dataset.cell));
+    const right =
+      picked.length === gatePrimes.size && picked.every((n) => gatePrimes.has(n));
+    if (right) {
+      openPanel();
+    } else {
+      toast('Not quite — new numbers!');
+      dealGate(); // fresh grid: no whittling it down by trial and error
+    }
+  });
 
   function openPanel() {
     const p = ctx.profile;
