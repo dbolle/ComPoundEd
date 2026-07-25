@@ -6,9 +6,11 @@
 import { navigate } from '../router.js';
 import { PETS, petSVG } from '../art/pets.js';
 import { MILESTONES, petForMilestone, isPetAdopted } from '../engine/cozy.js';
-import { escapeHtml } from '../ui.js';
-import { sfx, buzz, cheer } from '../sound.js';
+import { escapeHtml, toast } from '../ui.js';
+import { sfx, buzz, say, cheer } from '../sound.js';
 import { storeButton } from './store.js';
+import { placedOn, toysOn, boxedToys, placeGear, itemOf } from '../engine/gearshop.js';
+import { toySVG } from '../art/gear.js';
 
 const HABITATS = {
   cat: 'Cat Cushion 🛋️',
@@ -32,6 +34,7 @@ export function cornerScreen(el, params, ctx) {
       </div>
       <p class="muted center" style="margin:0">Friends you've made along the way. Tap to say hi!</p>
       <div class="pack-actions" data-actions></div>
+      <div data-toybox></div>
       <div data-habitats></div>
     </div>`;
 
@@ -40,6 +43,17 @@ export function cornerScreen(el, params, ctx) {
   for (const m of MILESTONES) msByPet[petForMilestone(m.id).id] ??= m;
 
   el.querySelector('[data-actions]').appendChild(storeButton(p));
+
+  // Toy box reminder: what's waiting to be handed out. Read-only — the
+  // give chips under each friend below are the mechanic.
+  const boxed = boxedToys(p);
+  if (boxed.length) {
+    el.querySelector('[data-toybox]').innerHTML = `<div class="card toybox-card">
+      <h3 style="margin:0 0 6px">Toy box 🧺</h3>
+      <div class="toy-shelf">${boxed
+        .map((id) => `<span class="toy-chip" title="${itemOf(id).name}">${toySVG(id, 40)}</span>`)
+        .join('')}</div></div>`;
+  }
 
   const wrap = el.querySelector('[data-habitats]');
   for (const [species, title] of Object.entries(HABITATS)) {
@@ -53,10 +67,25 @@ export function cornerScreen(el, params, ctx) {
       const isBuddy = p.avatarPetId === pet.id;
       const card = document.createElement('div');
       card.className = `dog-card${adopted ? '' : ' locked'}${isBuddy ? ' buddy' : ''}`;
+      // gifted gear renders on the pet; toys sit on a shelf under the name
+      const mine = adopted ? toysOn(p, pet.id) : [];
+      const shelf =
+        adopted && (mine.length || boxed.length)
+          ? `<span class="toy-shelf corner-toys">${mine
+              .map(
+                (id) => `<button class="toy-chip has" data-toy-back="${id}" aria-label="Put the ${itemOf(id).name} back in the toy box">${toySVG(id, 32)}</button>`
+              )
+              .join('')}${boxed
+              .map(
+                (id) => `<button class="toy-chip boxed" data-toy-give="${id}" aria-label="Give the ${itemOf(id).name} to ${escapeHtml(pet.name)}">${toySVG(id, 32)}<span class="toy-give">➕</span></button>`
+              )
+              .join('')}</span>`
+          : '';
       card.innerHTML = adopted
         ? `<button class="pet-hello" aria-label="Say hi to ${escapeHtml(pet.name)}">
-             <span class="dog">${petSVG(pet, 76)}</span></button>
+             <span class="dog">${petSVG(pet, 76, placedOn(p, pet.id))}</span></button>
            <span>${escapeHtml(pet.name)}</span>
+           ${shelf}
            <button class="btn ghost small buddy-pick" aria-label="Make ${escapeHtml(pet.name)} your buddy">
              ${isBuddy ? '❤️ My buddy!' : '🤍 Pick me!'}</button>`
         : `<span class="dog">${petSVG(pet, 76)}</span>
@@ -70,6 +99,25 @@ export function cornerScreen(el, params, ctx) {
           sfx.bark();
           buzz(20);
         });
+        for (const btn of card.querySelectorAll('[data-toy-give]')) {
+          btn.addEventListener('click', async () => {
+            const item = itemOf(btn.dataset.toyGive);
+            placeGear(p, item.id, pet.id);
+            await ctx.save();
+            sfx.bark();
+            buzz(20);
+            say(`${pet.name} loves the ${item.name}!`);
+            toast(`${pet.name} loves the ${item.name}! 🎉`);
+            cornerScreen(el, params, ctx);
+          });
+        }
+        for (const btn of card.querySelectorAll('[data-toy-back]')) {
+          btn.addEventListener('click', async () => {
+            placeGear(p, btn.dataset.toyBack, null);
+            await ctx.save();
+            cornerScreen(el, params, ctx);
+          });
+        }
         card.querySelector('.buddy-pick').addEventListener('click', async () => {
           if (p.avatarPetId === pet.id) return;
           p.avatarPetId = pet.id;
