@@ -3,6 +3,13 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.31.1 — 2026-07-25
+
+- Leaving the Pet store now lands little pups back in the Cozy Corner
+  (back button and the beta bounce alike). The pack takes over once a
+  second dog is earned; pet-less fresh profiles still return to the
+  pack rather than an empty corner.
+
 ## v1.31.0 — 2026-07-25
 
 - Cozy Corner friends take toys now: a toy box row at the top of the

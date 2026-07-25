@@ -15,6 +15,15 @@ import { isBeta } from '../engine/beta.js';
 import { confetti, escapeHtml, toast } from '../ui.js';
 import { sfx, buzz, cheer } from '../sound.js';
 
+// Where leaving the store lands: littles (and anyone whose pack is just
+// Biscuit) live in the Cozy Corner; the pack takes over once real dogs
+// are earned. Pet-less fresh profiles still go to the pack — an empty
+// corner would strand them.
+export function storeHome(p) {
+  const dogsUnlocked = DOGS.filter((d) => isUnlocked(p, d.id)).length;
+  return dogsUnlocked <= 1 && p.petUnlocks?.length ? '/corner' : '/pack';
+}
+
 // Compact store entry for the top rows of the pack and Cozy Corner.
 // Beta profiles go shopping; everyone else keeps the anticipation toast.
 export function storeButton(p) {
@@ -42,7 +51,7 @@ export function storeScreen(el, params, ctx) {
   el.innerHTML = `
     <div class="screen">
       <div class="topbar">
-        <button class="btn ghost small" data-back>← Pack</button>
+        <button class="btn ghost small" data-back>← ${storeHome(p) === '/corner' ? 'Cozy Corner' : 'Pack'}</button>
         <span class="spacer"></span>
         <span class="paw-chip" data-balance>${formatPaw(balanceCents(p))}</span>
         <h2 style="margin:0">Pet Store 🏪</h2>
@@ -270,5 +279,5 @@ export function storeScreen(el, params, ctx) {
   }
 
   renderShelves();
-  el.querySelector('[data-back]').addEventListener('click', () => navigate('/pack'));
+  el.querySelector('[data-back]').addEventListener('click', () => navigate(storeHome(p)));
 }

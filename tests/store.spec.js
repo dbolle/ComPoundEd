@@ -143,3 +143,57 @@ test('e2e: a lone Paw Buck cannot make 90¢ — the store sends you to make chan
   await page.tap('[data-swap="0"]'); // break the buck into quarters
   await expect(page.locator('.wallet-row', { hasText: 'Paw Quarter' })).toContainText('×4');
 });
+test('e2e: leaving the store lands littles in the Cozy Corner, dog-earners in the pack', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'networkidle' });
+  const doc = newProfile(uniqueName('LittleShop'));
+  doc.id = 'little-shop-kid';
+  doc.subjects = { ...doc.subjects, little: true, beta: true };
+  doc.petUnlocks.push({ petId: 'cat-1', milestone: 't', at: 1 });
+  await seedProfile(page, doc);
+  await selectProfile(page, doc.name);
+  await page.waitForSelector('.little-hero');
+
+  await page.evaluate(() => { location.hash = '#/store'; });
+  await page.waitForSelector('[data-shelves]');
+  await expect(page.locator('[data-back]')).toContainText('Cozy Corner');
+  await page.tap('[data-back]');
+  await expect(page).toHaveURL(/#\/corner/);
+
+  // beta off: the route guard bounces to the corner too
+  await page.evaluate(async () => {
+    const db = await new Promise((res) => { const r = indexedDB.open('compounded'); r.onsuccess = () => res(r.result); });
+    const doc2 = await new Promise((res) => {
+      const tx = db.transaction('profiles', 'readonly');
+      const rq = tx.objectStore('profiles').get('little-shop-kid');
+      rq.onsuccess = () => res(rq.result);
+    });
+    doc2.subjects.beta = false;
+    await new Promise((res) => { const tx = db.transaction('profiles', 'readwrite'); tx.objectStore('profiles').put(doc2); tx.oncomplete = res; });
+  });
+  await page.reload({ waitUntil: 'networkidle' });
+  // boot may auto-resume onto the pre-reload hash or show the picker
+  await page.waitForSelector('.screen');
+  if (await page.$('.profile-card')) {
+    await selectProfile(page, doc.name);
+  }
+  await page.evaluate(() => { location.hash = '#/home'; });
+  await page.waitForSelector('.little-hero');
+  await page.evaluate(() => { location.hash = '#/store'; });
+  await expect(page).toHaveURL(/#\/corner/);
+
+  // a second unlocked dog flips the exit back to the pack
+  const doc3 = newProfile(uniqueName('BigShop'));
+  doc3.id = 'big-shop-kid';
+  doc3.subjects = { ...doc3.subjects, tables: true, beta: true };
+  doc3.unlocks.push({ dogId: 'dog-2', table: 2, at: 1 });
+  doc3.petUnlocks.push({ petId: 'cat-1', milestone: 't', at: 1 });
+  await seedProfile(page, doc3);
+  await page.evaluate(() => { location.hash = '#/profiles'; });
+  await selectProfile(page, doc3.name);
+  await page.waitForSelector('.hero');
+  await page.evaluate(() => { location.hash = '#/store'; });
+  await page.waitForSelector('[data-shelves]');
+  await expect(page.locator('[data-back]')).toContainText('Pack');
+  await page.tap('[data-back]');
+  await expect(page).toHaveURL(/#\/pack/);
+});

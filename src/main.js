@@ -13,6 +13,7 @@ import {
 } from './data/store.js';
 import { register, startRouter, currentRoute, navigate } from './router.js';
 import { isBeta, BETA_ROUTES } from './engine/beta.js';
+import { storeHome } from './screens/store.js';
 import { pushProfile } from './data/sync.js';
 import { storeScreen } from './screens/store.js';
 import { initPressFeedback } from './ui.js';
@@ -130,7 +131,7 @@ register('/grownups', grownupsScreen);
 // Every screen except profile-select needs an active profile.
 function guard(path) {
   if (!ctx.profile && path !== '/profiles') return '/profiles';
-  if (BETA_ROUTES.includes(path) && !isBeta(ctx.profile)) return '/pack';
+  if (BETA_ROUTES.includes(path) && !isBeta(ctx.profile)) return storeHome(ctx.profile);
   return null;
 }
 
