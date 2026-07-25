@@ -43,7 +43,7 @@ test('e2e: dog page shows reward chips; wardrobe locked swatch speaks on tap', a
   await selectProfile(page, 'Chipper');
   await page.waitForSelector('.hero');
   await page.tap('[data-nav="/pack"]');
-  await page.tap('.dog-card:not(.locked):not(.store-soon)');
+  await page.tap('.dog-card:not(.locked)');
   await page.waitForSelector('.play-stats');
   // 18 walks → chip meters toward the blue (25) bandana
   expect(await page.$$eval('.reward-chip', (els) => els.length)).toBe(4); // walks/meals/fetches + collar training

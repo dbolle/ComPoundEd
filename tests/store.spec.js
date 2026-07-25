@@ -55,7 +55,7 @@ test('e2e: non-beta profiles are redirected and keep the teaser', async ({ page 
   await page.evaluate(() => { location.hash = '#/store'; });
   await page.waitForSelector('.pack-grid'); // bounced to /pack
   await expect(page).toHaveURL(/#\/pack/);
-  await expect(page.locator('.store-soon')).toContainText('Opening soon');
+  await expect(page.locator('.store-btn')).toContainText('🚧');
 });
 
 test('e2e: the grown-ups 🧪 chip opens the store; full checkout buys the bowl and a gift', async ({ page }) => {
@@ -78,9 +78,9 @@ test('e2e: the grown-ups 🧪 chip opens the store; full checkout buys the bowl 
 
   // pack tile is open now
   await page.evaluate(() => { location.hash = '#/pack'; });
-  await page.waitForSelector('.store-soon');
-  await expect(page.locator('.store-soon')).toContainText('Open!');
-  await page.tap('.store-soon');
+  await page.waitForSelector('.store-btn');
+  await expect(page.locator('.store-btn')).not.toContainText('🚧');
+  await page.tap('.store-btn');
   await page.waitForSelector('[data-shelves]');
   // shelves show the real accessory art, not emoji stand-ins
   await expect(page.locator('[data-item="crown"] svg[data-gear="crown"]')).toBeVisible();

@@ -8,6 +8,7 @@ import { PETS, petSVG } from '../art/pets.js';
 import { MILESTONES, petForMilestone, isPetAdopted } from '../engine/cozy.js';
 import { escapeHtml } from '../ui.js';
 import { sfx, buzz, cheer } from '../sound.js';
+import { storeButton } from './store.js';
 
 const HABITATS = {
   cat: 'Cat Cushion 🛋️',
@@ -30,12 +31,15 @@ export function cornerScreen(el, params, ctx) {
         <h2 style="margin:0">Cozy Corner 🏡</h2>
       </div>
       <p class="muted center" style="margin:0">Friends you've made along the way. Tap to say hi!</p>
+      <div class="pack-actions" data-actions></div>
       <div data-habitats></div>
     </div>`;
 
   // Which milestone earns each pet (for the ??? hint on locked ones).
   const msByPet = {};
   for (const m of MILESTONES) msByPet[petForMilestone(m.id).id] ??= m;
+
+  el.querySelector('[data-actions]').appendChild(storeButton(p));
 
   const wrap = el.querySelector('[data-habitats]');
   for (const [species, title] of Object.entries(HABITATS)) {

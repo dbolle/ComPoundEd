@@ -1114,13 +1114,19 @@ button.pressed {
   box-shadow: inset 0 0 0 2px var(--brand);
 }
 
-/* Pet Store teaser tile (remove with the pack.js block to roll back) */
-.dog-card.store-soon {
-  border-bottom-style: dashed;
-  border-bottom-color: #d9a520;
+/* Top-row buttons on the pack and Cozy Corner (incl. the Pet store) */
+.pack-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
 }
 
-.dog-card.store-soon .dog.wiggle {
+.pack-actions:empty {
+  display: none;
+}
+
+.store-btn.wiggle {
   animation: store-wiggle 0.5s ease-in-out;
 }
 
