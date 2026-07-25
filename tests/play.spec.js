@@ -65,6 +65,11 @@ test('group play rotates askers, questions match the asking dog', async ({ page 
   expect(await page.$eval('[data-start]', (e) => e.disabled)).toBe(true);
   await page.tap('.dog-card:has-text("Daisy")');
   await page.tap('.dog-card:has-text("Scout")');
+  // pin the selection before starting — a ghost double-toggle here once
+  // sent the round out with the wrong dogs and only the play-credit
+  // assertions caught it
+  await expect(page.locator('[data-dog="dog-2"].selected')).toBeVisible();
+  await expect(page.locator('[data-dog="dog-7"].selected')).toBeVisible();
   await page.tap('[data-start]');
   await page.waitForSelector('.activity-scene');
   expect(await page.$$eval('.mover', (els) => els.length)).toBe(2);
