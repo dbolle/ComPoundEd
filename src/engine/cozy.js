@@ -57,6 +57,9 @@ export const MILESTONES = [
   // first via `sort`.
   { id: 'count3', kind: 'little', label: 'First counts (1–3)', sort: -2, earned: (p) => rangeKnown(p, 'count', 1, 3), prog: (p) => rangeProg(p, 'count', 1, 3) },
   { id: 'count5', kind: 'little', label: 'Counting to five', sort: -1, earned: (p) => rangeKnown(p, 'count', 1, 5), prog: (p) => rangeProg(p, 'count', 1, 5) },
+  // v1.35.0 — appended (never inserted): Trace it! adopts PETS[23], the
+  // first of the three pets that previously had no earning path.
+  { id: 'trace', kind: 'little', label: 'Writing numbers 1–9', earned: (p) => rangeKnown(p, 'trace', 1, 9), prog: (p) => rangeProg(p, 'trace', 1, 9) },
 ];
 
 // Can this profile ever earn this milestone? Little-skill milestones need
@@ -118,6 +121,7 @@ const GOALS_BY_GAME = {
   type: ['type'],
   taway: ['taway'],
   paths: ['paths'],
+  trace: ['trace'],
 };
 export function gameGoal(profile, game) {
   const owned = new Set((profile.petUnlocks ?? []).map((u) => u.milestone));

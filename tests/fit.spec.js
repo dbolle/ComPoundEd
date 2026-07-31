@@ -124,7 +124,7 @@ test('worst case: every little game keeps all items inside a 390×600 phone', as
     });
 
   // drive each sizeable game to its biggest question (bounded retries)
-  for (const game of ['count', 'find', 'add', 'teen', 'look', 'feed', 'taway', 'bond']) {
+  for (const game of ['count', 'find', 'add', 'teen', 'look', 'feed', 'taway', 'bond', 'trace']) {
     let biggest = false;
     for (let i = 0; i < 45 && !biggest; i++) {
       await page.evaluate((gm) => { location.hash = `#/little?game=${gm}${gm === 'bond' ? '&v=cup' : ''}`; }, game);
@@ -141,7 +141,9 @@ test('worst case: every little game keeps all items inside a 390×600 phone', as
               ? items >= 9
               : game === 'bond'
                 ? n >= 8 // biggest cup (spans 3) alongside its bones
-                : n >= 9 || Number.isNaN(n);
+                : game === 'trace'
+                  ? true // one fixed-size guide — any digit is the biggest
+                  : n >= 9 || Number.isNaN(n);
       if (biggest) {
         const bad = await offscreen();
         expect(bad, `${game} n=${n}: ${bad.join(' | ')}`).toEqual([]);

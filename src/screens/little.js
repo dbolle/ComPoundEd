@@ -12,6 +12,7 @@ import { sfx, buzz, say, cheer } from '../sound.js';
 import { earnSkillKnown, balanceCents, formatPaw } from '../engine/money.js';
 import { avatarFor } from '../art/avatar.js';
 import { checkPetUnlocks, nextPetGoal, gameGoal } from '../engine/cozy.js';
+import { digitGuideSVG, tracePasses, traceCoverage } from '../art/digits.js';
 import { isRevealed, ratchetReveals, addingReady, takingAwayReady } from '../engine/readiness.js';
 import { WAVES, waveUnlocked, isWaveMastered, subWaveUnlocked, isSubWaveMastered } from '../engine/waves.js';
 import { confetti, escapeHtml, buildNumpad, plural } from '../ui.js';
@@ -53,8 +54,9 @@ export const FOOD_BY_SPECIES = {
 const foodFor = (buddy) => (buddy.kind === 'pet' ? FOOD_BY_SPECIES[buddy.species] ?? '🥕' : '🦴');
 const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 const STARS = ['⭐', '🌟', '🎉', '🐾'];
-const KIND_BY_GAME = { count: 'fetch', find: 'walk', more: 'feed', tap: 'fetch', feed: 'feed', shape: 'walk', pattern: 'feed', next: 'walk', add: 'fetch', look: 'walk', bond: 'feed', teen: 'fetch', type: 'walk', taway: 'feed', paths: 'fetch', surprise: 'fetch' };
-const QUESTIONS_BY_GAME = { count: 5, find: 5, more: 5, tap: 3, feed: 3, shape: 5, pattern: 5, next: 5, add: 5, look: 5, bond: 5, teen: 5, type: 5, taway: 5, paths: 5, surprise: 5 };
+const KIND_BY_GAME = { count: 'fetch', find: 'walk', more: 'feed', tap: 'fetch', feed: 'feed', shape: 'walk', pattern: 'feed', next: 'walk', add: 'fetch', look: 'walk', bond: 'feed', teen: 'fetch', type: 'walk', taway: 'feed', paths: 'fetch', trace: 'walk', surprise: 'fetch' };
+// trace rounds are shorter: a careful finger-trace takes a 3yo ~4× a tap
+const QUESTIONS_BY_GAME = { count: 5, find: 5, more: 5, tap: 3, feed: 3, shape: 5, pattern: 5, next: 5, add: 5, look: 5, bond: 5, teen: 5, type: 5, taway: 5, paths: 5, trace: 4, surprise: 5 };
 
 // New species from the pet pool host the non-counting games — a pre-reader
 // navigates by which animal, not by words.
@@ -107,7 +109,7 @@ function ensureLittle(profile) {
 // Choice games record per-number skills; a number is "known" after three
 // first-try corrects in a row (a guesser fakes that 3.7% of the time, vs 33%
 // per question). Tap & feed stay error-less joy — they never feed the signal.
-const SKILL_GAMES = new Set(['count', 'find', 'more', 'next', 'add', 'look', 'bond', 'teen', 'feed', 'type', 'taway', 'paths']);
+const SKILL_GAMES = new Set(['count', 'find', 'more', 'next', 'add', 'look', 'bond', 'teen', 'feed', 'type', 'taway', 'paths', 'trace']);
 // Two-choice games are guessable 50/50 — they need a longer streak to
 // count as knowing (12.5% → 6% fake odds).
 const STREAK_NEEDED = { more: 4 };
@@ -115,7 +117,7 @@ const STREAK_NEEDED = { more: 4 };
 // starts at 4…) — bands only wait on reachable keys.
 const SKILL_DOMAIN = {
   count: [1, 10], find: [1, 10], look: [1, 10], feed: [1, 10],
-  more: [2, 10], next: [4, 10], add: [2, 10], type: [1, 19], taway: [0, 9],
+  more: [2, 10], next: [4, 10], add: [2, 10], type: [1, 19], taway: [0, 9], trace: [1, 9],
 };
 
 // Does this game still have numbers to learn? Drives the Play-next pick.
@@ -156,6 +158,7 @@ export function littleSuggestNext(profile, readyTiles) {
 // cheer doesn't wear out.
 const PRAISE_BY_GAME = {
   surprise: ['Surprise superstar!', 'You can play anything!'],
+  trace: ['Number writer!', 'You traced it just right!'],
   taway: ['Take-away champion!', 'You knew how many were left!'],
   paths: ['Path finder! Amazing!', 'You hopped the whole path!'],
   type: ['Typing champion!', 'You typed it just right!'],
@@ -336,6 +339,18 @@ function tiles(p, buddy) {
       art: `<span class="tile-art">⌨️</span><span class="tile-mark">1️⃣4️⃣</span>`,
     },
     {
+      game: 'trace',
+      minXp: 0,
+      ready: (p) => knowsRange(p.little ?? {}, 'count', 1, 5),
+      gate: (p) => ({
+        icon: '🖐️',
+        have: [1, 2, 3, 4, 5].filter((n) => knows(p.little ?? {}, 'count', n)).length,
+        need: 5,
+      }),
+      caption: 'Trace it!',
+      art: `<span class="tile-art">✏️</span><span class="tile-mark">1️⃣2️⃣3️⃣</span>`,
+    },
+    {
       game: 'teen',
       minXp: 0,
       ready: (p) => knowsRange(p.little ?? {}, 'bond10', 0, 10),
@@ -418,6 +433,7 @@ const GOALS_GAME_BY_MILESTONE = {
   type: 'type',
   taway: 'taway',
   paths: 'paths',
+  trace: 'trace',
 };
 
 export function littleHomeScreen(el, params, ctx) {
@@ -916,6 +932,62 @@ export function littleGameScreen(el, params, ctx) {
         entry.textContent = input || ' ';
         buzz(10);
       });
+    } else if (g === 'trace') {
+      // Trace it!: numeral formation. The digit is a thick finger-wide
+      // guide with a green GO dot; strokes accumulate until they cover
+      // most of the guide (gentle judge — wobbles welcome, no order
+      // rules, no wrong answers: an incomplete trace just keeps going).
+      const range = rangeFor(p, 'trace');
+      const n =
+        forced && /^[1-9]$/.test(forced) ? Number(forced) : 1 + ri(Math.min(9, range));
+      promptEl.textContent = '✏️';
+      speak(`Trace the ${WORDS[n]}!`);
+      stageEl.dataset.answer = n;
+      stageEl.innerHTML = `<div class="trace-wrap">${digitGuideSVG(n, 260)}</div>`;
+      const svg = stageEl.querySelector('.trace-svg');
+      const SVGNS = 'http://www.w3.org/2000/svg';
+      const pts = [];
+      let poly = null;
+      let drawing = false;
+      const toLocal = (e) => {
+        const r = svg.getBoundingClientRect();
+        return [((e.clientX - r.left) / r.width) * 100, ((e.clientY - r.top) / r.height) * 100];
+      };
+      const extend = (e) => {
+        const pt = toLocal(e);
+        pts.push(pt);
+        poly.setAttribute('points', `${poly.getAttribute('points')} ${pt[0].toFixed(1)},${pt[1].toFixed(1)}`);
+      };
+      svg.addEventListener('pointerdown', (e) => {
+        if (busy || performance.now() < inputReadyAt) return;
+        e.preventDefault();
+        drawing = true;
+        svg.setPointerCapture(e.pointerId);
+        poly = document.createElementNS(SVGNS, 'polyline');
+        poly.setAttribute('class', 'trace-line');
+        poly.setAttribute('points', '');
+        svg.appendChild(poly);
+        extend(e);
+      });
+      svg.addEventListener('pointermove', (e) => {
+        if (!drawing || busy) return;
+        e.preventDefault();
+        extend(e);
+      });
+      const finishStroke = () => {
+        if (!drawing) return;
+        drawing = false;
+        if (busy) return;
+        if (tracePasses(n, pts)) {
+          svg.classList.add('trace-done');
+          celebrate(null);
+        } else if (traceCoverage(n, pts) > 0.25) {
+          fbEl.textContent = '🐾';
+          say('Keep going!');
+        }
+      };
+      svg.addEventListener('pointerup', finishStroke);
+      svg.addEventListener('pointercancel', finishStroke);
     } else if (g === 'taway') {
       // Take away!: the concrete stage of subtraction — n bones, some hop
       // away before their eyes, how many are left?

@@ -57,6 +57,9 @@ licensing.
 - **Toys & gifts for every friend** — store toys can be handed to pack
   dogs or Cozy Corner pets (one-tap give chips, no reading), and show up
   in walks, little-pup games, and on the little home buddy.
+- **Trace it! ✏️** — little pups learn to write the numbers 1–9 by
+  finger-tracing a big friendly guide (gentle judging, no wrong
+  answers); mastering all nine adopts a new Cozy Corner friend.
 - **Grown-Ups controls** — behind a find-the-primes gate; per-child
   visibility (little/bridge/tables, child-can-switch, hide sitting,
   limit tables), per-track progress, Paw Bucks ledger, speech-voice

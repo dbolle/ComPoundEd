@@ -3,6 +3,18 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.35.0 — 2026-07-31
+
+- **Trace it! ✏️** — a new little-pup game for writing the numbers 1–9.
+  The digit appears as a thick finger-wide guide with a green GO dot;
+  the child traces it with a finger (wobbles welcome — the judge is
+  gentle and there are no wrong answers, an incomplete trace just hears
+  "Keep going!"). Unlocks once counting to five is strong; rounds are
+  4 traces. Tracing all nine digits adopts a brand-new cozy friend —
+  the first of the three pets that previously had no way to be earned.
+- Kid-visible strings for the game follow the vocabulary canon
+  ("Trace it!", spoken prompts like "Trace the three!").
+
 ## v1.34.0 — 2026-07-31
 
 - Little pups now SEE why right answers matter: a next-friend meter (the

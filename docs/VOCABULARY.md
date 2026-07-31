@@ -12,6 +12,7 @@ Two registers. Every new string picks one and sticks to its column.
 | earning a dog/pet | **adopt** / **moved in** | unlocked |
 | currency | **Paw Bucks**, paw penny/nickel/dime/quarter | same (never "money") |
 | activity counters | **walks / meals / fetches / plays** | same |
+| numeral formation | **Trace it!** ✏️ ("Trace the three!") | digit tracing 1–9 |
 | tracks | Adding ➕ / Taking away ➖ / tables ×÷ | addition / subtraction facts |
 | little-pup progress | stars, "known" numbers stay invisible | numbers known (streak ≥ 3) |
 | pre-quiz teaching | **Meet the ×7s** 👋, "tricks" the dog shows | lesson (Baroody counting/deriving) |
