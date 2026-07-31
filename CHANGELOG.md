@@ -3,6 +3,27 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.37.0 — 2026-08-01
+
+Hardening wave R2/6: the client side of family backup gets defensive.
+
+- Anything arriving from the server or a file import is now validated
+  before it can touch stored data: malformed documents and
+  future-schema documents are skipped safely (and never overwritten on
+  the server); one bad file can no longer silently stop the whole
+  family's sync. Documents up to the full 4MB server limit are
+  supported; unknown fields always survive migration.
+- Sync heals on CONTENT, not timestamps: a server copy with a newer
+  save time but missing this device's progress now receives the full
+  union (the "stranded progress" audit case).
+- Backup reporting is honest: "Backed up 💾" appears only when every
+  write actually succeeded; a failed listing is treated as
+  offline — never as "the server has no profiles" (which used to risk
+  blind re-pushes).
+- Fixed: changing "limit tables" in Grown-Ups now survives merges from
+  devices that haven't seen the change yet (same fix subjects/avatar
+  got in v1.33.0).
+
 ## v1.36.0 — 2026-08-01
 
 Reliability & security hardening wave, release 1 of 6 (external audit

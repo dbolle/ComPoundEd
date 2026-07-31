@@ -44,28 +44,39 @@ export async function remoteBackupCount() {
   }
 }
 
+// Live profiles can legitimately reach ~4MB (long Paw Bucks ledgers) —
+// the cap matches the server's client_max_body_size, no lower.
+const MAX_DOC_BYTES = 4 * 1024 * 1024;
+
+// Transport status matters: a failed LISTING is not an empty server —
+// callers must never treat unseen profiles as remotely absent.
 export async function pullProfiles() {
+  let listing;
   try {
     const res = await fetch(SYNC_BASE, {
       headers: { Accept: 'application/json' },
       signal: signal(),
     });
-    if (!res.ok) return [];
-    const listing = await res.json();
-    const out = [];
-    for (const f of listing) {
-      if (!f.name || !f.name.endsWith('.json')) continue;
-      try {
-        const r = await fetch(SYNC_BASE + f.name, { signal: signal() });
-        if (r.ok) out.push(await r.json());
-      } catch {
-        /* skip unreadable entries */
-      }
-    }
-    return out;
+    if (!res.ok) return { ok: false, docs: [] };
+    listing = await res.json();
+    if (!Array.isArray(listing)) return { ok: false, docs: [] };
   } catch {
-    return [];
+    return { ok: false, docs: [] };
   }
+  const docs = [];
+  for (const f of listing) {
+    if (!f.name || !f.name.endsWith('.json')) continue;
+    try {
+      const r = await fetch(SYNC_BASE + f.name, { signal: signal() });
+      if (!r.ok) continue;
+      const text = await r.text();
+      if (text.length > MAX_DOC_BYTES) continue; // pathological file — skip, never parse
+      docs.push(JSON.parse(text));
+    } catch {
+      /* skip unreadable entries */
+    }
+  }
+  return { ok: true, docs };
 }
 
 export async function deleteRemoteProfile(id) {
