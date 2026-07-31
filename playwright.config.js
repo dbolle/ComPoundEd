@@ -17,6 +17,11 @@ function lanIP() {
 
 const HOST = process.env.TEST_HOST ?? lanIP();
 const PORT = 4180;
+// @secure-tagged specs (service worker, offline, some privacy checks) need
+// a secure context (SWs don't register on a plain LAN-IP origin). The
+// default run excludes them; TEST_HOST=127.0.0.1 ONLY_SECURE=1 runs only
+// them. CI runs both lanes (see .github/workflows/pages.yml).
+const SECURE_CTX = HOST === '127.0.0.1' || HOST === 'localhost';
 
 // Prefer the preinstalled browser build; falls back to Playwright's default
 // resolution if it isn't there.
@@ -25,6 +30,8 @@ const chromiumPath = `${homedir()}/.cache/ms-playwright/chromium-1228/chrome-lin
 export default defineConfig({
   testDir: './tests',
   timeout: 120_000,
+  grep: process.env.ONLY_SECURE ? /@secure/ : undefined,
+  grepInvert: SECURE_CTX && process.env.ONLY_SECURE ? undefined : /@secure/,
   fullyParallel: false,
   workers: 2,
   reporter: [['list']],

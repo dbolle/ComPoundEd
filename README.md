@@ -60,6 +60,11 @@ licensing.
 - **Trace it! ✏️** — little pups learn to write the numbers 1–9 by
   finger-tracing a big friendly guide (gentle judging, no wrong
   answers); mastering all nine adopts a new Cozy Corner friend.
+- **CI-gated deploys** — GitHub Pages deploys only after the full test
+  suite passes on an insecure origin AND the service-worker/offline
+  specs pass on a secure one. Developers: run `npm run setup-hooks`
+  once to enable the pre-push gate (private-term scan + kid-data
+  preservation specs).
 - **Grown-Ups controls** — behind a find-the-primes gate; per-child
   visibility (little/bridge/tables, child-can-switch, hide sitting,
   limit tables), per-track progress, Paw Bucks ledger, speech-voice

@@ -7,9 +7,9 @@ reconsider after calibration.
 
 ## Where we are
 
-- **v1.12.1**, schema v13, 154-test suite green, deployed on LAN
-  (https://compounded.lan + :8091) + GitHub Pages; versions in Grown-Ups
-  footer, releases in CHANGELOG.md.
+- **v1.36.x**, schema v17 (saves v17), 220+-test suite green, deployed
+  on LAN (https://compounded.lan + :8091) + GitHub Pages (CI-gated);
+  versions in Grown-Ups footer, releases in CHANGELOG.md.
 - Big-kid mode: ×1–12 and ÷ tracks (Leitner, adaptive speed bar, hints,
   achievements, heatmap), 25 dogs + wardrobe + grooming + reward chips,
   echo-first fact intros, "Meet the table" lessons (👋 from any table
@@ -40,8 +40,8 @@ reconsider after calibration.
    crown/tiara aspirational ≈ a month); checkout lines are real ×5/×10
    facts, totals are addition; spends = negative ledger txns; nothing
    expires, no sales pressure.
-4. **Phase 5 — Bridge tracks 1–2 (Little Pup → big kid)** — IN PROGRESS
-   — ✅ SHIPPED v1.1.0–v1.3.0 (parent controls, Adding waves, Track 1 tiles, piggy bank, Cozy Corner; plan: docs/PHASE5.md). Quick Look
+4. **Phase 5 — Bridge tracks 1–2 (Little Pup → big kid)** — ✅ SHIPPED
+   v1.1.0–v1.3.0 (parent controls, Adding waves, Track 1 tiles, piggy bank, Cozy Corner; plan: docs/PHASE5.md). Quick Look
    subitizing (ten-frame flash → numpad), number bonds of 5/10, teen
    numbers, then addition facts within 20 rolled out in strategy waves
    (+0/+1/+2 → doubles → make-ten → near-doubles → rest) with hints,
@@ -49,11 +49,17 @@ reconsider after calibration.
    visibility controls in Grown-Ups ride along** (subjects config:
    which tracks a child sees, childCanSwitch, hide-sitting,
    limit-tables).
-5. **Phase 6 — Taking Away + connectors** — IN PROGRESS (docs/PHASE6.md;
-   COMPLETE: engine v1.6.0, pets v1.7.0, connectors v1.8.0).
-6. **Phase 7 — Money math track.** Coin counting (2.MD.8), read-your-own
+5. **Phase 6 — Taking Away + connectors** — ✅ SHIPPED (docs/PHASE6.md;
+   engine v1.6.0, pets v1.7.0, connectors v1.8.0).
+6. **Reliability & security hardening — CURRENT WAVE (v1.36–v1.41,
+   BEFORE Phase 7).** Audit remediation: CI-gated deploys + privacy
+   tests (v1.36); ingest validation + structured sync results (v1.37);
+   sync sidecar with conditional writes + family key (v1.38); durable
+   delete/restore/purge lifecycle (v1.39); convergent economy replay
+   (v1.40); storage reconciliation + mid-trail readiness fix (v1.41).
+7. **Phase 7 — Money math track.** Coin counting (2.MD.8), read-your-own
    wallet, totals and change — Paw Bucks becomes curriculum.
-7. **Phase 8 — Beyond.** Fraction equivalence recognition first (highest
+8. **Phase 8 — Beyond.** Fraction equivalence recognition first (highest
    predictive value), then mental math within 100/1000, 10-more/less,
    squares/primes.
 

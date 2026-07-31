@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# Compounded pre-push gate:
+#  1) no private terms (kid names, private hosts) in outgoing commits
+#  2) the kid-data preservation specs must pass
+# Install with: npm run setup-hooks
+set -euo pipefail
+
+TERMS_FILE="$HOME/.config/compounded/private-terms"
+if [ ! -f "$TERMS_FILE" ]; then
+  echo "pre-push: missing $TERMS_FILE (one private term per line)." >&2
+  echo "This gate fails closed — create the file, then push again." >&2
+  exit 1
+fi
+
+ZERO=0000000000000000000000000000000000000000
+while read -r _local_ref local_sha _remote_ref remote_sha; do
+  [ "$local_sha" = "$ZERO" ] && continue # branch deletion
+  if [ "$remote_sha" = "$ZERO" ]; then range="$local_sha"; else range="$remote_sha..$local_sha"; fi
+  while IFS= read -r term; do
+    [ -z "$term" ] && continue
+    if git log --format='%B' "$range" | grep -qiF -- "$term"; then
+      echo "pre-push: a private term appears in an outgoing COMMIT MESSAGE ($range)." >&2
+      echo "Reword the commit before pushing (the term itself is not echoed here)." >&2
+      exit 1
+    fi
+    if git diff "$remote_sha" "$local_sha" 2>/dev/null | grep -qiF -- "$term"; then
+      echo "pre-push: a private term appears in the outgoing DIFF ($range)." >&2
+      exit 1
+    fi
+  done < "$TERMS_FILE"
+done
+
+echo "pre-push: private-term scan clean; running preservation specs…"
+npm run build >/dev/null 2>&1
+npx playwright test tests/migration.spec.js tests/synctrust.spec.js
