@@ -1157,6 +1157,44 @@ button.pressed {
   gap: 2px;
 }
 
+/* Trace it!: the digit guide and the child's stroke */
+.trace-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.trace-svg {
+  touch-action: none;
+  background: var(--card);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+}
+
+.trace-guide {
+  stroke: #e7d9bf;
+  stroke-width: 13;
+}
+
+.trace-start {
+  fill: #34d399;
+}
+
+.trace-line {
+  fill: none;
+  stroke: #f59e0b;
+  stroke-width: 7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.trace-done .trace-guide {
+  stroke: #a7f3d0;
+}
+
+.trace-done .trace-line {
+  stroke: #10b981;
+}
+
 /* Next-friend goal: the in-game chip and the little-home card. The pet
    stays a dim silhouette until adopted; only correct answers move the
    meter (pop = a number newly known, nudge = the paw stamp). */
