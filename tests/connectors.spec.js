@@ -29,6 +29,7 @@ test('suggest ranks bridge waves with tables; tables-off yields wave suggestions
 
 test('nextPetGoal surfaces the easy first friends before Quick Look', () => {
   const p = newProfile('Goal');
+  p.subjects = { ...p.subjects, little: true }; // v1.34: goals are reachability-gated
   const g = nextPetGoal(p);
   expect(g.label).toContain('First counts');
   p.petUnlocks = [

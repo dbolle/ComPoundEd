@@ -4,7 +4,8 @@
 // warm without adding workload. One pet per milestone, in catalog order.
 
 import { PETS } from '../art/pets.js';
-import { isWaveMastered, isSubWaveMastered, WAVES } from './waves.js';
+import { isWaveMastered, isSubWaveMastered, WAVES, waveProgress, subWaveProgress } from './waves.js';
+import { bridgeVisible } from './readiness.js';
 
 const KNOWN_STREAK = 3;
 const known = (p, key) => (p.little?.skills?.[key]?.streak ?? 0) >= KNOWN_STREAK;
@@ -12,34 +13,59 @@ const rangeKnown = (p, game, lo, hi) => {
   for (let n = lo; n <= hi; n++) if (!known(p, `${game}:${n}`)) return false;
   return true;
 };
+const rangeProg = (p, game, lo, hi) => {
+  let have = 0;
+  for (let n = lo; n <= hi; n++) if (known(p, `${game}:${n}`)) have += 1;
+  return { have, need: hi - lo + 1 };
+};
 
 // Milestone order = adoption order; PETS[i] is the pet for MILESTONES[i].
 export const MILESTONES = [
-  { id: 'look', label: 'Quick Look 1–10', earned: (p) => rangeKnown(p, 'look', 1, 10) },
-  { id: 'bond5', label: 'Number friends of 5', earned: (p) => rangeKnown(p, 'bond5', 0, 5) },
-  { id: 'bond10', label: 'Number friends of 10', earned: (p) => rangeKnown(p, 'bond10', 0, 10) },
-  { id: 'teen', label: 'Teen numbers', earned: (p) => rangeKnown(p, 'teen', 1, 9) },
+  // kind: 'little' milestones read little-pup skills; 'waves' read the
+  // adding/taking-away tracks. prog() feeds the next-friend meter.
+  { id: 'look', kind: 'little', label: 'Quick Look 1–10', earned: (p) => rangeKnown(p, 'look', 1, 10), prog: (p) => rangeProg(p, 'look', 1, 10) },
+  { id: 'bond5', kind: 'little', label: 'Number friends of 5', earned: (p) => rangeKnown(p, 'bond5', 0, 5), prog: (p) => rangeProg(p, 'bond5', 0, 5) },
+  { id: 'bond10', kind: 'little', label: 'Number friends of 10', earned: (p) => rangeKnown(p, 'bond10', 0, 10), prog: (p) => rangeProg(p, 'bond10', 0, 10) },
+  { id: 'teen', kind: 'little', label: 'Teen numbers', earned: (p) => rangeKnown(p, 'teen', 1, 9), prog: (p) => rangeProg(p, 'teen', 1, 9) },
   ...WAVES.map((w, i) => ({
     id: `w${w.id}`,
+    kind: 'waves',
     label: `${w.name} adding`,
     earned: (p) => isWaveMastered(p, i),
+    prog: (p) => {
+      const x = waveProgress(p, i);
+      return { have: x.done, need: x.total };
+    },
   })),
   ...WAVES.map((w, i) => ({
     id: `s${w.id}`,
+    kind: 'waves',
     label: `${w.name} taking away`,
     earned: (p) => isSubWaveMastered(p, i),
+    prog: (p) => {
+      const x = subWaveProgress(p, i);
+      return { have: x.done, need: x.total };
+    },
   })),
   // Appended (never inserted): milestone→pet mapping is positional and
   // must stay deterministic across app versions and devices.
-  { id: 'type', label: 'Type it! 1–10', earned: (p) => rangeKnown(p, 'type', 1, 10) },
-  { id: 'taway', label: 'Take away!', earned: (p) => rangeKnown(p, 'takeaway', 1, 8) },
-  { id: 'paths', label: 'Counting paths (2s, 5s, 10s)', earned: (p) => [2, 5, 10].every((t) => known(p, `path:${t}`)) },
+  { id: 'type', kind: 'little', label: 'Type it! 1–10', earned: (p) => rangeKnown(p, 'type', 1, 10), prog: (p) => rangeProg(p, 'type', 1, 10) },
+  { id: 'taway', kind: 'little', label: 'Take away!', earned: (p) => rangeKnown(p, 'takeaway', 1, 8), prog: (p) => rangeProg(p, 'takeaway', 1, 8) },
+  { id: 'paths', kind: 'little', label: 'Counting paths (2s, 5s, 10s)', earned: (p) => [2, 5, 10].every((t) => known(p, `path:${t}`)), prog: (p) => ({ have: [2, 5, 10].filter((t) => known(p, `path:${t}`)).length, need: 3 }) },
   // Early friends: the first pets arrive FAST so correct answers and new
   // friends connect from day one. Appended (mapping stability); surfaced
   // first via `sort`.
-  { id: 'count3', label: 'First counts (1–3)', sort: -2, earned: (p) => rangeKnown(p, 'count', 1, 3) },
-  { id: 'count5', label: 'Counting to five', sort: -1, earned: (p) => rangeKnown(p, 'count', 1, 5) },
+  { id: 'count3', kind: 'little', label: 'First counts (1–3)', sort: -2, earned: (p) => rangeKnown(p, 'count', 1, 3), prog: (p) => rangeProg(p, 'count', 1, 3) },
+  { id: 'count5', kind: 'little', label: 'Counting to five', sort: -1, earned: (p) => rangeKnown(p, 'count', 1, 5), prog: (p) => rangeProg(p, 'count', 1, 5) },
 ];
+
+// Can this profile ever earn this milestone? Little-skill milestones need
+// the little games; wave milestones need the adding/taking-away track.
+// Locked-pet cards, goal cards, and meters all agree through this.
+export function milestoneReachable(p, m) {
+  if (m.kind === 'little') return p.subjects?.little === true;
+  return bridgeVisible(p);
+}
 
 export function petForMilestone(msId) {
   const i = MILESTONES.findIndex((m) => m.id === msId);
@@ -66,11 +92,38 @@ export function checkPetUnlocks(profile) {
   return fresh;
 }
 
-// The first milestone not yet earned — the "next friend" goal card.
+const goalInfo = (profile, m) =>
+  m
+    ? { id: m.id, pet: petForMilestone(m.id), label: m.label, ...(m.prog ? m.prog(profile) : {}) }
+    : null;
+
+// The first REACHABLE milestone not yet earned — the "next friend" goal
+// card (a bridge-only kid is never pointed at counting games they can't
+// see, and vice versa).
 export function nextPetGoal(profile) {
   const owned = new Set((profile.petUnlocks ?? []).map((u) => u.milestone));
   const m = [...MILESTONES]
     .sort((a, b) => (a.sort ?? MILESTONES.indexOf(a)) - (b.sort ?? MILESTONES.indexOf(b)))
-    .find((x) => !owned.has(x.id));
-  return m ? { pet: petForMilestone(m.id), label: m.label } : null;
+    .find((x) => !owned.has(x.id) && milestoneReachable(profile, x));
+  return goalInfo(profile, m);
+}
+
+// The goal for a SPECIFIC little game: the pet this game's own milestone
+// earns, so the in-game meter never points at a different activity.
+const GOALS_BY_GAME = {
+  count: ['count3', 'count5'],
+  look: ['look'],
+  bond: ['bond5', 'bond10'],
+  teen: ['teen'],
+  type: ['type'],
+  taway: ['taway'],
+  paths: ['paths'],
+};
+export function gameGoal(profile, game) {
+  const owned = new Set((profile.petUnlocks ?? []).map((u) => u.milestone));
+  for (const id of GOALS_BY_GAME[game] ?? []) {
+    const m = MILESTONES.find((x) => x.id === id);
+    if (m && !owned.has(id) && milestoneReachable(profile, m)) return goalInfo(profile, m);
+  }
+  return null;
 }
