@@ -3,6 +3,26 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.36.0 — 2026-08-01
+
+Reliability & security hardening wave, release 1 of 6 (external audit
+remediation — see BACKLOG for the wave map).
+
+- Deploys are now machine-gated: GitHub Pages ships only after the full
+  suite passes on an insecure origin AND the service-worker/offline
+  specs pass on a secure one. A documented pre-push hook
+  (`npm run setup-hooks`) guards kid-data preservation specs and scans
+  outgoing commits for private terms (list lives outside the repo).
+- New privacy tests pin the promises: every request is same-origin;
+  ordinary kid play uploads nothing while backup is off; the backup
+  offer probe reads without sending anything; the app works fully
+  offline behind its service worker.
+- Copy now matches reality: the charter says "no third-party requests,
+  same-origin only" (the service worker and opt-in backup do talk to
+  YOUR server), and Grown-Ups privacy text explains where backup
+  copies live. Backlog updated to the current version/schema with the
+  hardening wave scheduled ahead of Phase 7.
+
 ## v1.35.0 — 2026-07-31
 
 - **Trace it! ✏️** — a new little-pup game for writing the numbers 1–9.

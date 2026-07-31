@@ -1,6 +1,13 @@
 # Deploys the PWA to GitHub Pages on every push to main, so family outside
 # the LAN can install it (https://dbolle.github.io/ComPoundEd/).
 # One-time repo setting required: Settings → Pages → Source: GitHub Actions.
+#
+# Deployment is GATED on tests (never ship red — CLAUDE.md hard rule):
+#  - test-insecure: the FULL suite on the runner's own LAN IP, an insecure
+#    origin like the kids' http://<server>:8091 devices — this preserves
+#    coverage of secure-context-only API regressions (crypto.randomUUID).
+#  - test-secure: the @secure-tagged specs (service worker, offline,
+#    privacy) on 127.0.0.1, where a service worker can actually register.
 name: Deploy to GitHub Pages
 
 on:
@@ -18,7 +25,35 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  test-insecure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm test
+
+  test-secure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm test
+        env:
+          TEST_HOST: 127.0.0.1
+          ONLY_SECURE: '1'
+
   build-and-deploy:
+    needs: [test-insecure, test-secure]
     runs-on: ubuntu-latest
     environment:
       name: github-pages

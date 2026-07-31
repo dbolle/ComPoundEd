@@ -76,7 +76,7 @@ the product.)
 
 ## Privacy Stance
 
-All data (profiles, progress, unlocks) is stored locally on the device in IndexedDB/localStorage. The app makes **zero network requests at runtime** after the app shell is cached. No analytics, no telemetry, no third-party scripts. This is a deliberate, permanent commitment for the kid-facing experience.
+All data (profiles, progress, unlocks) is stored locally on the device in IndexedDB/localStorage. The app makes **no third-party network requests, ever** — the only network traffic is same-origin: the service worker checking the family's own server for app updates, and (when a family opts in) the Family Backup sync below. No analytics, no telemetry, no third-party scripts. This is a deliberate, permanent commitment for the kid-facing experience.
 
 The in-game currency (**Paw Bucks**) is fictitious forever: it is earned only
 through practice, mirrors US denominations purely to teach currency math, and

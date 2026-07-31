@@ -1,7 +1,7 @@
 {
   "name": "compounded",
   "private": true,
-  "version": "1.35.0",
+  "version": "1.36.0",
   "description": "A dog-themed PWA that helps kids practice and memorize multiplication tables.",
   "type": "module",
   "scripts": {
@@ -9,7 +9,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vite build && playwright test",
-    "test:only": "playwright test"
+    "test:only": "playwright test",
+    "setup-hooks": "git config core.hooksPath .githooks"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.1",

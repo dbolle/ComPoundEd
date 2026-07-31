@@ -178,8 +178,9 @@ export function grownupsScreen(el, params, ctx) {
         reading and tapping speed, so quick counts as quick <em>for them</em>. Mastered facts
         get "rusty" after a while without practice and quietly come back around in rounds —
         levels and adopted dogs are never taken away.</p>
-        <p class="muted"><strong>Privacy:</strong> everything is stored only on this device.
-        No accounts, no ads, no tracking — ever.</p>
+        <p class="muted"><strong>Privacy:</strong> everything is stored on this device —
+        and, only if Family Backup is turned on below, copied to YOUR home server on your
+        own network. No accounts, no ads, no tracking — ever.</p>
       </div>
       <div style="height:12px"></div>
       <div class="card">
