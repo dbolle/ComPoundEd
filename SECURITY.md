@@ -21,6 +21,13 @@ in the changelog if you'd like it.
 
 ## Scope
 
+Threat model note: the optional family backup is protected by a family
+key checked on every request. On plain-http LAN addresses the key
+travels unencrypted (observable by devices on the same network) — the
+app requires an explicit grown-up acknowledgement there and prefers the
+HTTPS hostname. The backup server must never be exposed to the
+internet.
+
 In scope:
 
 - The PWA itself (everything under `src/`), especially anything that

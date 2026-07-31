@@ -4,7 +4,7 @@
 // to turn backup on when the family server already holds backups.
 import { test, expect } from '@playwright/test';
 import { newProfile, migrateProfile, mergeProfiles, SCHEMA_VERSION, touchMeta } from '../src/data/schema.js';
-import { seedProfile, selectProfile, uniqueName, holdGrownupsGate } from './helpers.mjs';
+import { seedProfile, selectProfile, uniqueName, holdGrownupsGate, seedRemote } from './helpers.mjs';
 
 test('v16 docs gain metaAt from updatedAt; new docs carry it', () => {
   const old = migrateProfile({
@@ -135,7 +135,7 @@ test('e2e: grown-ups shows per-device backup status', async ({ page }) => {
 test('e2e: profiles screen offers backup when the server holds some; turn-on pulls', async ({ page }) => {
   const remote = newProfile('OfferKid');
   remote.id = 'offer-kid';
-  await page.request.put('/sync/profiles/offer-kid.json', { data: remote });
+  await seedRemote(page, remote);
   await page.goto('/', { waitUntil: 'networkidle' });
   await page.waitForSelector('[data-offer-on]');
   await page.tap('[data-offer-on]');
@@ -147,7 +147,7 @@ test('e2e: profiles screen offers backup when the server holds some; turn-on pul
 test('e2e: dismissing the backup offer sticks across reloads', async ({ page }) => {
   const remote = newProfile('OfferKid2');
   remote.id = 'offer-kid-2';
-  await page.request.put('/sync/profiles/offer-kid-2.json', { data: remote });
+  await seedRemote(page, remote);
   await page.goto('/', { waitUntil: 'networkidle' });
   await page.waitForSelector('[data-offer-on]');
   await page.tap('[data-offer-no]');

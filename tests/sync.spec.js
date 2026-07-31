@@ -47,7 +47,7 @@ test('backup → restore on a new device → two-way merge', async ({ page, brow
   await enableBackup(page);
 
   const listing = await (await fetch(`${baseURL}/sync/profiles/`)).json();
-  expect(listing.map((f) => f.name)).toContain('sync-kid.json');
+  expect(listing.entries.map((e) => e.id)).toContain('sync-kid'); // envelope listing
 
   // Device B: fresh context, restore
   const ctxB = await browser.newContext({
@@ -169,7 +169,7 @@ test('check-ins: a stale device pulls the pets and the Cozy Corner appears by it
     await fetch(`/sync/profiles/${doc.id}.json`, {
       method: 'PUT',
       body: JSON.stringify(doc),
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'If-None-Match': '*' },
     });
   }, rich);
 

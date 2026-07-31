@@ -14,7 +14,7 @@ import {
 import { register, startRouter, currentRoute, navigate } from './router.js';
 import { isBeta, BETA_ROUTES } from './engine/beta.js';
 import { storeHome } from './screens/store.js';
-import { pushProfile } from './data/sync.js';
+import { flushProfile } from './data/store.js';
 import { storeScreen } from './screens/store.js';
 import { initPressFeedback } from './ui.js';
 import { setSoundOn, setVoicePreference } from './sound.js';
@@ -55,7 +55,7 @@ document.addEventListener('gesturestart', (e) => e.preventDefault());
 // Last-chance sync flush: when the app is hidden or killed, push the
 // active profile with keepalive so a device switch can't strand a round.
 const flush = () => {
-  if (ctx.profile && isSyncEnabled()) pushProfile(ctx.profile, { keepalive: true });
+  if (ctx.profile && isSyncEnabled()) flushProfile(ctx.profile);
 };
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') flush();

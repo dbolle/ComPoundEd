@@ -16,6 +16,10 @@ import {
   setSyncEnabled,
   isSoundEnabled,
   getSyncStatus,
+  getSyncKey,
+  setSyncKey,
+  httpKeyAcknowledged,
+  acknowledgeHttpKey,
   setSoundEnabled,
   getVoicePref,
   setVoicePref,
@@ -242,6 +246,12 @@ export function grownupsScreen(el, params, ctx) {
           <button class="btn ghost small" data-sync-now>💾 Back up now</button>
         </div>
         <p class="muted" style="font-size:.8rem;margin:6px 0 0" data-sync-status></p>
+        <div class="nav-row" style="margin-top:6px">
+          <input class="name-input" data-sync-key type="password" placeholder="Family key (if your server uses one)"
+            autocomplete="off" style="flex:1" />
+          <button class="btn ghost small" data-sync-key-save>🔑 Save</button>
+        </div>
+        <p class="muted" style="font-size:.75rem;margin:4px 0 0" data-key-note></p>
         <div style="height:8px"></div>
         <div class="nav-row">
           <button class="btn ghost small" data-export>⬇️ Export all players</button>
@@ -386,13 +396,52 @@ export function grownupsScreen(el, params, ctx) {
       const h = Math.round(m / 60);
       return h < 48 ? `${h} h ago` : `${Math.round(h / 24)} days ago`;
     };
-    const renderStatus = async () => {
+    const renderStatus = async (lastResult = null) => {
       const s = await getSyncStatus();
-      panel.querySelector('[data-sync-status]').textContent = s.enabled
-        ? `This device — last backup: ${ago(s.lastPushAt)} · last check-in: ${ago(s.lastPullAt)}`
-        : 'This device is not backing up. Each device (and each address it uses) has its own switch.';
+      const statusEl = panel.querySelector('[data-sync-status]');
+      if (lastResult?.status === 'denied') {
+        statusEl.textContent = '🔑 Backup is locked — the server needs the family key (below).';
+      } else {
+        statusEl.textContent = s.enabled
+          ? `This device — last backup: ${ago(s.lastPushAt)} · last check-in: ${ago(s.lastPullAt)}`
+          : 'This device is not backing up. Each device (and each address it uses) has its own switch.';
+      }
     };
     renderStatus();
+    // Family key entry: stored only on this device; on plain http the
+    // first send requires an explicit acknowledgement (LAN-observable).
+    {
+      const keyInput = panel.querySelector('[data-sync-key]');
+      const note = panel.querySelector('[data-key-note]');
+      getSyncKey().then((k) => {
+        if (k) keyInput.placeholder = 'Family key: set on this device';
+      });
+      if (location.protocol === 'http:') {
+        note.textContent =
+          'Note: on this http address the key travels unencrypted on your own network — https://compounded.lan is safer.';
+      }
+      panel.querySelector('[data-sync-key-save]').addEventListener('click', async () => {
+        const val = keyInput.value.trim();
+        if (!val) {
+          toast('Type the family key first');
+          return;
+        }
+        if (location.protocol === 'http:' && !(await httpKeyAcknowledged())) {
+          if (!window.confirm('This http address sends the key unencrypted on your own network. Use it anyway? (https://compounded.lan is safer)')) return;
+          await acknowledgeHttpKey();
+        }
+        await setSyncKey(val);
+        keyInput.value = '';
+        keyInput.placeholder = 'Family key: set on this device';
+        if (isSyncEnabled()) {
+          const r = await syncNow();
+          renderStatus(r);
+          toast(r.status === 'denied' ? 'That key was not accepted' : 'Key saved — backup unlocked 🔑');
+        } else {
+          toast('Key saved');
+        }
+      });
+    }
     toggleBtn.addEventListener('click', async () => {
       await setSyncEnabled(!isSyncEnabled());
       renderToggle();
@@ -414,13 +463,15 @@ export function grownupsScreen(el, params, ctx) {
         return;
       }
       const r = await syncNow();
-      renderStatus();
+      renderStatus(r);
       toast(
         r.status === 'offline'
           ? "Couldn't reach the home server — nothing was backed up"
-          : r.status === 'partial'
-            ? 'Some players did not back up — will retry automatically'
-            : 'Backed up to the home server 💾'
+          : r.status === 'denied'
+            ? 'Backup is locked — enter the family key below'
+            : r.status === 'partial'
+              ? 'Some players did not back up — will retry automatically'
+              : 'Backed up to the home server 💾'
       );
     });
 

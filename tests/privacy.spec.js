@@ -6,7 +6,7 @@
 // their own lane: TEST_HOST=127.0.0.1 ONLY_SECURE=1 npm test.
 import { test, expect } from '@playwright/test';
 import { newProfile } from '../src/data/schema.js';
-import { seedProfile, selectProfile, uniqueName, norm, stat } from './helpers.mjs';
+import { seedProfile, selectProfile, uniqueName, norm, stat, seedRemote } from './helpers.mjs';
 
 function recordRequests(page) {
   const out = [];
@@ -60,7 +60,7 @@ test('the backup-offer probe sends no key and no child data', async ({ page }) =
   // seed a remote profile so the probe has something to find
   const remote = newProfile('ProbeKid');
   remote.id = 'probe-kid';
-  await page.request.put('/sync/profiles/probe-kid.json', { data: remote });
+  await seedRemote(page, remote);
   const reqs = recordRequests(page);
   await page.goto('/', { waitUntil: 'networkidle' });
   await page.waitForSelector('[data-offer-on]');

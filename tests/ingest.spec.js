@@ -3,7 +3,7 @@
 // honest backup reporting. Written failing-first against v1.36 behavior.
 import { test, expect } from '@playwright/test';
 import { newProfile, migrateProfile, mergeProfiles, validProfileDoc, SCHEMA_VERSION } from '../src/data/schema.js';
-import { seedProfile, selectProfile, uniqueName, norm, stat, holdGrownupsGate } from './helpers.mjs';
+import { seedProfile, selectProfile, uniqueName, norm, stat, holdGrownupsGate, seedRemote } from './helpers.mjs';
 
 test('validProfileDoc: shape matrix', () => {
   const good = newProfile('Good');
@@ -51,12 +51,10 @@ test('mergeProfiles survives docs with missing arrays/maps', () => {
 });
 
 test('e2e: one malformed server doc cannot abort the family sync pass', async ({ page }) => {
-  await page.request.put('/sync/profiles/bad-doc.json', {
-    data: { id: 'bad-doc', name: 'Bad', schemaVersion: SCHEMA_VERSION, facts: 'not-an-object' },
-  });
+  await seedRemote(page, { id: 'bad-doc', name: 'Bad', schemaVersion: SCHEMA_VERSION, facts: 'not-an-object' });
   const good = newProfile('GoodSync');
   good.id = 'good-sync-kid';
-  await page.request.put('/sync/profiles/good-sync-kid.json', { data: good });
+  await seedRemote(page, good);
 
   await page.goto('/', { waitUntil: 'networkidle' });
   await page.waitForSelector('[data-offer-on]');
@@ -92,7 +90,7 @@ test('e2e: stranded progress converges — remote newer, local has disjoint work
 
   await page.goto('/', { waitUntil: 'networkidle' });
   await seedProfile(page, local);
-  await page.request.put('/sync/profiles/strand-kid.json', { data: remote });
+  await seedRemote(page, remote);
   await selectProfile(page, remote.name);
   await page.waitForSelector('.hero');
 
