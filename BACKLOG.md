@@ -89,6 +89,11 @@ reconsider after calibration.
 
 ## Parked / reconsider later
 
+- **Pets #25–26 reserved** (2026-07-31): PETS maps 23 milestones + the
+  planned trace milestone (#24); the last two pets have no earning path
+  yet — candidates: shapes/pattern mastery, a Surprise! ladder, or
+  Phase 7 money-math milestones.
+
 - **Dependency pin to revisit:** `overrides.brace-expansion = ^5.0.8`
   in package.json (v1.32.2, 2026-07-31) force-pins across majors to
   clear GHSA-mh99-v99m-4gvg (all ≤5.0.7 vulnerable, nested 5 deep under

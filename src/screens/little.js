@@ -11,7 +11,7 @@ import { getPet, petSVG } from '../art/pets.js';
 import { sfx, buzz, say, cheer } from '../sound.js';
 import { earnSkillKnown, balanceCents, formatPaw } from '../engine/money.js';
 import { avatarFor } from '../art/avatar.js';
-import { checkPetUnlocks } from '../engine/cozy.js';
+import { checkPetUnlocks, nextPetGoal, gameGoal } from '../engine/cozy.js';
 import { isRevealed, ratchetReveals, addingReady, takingAwayReady } from '../engine/readiness.js';
 import { WAVES, waveUnlocked, isWaveMastered, subWaveUnlocked, isSubWaveMastered } from '../engine/waves.js';
 import { confetti, escapeHtml, buildNumpad, plural } from '../ui.js';
@@ -407,6 +407,19 @@ function tiles(p, buddy) {
   ];
 }
 
+// Which game feeds each little milestone (home goal card taps into it).
+const GOALS_GAME_BY_MILESTONE = {
+  count3: 'count',
+  count5: 'count',
+  look: 'look',
+  bond5: 'bond',
+  bond10: 'bond',
+  teen: 'teen',
+  type: 'type',
+  taway: 'taway',
+  paths: 'paths',
+};
+
 export function littleHomeScreen(el, params, ctx) {
   // A transitioning kid with childCanSwitch can hop to the big-kid home.
   ctx.session.bigView = false;
@@ -497,6 +510,23 @@ export function littleHomeScreen(el, params, ctx) {
     );
     grid.appendChild(btn);
   }
+  // Next friend: the pet the child is closest to, with a meter that only
+  // correct answers move — the home-screen anchor for "why answers matter".
+  {
+    const goal = nextPetGoal(p);
+    if (goal && goal.need != null) {
+      const card = document.createElement('button');
+      card.className = 'goal-card';
+      card.setAttribute('aria-label', `Next friend: ${goal.have} of ${goal.need}`);
+      card.innerHTML = `<span class="goal-pet">${petSVG(goal.pet, 44)}</span>
+        <span class="goal-text"><span class="tile-caption">New friend! 🐾</span>
+        <span class="meter mini goal-meter"><span style="width:${Math.round((goal.have / goal.need) * 100)}%"></span></span>
+        <span class="tile-mark">${goal.have}/${goal.need}</span></span>`;
+      const target = GOALS_GAME_BY_MILESTONE[goal.id];
+      if (target) card.addEventListener('click', () => navigate(`/little?game=${target}`));
+      grid.appendChild(card);
+    }
+  }
   const upcoming = all.find((t) => !isReady(t));
   if (upcoming) {
     // Goal preview instead of a mute sparkle: the locked game's own art,
@@ -551,12 +581,41 @@ export function littleGameScreen(el, params, ctx) {
       <div class="little-prompt-row">
         <button class="say-again" data-say aria-label="Hear it again">🔊</button>
         <span class="little-prompt"></span>
+        <span class="pet-goal" data-pet-goal hidden></span>
       </div>
       <div class="little-stage"></div>
       <div class="little-choices"></div>
       <div class="feedback center little-fb"></div>
     </div>`;
   const paws = [...el.querySelectorAll('.paw')];
+  const goalEl = el.querySelector('[data-pet-goal]');
+  // The next-friend meter: THIS game's own pet when it still has one,
+  // else the overall next friend. Correct answers visibly move it —
+  // that's the whole point (shown, not explained).
+  let goalHave = -1;
+  function renderGoal(justCorrect = false) {
+    const g = stageEl.dataset.game ?? game;
+    const goal = gameGoal(p, g) ?? nextPetGoal(p);
+    if (!goal || goal.need == null) {
+      goalEl.hidden = true;
+      return;
+    }
+    const grew = goal.have > goalHave && goalHave >= 0;
+    goalHave = goal.have;
+    goalEl.hidden = false;
+    goalEl.innerHTML = `<span class="goal-pet">${petSVG(goal.pet, 34)}</span>
+      <span class="meter mini goal-meter"><span style="width:${Math.round((goal.have / goal.need) * 100)}%"></span></span>`;
+    if (grew) {
+      goalEl.classList.remove('pop');
+      void goalEl.offsetWidth;
+      goalEl.classList.add('pop'); // a step CLOSER to the friend — big tick
+      sfx.correct();
+    } else if (justCorrect) {
+      goalEl.classList.remove('nudge');
+      void goalEl.offsetWidth;
+      goalEl.classList.add('nudge'); // the paw stamp: correct = motion
+    }
+  }
   const promptEl = el.querySelector('.little-prompt');
   const stageEl = el.querySelector('.little-stage');
   const choicesEl = el.querySelector('.little-choices');
@@ -597,6 +656,7 @@ export function littleGameScreen(el, params, ctx) {
     choicesEl.className = 'little-choices';
 
     stageEl.dataset.game = g;
+    renderGoal();
     const forced = params.get('v');
     if (g === 'count') {
       const n = pickN(little, 'count', range);
@@ -1121,6 +1181,7 @@ export function littleGameScreen(el, params, ctx) {
     stageEl.appendChild(burst);
     const n = Number(stageEl.dataset.answer);
     if (speakWord && n >= 0 && n <= 10) speak(WORDS[n]);
+    renderGoal(true);
     setTimeout(next, 1000);
   }
 

@@ -3,6 +3,18 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.34.0 — 2026-07-31
+
+- Little pups now SEE why right answers matter: a next-friend meter (the
+  pet's dim silhouette + a mini bar) sits in every game and on the
+  little home. Correct answers visibly stamp it; getting a number fully
+  known makes the pet pop with color; wrong answers conspicuously move
+  nothing. Each game tracks the pet ITS OWN milestone earns.
+- The Cozy Corner stops dangling pets a child can't earn: big kids
+  without the little games no longer see the nine counting-milestone
+  pets as ??? (adopted friends always stay), and the "next friend" goal
+  never points at an unreachable activity.
+
 ## v1.33.1 — 2026-07-31
 
 - Gold finally looks gold: the gold collar and accessory colors move

@@ -5,7 +5,7 @@
 
 import { navigate } from '../router.js';
 import { PETS, petSVG } from '../art/pets.js';
-import { MILESTONES, petForMilestone, isPetAdopted } from '../engine/cozy.js';
+import { MILESTONES, petForMilestone, isPetAdopted, milestoneReachable } from '../engine/cozy.js';
 import { escapeHtml, toast } from '../ui.js';
 import { sfx, buzz, say, cheer } from '../sound.js';
 import { storeButton } from './store.js';
@@ -65,6 +65,10 @@ export function cornerScreen(el, params, ctx) {
     const grid = section.querySelector('.corner-grid');
     for (const pet of pets) {
       const adopted = isPetAdopted(p, pet.id);
+      // A locked pet whose milestone this profile can't reach (or that
+      // has no milestone at all) is noise, not a goal — hide it.
+      const ms = msByPet[pet.id];
+      if (!adopted && (!ms || !milestoneReachable(p, ms))) continue;
       const isBuddy = p.avatarPetId === pet.id;
       const card = document.createElement('div');
       card.className = `dog-card${adopted ? '' : ' locked'}${isBuddy ? ' buddy' : ''}`;
@@ -131,7 +135,7 @@ export function cornerScreen(el, params, ctx) {
       }
       grid.appendChild(card);
     }
-    wrap.appendChild(section);
+    if (grid.children.length) wrap.appendChild(section);
   }
 
   el.querySelector('[data-back]').addEventListener('click', () => navigate('/home'));
