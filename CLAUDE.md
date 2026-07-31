@@ -36,6 +36,14 @@ preserve existing profile data:
   (wardrobe color needs, Meet lessons). Mechanics are shown, not explained:
   icon + meter + picture of the reward, at the point of action.
 
+- package.json `overrides` pins `brace-expansion` to ^5.0.8
+  (2026-07-31): GHSA-mh99-v99m-4gvg marks every release ≤5.0.7
+  vulnerable (no 2.x backport), and the vulnerable copies were nested
+  under workbox-build > ejs > jake > filelist where `npm audit fix`
+  can't reach. It's a cross-major force-pin — if a future dependency
+  install fails resolving brace-expansion, or those parents update to
+  patched ranges, this override is the first thing to re-check
+  (validated by build + full suite at pin time).
 - Vanilla JS + Vite PWA; no framework. `npm run build` redeploys (the nginx
   container mounts `dist/`). See README.md for URLs, CHARTER.md for product
   principles (kids 7–10, no dark patterns, local-only data).

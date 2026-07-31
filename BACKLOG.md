@@ -89,6 +89,14 @@ reconsider after calibration.
 
 ## Parked / reconsider later
 
+- **Dependency pin to revisit:** `overrides.brace-expansion = ^5.0.8`
+  in package.json (v1.32.2, 2026-07-31) force-pins across majors to
+  clear GHSA-mh99-v99m-4gvg (all ≤5.0.7 vulnerable, nested 5 deep under
+  workbox-build). Drop the override once workbox-build/ejs/jake/filelist
+  ship patched ranges — check with `npm ls brace-expansion` and
+  `npm audit` after removing it. Full rationale in CLAUDE.md and the
+  v1.32.2 CHANGELOG entry.
+
 - Boredom guard: wrong answers faster than ~600ms stop RESETTING little
   streaks (still never build them) — awaiting observation of the v1.18
   ratchet's effect first (user, 2026-07-21).
