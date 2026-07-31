@@ -82,7 +82,12 @@ async function backgroundSync(force = false) {
     const fresh = await loadProfile(ctx.profile.id);
     if (fresh && fresh.updatedAt !== ctx.profile.updatedAt) {
       ctx.profile = fresh;
-      navigate(currentRoute().path); // same-hash re-render shows the news
+      // never replace the DOM mid-tap — retry just after the finger lifts
+      if (document.querySelector(':active')) {
+        setTimeout(() => navigate(currentRoute().path), 350);
+      } else {
+        navigate(currentRoute().path); // same-hash re-render shows the news
+      }
     }
   } catch {
     /* offline / away from home — try again on the next trigger */

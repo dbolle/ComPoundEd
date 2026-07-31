@@ -3,6 +3,19 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.33.1 — 2026-07-31
+
+- Gold finally looks gold: the gold collar and accessory colors move
+  from brand-amber to true gold, and award cards now carry their tier's
+  color (bronze/silver/gold/diamond/royal/legend accents).
+- Fixed dead taps on the "Pick a table" / division section toggles: a
+  background sync check-in could replace the screen right as you
+  tapped, killing the button's listener and reverting its saved state.
+  Toggles now survive re-renders, preferences read coherently from a
+  memory cache, and the screen never re-renders mid-tap.
+- The hide-the-bones bowl now grows with what's under it — a bowl
+  hiding six bones no longer looks like it could barely cover one.
+
 ## v1.33.0 — 2026-07-31
 
 - Cross-device sync gets trustworthy (saves v17):

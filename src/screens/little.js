@@ -1014,7 +1014,7 @@ export function littleGameScreen(el, params, ctx) {
         delete stageEl.dataset.teachOnly;
         speak(`${WORDS[whole]} bones... but some are hiding under the bowl! How many are hiding?`);
         stageEl.innerHTML = `<div class="pattern-row"><span class="little-numeral">${whole}</span><span class="pattern-q">${item}</span></div>
-          <div class="little-items">${itemRow(item, have)}<span class="li cup">🥣</span></div>`;
+          <div class="little-items">${itemRow(item, have)}<span class="li cup cup-w${Math.min(missing, 3)}">🥣</span></div>`;
       } else {
         // the frame itself shows the story: filled cells + empty cells;
         // the symbolic equation row only joins at the mixed stage

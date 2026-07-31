@@ -64,7 +64,11 @@ export function awardsScreen(el, params, ctx) {
     for (let i = 1; i <= pipCount; i++) pips += i <= tier ? tierInfo(i).emoji : '▫️';
 
     const card = document.createElement('div');
-    card.className = `award-card${tier > 0 ? '' : ' locked'}`;
+    const tierClass =
+      ['', ' tier-bronze', ' tier-silver', ' tier-gold', ' tier-diamond', ' tier-royal', ' tier-legend'][
+        Math.min(tier, 6)
+      ] ?? '';
+    card.className = `award-card${tier > 0 ? tierClass : ' locked'}`;
     card.setAttribute(
       'aria-label',
       `${f.name}: ${f.desc}. ${tier > 0 ? `${t.name} tier` : 'not earned yet'}${complete ? ', complete' : `, ${current} of ${nextTh}`}`

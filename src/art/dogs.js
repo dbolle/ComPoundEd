@@ -61,7 +61,7 @@ export const ACCESSORIES = [
       { id: 'red', need: 10, fill: '#f43f5e' },
       { id: 'blue', need: 25, fill: '#3b82f6' },
       { id: 'green', need: 50, fill: '#22c55e' },
-      { id: 'gold', need: 100, fill: '#f59e0b' },
+      { id: 'gold', need: 100, fill: '#f5c542' },
     ],
   },
   {
@@ -70,7 +70,7 @@ export const ACCESSORIES = [
       { id: 'pink', need: 10, fill: '#ec4899', deep: '#be185d' },
       { id: 'purple', need: 25, fill: '#a855f7', deep: '#7e22ce' },
       { id: 'teal', need: 50, fill: '#14b8a6', deep: '#0f766e' },
-      { id: 'gold', need: 100, fill: '#f59e0b', deep: '#b45309' },
+      { id: 'gold', need: 100, fill: '#f5c542', deep: '#b8860b' },
     ],
   },
   {
@@ -79,7 +79,7 @@ export const ACCESSORIES = [
       { id: 'blue', need: 10, fill: '#3b82f6', deep: '#2563eb' },
       { id: 'red', need: 25, fill: '#ef4444', deep: '#b91c1c' },
       { id: 'green', need: 50, fill: '#22c55e', deep: '#15803d' },
-      { id: 'gold', need: 100, fill: '#f59e0b', deep: '#b45309' },
+      { id: 'gold', need: 100, fill: '#f5c542', deep: '#b8860b' },
     ],
   },
   { id: 'star', emoji: '⭐', name: 'star tag', kind: 'total', need: 40 },
@@ -102,7 +102,7 @@ export const COLLAR_COLORS = [
   { id: 'blue', need: 10, fill: '#3b82f6' },
   { id: 'green', need: 25, fill: '#22c55e' },
   { id: 'purple', need: 50, fill: '#a855f7' },
-  { id: 'gold', need: 100, fill: '#f59e0b' },
+  { id: 'gold', need: 100, fill: '#f5c542' },
 ];
 
 export function collarColorsFor(profile, dogId) {

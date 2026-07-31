@@ -178,12 +178,19 @@ export async function importProfiles(docs) {
 }
 
 // Per-profile UI preferences (collapsed sections etc.) — device-local meta,
-// not part of the synced profile document.
+// not part of the synced profile document. Cached in memory so a
+// background re-render can never read a stale value while a set() is
+// still in flight (that reverted a just-tapped section toggle).
+const uiPrefsCache = new Map();
 export async function getUiPrefs(profileId) {
-  return (await repo.getMeta(`ui:${profileId}`)) ?? {};
+  if (!uiPrefsCache.has(profileId)) {
+    uiPrefsCache.set(profileId, (await repo.getMeta(`ui:${profileId}`)) ?? {});
+  }
+  return uiPrefsCache.get(profileId);
 }
 
 export async function setUiPrefs(profileId, prefs) {
+  uiPrefsCache.set(profileId, prefs); // cache first — reads are coherent immediately
   await repo.setMeta(`ui:${profileId}`, prefs);
 }
 
