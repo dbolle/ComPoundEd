@@ -3,6 +3,32 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.38.0 — 2026-08-01
+
+Hardening wave R3/6: the sync platform. Family backup moves to a real
+conditional-write server with a family key.
+
+- New sync sidecar (deploy/sync-server.mjs, zero dependencies): every
+  profile write is compare-and-swap (content-hash ETags, If-Match) —
+  two devices can no longer overwrite each other between read and
+  write; regression-tested with a genuine interleaved write. Lifecycle
+  envelopes, paginated listings, atomic tmp-file+rename writes, crash
+  tested by killing the real process mid-write.
+- Family key: the server refuses everything until a key is configured
+  (secure by default; no anonymous fallback); devices enter it once
+  (Grown-Ups, or the profiles screen on a fresh device). On plain-http
+  addresses the first key use asks an explicit acknowledgement — the
+  key is observable on your own network there; https://compounded.lan
+  is preferred. The key lives only on the device, never in profiles or
+  exports.
+- Existing raw server files migrate zero-loss (originals kept until
+  each wrap verifies); pre-update clients are safely write-blocked
+  (HTTP 428) until their PWA self-updates. Cutover runbook + tested
+  rollback path + emergency export tool in deploy/README.md.
+- NOTE for the family: the live server cutover is a deliberate step
+  (deploy/README.md) — until it happens, the app keeps speaking the
+  old protocol to the current server.
+
 ## v1.37.0 — 2026-08-01
 
 Hardening wave R2/6: the client side of family backup gets defensive.

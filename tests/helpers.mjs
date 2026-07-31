@@ -175,3 +175,17 @@ let uid = 0;
 export function uniqueName(prefix) {
   return `${prefix}${Date.now() % 100000}${uid++}`;
 }
+
+// Seed a profile onto the (sidecar-backed) test server via the real CAS
+// protocol: create with If-None-Match:*, or update against the current
+// ETag when the id already exists.
+export async function seedRemote(page, doc) {
+  const url = `/sync/profiles/${doc.id}.json`;
+  let res = await page.request.put(url, { data: doc, headers: { 'If-None-Match': '*' } });
+  if (res.status() === 412) {
+    const cur = await page.request.get(url);
+    const etag = cur.headers().etag;
+    res = await page.request.put(url, { data: doc, headers: { 'If-Match': etag } });
+  }
+  if (![200, 201].includes(res.status())) throw new Error(`seedRemote ${doc.id}: ${res.status()}`);
+}

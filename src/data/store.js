@@ -1,7 +1,14 @@
 import { openRepo } from './storage.js';
 import { newProfile, migrateProfile, mergeProfiles, validProfileDoc } from './schema.js';
 import { profileSignature } from './canonical.js';
-import { pushProfile, pullProfiles, deleteRemoteProfile, remoteBackupCount } from './sync.js';
+import {
+  listRemote,
+  getRemote,
+  putRemote,
+  knownEtag,
+  remoteBackupCount,
+  setSyncHeaderKey,
+} from './sync.js';
 
 let repo;
 let syncEnabled = false;
@@ -14,6 +21,30 @@ export async function initStore() {
   syncEnabled = (await repo.getMeta('syncEnabled')) === true;
   soundEnabled = (await repo.getMeta('soundEnabled')) !== false; // default on
   voicePref = (await repo.getMeta('voicePref')) ?? null;
+  setSyncHeaderKey((await repo.getMeta('syncKey')) ?? null);
+}
+
+// The family key: device-local meta ONLY — never in profile docs,
+// exports, or sync payloads. Password-style entry in Grown-Ups and the
+// profiles restore flow.
+export async function getSyncKey() {
+  return (await repo.getMeta('syncKey')) ?? null;
+}
+
+export async function setSyncKey(key) {
+  const v = key?.trim() || null;
+  await repo.setMeta('syncKey', v);
+  setSyncHeaderKey(v);
+}
+
+// On plain-http origins the key is observable on the LAN; the first
+// transmission needs an explicit grown-up acknowledgement.
+export async function httpKeyAcknowledged() {
+  return (await repo.getMeta('httpKeyAck')) === true;
+}
+
+export async function acknowledgeHttpKey() {
+  await repo.setMeta('httpKeyAck', true);
 }
 
 export function getVoicePref() {
@@ -57,6 +88,41 @@ function withProfileLock(id, fn) {
   return next;
 }
 
+// Push one profile with the real concurrency contract: try a cheap
+// conditional PUT against the last seen ETag; on conflict (or no ETag
+// yet) run the bounded pull → merge → conditional-PUT loop. Never a
+// blind overwrite (legacy servers excepted, where blind is all there is).
+async function syncOneProfile(profile) {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const put = await putRemote(profile, knownEtag(profile.id));
+    if (put.ok) return { ok: true };
+    if (put.denied) return { ok: false, denied: true };
+    if (put.gone) return { ok: false, gone: true }; // lifecycle handled in v1.39
+    if (!put.conflict) return { ok: false };
+    // conflict: someone else wrote — pull, merge, retry with their ETag
+    const remote = await getRemote(profile.id);
+    if (remote.denied) return { ok: false, denied: true };
+    if (remote.gone) return { ok: false, gone: true };
+    if (remote.ok && remote.doc && validProfileDoc(remote.doc)) {
+      const merged = await withProfileLock(profile.id, async () => {
+        const local = await repo.getProfile(profile.id);
+        const m = mergeProfiles(
+          local ? migrateProfile(local) : null,
+          migrateProfile(structuredClone(remote.doc))
+        );
+        await repo.saveProfile(m);
+        return m;
+      });
+      profile = mergeProfiles(merged, profile);
+    } else if (remote.missing) {
+      // deleted underneath us between listing and write — recreate
+      const put2 = await putRemote(profile, null);
+      if (put2.ok) return { ok: true };
+    }
+  }
+  return { ok: false, conflict: true };
+}
+
 // Push IMMEDIATELY on every save: kids switch devices (or iOS kills the
 // tab) faster than any debounce window, and that lost transactions.
 // Failures re-arm with backoff (flaky wifi, device waking from sleep);
@@ -64,16 +130,22 @@ function withProfileLock(id, fn) {
 const PUSH_RETRY_MS = [4000, 15000, 60000];
 function schedulePush(profile, attempt = 0) {
   clearTimeout(pushTimers.get(profile.id));
-  pushProfile(profile).then((ok) => {
-    if (ok) {
+  syncOneProfile(profile).then((r) => {
+    if (r.ok) {
       repo.setMeta('lastPushAt', Date.now());
-    } else if (attempt < PUSH_RETRY_MS.length) {
+    } else if (!r.denied && !r.gone && attempt < PUSH_RETRY_MS.length) {
       pushTimers.set(
         profile.id,
         setTimeout(() => schedulePush(profile, attempt + 1), PUSH_RETRY_MS[attempt])
       );
     }
   });
+}
+
+// The pagehide flush can't run the full loop — a best-effort keepalive
+// conditional PUT with the cached ETag; the next check-in heals misses.
+export function flushProfile(profile) {
+  putRemote(profile, knownEtag(profile.id), { keepalive: true });
 }
 
 // One glance in Grown-Ups: is THIS device backing up, and when did it
@@ -91,9 +163,11 @@ export async function getSyncStatus() {
 // (or the same device via the other address) can be silently dark. This
 // probe powers a one-time "turn it on here too?" offer.
 export async function offerBackup() {
-  if (syncEnabled) return false;
-  if ((await repo.getMeta('backupOfferDismissed')) === true) return false;
-  return (await remoteBackupCount()) > 0;
+  if (syncEnabled) return { offer: false };
+  if ((await repo.getMeta('backupOfferDismissed')) === true) return { offer: false };
+  const probe = await remoteBackupCount();
+  if (probe.denied) return { offer: true, denied: true }; // server exists, key needed
+  return { offer: probe.count > 0 };
 }
 
 export async function dismissBackupOffer() {
@@ -108,22 +182,28 @@ export async function dismissBackupOffer() {
 // docs skipped) | offline (couldn't list) | empty (server reachable, no
 // backups) | denied (auth — wired to UI with the family key, v1.38).
 export async function syncNow() {
-  const pull = await pullProfiles();
-  if (!pull.ok) return { status: 'offline', found: 0, pushed: 0, failed: 0, conflicts: [] };
-  const remote = pull.docs;
-  if (remote.length) repo.setMeta('lastPullAt', Date.now());
+  const listing = await listRemote();
+  if (listing.denied) return { status: 'denied', found: 0, pushed: 0, failed: 0, conflicts: [] };
+  if (!listing.ok) return { status: 'offline', found: 0, pushed: 0, failed: 0, conflicts: [] };
+  if (listing.ids.length) repo.setMeta('lastPullAt', Date.now());
   let pushed = 0;
   let failed = 0;
   let skipped = 0;
-  for (const doc of remote) {
+  let found = 0;
+  for (const id of listing.ids) {
     try {
-      if (!validProfileDoc(doc) || !doc.id) {
+      const remote = await getRemote(id);
+      if (remote.denied) return { status: 'denied', found, pushed, failed, conflicts: [] };
+      if (remote.gone) continue; // lifecycle states: client logic lands in v1.39
+      if (!remote.ok || !validProfileDoc(remote.doc) || !remote.doc?.id) {
         skipped += 1; // malformed or future-schema: never merged, never overwritten
         continue;
       }
-      const r = migrateProfile(structuredClone(doc));
+      found += 1;
+      const r = migrateProfile(structuredClone(remote.doc));
       // Under the profile's write lock: the local read and the merged write
       // are atomic w.r.t. concurrent saves (a kid answering questions).
+      let toPush = null;
       await withProfileLock(r.id, async () => {
         const local = await repo.getProfile(r.id);
         const merged = mergeProfiles(local ? migrateProfile(local) : null, r);
@@ -132,35 +212,49 @@ export async function syncNow() {
         // with a newer save time can still be missing local-only progress
         // (the union differs). Canonical signature ignores array-order
         // noise so healing can't oscillate.
-        if (local && profileSignature(merged) !== profileSignature(migrateProfile(structuredClone(doc)))) {
-          if (await pushProfile(merged)) {
-            pushed += 1;
-            repo.setMeta('lastPushAt', Date.now());
-          } else {
-            failed += 1;
-            schedulePush(merged); // re-arm with backoff
-          }
-        }
+        if (local && profileSignature(merged) !== profileSignature(r)) toPush = merged;
       });
+      if (toPush) {
+        const res = await syncOneProfile(toPush);
+        if (res.ok) {
+          pushed += 1;
+          repo.setMeta('lastPushAt', Date.now());
+        } else if (res.denied) {
+          return { status: 'denied', found, pushed, failed: failed + 1, conflicts: [] };
+        } else {
+          failed += 1;
+        }
+      }
     } catch {
       skipped += 1; // one bad doc must not abort the family's pass
     }
   }
-  const remoteIds = new Set(remote.filter(Boolean).map((r) => r?.id));
-  for (const local of await listProfiles()) {
-    if (!remoteIds.has(local.id)) {
-      if (await pushProfile(local)) {
-        pushed += 1;
-        repo.setMeta('lastPushAt', Date.now());
-      } else {
-        failed += 1;
-        schedulePush(local);
+  // Push local-only profiles — but NEVER after a partial listing (an
+  // unseen profile is not an absent one).
+  if (!listing.partial) {
+    const remoteIds = new Set(listing.ids);
+    for (const local of await listProfiles()) {
+      if (!remoteIds.has(local.id)) {
+        const res = await syncOneProfile(local);
+        if (res.ok) {
+          pushed += 1;
+          repo.setMeta('lastPushAt', Date.now());
+        } else if (res.denied) {
+          return { status: 'denied', found, pushed, failed: failed + 1, conflicts: [] };
+        } else if (!res.gone) {
+          failed += 1;
+          schedulePush(local);
+        }
       }
     }
   }
   const status =
-    failed > 0 || skipped > 0 ? 'partial' : remote.length === 0 ? 'empty' : 'ok';
-  return { status, found: remote.length - skipped, pushed, failed, conflicts: [] };
+    failed > 0 || skipped > 0 || listing.partial
+      ? 'partial'
+      : listing.ids.length === 0
+        ? 'empty'
+        : 'ok';
+  return { status, found, pushed, failed, conflicts: [] };
 }
 
 export async function listProfiles() {
@@ -194,8 +288,12 @@ export async function saveProfile(profile) {
 }
 
 export async function deleteProfile(id) {
+  // Full lifecycle deletion (tombstones, archives, offline intents) is
+  // the v1.39 release; until then deletion is local-only and honest
+  // about it — the server copy (if any) survives and can be re-pulled.
+  clearTimeout(pushTimers.get(id));
+  pushTimers.delete(id);
   await repo.deleteProfile(id);
-  if (syncEnabled) await deleteRemoteProfile(id);
 }
 
 // Merge externally-provided profile docs (file import) into local storage.

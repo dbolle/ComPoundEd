@@ -13,3 +13,4 @@ compounded-backup-*.json
 *.key
 .env
 .env.*
+deploy/.env

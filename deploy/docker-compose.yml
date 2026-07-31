@@ -13,6 +13,22 @@
 name: compounded
 
 services:
+  # Sync sidecar: conditional-write store for family backups. Internal
+  # only — no ports: entry, reachable solely through the nginx proxy.
+  # SYNC_KEY comes from deploy/.env (gitignored); EMPTY = refuse all
+  # (secure by default). Generate: openssl rand -base64 24
+  sync:
+    image: node:20-alpine
+    restart: unless-stopped
+    command: ["node", "/app/sync-server.mjs"]
+    environment:
+      - SYNC_DIR=/sync/profiles
+      - SYNC_KEY=${SYNC_KEY:-}
+      # - SYNC_ALLOW_ANONYMOUS=1  # TEMPORARY rollout toggle — remove it
+    volumes:
+      - ./sync-server.mjs:/app/sync-server.mjs:ro
+      - ./sync-data:/sync
+
   web:
     image: nginx:alpine
     ports:
