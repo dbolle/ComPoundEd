@@ -3,6 +3,14 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.32.2 — 2026-07-31
+
+- Dependency security fixes (build toolchain only — nothing that ships
+  to devices): fast-uri and postcss updated via npm audit fix;
+  brace-expansion pinned to 5.0.8+ via an npm override (the advisory
+  covers every earlier release, and the vulnerable copy was nested five
+  levels deep under workbox-build). npm audit: 0 vulnerabilities.
+
 ## v1.32.1 — 2026-07-31
 
 - Added SECURITY.md: a security policy for the public repo pointing
