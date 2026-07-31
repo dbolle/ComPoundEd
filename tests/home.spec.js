@@ -77,3 +77,17 @@ test('e2e: division section shows unlocked + next locked only, with a note', asy
   await expect(btns.nth(1)).toContainText('÷2');
   await expect(page.locator('.div-note')).toContainText('10 more unlock');
 });
+
+test('e2e: the tables toggle works immediately after rapid re-renders', async ({ page }) => {
+  await createProfileUI(page, uniqueName('Tapper'));
+  // simulate a background check-in replacing the home DOM right before a tap
+  await page.evaluate(() => { location.hash = '#/pack'; });
+  await page.evaluate(() => { location.hash = '#/home'; });
+  await page.tap('[data-toggle="tables"]');
+  await expect(page.locator('.table-grid')).toBeVisible();
+  // and the persisted state survives another render cycle
+  await page.evaluate(() => { location.hash = '#/pack'; });
+  await page.evaluate(() => { location.hash = '#/home'; });
+  await page.waitForSelector('[data-toggle="tables"]');
+  await expect(page.locator('.table-grid')).toBeVisible();
+});

@@ -425,6 +425,8 @@ button.pressed {
   border-radius: 18px;
   box-shadow: var(--shadow);
   border-bottom: 5px solid var(--brand);
+  --tier: var(--brand);
+  border-bottom-color: var(--tier);
   padding: 12px 10px;
   display: flex;
   flex-direction: column;
@@ -454,6 +456,13 @@ button.pressed {
   font-size: 0.85rem;
   letter-spacing: 2px;
 }
+
+.award-card.tier-bronze { --tier: #cd7f32; }
+.award-card.tier-silver { --tier: #b8c0cc; }
+.award-card.tier-gold { --tier: #f5c542; }
+.award-card.tier-diamond { --tier: #7dd3fc; }
+.award-card.tier-royal { --tier: #c084fc; }
+.award-card.tier-legend { --tier: #f472b6; }
 
 .award-earned {
   color: var(--brand-deep);
@@ -1050,6 +1059,18 @@ button.pressed {
 .li.cup {
   font-size: 2.4rem;
   background: #fde68a;
+}
+
+/* The bowl reads as big enough to hide what's under it: span and scale
+   with the hidden count (capped at 3 columns). */
+.li.cup.cup-w2 {
+  grid-column: span 2;
+  font-size: 3.2rem;
+}
+
+.li.cup.cup-w3 {
+  grid-column: span 3;
+  font-size: 4rem;
 }
 
 .bark-dog {

@@ -217,18 +217,26 @@ export async function homeScreen(el, params, ctx) {
   }
 
   // Section toggles remember their state per profile (device-local).
-  for (const toggle of el.querySelectorAll('[data-toggle]')) {
-    toggle.addEventListener('click', async () => {
+  // Delegated to the screen container and resolved at tap time: a
+  // background check-in can re-render this screen, and a listener bound
+  // to the old button would silently die with it (taps "did nothing"
+  // until the user navigated away and back).
+  if (!el.dataset.toggleWired) {
+    el.dataset.toggleWired = '1';
+    el.addEventListener('click', async (e) => {
+      const toggle = e.target.closest?.('[data-toggle]');
+      if (!toggle || !el.contains(toggle)) return;
       const which = toggle.dataset.toggle;
       const open = !toggle.classList.contains('open');
       toggle.classList.toggle('open', open);
       toggle.setAttribute('aria-expanded', String(open));
       const section = which === 'tables' ? el.querySelector('.table-grid') : el.querySelector('.div-grid');
-      section.hidden = !open;
+      if (section) section.hidden = !open;
       const note = el.querySelector('.div-note');
       if (which === 'division' && note) note.hidden = !open;
       const key = which === 'tables' ? 'tablesOpen' : 'divisionOpen';
-      await setUiPrefs(p.id, { ...(await getUiPrefs(p.id)), [key]: open });
+      const prof = ctx.profile ?? p;
+      await setUiPrefs(prof.id, { ...(await getUiPrefs(prof.id)), [key]: open });
     });
   }
 

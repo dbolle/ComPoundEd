@@ -102,7 +102,9 @@ test('worst case: every little game keeps all items inside a 390×600 phone', as
   for (const g of ['count', 'find', 'look', 'more', 'next', 'add', 'feed']) {
     for (let n = 1; n <= 10; n++) skills[`${g}:${n}`] = { attempts: 4, streak: 4 };
   }
-  for (let k = 0; k <= 10; k++) skills[`bond5:${k}`] = skills[`bond10:${k}`] = { attempts: 4, streak: 4 };
+  for (let k = 0; k <= 10; k++) skills[`bond5:${k}`] = { attempts: 4, streak: 4 };
+  // bond10 stays mid-ladder (mixed stage) so the cup variant still renders
+  for (let k = 0; k <= 10; k++) skills[`bond10:${k}`] = { attempts: 4, streak: k <= 2 ? 4 : 0 };
   doc.little = { xp: 200, skills, revealed: [] };
   await seedProfile(page, doc);
   await selectProfile(page, 'Maxed');
@@ -122,16 +124,24 @@ test('worst case: every little game keeps all items inside a 390×600 phone', as
     });
 
   // drive each sizeable game to its biggest question (bounded retries)
-  for (const game of ['count', 'find', 'add', 'teen', 'look', 'feed', 'taway']) {
+  for (const game of ['count', 'find', 'add', 'teen', 'look', 'feed', 'taway', 'bond']) {
     let biggest = false;
     for (let i = 0; i < 45 && !biggest; i++) {
-      await page.evaluate((gm) => { location.hash = `#/little?game=${gm}`; }, game);
+      await page.evaluate((gm) => { location.hash = `#/little?game=${gm}${gm === 'bond' ? '&v=cup' : ''}`; }, game);
       await page.waitForSelector('.little-stage > *', { state: 'attached' }); // look's frame hides after the flash
       await page.waitForTimeout(250);
       const n = await page.evaluate(() => Number(document.querySelector('.little-stage')?.dataset.answer));
       const items = await page.$$eval('.little-stage .li', (els) => els.length);
       biggest =
-        game === 'teen' ? n >= 17 : game === 'add' ? n >= 9 : game === 'taway' ? items >= 9 : n >= 9 || Number.isNaN(n);
+        game === 'teen'
+          ? n >= 17
+          : game === 'add'
+            ? n >= 9
+            : game === 'taway'
+              ? items >= 9
+              : game === 'bond'
+                ? n >= 8 // biggest cup (spans 3) alongside its bones
+                : n >= 9 || Number.isNaN(n);
       if (biggest) {
         const bad = await offscreen();
         expect(bad, `${game} n=${n}: ${bad.join(' | ')}`).toEqual([]);
