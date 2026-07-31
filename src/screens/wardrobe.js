@@ -14,6 +14,7 @@ import {
 } from '../art/dogs.js';
 import { isUnlocked } from '../engine/unlocks.js';
 import { escapeHtml, toast } from '../ui.js';
+import { touchMeta } from '../data/schema.js';
 import { say } from '../sound.js';
 import { COLLAR_COLORS, collarColorsFor } from '../art/dogs.js';
 import { ownedGear, itemOf, placementOf, placeGear } from '../engine/gearshop.js';
@@ -50,6 +51,7 @@ export function wardrobeScreen(el, params, ctx) {
   const setWear = async (accId, value) => {
     p.wear = p.wear ?? {};
     p.wear[dog.id] = { ...(p.wear[dog.id] ?? {}), [accId]: value };
+    touchMeta(p);
     await ctx.save();
     renderPreview();
     renderRows();

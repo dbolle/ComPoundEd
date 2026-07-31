@@ -15,6 +15,7 @@ import {
   isSyncEnabled,
   setSyncEnabled,
   isSoundEnabled,
+  getSyncStatus,
   setSoundEnabled,
   getVoicePref,
   setVoicePref,
@@ -26,7 +27,7 @@ import { balanceCents, formatPaw, ensureBucks, REASON_LABELS } from '../engine/m
 import { DOGS } from '../art/dogs.js';
 import { PETS } from '../art/pets.js';
 import { toast, escapeHtml } from '../ui.js';
-import { SCHEMA_VERSION } from '../data/schema.js';
+import { SCHEMA_VERSION, touchMeta } from '../data/schema.js';
 import { bridgeVisible, tablesVisible, trackState, addingReady } from '../engine/readiness.js';
 
 // 90 distinct normalized facts across tables 1–12 with factors 0–12.
@@ -239,6 +240,7 @@ export function grownupsScreen(el, params, ctx) {
           <button class="btn ghost small" data-sync-toggle></button>
           <button class="btn ghost small" data-sync-now>💾 Back up now</button>
         </div>
+        <p class="muted" style="font-size:.8rem;margin:6px 0 0" data-sync-status></p>
         <div style="height:8px"></div>
         <div class="nav-row">
           <button class="btn ghost small" data-export>⬇️ Export all players</button>
@@ -331,6 +333,7 @@ export function grownupsScreen(el, params, ctx) {
           ? TRI[(TRI.indexOf(p.subjects?.[key] ?? 'auto') + 1) % TRI.length]
           : !p.subjects?.[key];
         p.subjects = { ...(p.subjects ?? {}), [key]: next };
+        touchMeta(p); // parent setting — must survive a stale device saving later
         await ctx.save();
         render();
         if (key === 'little') {
@@ -370,9 +373,28 @@ export function grownupsScreen(el, params, ctx) {
       toggleBtn.textContent = isSyncEnabled() ? '🟢 Backup: on' : '⚪ Backup: off';
     };
     renderToggle();
+    // Per-device status: the switch and these timestamps live in THIS
+    // browser's storage — a device (or the same device via the other
+    // address) can be dark while others sync fine.
+    const ago = (t) => {
+      if (!t) return 'never';
+      const m = Math.round((Date.now() - t) / 60000);
+      if (m < 1) return 'just now';
+      if (m < 60) return `${m} min ago`;
+      const h = Math.round(m / 60);
+      return h < 48 ? `${h} h ago` : `${Math.round(h / 24)} days ago`;
+    };
+    const renderStatus = async () => {
+      const s = await getSyncStatus();
+      panel.querySelector('[data-sync-status]').textContent = s.enabled
+        ? `This device — last backup: ${ago(s.lastPushAt)} · last check-in: ${ago(s.lastPullAt)}`
+        : 'This device is not backing up. Each device (and each address it uses) has its own switch.';
+    };
+    renderStatus();
     toggleBtn.addEventListener('click', async () => {
       await setSyncEnabled(!isSyncEnabled());
       renderToggle();
+      renderStatus();
       if (isSyncEnabled()) {
         await syncNow();
         toast('Family backup is on 🏡');
@@ -386,6 +408,7 @@ export function grownupsScreen(el, params, ctx) {
         return;
       }
       await syncNow();
+      renderStatus();
       toast('Backed up to the home server 💾');
     });
 

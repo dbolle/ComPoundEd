@@ -6,6 +6,7 @@
 
 import { GEAR_ACCESSORIES, TOYS } from '../art/gear.js';
 import { ensureBucks, balanceCents } from './money.js';
+import { touchMeta } from '../data/schema.js';
 
 export const CATALOG = [...GEAR_ACCESSORIES, ...TOYS];
 
@@ -91,6 +92,7 @@ export function placeGear(profile, itemId, wearerId, giftFor = null) {
   if (item.tier === 'gift' && wearerId != null && wearerId !== forId) return false;
   if (!profile.gear) profile.gear = { placements: {} };
   profile.gear.placements[placementKey(itemId, forId)] = wearerId ?? null;
+  touchMeta(profile); // placements are a choice — survive stale-device merges
   return true;
 }
 

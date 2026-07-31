@@ -10,6 +10,7 @@ import { escapeHtml, toast } from '../ui.js';
 import { sfx, buzz, say, cheer } from '../sound.js';
 import { storeButton } from './store.js';
 import { placedOn, toysOn, boxedToys, placeGear, itemOf } from '../engine/gearshop.js';
+import { touchMeta } from '../data/schema.js';
 import { toySVG } from '../art/gear.js';
 
 const HABITATS = {
@@ -121,6 +122,7 @@ export function cornerScreen(el, params, ctx) {
         card.querySelector('.buddy-pick').addEventListener('click', async () => {
           if (p.avatarPetId === pet.id) return;
           p.avatarPetId = pet.id;
+          touchMeta(p);
           await ctx.save();
           cheer(`${pet.name} is your buddy now!`);
           buzz([20, 30, 20]);

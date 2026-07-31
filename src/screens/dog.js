@@ -1,4 +1,5 @@
 import { navigate, currentRoute } from '../router.js';
+import { touchMeta } from '../data/schema.js';
 import { getDog, dogSVG, accessoriesFor, wornFor, ACCESSORIES, dirtFor, nextColorGoal, nextCollarGoal } from '../art/dogs.js';
 import { isUnlocked } from '../engine/unlocks.js';
 import { trainingPartnersFor } from '../engine/suggest.js';
@@ -161,6 +162,7 @@ export function dogScreen(el, params, ctx) {
     buddyBtn.addEventListener('click', async () => {
       ctx.profile.avatarDogId = dog.id;
       ctx.profile.avatarPetId = null; // a dog buddy replaces a pet buddy
+      touchMeta(ctx.profile);
       await ctx.save();
       toast(`${dog.name} is your buddy now! 🐾`);
       // the save is async — only re-render if we're still on this screen
