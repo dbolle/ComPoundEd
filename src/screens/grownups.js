@@ -361,6 +361,7 @@ export function grownupsScreen(el, params, ctx) {
           else next.push(t);
           if (next.length === 12) next = []; // all picked = no limit
           p.subjects = { ...(p.subjects ?? {}), limitTables: next.sort((x, y) => x - y) };
+          touchMeta(p);
           await ctx.save();
           renderLimit();
         });
@@ -397,8 +398,12 @@ export function grownupsScreen(el, params, ctx) {
       renderToggle();
       renderStatus();
       if (isSyncEnabled()) {
-        await syncNow();
-        toast('Family backup is on 🏡');
+        const r = await syncNow();
+        toast(
+          r.status === 'offline'
+            ? 'Backup is on — will sync when the home server is reachable'
+            : 'Family backup is on 🏡'
+        );
       } else {
         toast('Family backup turned off');
       }
@@ -408,9 +413,15 @@ export function grownupsScreen(el, params, ctx) {
         toast('Turn backup on first');
         return;
       }
-      await syncNow();
+      const r = await syncNow();
       renderStatus();
-      toast('Backed up to the home server 💾');
+      toast(
+        r.status === 'offline'
+          ? "Couldn't reach the home server — nothing was backed up"
+          : r.status === 'partial'
+            ? 'Some players did not back up — will retry automatically'
+            : 'Backed up to the home server 💾'
+      );
     });
 
     // Same file format for both — import handles either, anywhere.

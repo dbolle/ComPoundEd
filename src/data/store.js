@@ -1,5 +1,6 @@
 import { openRepo } from './storage.js';
-import { newProfile, migrateProfile, mergeProfiles } from './schema.js';
+import { newProfile, migrateProfile, mergeProfiles, validProfileDoc } from './schema.js';
+import { profileSignature } from './canonical.js';
 import { pushProfile, pullProfiles, deleteRemoteProfile, remoteBackupCount } from './sync.js';
 
 let repo;
@@ -102,29 +103,64 @@ export async function dismissBackupOffer() {
 // Pull remote profiles, merge them into local storage (never losing progress
 // from either side), and push anything the server is missing. Returns the
 // number of remote profiles found; safe to call offline (returns 0).
+// Structured result: callers must never report success they can't prove.
+// status: ok (everything confirmed) | partial (some pushes failed or some
+// docs skipped) | offline (couldn't list) | empty (server reachable, no
+// backups) | denied (auth — wired to UI with the family key, v1.38).
 export async function syncNow() {
-  const remote = await pullProfiles();
+  const pull = await pullProfiles();
+  if (!pull.ok) return { status: 'offline', found: 0, pushed: 0, failed: 0, conflicts: [] };
+  const remote = pull.docs;
   if (remote.length) repo.setMeta('lastPullAt', Date.now());
+  let pushed = 0;
+  let failed = 0;
+  let skipped = 0;
   for (const doc of remote) {
-    if (!doc || !doc.id) continue;
-    const r = migrateProfile(doc);
-    // Under the profile's write lock: the local read and the merged write
-    // are atomic w.r.t. concurrent saves (a kid answering questions).
-    await withProfileLock(r.id, async () => {
-      const local = await repo.getProfile(r.id);
-      const merged = mergeProfiles(local ? migrateProfile(local) : null, r);
-      await repo.saveProfile(merged);
-      // Heal stale server copies: if the merge knows more than the server
-      // (e.g. progress from the old debounced-push era that never landed),
-      // push it back — not just profiles the server is missing entirely.
-      if ((merged.updatedAt ?? 0) > (r.updatedAt ?? 0)) pushProfile(merged);
-    });
+    try {
+      if (!validProfileDoc(doc) || !doc.id) {
+        skipped += 1; // malformed or future-schema: never merged, never overwritten
+        continue;
+      }
+      const r = migrateProfile(structuredClone(doc));
+      // Under the profile's write lock: the local read and the merged write
+      // are atomic w.r.t. concurrent saves (a kid answering questions).
+      await withProfileLock(r.id, async () => {
+        const local = await repo.getProfile(r.id);
+        const merged = mergeProfiles(local ? migrateProfile(local) : null, r);
+        await repo.saveProfile(merged);
+        // Heal on CONTENT difference, not timestamp order — a remote copy
+        // with a newer save time can still be missing local-only progress
+        // (the union differs). Canonical signature ignores array-order
+        // noise so healing can't oscillate.
+        if (local && profileSignature(merged) !== profileSignature(migrateProfile(structuredClone(doc)))) {
+          if (await pushProfile(merged)) {
+            pushed += 1;
+            repo.setMeta('lastPushAt', Date.now());
+          } else {
+            failed += 1;
+            schedulePush(merged); // re-arm with backoff
+          }
+        }
+      });
+    } catch {
+      skipped += 1; // one bad doc must not abort the family's pass
+    }
   }
-  const remoteIds = new Set(remote.filter(Boolean).map((r) => r.id));
+  const remoteIds = new Set(remote.filter(Boolean).map((r) => r?.id));
   for (const local of await listProfiles()) {
-    if (!remoteIds.has(local.id)) pushProfile(local);
+    if (!remoteIds.has(local.id)) {
+      if (await pushProfile(local)) {
+        pushed += 1;
+        repo.setMeta('lastPushAt', Date.now());
+      } else {
+        failed += 1;
+        schedulePush(local);
+      }
+    }
   }
-  return remote.length;
+  const status =
+    failed > 0 || skipped > 0 ? 'partial' : remote.length === 0 ? 'empty' : 'ok';
+  return { status, found: remote.length - skipped, pushed, failed, conflicts: [] };
 }
 
 export async function listProfiles() {
@@ -166,7 +202,7 @@ export async function deleteProfile(id) {
 export async function importProfiles(docs) {
   let count = 0;
   for (const doc of docs) {
-    if (!doc || typeof doc.id !== 'string' || typeof doc.name !== 'string' || !doc.facts) continue;
+    if (!validProfileDoc(doc) || typeof doc.id !== 'string') continue;
     const incoming = migrateProfile(doc);
     const local = await repo.getProfile(incoming.id);
     const merged = mergeProfiles(local ? migrateProfile(local) : null, incoming);

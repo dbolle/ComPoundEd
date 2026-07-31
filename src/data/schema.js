@@ -251,7 +251,52 @@ export function migrateProfile(doc) {
     doc.metaAt = doc.metaAt ?? doc.updatedAt ?? Date.now();
     doc.schemaVersion = 17;
   }
+  // Defensive normalization (every version): known collections exist with
+  // the right types whatever the input claimed; unknown fields pass
+  // through untouched (no loss of known or unknown user data).
+  const asMap = (x) => (x && typeof x === 'object' && !Array.isArray(x) ? x : {});
+  const asArr = (x) => (Array.isArray(x) ? x : []);
+  for (const k of ['facts', 'division', 'addition', 'subtraction', 'play', 'wear', 'achievements']) {
+    doc[k] = asMap(doc[k]);
+  }
+  doc.unlocks = asArr(doc.unlocks);
+  doc.petUnlocks = asArr(doc.petUnlocks);
+  doc.pawBucks = { ...(doc.pawBucks ?? {}), txns: asArr(doc.pawBucks?.txns) };
+  doc.little = { xp: 0, skills: {}, revealed: [], ...asMap(doc.little) };
+  doc.little.skills = asMap(doc.little.skills);
+  doc.little.revealed = asArr(doc.little.revealed);
+  doc.gear = { ...(doc.gear ?? {}), placements: asMap(doc.gear?.placements) };
+  doc.subjects = { ...SUBJECT_DEFAULTS, ...asMap(doc.subjects) };
+  doc.speed = doc.speed && typeof doc.speed === 'object' ? doc.speed : { avgMs: 0, samples: 0 };
+  doc.stats = asMap(doc.stats);
   return doc;
+}
+
+// Structural validation for anything arriving from outside this device
+// (server pulls, file imports). Old schemas are welcome (migration's
+// job); FUTURE schemas are rejected — an old device must not mangle a
+// newer device's doc (the server copy is left untouched by callers).
+// Lifecycle envelopes (v1.38 sync platform) are recognized and allowed.
+export function validProfileDoc(doc) {
+  if (!doc || typeof doc !== 'object') return false;
+  if (doc.deleted === true || doc.state === 'deleted' || doc.state === 'purged') {
+    return typeof doc.id === 'string'; // tombstone/lifecycle shapes
+  }
+  if (typeof doc.id !== 'string' || typeof doc.name !== 'string') return false;
+  const v = doc.schemaVersion ?? 1;
+  if (typeof v !== 'number' || !Number.isFinite(v) || v > SCHEMA_VERSION) return false;
+  const isMap = (x) => x === undefined || x === null || (typeof x === 'object' && !Array.isArray(x));
+  const isArr = (x) => x === undefined || x === null || Array.isArray(x);
+  for (const k of ['facts', 'division', 'addition', 'subtraction', 'play', 'wear', 'achievements', 'little']) {
+    if (!isMap(doc[k])) return false;
+  }
+  for (const k of ['unlocks', 'petUnlocks']) {
+    if (!isArr(doc[k])) return false;
+  }
+  if (doc.pawBucks !== undefined && doc.pawBucks !== null) {
+    if (typeof doc.pawBucks !== 'object' || !isArr(doc.pawBucks.txns)) return false;
+  }
+  return true;
 }
 
 // Marks a settings/cosmetics change (subjects, avatar, wear, placements)
@@ -301,8 +346,8 @@ export function mergeProfiles(a, b) {
     if (!seen) petUnlocks.push(u);
     else seen.at = Math.min(seen.at, u.at);
   }
-  const unlocks = [...a.unlocks];
-  for (const u of b.unlocks) {
+  const unlocks = [...(a.unlocks ?? [])];
+  for (const u of b.unlocks ?? []) {
     const existing = unlocks.find((x) => x.dogId === u.dogId);
     if (!existing) unlocks.push(u);
     else if (u.at < existing.at) existing.at = u.at;

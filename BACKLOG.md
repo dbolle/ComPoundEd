@@ -95,6 +95,12 @@ reconsider after calibration.
 
 ## Parked / reconsider later
 
+- **Append-only ledger growth** (2026-08-01): pawBucks.txns only grows
+  (deterministic ids make it merge-safe). Fine for years at kid pace,
+  but unbounded; compaction needs its own lossless cross-device design
+  (checkpointing + tombstoned prefixes) — NOT attempted in the
+  hardening wave.
+
 - **Pets #25–26 reserved**: Trace it! shipped as milestone #24
   (v1.35.0); the last two pets still have no earning path — candidates:
   shapes/pattern mastery, a Surprise! ladder, or Phase 7 money-math

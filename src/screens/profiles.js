@@ -54,7 +54,7 @@ export async function profilesScreen(el, params, ctx) {
       </div>`;
     card.querySelector('[data-offer-on]').addEventListener('click', async () => {
       await setSyncEnabled(true);
-      const found = await syncNow();
+      const { found } = await syncNow();
       toast(found ? `Backup on — ${found} player${found > 1 ? 's' : ''} synced 🏡` : 'Backup on 🏡');
       profilesScreen(el, params, ctx);
     });
@@ -92,7 +92,7 @@ export async function profilesScreen(el, params, ctx) {
     btn.disabled = true;
     btn.textContent = 'Looking for the home server…';
     await setSyncEnabled(true);
-    const found = await syncNow();
+    const { found } = await syncNow();
     if (found > 0) {
       toast(`Restored ${found} player${found > 1 ? 's' : ''} 🏡`);
       profilesScreen(el, params, ctx);
