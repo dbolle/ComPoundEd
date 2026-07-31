@@ -12,18 +12,35 @@ function signal() {
   return ctl.signal;
 }
 
-export async function pushProfile(profile) {
+// keepalive lets a PUT survive the page being killed (the pagehide flush)
+// but browsers cap keepalive bodies at ~64KB — a long Paw Bucks ledger
+// exceeds that and the push silently drops. So: keepalive ONLY on the
+// flush path, plain fetch everywhere else.
+export async function pushProfile(profile, { keepalive = false } = {}) {
   try {
     const res = await fetch(`${SYNC_BASE}${encodeURIComponent(profile.id)}.json`, {
       method: 'PUT',
       body: JSON.stringify(profile),
       headers: { 'Content-Type': 'application/json' },
-      keepalive: true,
+      keepalive,
       signal: signal(),
     });
     return res.ok;
   } catch {
     return false;
+  }
+}
+
+// Cheap probe: does the family server hold any backups? Used to offer
+// turning sync on for devices/origins where the switch is still off.
+export async function remoteBackupCount() {
+  try {
+    const res = await fetch(SYNC_BASE, { headers: { Accept: 'application/json' }, signal: signal() });
+    if (!res.ok) return 0;
+    const listing = await res.json();
+    return listing.filter((f) => f.name?.endsWith('.json')).length;
+  } catch {
+    return 0;
   }
 }
 

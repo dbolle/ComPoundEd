@@ -54,8 +54,10 @@ test('schema v9: wear migrates in and merges newer-wins', () => {
   const b = structuredClone(a);
   a.wear = { d1: { bandana: 'red' }, d2: { cap: 'none' } };
   a.updatedAt = Date.now() - 1000;
+  a.metaAt = Date.now() - 1000; // explicitly older than b's change
   b.wear = { d1: { bandana: 'blue' } };
   b.updatedAt = Date.now();
+  b.metaAt = Date.now(); // v17: cosmetics merge by metaAt
   const m = mergeProfiles(a, b);
   expect(m.wear.d1).toEqual({ bandana: 'blue' }); // newer choice wins
   expect(m.wear.d2).toEqual({ cap: 'none' }); // older-only entries survive

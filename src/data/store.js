@@ -1,6 +1,6 @@
 import { openRepo } from './storage.js';
 import { newProfile, migrateProfile, mergeProfiles } from './schema.js';
-import { pushProfile, pullProfiles, deleteRemoteProfile } from './sync.js';
+import { pushProfile, pullProfiles, deleteRemoteProfile, remoteBackupCount } from './sync.js';
 
 let repo;
 let syncEnabled = false;
@@ -42,20 +42,61 @@ export async function setSyncEnabled(v) {
   await repo.setMeta('syncEnabled', syncEnabled);
 }
 
+// All writes to one profile run in order through a promise chain: a save
+// can no longer interleave with a syncNow merge (read-modify-write race)
+// — whichever starts second sees the other's committed write.
+const writeChains = new Map();
+function withProfileLock(id, fn) {
+  const prev = writeChains.get(id) ?? Promise.resolve();
+  const next = prev.then(fn, fn);
+  writeChains.set(
+    id,
+    next.catch(() => {})
+  );
+  return next;
+}
+
 // Push IMMEDIATELY on every save: kids switch devices (or iOS kills the
-// tab) faster than any debounce window, and that lost transactions. The
-// PUT is fire-and-forget with keepalive; one delayed retry covers a
-// flaky first attempt.
-function schedulePush(profile) {
+// tab) faster than any debounce window, and that lost transactions.
+// Failures re-arm with backoff (flaky wifi, device waking from sleep);
+// a fresh save or a success clears the timer.
+const PUSH_RETRY_MS = [4000, 15000, 60000];
+function schedulePush(profile, attempt = 0) {
   clearTimeout(pushTimers.get(profile.id));
   pushProfile(profile).then((ok) => {
-    if (!ok) {
+    if (ok) {
+      repo.setMeta('lastPushAt', Date.now());
+    } else if (attempt < PUSH_RETRY_MS.length) {
       pushTimers.set(
         profile.id,
-        setTimeout(() => pushProfile(profile), 4000)
+        setTimeout(() => schedulePush(profile, attempt + 1), PUSH_RETRY_MS[attempt])
       );
     }
   });
+}
+
+// One glance in Grown-Ups: is THIS device backing up, and when did it
+// last succeed? (Timestamps are per-origin meta, like the switch itself.)
+export async function getSyncStatus() {
+  return {
+    enabled: syncEnabled,
+    lastPushAt: (await repo.getMeta('lastPushAt')) ?? null,
+    lastPullAt: (await repo.getMeta('lastPullAt')) ?? null,
+  };
+}
+
+// The family opted into backup if their server already holds profiles —
+// but the on/off switch lives in per-origin browser storage, so a device
+// (or the same device via the other address) can be silently dark. This
+// probe powers a one-time "turn it on here too?" offer.
+export async function offerBackup() {
+  if (syncEnabled) return false;
+  if ((await repo.getMeta('backupOfferDismissed')) === true) return false;
+  return (await remoteBackupCount()) > 0;
+}
+
+export async function dismissBackupOffer() {
+  await repo.setMeta('backupOfferDismissed', true);
 }
 
 // Pull remote profiles, merge them into local storage (never losing progress
@@ -63,16 +104,21 @@ function schedulePush(profile) {
 // number of remote profiles found; safe to call offline (returns 0).
 export async function syncNow() {
   const remote = await pullProfiles();
+  if (remote.length) repo.setMeta('lastPullAt', Date.now());
   for (const doc of remote) {
     if (!doc || !doc.id) continue;
     const r = migrateProfile(doc);
-    const local = await repo.getProfile(r.id);
-    const merged = mergeProfiles(local ? migrateProfile(local) : null, r);
-    await repo.saveProfile(merged);
-    // Heal stale server copies: if the merge knows more than the server
-    // (e.g. progress from the old debounced-push era that never landed),
-    // push it back — not just profiles the server is missing entirely.
-    if ((merged.updatedAt ?? 0) > (r.updatedAt ?? 0)) pushProfile(merged);
+    // Under the profile's write lock: the local read and the merged write
+    // are atomic w.r.t. concurrent saves (a kid answering questions).
+    await withProfileLock(r.id, async () => {
+      const local = await repo.getProfile(r.id);
+      const merged = mergeProfiles(local ? migrateProfile(local) : null, r);
+      await repo.saveProfile(merged);
+      // Heal stale server copies: if the merge knows more than the server
+      // (e.g. progress from the old debounced-push era that never landed),
+      // push it back — not just profiles the server is missing entirely.
+      if ((merged.updatedAt ?? 0) > (r.updatedAt ?? 0)) pushProfile(merged);
+    });
   }
   const remoteIds = new Set(remote.filter(Boolean).map((r) => r.id));
   for (const local of await listProfiles()) {
@@ -99,8 +145,16 @@ export async function loadProfile(id) {
 
 export async function saveProfile(profile) {
   profile.updatedAt = Date.now();
-  await repo.saveProfile(profile);
-  if (syncEnabled) schedulePush(profile);
+  // Merge with what's on disk before writing: a background pull that
+  // landed while this screen held a stale in-memory copy is folded in
+  // instead of clobbered. Serialized with syncNow through the same lock.
+  const merged = await withProfileLock(profile.id, async () => {
+    const disk = await repo.getProfile(profile.id);
+    const out = disk ? mergeProfiles(migrateProfile(disk), profile) : profile;
+    await repo.saveProfile(out);
+    return out;
+  });
+  if (syncEnabled) schedulePush(merged);
 }
 
 export async function deleteProfile(id) {

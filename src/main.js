@@ -55,7 +55,7 @@ document.addEventListener('gesturestart', (e) => e.preventDefault());
 // Last-chance sync flush: when the app is hidden or killed, push the
 // active profile with keepalive so a device switch can't strand a round.
 const flush = () => {
-  if (ctx.profile && isSyncEnabled()) pushProfile(ctx.profile);
+  if (ctx.profile && isSyncEnabled()) pushProfile(ctx.profile, { keepalive: true });
 };
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') flush();

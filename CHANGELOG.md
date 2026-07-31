@@ -3,6 +3,22 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.33.0 — 2026-07-31
+
+- Cross-device sync gets trustworthy (saves v17):
+  - Parent settings and choices (subjects, buddy, outfits, toy
+    placements) now merge by when they were CHANGED, not by which device
+    saved last — a stale device can no longer quietly revert them.
+  - Every save first folds in whatever a background check-in already
+    pulled, and all writes to a profile go through a lock — two known
+    ways progress could be overwritten are gone.
+  - Failed backups retry with patience (4s/15s/60s), and big profiles no
+    longer risk the browser's 64KB limit on page-close pushes.
+  - If the family server already holds backups but THIS device's backup
+    switch is off (each device — and each address it uses — has its own
+    switch), the players screen offers to turn it on. Grown-Ups now
+    shows per-device status: last backup and last check-in times.
+
 ## v1.32.2 — 2026-07-31
 
 - Dependency security fixes (build toolchain only — nothing that ships

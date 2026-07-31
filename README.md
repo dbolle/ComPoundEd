@@ -66,6 +66,9 @@ licensing.
 - **Family backup (opt-in, off by default)** — Grown-Ups area can back
   profiles up to the family's own home server (same-origin `/sync/`, LAN
   only), restore them on new devices, and export/import a backup file.
+  Tip: pick ONE address per device (the hostname or the IP) — each
+  address keeps its own separate local data, and the backup switch is
+  per-address; the app will offer to enable backup where it's off.
   Conflicts merge without losing progress from either side.
 
 ## Develop

@@ -2,7 +2,7 @@
 // migrateProfile() whenever the shape of stored data changes — this is the
 // contract a future sync backend will rely on.
 
-export const SCHEMA_VERSION = 16;
+export const SCHEMA_VERSION = 17;
 
 // bridge/tables are TRI-STATE since v16: 'auto' (readiness engine decides,
 // with any started track always visible) | true (parent forces) | false
@@ -96,6 +96,11 @@ export function newProfile(name) {
     // is derived from the Paw Bucks ledger's buy txns). null = closet.
     gear: { placements: {} },
     createdAt: Date.now(),
+    // When parent settings / cosmetic choices last changed (subjects,
+    // avatar, wear, gear placements). Merged separately from updatedAt so
+    // a stale device saving progress can't revert another device's
+    // setting change (v17).
+    metaAt: Date.now(),
     // Per-fact Leitner stats, keyed by normalized fact key ("3x4"):
     // { attempts, correct, avgMs, box, lastSeen }
     facts: {},
@@ -240,7 +245,19 @@ export function migrateProfile(doc) {
     doc.little.revealed = doc.little.revealed ?? [];
     doc.schemaVersion = 16;
   }
+  if (doc.schemaVersion === 16) {
+    // metaAt: settings/cosmetics change-time (see newProfile). Old docs
+    // start it at their updatedAt — additive, nothing lost.
+    doc.metaAt = doc.metaAt ?? doc.updatedAt ?? Date.now();
+    doc.schemaVersion = 17;
+  }
   return doc;
+}
+
+// Marks a settings/cosmetics change (subjects, avatar, wear, placements)
+// so merges keep the intended value even if a stale device saves later.
+export function touchMeta(profile) {
+  profile.metaAt = Date.now();
 }
 
 // Merges two versions of the same profile without losing progress from
@@ -252,6 +269,11 @@ export function mergeProfiles(a, b) {
   if (!b) return a;
   const newer = (a.updatedAt ?? 0) >= (b.updatedAt ?? 0) ? a : b;
   const older = newer === a ? b : a;
+  // Settings/cosmetics follow the doc whose SETTINGS changed last, not the
+  // doc that merely saved progress last (v17 metaAt).
+  const metaOf = (d) => d.metaAt ?? d.updatedAt ?? 0;
+  const metaNewer = metaOf(a) >= metaOf(b) ? a : b;
+  const metaOlder = metaNewer === a ? b : a;
   const mergeStatMap = (ma = {}, mb = {}) => {
     const out = {};
     for (const key of new Set([...Object.keys(ma), ...Object.keys(mb)])) {
@@ -304,8 +326,9 @@ export function mergeProfiles(a, b) {
     if (t?.id && !seenTxns.has(t.id)) seenTxns.set(t.id, t);
   }
   const pawBucks = { txns: [...seenTxns.values()].sort((x, y) => x.at - y.at) };
-  // Wardrobe choices are cosmetic: the more recently updated doc wins per dog.
-  const wear = { ...(a.updatedAt >= b.updatedAt ? b.wear : a.wear) ?? {}, ...(newer.wear ?? {}) };
+  // Wardrobe choices are cosmetic: the doc with the newer settings-change
+  // wins per dog.
+  const wear = { ...(metaOlder.wear ?? {}), ...(metaNewer.wear ?? {}) };
   // Speed baseline: the better-calibrated side wins.
   const speed =
     (a.speed?.samples ?? 0) >= (b.speed?.samples ?? 0)
@@ -341,12 +364,13 @@ export function mergeProfiles(a, b) {
       stats[k] = Math.max(sa[k] ?? 0, sb[k] ?? 0);
     }
   }
-  // Subjects follow the more recently updated doc (it's a parent setting);
+  // Subjects follow the doc whose settings changed last (parent intent);
   // little-pup xp never regresses.
-  const subjects = { ...SUBJECT_DEFAULTS, ...(newer.subjects ?? {}) };
-  // Gear placements are a preference (like wear): newer doc wins per item.
+  const subjects = { ...SUBJECT_DEFAULTS, ...(metaNewer.subjects ?? {}) };
+  // Gear placements are a preference (like wear): the doc with the newer
+  // settings-change wins per item (null = closet, so removals propagate).
   const gear = {
-    placements: { ...(older.gear?.placements ?? {}), ...(newer.gear?.placements ?? {}) },
+    placements: { ...(metaOlder.gear?.placements ?? {}), ...(metaNewer.gear?.placements ?? {}) },
   };
   const little = {
     xp: Math.max(a.little?.xp ?? 0, b.little?.xp ?? 0),
@@ -375,6 +399,9 @@ export function mergeProfiles(a, b) {
     schemaVersion: SCHEMA_VERSION,
     createdAt: Math.min(a.createdAt ?? Date.now(), b.createdAt ?? Date.now()),
     updatedAt: Math.max(a.updatedAt ?? 0, b.updatedAt ?? 0),
+    metaAt: Math.max(metaOf(a), metaOf(b)),
+    avatarDogId: metaNewer.avatarDogId ?? newer.avatarDogId,
+    avatarPetId: metaNewer.avatarPetId ?? null,
     facts,
     division,
     addition,

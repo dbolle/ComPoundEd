@@ -27,8 +27,10 @@ test('migration v6→v7 adds subjects scaffolding + little progression', () => {
   const b = structuredClone(a);
   a.little.xp = 12;
   a.updatedAt = Date.now() - 1000;
+  a.metaAt = Date.now() - 1000; // explicitly older than b's change
   b.subjects.little = true; // parent flipped it more recently
   b.updatedAt = Date.now();
+  b.metaAt = Date.now(); // v17: settings merge by metaAt
   const m = mergeProfiles(a, b);
   expect(m.subjects.little).toBe(true);
   expect(m.little.xp).toBe(12); // progression never regresses
