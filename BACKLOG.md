@@ -73,8 +73,8 @@ reconsider after calibration.
 
 ## Prioritized (new)
 
-- **Readiness gates can't see skills proven above them** (REDACTED case,
-  2026-07-25): `addingReady` only reads little-pup counting skills, so a
+- **Readiness gates can't see skills proven above them** (mid-trail
+  readiness case, 2026-07-25): `addingReady` only reads little-pup counting skills, so a
   child onboarded mid-trail (straight into tables) can never auto-qualify
   for the tracks below — parents must force them on. Options: strength
   above implies readiness below (any multiplication history satisfies
