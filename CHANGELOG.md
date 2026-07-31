@@ -3,6 +3,12 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.32.1 — 2026-07-31
+
+- Added SECURITY.md: a security policy for the public repo pointing
+  researchers at GitHub's private vulnerability reporting (no public
+  issues for security bugs). No app changes.
+
 ## v1.32.0 — 2026-07-25
 
 - **The Pet Store is open for everyone!** 🏪 Out of beta after its
