@@ -331,10 +331,18 @@ async function resolveTombstone(id, intent) {
     if (put.denied) return { state: 'denied' };
     if (!put.ok) return put.conflict ? { state: 'conflict', reason: 'changed-since' } : { state: 'offline' };
     etag = put.etag;
+    // PERSIST the base we just established. Without this, a dropped
+    // delete call below leaves the intent pointing at the pre-PUT etag,
+    // and the next attempt reads OUR OWN successful write as "changed
+    // since" — a self-inflicted permanent conflict (audit C2).
+    intent.baseEtag = etag ?? null;
+    intent.status = 'pending';
+    await setPendingTombstone(id, intent);
   }
   if (isLegacyMode()) {
-    // pre-cutover server: no lifecycle support — the intent stays pending
-    // until the sidecar arrives; local deletion is already done.
+    // Pre-cutover server: no lifecycle endpoints. The intent stays
+    // pending (and keeps suppressing this id locally — see the pull
+    // loop) so the raw server copy can never re-create the profile.
     return { state: 'pending-legacy' };
   }
   const t = await lifecycleTransition(id, 'delete', etag, { tombstoneId: intent.intentId });
@@ -503,8 +511,14 @@ export async function syncNow() {
   let failed = 0;
   let skipped = 0;
   let found = 0;
+  const pendingNow = await getPendingTombstones();
   for (const id of listing.ids) {
     try {
+      // A profile this device is deleting must never be re-created by a
+      // pull — the server copy is exactly what the pending intent is
+      // about to remove (audit C1). Without this the profile reappeared
+      // on the picker AND every save to it was silently discarded.
+      if (deletedIds.has(id) || pendingNow[id]) continue;
       const remote = await getRemote(id);
       if (remote.denied) return { status: 'denied', found, pushed, failed, conflicts: lifecycleConflicts };
       if (remote.gone) {
@@ -592,8 +606,17 @@ export async function loadProfile(id) {
   return doc ? migrateProfile(doc) : null;
 }
 
+export class ProfileDeletedError extends Error {
+  constructor(id) {
+    super(`profile ${id} is being deleted — save refused`);
+    this.name = 'ProfileDeletedError';
+  }
+}
+
 export async function saveProfile(profile) {
-  if (deletedIds.has(profile.id)) return; // deletion already in progress
+  // Refuse loudly: a silent no-op looked identical to a working profile
+  // while discarding a child's whole session (audit C1).
+  if (deletedIds.has(profile.id)) throw new ProfileDeletedError(profile.id);
   profile.updatedAt = Date.now();
   // Merge with what's on disk before writing: a background pull that
   // landed while this screen held a stale in-memory copy is folded in

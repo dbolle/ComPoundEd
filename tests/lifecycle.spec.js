@@ -222,24 +222,25 @@ test('e2e: delete → restore elsewhere → stale offline delete becomes a CONFL
   const live = await page.request.get('/sync/profiles/conf-kid.json');
   expect(live.status()).toBe(200); // restored player SURVIVED the stale intent
 
-  // the conflict is visible and resolvable: keep the player
-  await page.waitForSelector('.profile-card', { timeout: 10000 });
-  await page.evaluate(() => { location.hash = '#/grownups'; });
-  // no active profile — grownups needs one; pick via profiles first
+  // The stale intent must NOT have re-created the player locally (that
+  // was audit C1) — the grown-up decides via the conflict row.
   await page.evaluate(() => { location.hash = '#/profiles'; });
-  await page.waitForTimeout(1500);
-  const anyCard = await page.$(`.profile-card:has-text("${doc.name}")`);
-  if (anyCard) {
-    await anyCard.tap();
-    await page.waitForSelector('.hero, .little-hero');
-  }
+  await page.waitForSelector('[data-new]');
+  await expect(page.locator(`.profile-card:has-text("${doc.name}")`)).toHaveCount(0);
+  // Grown-Ups needs an active profile: make a throwaway one
+  await page.tap('[data-new]');
+  await page.fill('.name-input', 'Resolver');
+  await page.tap('form[data-create] [data-kind="big"]');
+  await page.waitForSelector('.hero');
   await page.evaluate(() => { location.hash = '#/grownups'; });
   await holdGrownupsGate(page);
   await page.tap('[data-deleted-players]');
-  await page.waitForSelector('[data-resolve-keep="conf-kid"]');
+  await page.waitForSelector('[data-resolve-keep="conf-kid"]'); // conflict IS surfaced
   await page.tap('[data-resolve-keep="conf-kid"]');
   await page.waitForTimeout(800);
-  expect(await readLocal(page, 'conf-kid')).not.toBe(null); // back locally
+  // "keep" restores from the retained snapshot — resurrection only ever
+  // happens by explicit grown-up choice
+  expect(await readLocal(page, 'conf-kid')).not.toBe(null);
   await page.request.delete('/sync/profiles/conf-kid.json');
 });
 
