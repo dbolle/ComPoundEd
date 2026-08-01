@@ -18,16 +18,16 @@ test('first run: create → round → results → progress → pack → heatmap'
 
   // ×2 round, all correct
   await openTableGrid(page);
-  await page.tap('.table-grid .table-btn:nth-child(2)');
+  await page.tap('.table-grid:not(.add-grid) .table-btn:nth-child(2)');
   await playQuestions(page, 12);
   await expect(page.locator('.big-score')).toContainText('10 / 10');
   await expect(page.locator('.badge').first()).toBeVisible();
 
   // Meter moved after one perfect round
   await page.tap('[data-home]');
-  await page.waitForSelector('.table-grid .table-btn');
+  await page.waitForSelector('.table-grid:not(.add-grid) .table-btn');
   const width = await page.$eval(
-    '.table-grid .table-btn:nth-child(2) .meter span',
+    '.table-grid:not(.add-grid) .table-btn:nth-child(2) .meter span',
     (e) => parseInt(e.style.width, 10)
   );
   expect(width).toBeGreaterThan(0);
@@ -38,7 +38,7 @@ test('first run: create → round → results → progress → pack → heatmap'
   expect(await page.$$eval('.dog-card:not(.locked)', (els) => els.length)).toBe(1);
   expect(await page.$$eval('.dog-card.locked', (els) => els.length)).toBe(24);
   await page.tap('[data-back]');
-  await page.waitForSelector('.table-grid');
+  await page.waitForSelector('.table-grid:not(.add-grid):not(.div-grid)');
   await page.tap('[data-nav="/heatmap"]');
   await page.waitForSelector('.hm-cell');
   expect(await page.$$eval('.hm-cell', (els) => els.length)).toBe(169);
@@ -54,7 +54,7 @@ test('wrong answers show the correction and input caps at 3 digits', async ({ pa
   await selectProfile(page, doc.name);
   await page.waitForSelector('.hero');
   await openTableGrid(page);
-  await page.tap('.table-grid .table-btn:nth-child(3)');
+  await page.tap('.table-grid:not(.add-grid) .table-btn:nth-child(3)');
   await page.waitForSelector('.question');
   for (const d of '99999') await page.tap(`.numpad .key:text-is("${d}")`);
   await expect(page.locator('.answer-box')).toHaveText('999');
@@ -68,7 +68,7 @@ test('profiles are isolated', async ({ page }) => {
   const a = uniqueName('Iso');
   await createProfileUI(page, a);
   await openTableGrid(page);
-  await page.tap('.table-grid .table-btn:nth-child(2)');
+  await page.tap('.table-grid:not(.add-grid) .table-btn:nth-child(2)');
   await playQuestions(page, 12);
   await page.waitForSelector('.big-score');
   await page.tap('[data-home]');
@@ -80,7 +80,7 @@ test('profiles are isolated', async ({ page }) => {
   await page.tap('form[data-create] button[type=submit]');
   await page.waitForSelector('.hero');
   const fresh = await page.$eval(
-    '.table-grid .table-btn:nth-child(2) .meter span',
+    '.table-grid:not(.add-grid) .table-btn:nth-child(2) .meter span',
     (e) => parseInt(e.style.width, 10) || 0
   );
   expect(fresh).toBe(0);
@@ -89,7 +89,7 @@ test('profiles are isolated', async ({ page }) => {
   await page.tap(`.profile-card:has-text("${a}")`);
   await page.waitForSelector('.hero');
   const kept = await page.$eval(
-    '.table-grid .table-btn:nth-child(2) .meter span',
+    '.table-grid:not(.add-grid) .table-btn:nth-child(2) .meter span',
     (e) => parseInt(e.style.width, 10)
   );
   expect(kept).toBeGreaterThan(0);

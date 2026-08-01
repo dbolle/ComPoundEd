@@ -48,7 +48,7 @@ test('e2e: little pup profile gets the counting home, not the grids', async ({ p
   await createLittleProfile(page, uniqueName('Pup'));
   expect(await page.$$eval('button.little-tile:not(.play-next)', (els) => els.length)).toBe(2); // xp 0: count + tap
   expect(await page.$('.little-tile.soon')).not.toBeNull(); // sparkly next-unlock hint
-  expect(await page.$('.table-grid')).toBeNull();
+  expect(await page.$('.table-grid:not(.add-grid):not(.div-grid)')).toBeNull();
   expect(await page.$('[data-suggest]')).toBeNull();
 });
 

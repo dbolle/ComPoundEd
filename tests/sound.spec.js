@@ -22,7 +22,7 @@ test('a full round with sounds on raises no page errors', async ({ page }) => {
   page.on('pageerror', (e) => errors.push(e.message));
   await createProfileUI(page, uniqueName('Sfx'));
   await openTableGrid(page);
-  await page.tap('.table-grid .table-btn:nth-child(2)');
+  await page.tap('.table-grid:not(.add-grid) .table-btn:nth-child(2)');
   await playQuestions(page, 12, {
     answerFn: (q, i) => (i === 1 ? q.a * q.b + 1 : q.a * q.b), // one wrong → sfx.wrong
   });

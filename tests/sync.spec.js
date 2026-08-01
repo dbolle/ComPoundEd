@@ -68,7 +68,7 @@ test('backup → restore on a new device → two-way merge', async ({ page, brow
 
   // B plays ×3; A pulls on next boot and keeps its own data too
   await openTableGrid(B);
-  await B.tap('.table-grid .table-btn:nth-child(3)');
+  await B.tap('.table-grid:not(.add-grid) .table-btn:nth-child(3)');
   await playQuestions(B, 12);
   await B.waitForSelector('.big-score');
   await B.waitForTimeout(2200); // debounced push

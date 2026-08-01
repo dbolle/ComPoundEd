@@ -61,7 +61,7 @@ test('heatmap fades due facts and grown-ups counts them', async ({ page }) => {
 
   // Star still shown for the ×2 table even though a fact is overdue
   await openTableGrid(page);
-  await expect(page.locator('.table-grid .table-btn:nth-child(2)')).toContainText('⭐');
+  await expect(page.locator('.table-grid:not(.add-grid) .table-btn:nth-child(2)')).toContainText('⭐');
 
   await page.tap('[data-nav="/heatmap"]');
   await page.waitForSelector('.hm-cell');

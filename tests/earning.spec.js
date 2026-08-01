@@ -73,7 +73,7 @@ test('e2e: mastering facts in a round shows the coin ceremony and fills the wall
   await selectProfile(page, 'Miner');
 
   await openTableGrid(page);
-  await page.tap('.table-grid .table-btn:nth-child(2)'); // ×2
+  await page.tap('.table-grid:not(.add-grid) .table-btn:nth-child(2)'); // ×2
   await playQuestions(page, 12);
   await page.waitForSelector('.coin-reveal');
   await expect(page.locator('.coin-reveal h3')).toContainText('You earned');

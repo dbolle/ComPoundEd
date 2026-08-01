@@ -151,7 +151,7 @@ test('slow-correct answers climb early boxes but not past the cap', async ({ pag
   await seedProfile(page, doc);
   await selectProfile(page, 'PlaySlow');
   await openTableGrid(page);
-  await page.tap('.table-grid .table-btn:nth-child(5)'); // ×5 table
+  await page.tap('.table-grid:not(.add-grid) .table-btn:nth-child(5)'); // ×5 table
   await page.waitForSelector('.question');
 
   let slowFresh = null;

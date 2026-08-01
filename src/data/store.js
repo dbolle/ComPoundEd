@@ -1,4 +1,4 @@
-import { openRepo } from './storage.js';
+import { openRepo, nextMetaSeq, fallbackHoldings, clearFallbackEntry } from './storage.js';
 import { newProfile, migrateProfile, mergeProfiles, validProfileDoc } from './schema.js';
 import { profileSignature } from './canonical.js';
 import {
@@ -15,40 +15,140 @@ import {
 } from './sync.js';
 
 let repo;
+let storageInfo = { backend: 'idb', degraded: false };
 let syncEnabled = false;
 let soundEnabled = true;
 let voicePref = null;
 const pushTimers = new Map();
 
+// Intentional meta values travel in sequence envelopes { __seq, at, v }
+// so a degraded-session fallback and IndexedDB can reconcile by a shared
+// monotonic order instead of forkable per-backend guesses. Legacy plain
+// values read as sequence 0 with unknown time (never fabricated).
+const unwrapMeta = (raw) => (raw && typeof raw === 'object' && '__seq' in raw ? raw.v : raw);
+const seqOf = (raw) => (raw && typeof raw === 'object' && '__seq' in raw ? raw.__seq : 0);
+async function getMetaV(key) {
+  return unwrapMeta(await repo.getMeta(key));
+}
+async function setMetaV(key, value) {
+  await repo.setMeta(key, { __seq: nextMetaSeq(), at: Date.now(), v: value });
+}
+
+export function storageStatus() {
+  return storageInfo;
+}
+
 export async function initStore() {
-  repo = await openRepo();
-  syncEnabled = (await repo.getMeta('syncEnabled')) === true;
-  soundEnabled = (await repo.getMeta('soundEnabled')) !== false; // default on
-  voicePref = (await repo.getMeta('voicePref')) ?? null;
-  setSyncHeaderKey((await repo.getMeta('syncKey')) ?? null);
+  const opened = await openRepo();
+  repo = opened.repo;
+  storageInfo = { backend: opened.backend, degraded: opened.degraded };
+  if (!repo) {
+    // storage: 'none' — honest failure, no recoverable-fallback claim.
+    // A memory-only repo keeps the session alive; NOTHING persists.
+    const mem = { profiles: new Map(), meta: new Map() };
+    repo = {
+      listProfiles: async () => [...mem.profiles.values()],
+      getProfile: async (id) => mem.profiles.get(id),
+      saveProfile: async (p) => mem.profiles.set(p.id, p),
+      deleteProfile: async (id) => mem.profiles.delete(id),
+      getMeta: async (k) => mem.meta.get(k),
+      setMeta: async (k, v) => mem.meta.set(k, v),
+    };
+  }
+  if (opened.backend === 'idb') await reconcileFallback();
+  syncEnabled = (await getMetaV('syncEnabled')) === true;
+  soundEnabled = (await getMetaV('soundEnabled')) !== false; // default on
+  voicePref = (await getMetaV('voicePref')) ?? null;
+  setSyncHeaderKey((await getMetaV('syncKey')) ?? null);
+}
+
+// One-way, idempotent, crash-restart-safe recovery: anything a degraded
+// localStorage session wrote merges into IndexedDB; each fallback entry
+// is cleared ONLY after the IDB write commits and a verification read
+// returns it. Per-key rules (review-locked): pending tombstones union by
+// intentId; higher sequence wins; equal sequence with DIFFERENT values
+// is a surfaced conflict (syncKey keeps IDB's and asks the grown-up);
+// activeProfileId only if it resolves to a live profile.
+async function reconcileFallback() {
+  const holdings = fallbackHoldings();
+  if (!holdings.profiles.length && !holdings.meta.length) return;
+  const ls = {
+    get: (kind, key) => {
+      try {
+        const raw = localStorage.getItem(`compounded:${kind}:${key}`);
+        return raw ? JSON.parse(raw) : undefined;
+      } catch {
+        return undefined;
+      }
+    },
+  };
+  for (const id of holdings.profiles) {
+    const doc = ls.get('profile', id);
+    if (!validProfileDoc(doc)) {
+      clearFallbackEntry('profile', id); // corrupt entry: skipped, logged by absence
+      continue;
+    }
+    await withProfileLock(id, async () => {
+      const local = await repo.getProfile(id);
+      const merged = mergeProfiles(local ? migrateProfile(local) : null, migrateProfile(structuredClone(doc)));
+      await repo.saveProfile(merged);
+      const verify = await repo.getProfile(id);
+      if (verify) clearFallbackEntry('profile', id);
+    });
+  }
+  for (const key of holdings.meta) {
+    const fromLs = ls.get('meta', key);
+    if (fromLs === undefined) {
+      clearFallbackEntry('meta', key);
+      continue;
+    }
+    const inIdb = await repo.getMeta(key);
+    let winner = inIdb;
+    if (key === 'lastPushAt' || key === 'lastPullAt') {
+      const mx = Math.max(Number(unwrapMeta(fromLs)) || 0, Number(unwrapMeta(inIdb)) || 0);
+      await repo.setMeta(key, mx);
+      winner = mx;
+    } else if (key === 'pendingTombstones') {
+      winner = { ...(unwrapMeta(inIdb) ?? {}), ...(unwrapMeta(fromLs) ?? {}) }; // union by intent id
+      await repo.setMeta(key, winner);
+    } else if (seqOf(fromLs) > seqOf(inIdb)) {
+      await repo.setMeta(key, fromLs);
+      winner = fromLs;
+    } else if (seqOf(fromLs) === seqOf(inIdb) && JSON.stringify(unwrapMeta(fromLs)) !== JSON.stringify(unwrapMeta(inIdb))) {
+      // equal sequence, different values: corruption/conflict — keep
+      // IDB's, surface it (syncKey specifically prompts in Grown-Ups)
+      await repo.setMeta('metaConflicts', [...new Set([...((await repo.getMeta('metaConflicts')) ?? []), key])]);
+    }
+    if (key === 'activeProfileId') {
+      const id = unwrapMeta(winner);
+      if (id && !(await repo.getProfile(id))) await repo.setMeta(key, null);
+    }
+    const verify = await repo.getMeta(key);
+    if (verify !== undefined) clearFallbackEntry('meta', key);
+  }
 }
 
 // The family key: device-local meta ONLY — never in profile docs,
 // exports, or sync payloads. Password-style entry in Grown-Ups and the
 // profiles restore flow.
 export async function getSyncKey() {
-  return (await repo.getMeta('syncKey')) ?? null;
+  return (await getMetaV('syncKey')) ?? null;
 }
 
 export async function setSyncKey(key) {
   const v = key?.trim() || null;
-  await repo.setMeta('syncKey', v);
+  await setMetaV('syncKey', v);
   setSyncHeaderKey(v);
 }
 
 // On plain-http origins the key is observable on the LAN; the first
 // transmission needs an explicit grown-up acknowledgement.
 export async function httpKeyAcknowledged() {
-  return (await repo.getMeta('httpKeyAck')) === true;
+  return (await getMetaV('httpKeyAck')) === true;
 }
 
 export async function acknowledgeHttpKey() {
-  await repo.setMeta('httpKeyAck', true);
+  await setMetaV('httpKeyAck', true);
 }
 
 export function getVoicePref() {
@@ -57,7 +157,7 @@ export function getVoicePref() {
 
 export async function setVoicePref(name) {
   voicePref = name || null;
-  await repo.setMeta('voicePref', voicePref);
+  await setMetaV('voicePref', voicePref);
 }
 
 export function isSoundEnabled() {
@@ -66,7 +166,7 @@ export function isSoundEnabled() {
 
 export async function setSoundEnabled(v) {
   soundEnabled = v === true;
-  await repo.setMeta('soundEnabled', soundEnabled);
+  await setMetaV('soundEnabled', soundEnabled);
 }
 
 export function isSyncEnabled() {
@@ -75,7 +175,7 @@ export function isSyncEnabled() {
 
 export async function setSyncEnabled(v) {
   syncEnabled = v === true;
-  await repo.setMeta('syncEnabled', syncEnabled);
+  await setMetaV('syncEnabled', syncEnabled);
 }
 
 // All writes to one profile run in order through a promise chain: a save
@@ -375,14 +475,14 @@ export async function getSyncStatus() {
 // probe powers a one-time "turn it on here too?" offer.
 export async function offerBackup() {
   if (syncEnabled) return { offer: false };
-  if ((await repo.getMeta('backupOfferDismissed')) === true) return { offer: false };
+  if ((await getMetaV('backupOfferDismissed')) === true) return { offer: false };
   const probe = await remoteBackupCount();
   if (probe.denied) return { offer: true, denied: true }; // server exists, key needed
   return { offer: probe.count > 0 };
 }
 
 export async function dismissBackupOffer() {
-  await repo.setMeta('backupOfferDismissed', true);
+  await setMetaV('backupOfferDismissed', true);
 }
 
 // Pull remote profiles, merge them into local storage (never losing progress
@@ -558,20 +658,20 @@ export async function importProfiles(docs) {
 const uiPrefsCache = new Map();
 export async function getUiPrefs(profileId) {
   if (!uiPrefsCache.has(profileId)) {
-    uiPrefsCache.set(profileId, (await repo.getMeta(`ui:${profileId}`)) ?? {});
+    uiPrefsCache.set(profileId, (await getMetaV(`ui:${profileId}`)) ?? {});
   }
   return uiPrefsCache.get(profileId);
 }
 
 export async function setUiPrefs(profileId, prefs) {
   uiPrefsCache.set(profileId, prefs); // cache first — reads are coherent immediately
-  await repo.setMeta(`ui:${profileId}`, prefs);
+  await setMetaV(`ui:${profileId}`, prefs);
 }
 
 export async function getActiveProfileId() {
-  return (await repo.getMeta('activeProfileId')) ?? null;
+  return (await getMetaV('activeProfileId')) ?? null;
 }
 
 export async function setActiveProfileId(id) {
-  await repo.setMeta('activeProfileId', id);
+  await setMetaV('activeProfileId', id);
 }

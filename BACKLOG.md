@@ -51,8 +51,8 @@ reconsider after calibration.
    limit-tables).
 5. **Phase 6 — Taking Away + connectors** — ✅ SHIPPED (docs/PHASE6.md;
    engine v1.6.0, pets v1.7.0, connectors v1.8.0).
-6. **Reliability & security hardening — CURRENT WAVE (v1.36–v1.41,
-   BEFORE Phase 7).** Audit remediation: CI-gated deploys + privacy
+6. **Reliability & security hardening — ✅ SHIPPED v1.36–v1.41
+   (before Phase 7).** Audit remediation: CI-gated deploys + privacy
    tests (v1.36); ingest validation + structured sync results (v1.37);
    sync sidecar with conditional writes + family key (v1.38); durable
    delete/restore/purge lifecycle (v1.39); convergent economy replay
@@ -79,7 +79,9 @@ reconsider after calibration.
 
 ## Prioritized (new)
 
-- **Readiness gates can't see skills proven above them** (mid-trail
+- ~~Readiness gates can't see skills proven above them~~ ✅ FIXED
+  v1.41.0: higher-track history satisfies lower-track readiness
+  (visibility only — nothing synthesized). Original note (mid-trail
   readiness case, 2026-07-25): `addingReady` only reads little-pup counting skills, so a
   child onboarded mid-trail (straight into tables) can never auto-qualify
   for the tracks below — parents must force them on. Options: strength

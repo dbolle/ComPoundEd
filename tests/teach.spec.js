@@ -65,7 +65,7 @@ test('a wrong answer in a quiz shows the hint', async ({ page }) => {
   await selectProfile(page, doc.name);
   await page.waitForSelector('.hero');
   await openTableGrid(page);
-  await page.tap('.table-grid .table-btn:nth-child(3)'); // ×3 table
+  await page.tap('.table-grid:not(.add-grid) .table-btn:nth-child(3)'); // ×3 table
   await clearCountingPath(page);
   // Find a question with both factors ≥ 2 so we get a non-trivial hint
   for (let i = 0; i < 12; i++) {

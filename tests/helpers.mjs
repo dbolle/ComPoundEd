@@ -159,10 +159,12 @@ export async function holdGrownupsGate(page) {
 
 // The home grids are collapsed by default; expand before tapping into them.
 export async function openTableGrid(page) {
-  if (await page.locator('.table-grid').isHidden()) {
+  // the Adding grid also wears .table-grid (add-grid) — target × only
+  const mult = page.locator('.table-grid:not(.add-grid):not(.div-grid)');
+  if (await mult.isHidden()) {
     await page.tap('[data-toggle="tables"]');
   }
-  await page.waitForSelector('.table-grid:not([hidden]) .table-btn');
+  await page.waitForSelector('.table-grid:not(.add-grid):not(.div-grid):not([hidden]) .table-btn');
 }
 
 export async function openDivisionGrid(page) {
