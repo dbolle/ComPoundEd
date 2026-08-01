@@ -32,7 +32,7 @@ import {
 } from '../data/store.js';
 import { sfx, setSoundOn, currentVoiceName, say, listVoices, setVoicePreference } from '../sound.js';
 import { totalTiers } from '../engine/achievements.js';
-import { balanceCents, formatPaw, ensureBucks, REASON_LABELS } from '../engine/money.js';
+import { balanceCents, formatPaw, ensureBucks, REASON_LABELS, ledgerState } from '../engine/money.js';
 import { DOGS } from '../art/dogs.js';
 import { PETS } from '../art/pets.js';
 import { toast, escapeHtml } from '../ui.js';
@@ -584,12 +584,25 @@ export function grownupsScreen(el, params, ctx) {
     const ledger = panel.querySelector('[data-ledger]');
     const txns = [...ensureBucks(p).txns].filter((t) => t.cents !== 0).sort((a, b) => b.at - a.at).slice(0, 8);
     ledger.innerHTML = txns.length
-      ? txns
-          .map(
-            (t) =>
-              `<div class="stat-row"><span>${new Date(t.at).toLocaleDateString()} · ${REASON_LABELS[t.reason] ?? t.reason}</span><span>${t.cents > 0 ? '+' : ''}${formatPaw(t.cents)}</span></div>`
-          )
-          .join('')
+      ? (() => {
+          // derived annotations: a purchase that lost a cross-device coin
+          // race shows as returned (the child sees the item back on the
+          // shelf, never a negative balance); conflicting duplicate ids
+          // are quarantined out of the totals but kept in the history
+          const { rejected, quarantined } = ledgerState(p);
+          const note = (t) => {
+            const gid = t.group ?? t.id;
+            if (quarantined.has(t.id)) return ' · ⚠️ conflicting copies — not counted';
+            if (rejected.has(gid)) return ' · ↩️ returned (coins were spent on another device first)';
+            return '';
+          };
+          return txns
+            .map(
+              (t) =>
+                `<div class="stat-row"><span>${new Date(t.at).toLocaleDateString()} · ${REASON_LABELS[t.reason] ?? t.reason}${note(t)}</span><span>${t.cents > 0 ? '+' : ''}${formatPaw(t.cents)}</span></div>`
+            )
+            .join('');
+        })()
       : '<p class="muted" style="margin:0">No transactions yet.</p>';
 
     panel.querySelector('[data-switch]').addEventListener('click', () => navigate('/profiles'));

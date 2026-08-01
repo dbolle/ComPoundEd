@@ -8,6 +8,7 @@
 // a counter-max merge from another.
 
 import { isTableMastered, isDivisionTableMastered } from './leitner.js';
+import { replayLedger } from './ledger.js';
 import { waveIndexOf, isWaveMastered, isSubWaveMastered, WAVES } from './waves.js';
 
 export const DENOMS = [
@@ -88,9 +89,10 @@ export function swapCoins(profile, rule, now = Date.now()) {
   if (!canSwap(profile, rule)) return false;
   const cents = D[rule.give.denom] * rule.give.n;
   const rid = Math.random().toString(36).slice(2, 8);
+  const gid = `swap-${now.toString(36)}-${rid}`;
   ensureBucks(profile).txns.push(
-    { id: `swap-${now.toString(36)}-${rid}-a`, at: now, cents: -cents, denom: rule.give.denom, count: -rule.give.n, reason: 'swap' },
-    { id: `swap-${now.toString(36)}-${rid}-b`, at: now, cents, denom: rule.get.denom, count: rule.get.n, reason: 'swap' }
+    { id: `${gid}-a`, group: gid, at: now, cents: -cents, denom: rule.give.denom, count: -rule.give.n, reason: 'swap' },
+    { id: `${gid}-b`, group: gid, at: now, cents, denom: rule.get.denom, count: rule.get.n, reason: 'swap' }
   );
   return true;
 }
@@ -100,8 +102,15 @@ export function ensureBucks(profile) {
   return profile.pawBucks;
 }
 
+// Derived from convergent replay (v1.40): guaranteed >= 0, identical on
+// every device for the same event union, and groups that would overdraw
+// (a cross-device double-spend) are derived-rejected rather than owed.
 export function balanceCents(profile) {
-  return ensureBucks(profile).txns.reduce((sum, t) => sum + (t.cents ?? 0), 0);
+  return replayLedger(ensureBucks(profile).txns).balance;
+}
+
+export function ledgerState(profile) {
+  return replayLedger(ensureBucks(profile).txns);
 }
 
 export function formatPaw(cents) {
@@ -115,11 +124,7 @@ export function coinCounts(profile) {
   // (earns +1, swap give negative, swap get positive). Buys carry no
   // denom — spending doesn't pick which coins leave (Phase 4b keeps it
   // simple; the balance is the truth).
-  const counts = {};
-  for (const t of ensureBucks(profile).txns) {
-    if (t.denom) counts[t.denom] = (counts[t.denom] ?? 0) + (t.count ?? (t.cents > 0 ? 1 : 0));
-  }
-  return counts;
+  return { ...replayLedger(ensureBucks(profile).txns).counts };
 }
 
 function sameLocalDay(a, b) {
