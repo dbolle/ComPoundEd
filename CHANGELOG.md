@@ -3,6 +3,23 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.41.2 — 2026-08-01
+
+Critical fixes from an independent audit of the hardening wave.
+
+- **A deleted player could come back and then silently lose everything.**
+  If a player was deleted while offline and another device kept playing,
+  the next sync re-created that player on the picker — but every save to
+  it was discarded, so a child could play a whole session that was never
+  written. Deleting now suppresses the player everywhere until the
+  deletion completes, a refused write is reported instead of ignored,
+  and the same hole on a pre-cutover server (where it repeated on every
+  sync) is closed too.
+- **A deletion could wedge itself.** After the final progress upload
+  succeeded, a dropped follow-up call made the retry mistake this
+  device's own write for someone else's change — leaving a permanent
+  "resolve this" conflict. The retry now completes normally.
+
 ## v1.41.1 — 2026-08-01
 
 - Trace it!: the green start dot on the 4 sat where both strokes met,

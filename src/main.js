@@ -14,9 +14,9 @@ import {
 import { register, startRouter, currentRoute, navigate } from './router.js';
 import { isBeta, BETA_ROUTES } from './engine/beta.js';
 import { storeHome } from './screens/store.js';
-import { flushProfile, setOnRemoteDeleted } from './data/store.js';
+import { flushProfile, setOnRemoteDeleted, ProfileDeletedError } from './data/store.js';
 import { storeScreen } from './screens/store.js';
-import { initPressFeedback } from './ui.js';
+import { initPressFeedback, toast } from './ui.js';
 import { setSoundOn, setVoicePreference } from './sound.js';
 import { profilesScreen } from './screens/profiles.js';
 import { homeScreen } from './screens/home.js';
@@ -104,7 +104,19 @@ const ctx = {
   profile: null,
   session: {},
   async save() {
-    if (this.profile) await saveProfile(this.profile);
+    if (!this.profile) return;
+    try {
+      await saveProfile(this.profile);
+    } catch (e) {
+      if (e instanceof ProfileDeletedError) {
+        // never let a child keep playing into a discarded profile
+        this.profile = null;
+        toast('That player was removed on this device.');
+        navigate('/profiles');
+        return;
+      }
+      throw e;
+    }
   },
   async switchProfile(profile) {
     this.profile = profile;
