@@ -8,7 +8,7 @@
 import { navigate } from '../router.js';
 import { getDog, dogSVG, wornFor, DOGS, GUESTS } from '../art/dogs.js';
 import { getPet, petSVG } from '../art/pets.js';
-import { sfx, buzz, say, cheer } from '../sound.js';
+import { sfx, buzz, say, cheer, critterSound, soundWord } from '../sound.js';
 import { earnSkillKnown, balanceCents, formatPaw } from '../engine/money.js';
 import { avatarFor } from '../art/avatar.js';
 import { checkPetUnlocks, nextPetGoal, gameGoal } from '../engine/cozy.js';
@@ -680,14 +680,18 @@ export function littleGameScreen(el, params, ctx) {
       if (barks) {
         // Bark counting: nothing to see — the buddy barks n times and the
         // child counts by EAR (same count:n skill, different sense).
+        // the buddy makes ITS OWN sound — a cat buddy meows, and the
+        // question says "meows" (number–noun agreement, vocab canon)
+        const voice = buddy.kind === 'pet' ? buddy.species : 'dog';
         promptEl.textContent = '👂❓';
-        speak('Listen! How many barks?');
+        speak(`Listen! How many ${soundWord(voice)}?`);
         stageEl.dataset.answer = n;
-        stageEl.innerHTML = `<button class="bark-dog" aria-label="Hear the barks again">${buddy.svg(110)}</button>`;
+        stageEl.dataset.voice = voice;
+        stageEl.innerHTML = `<button class="bark-dog" aria-label="Hear the ${soundWord(voice)} again">${buddy.svg(110)}</button>`;
         busy = true; // input stays blocked from render until the barks end
         const playBarks = () => {
           busy = true;
-          for (let i = 0; i < n; i++) setTimeout(() => sfx.bark(), 600 + i * 620);
+          for (let i = 0; i < n; i++) setTimeout(() => critterSound(voice), 600 + i * 620);
           setTimeout(() => {
             busy = false;
           }, 600 + n * 620);

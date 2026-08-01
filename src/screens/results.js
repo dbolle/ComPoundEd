@@ -160,7 +160,7 @@ export function resultsScreen(el, params, ctx) {
     confetti();
     buzz([30, 40, 30]);
     if (round.newUnlocks.length) {
-      sfx.bark();
+      sfx.bark(); // the pack dog on the results card is always a dog
       setTimeout(() => sfx.celebrate(), 380);
     } else {
       sfx.celebrate();

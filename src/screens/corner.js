@@ -7,7 +7,7 @@ import { navigate } from '../router.js';
 import { PETS, petSVG } from '../art/pets.js';
 import { MILESTONES, petForMilestone, isPetAdopted, milestoneReachable } from '../engine/cozy.js';
 import { escapeHtml, toast } from '../ui.js';
-import { sfx, buzz, say, cheer } from '../sound.js';
+import { sfx, buzz, say, cheer, critterSound } from '../sound.js';
 import { storeButton } from './store.js';
 import { placedOn, toysOn, boxedToys, placeGear, itemOf } from '../engine/gearshop.js';
 import { touchMeta } from '../data/schema.js';
@@ -101,7 +101,7 @@ export function cornerScreen(el, params, ctx) {
           card.querySelector('.dog').classList.remove('wiggle');
           void card.offsetWidth;
           card.querySelector('.dog').classList.add('wiggle');
-          sfx.bark();
+          critterSound(pet.species);
           buzz(20);
         });
         for (const btn of card.querySelectorAll('[data-toy-give]')) {
@@ -109,7 +109,7 @@ export function cornerScreen(el, params, ctx) {
             const item = itemOf(btn.dataset.toyGive);
             placeGear(p, item.id, pet.id);
             await ctx.save();
-            sfx.bark();
+            critterSound(pet.species);
             buzz(20);
             say(`${pet.name} loves the ${item.name}!`);
             toast(`${pet.name} loves the ${item.name}! 🎉`);

@@ -3,6 +3,21 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.43.0 — 2026-08-01
+
+- Every animal now has its own voice. The old "bark" was two beeps that
+  every creature shared — cats, rabbits and turtles included. Sounds are
+  now built from breath (filtered noise) plus a voiced formant, and each
+  species has its own: dog woofs, cat meows, rabbit thumps, guinea-pig
+  wheeks, bird chirps, sloth sighs, hedgehog snuffles, turtle hums. Still
+  synthesized — nothing downloaded, works offline, and all deliberately
+  soft.
+- The listen-and-count game now asks for the sound your buddy actually
+  makes ("how many meows?" for a cat buddy), matching the number–noun
+  agreement rule used everywhere else.
+- Grown-ups: /sounds.html is a small unlinked page for listening to all
+  eight voices on a real device.
+
 ## v1.42.0 — 2026-08-01
 
 The rest of the independent audit's findings.
