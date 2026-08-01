@@ -34,7 +34,8 @@ import {
 } from '../data/store.js';
 import { sfx, setSoundOn, currentVoiceName, say, listVoices, setVoicePreference } from '../sound.js';
 import { totalTiers } from '../engine/achievements.js';
-import { balanceCents, formatPaw, ensureBucks, REASON_LABELS, ledgerState } from '../engine/money.js';
+import { balanceCents, formatPaw, ensureBucks, REASON_LABELS, ledgerState, trueBalanceCents } from '../engine/money.js';
+import { ownedGear, resetStoreEpoch } from '../engine/gearshop.js';
 import { DOGS } from '../art/dogs.js';
 import { PETS } from '../art/pets.js';
 import { toast, escapeHtml } from '../ui.js';
@@ -280,6 +281,11 @@ export function grownupsScreen(el, params, ctx) {
         <button class="btn ghost small" data-switch>🔄 Switch player</button>
         <button class="btn danger small" data-delete>🗑️ Delete this player</button>
       </div>
+      <div style="height:8px"></div>
+      <div class="nav-row">
+        <button class="btn ghost small" data-store-reset>🏪 Fresh start in the store…</button>
+      </div>
+      <div data-store-reset-panel></div>
       <p class="muted center" style="font-size:.75rem;margin:14px 0 0">Compounded v${typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'dev'} · saves v${SCHEMA_VERSION}</p>`;
 
     // Voice picker: Automatic (the scorer) by default; a chosen name
@@ -636,11 +642,11 @@ export function grownupsScreen(el, params, ctx) {
           // race shows as returned (the child sees the item back on the
           // shelf, never a negative balance); conflicting duplicate ids
           // are quarantined out of the totals but kept in the history
-          const { rejected, quarantined } = ledgerState(p);
+          const { voided, quarantined } = ledgerState(p);
           const note = (t) => {
             const gid = t.group ?? t.id;
             if (quarantined.has(t.id)) return ' · ⚠️ conflicting copies — not counted';
-            if (rejected.has(gid)) return ' · ↩️ returned (coins were spent on another device first)';
+            if (voided.has(gid)) return ' · 🏪 void (fresh start in the store)';
             return '';
           };
           return txns
@@ -651,6 +657,58 @@ export function grownupsScreen(el, params, ctx) {
             .join('');
         })()
       : '<p class="muted" style="margin:0">No transactions yet.</p>';
+
+    // Fresh start in the store: two deliberate confirmations, each
+    // stating exactly what happens, because this is a big visible change
+    // for the child (everything they bought comes off their pets).
+    {
+      const host = panel.querySelector('[data-store-reset-panel]');
+      const earned = ensureBucks(p).txns.reduce((s, t) => s + (t.cents > 0 && t.reason !== 'swap' ? t.cents : 0), 0);
+      const owned = ownedGear(p).length;
+      const step2 = () => {
+        host.innerHTML = `<div class="card" style="border:2px solid #dc2626;margin-top:8px">
+          <h3 style="margin:0 0 6px">Last check — this is the one that does it</h3>
+          <p class="muted" style="margin:0 0 8px">Type <strong>RESET</strong> to confirm a fresh start for
+          ${escapeHtml(p.name)}. Their ${owned} purchased item${owned === 1 ? '' : 's'} will come off
+          their pups and pets right away, and they will be able to buy anything again.</p>
+          <input class="name-input" data-reset-word placeholder="RESET" autocomplete="off" />
+          <div class="nav-row" style="margin-top:8px">
+            <button class="btn danger small" data-reset-go>Give a fresh start</button>
+            <button class="btn ghost small" data-reset-cancel>Cancel</button>
+          </div></div>`;
+        host.querySelector('[data-reset-cancel]').addEventListener('click', () => (host.innerHTML = ''));
+        host.querySelector('[data-reset-go]').addEventListener('click', async () => {
+          if (host.querySelector('[data-reset-word]').value.trim().toUpperCase() !== 'RESET') {
+            toast('Type RESET to confirm');
+            return;
+          }
+          const epoch = resetStoreEpoch(p);
+          await ctx.save();
+          host.innerHTML = `<p class="muted" style="margin-top:8px">✅ Fresh start done (store visit ${epoch}).
+            ${escapeHtml(p.name)} has ${formatPaw(balanceCents(p))} to spend.</p>`;
+          toast(`${p.name} has a fresh start in the store 🏪`);
+        });
+      };
+      panel.querySelector('[data-store-reset]').addEventListener('click', () => {
+        if (host.querySelector('[data-reset-go]')) return;
+        host.innerHTML = `<div class="card" style="border:2px solid #f59e0b;margin-top:8px">
+          <h3 style="margin:0 0 6px">Fresh start in the store?</h3>
+          <p class="muted" style="margin:0 0 4px">For ${escapeHtml(p.name)} this would:</p>
+          <ul class="muted" style="margin:0 0 8px;padding-left:18px;font-size:.85rem">
+            <li>give back every Paw Buck they have ever earned — ${formatPaw(earned)}</li>
+            <li>undo all ${owned} of their purchases, so their pups and pets lose those items</li>
+            <li>let them buy anything again, as if the store opened today</li>
+            <li>keep their whole history for you here — nothing is deleted, and their
+                learning progress, pets and awards are untouched</li>
+          </ul>
+          <div class="nav-row">
+            <button class="btn small" data-reset-next>Continue</button>
+            <button class="btn ghost small" data-reset-cancel>Never mind</button>
+          </div></div>`;
+        host.querySelector('[data-reset-cancel]').addEventListener('click', () => (host.innerHTML = ''));
+        host.querySelector('[data-reset-next]').addEventListener('click', step2);
+      });
+    }
 
     panel.querySelector('[data-switch]').addEventListener('click', () => navigate('/profiles'));
     panel.querySelector('[data-delete]').addEventListener('click', async () => {

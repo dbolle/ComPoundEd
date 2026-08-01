@@ -5,8 +5,9 @@
 // only new state — profile.gear.placements, a preference merged newer-wins.
 
 import { GEAR_ACCESSORIES, TOYS } from '../art/gear.js';
-import { ensureBucks, balanceCents, ledgerState, txnAt } from './money.js';
+import { ensureBucks, balanceCents, ledgerState, txnAt, storeEpoch } from './money.js';
 import { touchMeta } from '../data/schema.js';
+import { epochOfId } from './ledger.js';
 
 export const CATALOG = [...GEAR_ACCESSORIES, ...TOYS];
 
@@ -14,44 +15,51 @@ export function itemOf(itemId) {
   return CATALOG.find((x) => x.id === itemId) ?? null;
 }
 
-export function buyTxnId(itemId, forId = null) {
+// Purchase ids are deterministic so two devices buying the same thing
+// merge to ONE charge. From store epoch 2 onward the epoch rides the id:
+// a fresh start must produce genuinely new events, or the merge would
+// fold a re-purchase into the voided original (and re-void it).
+export function buyTxnId(itemId, forId = null, epoch = 1) {
   const item = itemOf(itemId);
-  return item?.tier === 'gift' ? `buy-${itemId}-${forId}` : `buy-${itemId}`;
+  const base = item?.tier === 'gift' ? `buy-${itemId}-${forId}` : `buy-${itemId}`;
+  return epoch > 1 ? `${base}@${epoch}` : base;
 }
 
-// Owned = an ACCEPTED purchase group in the derived replay. A buy that
-// lost a cross-device race is derived-rejected: the item returns to the
-// shelf (still buyable) and the child owes nothing.
+// Owned = a purchase exists in the CURRENT store epoch. Ownership is
+// evidence of payment, not of present solvency: once a child has been
+// given a thing, nothing takes it back (the retroactive version of this
+// check is what made toys disappear mid-play — v1.45.0). Older ids,
+// including the retired `~n` retry shapes, still count within epoch 1.
 export function isOwned(profile, itemId, forId = null) {
-  const base = buyTxnId(itemId, forId);
-  const { accepted } = ledgerState(profile);
+  const epoch = storeEpoch(profile);
+  const base = buyTxnId(itemId, forId, epoch);
+  const legacy = buyTxnId(itemId, forId); // epoch-1 shape
   for (const t of ensureBucks(profile).txns) {
-    if ((t.id === base || t.id.startsWith(`${base}~`)) && !t.id.includes('-c-') && accepted.has(t.group ?? t.id)) {
-      return true;
-    }
+    if (t.id.includes('-c-')) continue;
+    if (t.id === base) return true;
+    if (epoch === 1 && (t.id === legacy || t.id.startsWith(`${legacy}~`))) return true;
   }
   return false;
 }
 
-// A retry after a derived-rejected buy needs a FRESH deterministic id
-// (the original id is taken by the rejected group). Attempt suffixes are
-// deterministic per retry count, so two devices retrying converge.
-function nextBuyId(profile, base) {
-  const { accepted } = ledgerState(profile);
-  const tries = ensureBucks(profile)
-    .txns.filter((t) => (t.id === base || t.id.startsWith(`${base}~`)) && !t.id.includes('-c-'))
-    .map((t) => t.id);
-  if (!tries.length) return base;
-  if (tries.some((id) => accepted.has(id))) return null; // already owned
-  return `${base}~${tries.length + 1}`;
-}
-
 // Everything owned: [{ item, for }] — gifts carry their wearer, treasures
 // and toys carry null.
+// One entry per owned thing. Deduped by item+wearer: a re-purchase (or
+// an old retry id) must not show the same toy twice in the box, and
+// purchases from earlier store epochs don't appear at all.
 export function ownedGear(profile) {
-  return ensureBucks(profile)
-    .txns.filter((t) => t.reason === 'buy' && t.item)
-    .map((t) => ({ item: t.item, for: t.for ?? null }));
+  const epoch = storeEpoch(profile);
+  const seen = new Set();
+  const out = [];
+  for (const t of ensureBucks(profile).txns) {
+    if (t.reason !== 'buy' || !t.item || t.id.includes('-c-')) continue;
+    if (epochOfId(t.id) !== epoch) continue; // voided by a fresh start
+    const key = `${t.item}|${t.for ?? ''}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push({ item: t.item, for: t.for ?? null });
+  }
+  return out;
 }
 
 // Buys an item (for a specific wearer when it's a gift). Refuses when the
@@ -62,8 +70,7 @@ export function buyGear(profile, itemId, forId = null, now = Date.now(), coins =
   if (item.tier === 'gift' && !forId) return null;
   if (isOwned(profile, itemId, forId)) return null;
   if (balanceCents(profile) < item.price) return null;
-  const buyId = nextBuyId(profile, buyTxnId(itemId, forId));
-  if (buyId === null) return null; // raced to owned
+  const buyId = buyTxnId(itemId, forId, storeEpoch(profile));
   now = txnAt(profile, now); // a purchase must replay after what funded it
   const txn = {
     id: buyId,
@@ -127,9 +134,12 @@ export function placeGear(profile, itemId, wearerId, giftFor = null) {
 export function placedOn(profile, wearerId) {
   const placements = profile.gear?.placements ?? {};
   return Object.entries(placements)
-    .filter(([, who]) => who === wearerId)
-    .map(([key]) => key.split(':')[0])
-    .filter((itemId) => itemOf(itemId)?.slot); // toys aren't wearable
+    .filter(([key, who]) => {
+      if (who !== wearerId) return false;
+      const [id, forId] = key.split(':');
+      return itemOf(id)?.slot && isOwned(profile, id, forId ?? null);
+    })
+    .map(([key]) => key.split(':')[0]);
 }
 
 // Toys placed with a wearer (placedOn filters to wearables for the
@@ -137,7 +147,12 @@ export function placedOn(profile, wearerId) {
 export function toysOn(profile, wearerId) {
   const placements = profile.gear?.placements ?? {};
   return Object.entries(placements)
-    .filter(([key, who]) => who === wearerId && itemOf(key.split(':')[0])?.tier === 'toy')
+    .filter(([key, who]) => {
+      if (who !== wearerId) return false;
+      const id = key.split(':')[0];
+      if (itemOf(id)?.tier !== 'toy') return false;
+      return isOwned(profile, id); // never render a toy the child no longer owns
+    })
     .map(([key]) => key.split(':')[0]);
 }
 
@@ -147,4 +162,23 @@ export function boxedToys(profile) {
     .filter(({ item }) => itemOf(item)?.tier === 'toy')
     .map(({ item }) => item)
     .filter((id) => !(profile.gear?.placements?.[id]));
+}
+
+// A grown-up "fresh start in the store" (v1.45.0): bump the epoch so
+// every previous purchase is void — not charged, not owned — while the
+// child keeps every Paw Buck they ever earned. Nothing is deleted: the
+// full history stays in the ledger for the Grown-Ups view, and lowering
+// the epoch would bring it all back. Placements are cleared because the
+// items behind them are no longer owned.
+export function resetStoreEpoch(profile) {
+  const bucks = ensureBucks(profile);
+  bucks.epoch = (bucks.epoch ?? 1) + 1;
+  // Placements are TOMBSTONED (set to null), not deleted: placement maps
+  // merge key-wise, so an emptied map would simply be refilled by the
+  // next sync with any device that still had them.
+  const cleared = {};
+  for (const key of Object.keys(profile.gear?.placements ?? {})) cleared[key] = null;
+  profile.gear = { ...(profile.gear ?? {}), placements: cleared };
+  touchMeta(profile); // a deliberate parent action, not a play save
+  return bucks.epoch;
 }

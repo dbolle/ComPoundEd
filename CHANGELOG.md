@@ -3,6 +3,33 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.45.0 — 2026-08-01
+
+Fixes a real incident: toys disappeared from a child's pets, some could
+not be taken back off, and a few appeared twice (saves v18, additive).
+
+- **Bought means owned, permanently.** Ownership was being re-decided by
+  replaying the whole coin history and asking whether each purchase was
+  "affordable" at that moment — so a bookkeeping wobble could un-own a
+  toy a child had been playing with for weeks. It vanished from her pets,
+  she assumed she'd lost it and bought it again, and the second purchase
+  charged her real Paw Bucks. Purchases now stand for good; the balance
+  check happens only where it belongs, at the moment of buying.
+- **Coin counts no longer cascade.** Two devices recording the same
+  purchase with different coins used to void that record, corrupting the
+  coin counts, which made dozens of legitimate coin swaps look
+  unaffordable. Counts now floor at zero instead.
+- If two devices ever do spend the same coins while apart, the shortfall
+  is forgiven — a child never sees a negative balance or loses an item.
+  Grown-Ups shows the true total.
+- Toys can always be taken off a pet, and each shows once.
+- **New in Grown-Ups: "Fresh start in the store"** (per player, two
+  confirmations plus typing RESET). Gives back every Paw Buck ever
+  earned, voids all past purchases, and lets the child buy anything
+  again — as if the store opened today. Learning progress, pets and
+  awards are untouched, nothing is deleted (the full history stays
+  visible to you), and the reset holds even if an old device syncs later.
+
 ## v1.44.2 — 2026-08-01
 
 - Found why the barks read as beeps: a tablet speaker reproduces almost
