@@ -168,6 +168,92 @@ export const sfx = {
   bark: () => safe(() => VOICES.dog()),
 };
 
+// ---------------------------------------------------------------------
+// Option banks for the voices still being chosen by ear. IMPORTANT: a
+// voice used by the listen-and-count game must be ONE clear event — a
+// child counting "how many?" cannot be handed a sound that fires twice.
+// Single-event options are marked [1]; multi-event ones [n].
+//
+// A woof is a mouth-opening transient plus a voiced body whose formants
+// SWEEP as the pitch falls (that fall IS the "woo→oo"). One oscillator
+// through one fixed filter can only ever be a beep.
+const DOG_OPTIONS = [
+  // 1 [1] deep classic woof
+  () => {
+    noise({ dur: 0.025, vol: 0.1, freq: 1100, slide: 420, q: 0.8 });
+    voiced({ at: 0.006, dur: 0.24, vol: 0.11, type: 'sawtooth', path: [210, 150, 95], formant: 700, formantTo: 330, formant2: 1400, q: 2.4 });
+  },
+  // 2 [1] chesty boof — big dog, lots of body
+  () => {
+    noise({ dur: 0.03, vol: 0.09, freq: 700, slide: 300, q: 0.7 });
+    voiced({ at: 0.008, dur: 0.32, vol: 0.12, type: 'square', path: [150, 120, 80], formant: 480, formantTo: 240, formant2: 1000, q: 2 });
+  },
+  // 3 [1] gruff ruff — faster fall, brighter, a hint of growl
+  () => {
+    noise({ dur: 0.02, vol: 0.11, freq: 1600, slide: 500, q: 1 });
+    voiced({ at: 0.005, dur: 0.2, vol: 0.1, type: 'sawtooth', path: [300, 170, 100], formant: 900, formantTo: 380, formant2: 1800, q: 3, vibrato: 45 });
+  },
+  // 4 [1] low WOOF — deepest and slowest, big-dog-down-the-street
+  () => {
+    noise({ dur: 0.035, vol: 0.08, freq: 600, slide: 260, q: 0.6 });
+    voiced({ at: 0.01, dur: 0.4, vol: 0.12, type: 'sawtooth', path: [120, 95, 70], formant: 400, formantTo: 200, formant2: 820, q: 1.8 });
+  },
+  // 5 [1] breathy husky bark — noise-forward with a voiced core
+  () => {
+    noise({ dur: 0.22, vol: 0.13, freq: 900, slide: 300, q: 1.4 });
+    voiced({ at: 0.01, dur: 0.2, vol: 0.07, type: 'sawtooth', path: [230, 140, 90], formant: 750, formantTo: 300, q: 2.2 });
+  },
+  // 6 [1] muffled woof — soft-edged, the gentlest of the six
+  () => {
+    noise({ dur: 0.05, vol: 0.06, freq: 500, slide: 220, q: 0.9, type: 'lowpass' });
+    voiced({ at: 0.012, dur: 0.3, vol: 0.115, type: 'triangle', path: [180, 130, 90], formant: 560, formantTo: 260, formant2: 900, q: 2.6 });
+  },
+];
+
+const RABBIT_OPTIONS = [
+  // 1 [1] one deep foot thump
+  () => noise({ dur: 0.26, vol: 0.26, freq: 130, slide: 60, q: 1, type: 'lowpass' }),
+  // 2 [1] honk — the little grunt a happy rabbit makes
+  () => voiced({ dur: 0.22, vol: 0.13, type: 'sawtooth', path: [260, 210, 175], formant: 520, formantTo: 380, formant2: 1100, q: 4 }),
+  // 3 [1] soft squeak
+  () => voiced({ dur: 0.18, vol: 0.1, type: 'triangle', path: [780, 1180, 900], formant: 1900, q: 6, vibrato: 26 }),
+  // 4 [1] purr-click (contentment) — one short burst
+  () => noise({ dur: 0.2, vol: 0.14, freq: 950, slide: 620, q: 3.5 }),
+  // 5 [1] drum thump with room — deeper, longer tail
+  () => {
+    noise({ dur: 0.34, vol: 0.24, freq: 105, slide: 55, q: 1.2, type: 'lowpass' });
+    voiced({ at: 0.005, dur: 0.3, vol: 0.07, type: 'sine', path: [95, 70], formant: 220, q: 3 });
+  },
+  // 6 [n] the current one: two thumps, then a squeak
+  () => {
+    for (const at of [0, 0.19]) noise({ at, dur: 0.12, vol: 0.2, freq: 190, slide: 90, q: 1, type: 'lowpass' });
+    voiced({ at: 0.4, dur: 0.12, vol: 0.09, type: 'triangle', path: [900, 1150], formant: 2000, q: 5 });
+  },
+];
+
+const BIRD_OPTIONS = [
+  // 1 [n] the current one: three tiny chirps
+  () =>
+    [0, 0.12, 0.23].forEach((at, i) =>
+      voiced({ at, dur: 0.07, vol: 0.055, type: 'sine', path: [2600 + i * 250, 3800, 2900], formant: 3200, q: 4 })
+    ),
+  // 2 [1] a single sweet chirp
+  () => voiced({ dur: 0.14, vol: 0.07, type: 'sine', path: [2400, 3900, 2800], formant: 3200, q: 4 }),
+  // 3 [1] two-note tweet as one gesture (down then up)
+  () => voiced({ dur: 0.2, vol: 0.065, type: 'sine', path: [3400, 2300, 3100, 2600], formant: 2900, q: 3.5 }),
+];
+
+// Which option each still-being-chosen voice uses (updated once the ear
+// check picks winners).
+const CHOICE = { dog: 0, rabbit: 0, bird: 0 };
+
+export const VOICE_OPTIONS = { dog: DOG_OPTIONS, rabbit: RABBIT_OPTIONS, bird: BIRD_OPTIONS };
+
+// Play one specific option — the chooser page only.
+export function playVoiceOption(species, index) {
+  safe(() => VOICE_OPTIONS[species]?.[index]?.());
+}
+
 // Per-species voices. Every one is deliberately soft (the charter asks
 // for calm): short, low volume, no startle. Built from a noise burst
 // (breath) plus a voiced formant (the "vowel"), which is what separates
@@ -178,44 +264,18 @@ const VOICES = {
   // transient, a voiced body whose formants SWEEP down (that's the
   // "oo"), and a breathy tail (the "f"). One oscillator through one
   // fixed filter can only ever be a beep.
-  dog: () => {
-    for (const at of [0, 0.24]) {
-      noise({ at, dur: 0.02, vol: 0.1, freq: 1400, slide: 600, q: 0.8 }); // mouth opens
-      voiced({
-        at: at + 0.008,
-        dur: 0.16,
-        vol: 0.085,
-        type: 'sawtooth',
-        path: [340, 250, 150], // pitch falls hard — the "ruff" shape
-        formant: 950,
-        formantTo: 480, // vowel closes: woo → oo
-        formant2: 1900, // second peak keeps it from sounding like a hum
-        q: 2.5,
-      });
-      noise({ at: at + 0.12, dur: 0.07, vol: 0.05, freq: 2600, slide: 1400, q: 1 }); // breathy tail
-    }
-  },
+  dog: () => DOG_OPTIONS[CHOICE.dog](),
   // meow: up then down, with the vibrato a cat's throat gives it
   cat: () => {
     voiced({ dur: 0.45, vol: 0.1, type: 'sawtooth', path: [520, 780, 620, 430], formant: 1300, q: 7, vibrato: 22 });
     noise({ at: 0.02, dur: 0.05, vol: 0.04, freq: 1800, q: 1 });
   },
-  // rabbits mostly thump — a soft low thud, then a tiny squeak
-  rabbit: () => {
-    // two thumps (rabbits drum), then a small squeak
-    for (const at of [0, 0.19]) noise({ at, dur: 0.12, vol: 0.2, freq: 190, slide: 90, q: 1, type: 'lowpass' });
-    voiced({ at: 0.4, dur: 0.12, vol: 0.09, type: 'triangle', path: [900, 1150], formant: 2000, q: 5 });
-  },
+  rabbit: () => RABBIT_OPTIONS[CHOICE.rabbit](),
   // guinea pig "wheek": a rising squeal that keeps climbing
   guinea: () => {
     voiced({ dur: 0.34, vol: 0.1, type: 'sawtooth', path: [780, 1450, 1650], formant: 2200, q: 8, vibrato: 30 });
   },
-  // bird: three tiny chirps, each a fast up-down glide
-  bird: () => {
-    [0, 0.12, 0.23].forEach((at, i) =>
-      voiced({ at, dur: 0.07, vol: 0.055, type: 'sine', path: [2600 + i * 250, 3800, 2900], formant: 3200, q: 4 })
-    );
-  },
+  bird: () => BIRD_OPTIONS[CHOICE.bird](),
   // sloth: a long, slow, breathy sigh — almost too quiet to notice
   sloth: () => {
     noise({ dur: 0.55, vol: 0.1, freq: 700, slide: 380, q: 1.2 });
@@ -224,13 +284,13 @@ const VOICES = {
   // hedgehog: quick snuffles, all breath, no voice
   hedgehog: () => {
     [0, 0.1, 0.19, 0.3].forEach((at, i) =>
-      noise({ at, dur: 0.08, vol: 0.13 - i * 0.012, freq: 1500 + i * 180, slide: 900, q: 1.5 })
+      noise({ at, dur: 0.08, vol: 0.2 - i * 0.018, freq: 1500 + i * 180, slide: 900, q: 1.5 })
     );
   },
   // turtle: a soft "hup" and a little water blip
   turtle: () => {
-    noise({ dur: 0.12, vol: 0.16, freq: 420, slide: 240, q: 2 });
-    voiced({ at: 0.18, dur: 0.2, vol: 0.11, type: 'sine', path: [300, 520], formant: 800, q: 6 });
+    noise({ dur: 0.12, vol: 0.24, freq: 420, slide: 240, q: 2 });
+    voiced({ at: 0.18, dur: 0.2, vol: 0.17, type: 'sine', path: [300, 520], formant: 800, q: 6 });
   },
 };
 

@@ -3,6 +3,16 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.44.1 — 2026-08-01
+
+- The dog barked TWICE per call — wrong for a sound the counting game
+  asks children to count. It is now a single, deeper woof, and a test
+  measures every voice's burst count so "one sound" stays one sound.
+- Hedgehog and turtle are louder (they were the two quietest).
+- /sounds.html becomes a chooser: six dog options, six rabbit options,
+  and three bird options to compare by ear, each marked single-event or
+  not, with the settled voices alongside for comparison.
+
 ## v1.44.0 — 2026-08-01
 
 - Animal voices are twice as long — they were being cut off mid-sound —
