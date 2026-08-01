@@ -230,7 +230,10 @@ export async function homeScreen(el, params, ctx) {
       const open = !toggle.classList.contains('open');
       toggle.classList.toggle('open', open);
       toggle.setAttribute('aria-expanded', String(open));
-      const section = which === 'tables' ? el.querySelector('.table-grid') : el.querySelector('.div-grid');
+      const section =
+        which === 'tables'
+          ? el.querySelector('.table-grid:not(.add-grid)') // Adding wears .table-grid too
+          : el.querySelector('.div-grid');
       if (section) section.hidden = !open;
       const note = el.querySelector('.div-note');
       if (which === 'division' && note) note.hidden = !open;

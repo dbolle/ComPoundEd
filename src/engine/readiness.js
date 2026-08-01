@@ -21,6 +21,12 @@ const hasHistory = (map) => Object.values(map ?? {}).some((s) => (s.attempts ?? 
 // --- readiness predicates (research-aligned; docs/PHASE5/6) ---------------
 
 export function addingReady(p) {
+  // Mid-trail inference (v1.41): a child with REAL higher-track history
+  // (multiplication/division facts) has proven everything the counting
+  // gates test — the trail below opens for them. This affects READINESS
+  // and VISIBILITY only: it never writes skills, facts, coins, pets, or
+  // milestones (bounded by tests/midtrail.spec.js).
+  if (hasHistory(p.facts) || hasHistory(p.division)) return true;
   // can count on (counting + what-comes-next) and can type answers
   return (
     knowsRange(p, 'count', 1, 10) &&

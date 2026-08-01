@@ -3,6 +3,27 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.41.0 — 2026-08-01
+
+Hardening wave R6/6 — the wave is complete.
+
+- Storage failures no longer create a silent second universe: if the
+  browser's main storage (IndexedDB) fails on a device where it used to
+  work, a persistent warning explains that players are SAFE, new
+  players need an explicit go-ahead, and everything done in the
+  fallback merges back automatically on the next healthy start
+  (profiles AND settings, ordered by a shared change counter that both
+  storage layers continue — verified before fallback copies clear).
+  If the browser allows no storage at all, the app says so honestly.
+- Mid-trail readiness (the long-standing gap): a child with real
+  multiplication/division history now auto-qualifies for the Adding
+  track — no more parent-forcing for kids who joined the trail in the
+  middle. Inference affects visibility ONLY; it never invents skills,
+  coins, pets, or milestones (regression-tested).
+- docs/RELEASE-CHECKLIST.md: the real-device manual gate (iOS install,
+  two-device sync incl. delete/restore/purge, key flows, offline,
+  Lighthouse) for wave-final releases.
+
 ## v1.40.0 — 2026-08-01
 
 Hardening wave R5/6: the Paw Bucks economy becomes conflict-proof.

@@ -13,6 +13,7 @@ import {
   acknowledgeHttpKey,
   listDeletedPlayers,
   restoreDeletedPlayer,
+  storageStatus,
 } from '../data/store.js';
 import { navigate } from '../router.js';
 import { getDog, dogSVG, wornFor } from '../art/dogs.js';
@@ -27,6 +28,7 @@ export async function profilesScreen(el, params, ctx) {
         <h1>Compounded 🐾</h1>
         <p class="muted">Who's playing today?</p>
       </div>
+      <div data-storage-warning></div>
       <div data-backup-offer></div>
       <div class="profile-list"></div>
       <button class="btn accent" data-new>➕ New player</button>
@@ -119,6 +121,21 @@ export async function profilesScreen(el, params, ctx) {
     });
   }
 
+  // Storage health: a degraded session (IndexedDB down where it used to
+  // work) or no storage at all shows a PERSISTENT banner — players may
+  // look missing but are safe; recovery merges automatically later.
+  {
+    const st = storageStatus();
+    if (st.degraded || st.backend !== 'idb') {
+      el.querySelector('[data-storage-warning]').innerHTML = `<div class="card center" style="border: 2px solid #f59e0b">
+        <p style="margin:0">${
+          st.backend === 'none'
+            ? '⚠️ This browser is not letting the app save anything right now. Playing works, but progress will NOT be kept — please restart the app or try another browser.'
+            : '⚠️ Storage hiccup: players may look missing — they are SAFE. Restart the app; anything done now is kept separately and merged back automatically once storage recovers.'
+        }</p></div>`;
+    }
+  }
+
   // A device with ZERO live players (e.g. replaced hardware) must still
   // be able to reach deleted-player recovery without Grown-Ups.
   if (profiles.length === 0) {
@@ -199,6 +216,15 @@ export async function profilesScreen(el, params, ctx) {
     e.preventDefault();
     const name = input.value.trim();
     if (!name) return;
+    const st = storageStatus();
+    if (
+      (st.degraded || st.backend !== 'idb') &&
+      !window.confirm(
+        'Storage is having a hiccup. A player made now is kept separately and merged back automatically when storage recovers. Create anyway?'
+      )
+    ) {
+      return;
+    }
     const p = await createProfile(name);
     if (e.submitter?.dataset.kind === 'little') {
       p.subjects = { ...(p.subjects ?? {}), little: true };

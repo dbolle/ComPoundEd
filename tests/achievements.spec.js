@@ -129,7 +129,7 @@ test('merges keep the highest tier and earliest date per family', () => {
 test('e2e: first round reveals Bronze tiers; awards screen shows families', async ({ page }) => {
   await createProfileUI(page, uniqueName('Award'));
   await openTableGrid(page);
-  await page.tap('.table-grid .table-btn:nth-child(2)');
+  await page.tap('.table-grid:not(.add-grid) .table-btn:nth-child(2)');
   await playQuestions(page, 12);
   await page.waitForSelector('.big-score');
 

@@ -29,7 +29,7 @@ test('iPad: wider column, bigger art and keys, richer grids', async ({ browser, 
 
   // Quiz: bigger keys, no overflow
   await openTableGrid(page);
-  await page.tap('.table-grid .table-btn:nth-child(2)');
+  await page.tap('.table-grid:not(.add-grid) .table-btn:nth-child(2)');
   await page.waitForSelector('.numpad .key');
   const keyHeight = await page.$eval('.numpad .key', (el) => el.getBoundingClientRect().height);
   expect(keyHeight).toBeGreaterThanOrEqual(60);

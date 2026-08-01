@@ -37,7 +37,7 @@ test('quiz and activity screens never overflow a 390×600 viewport', async ({ br
 
   // Quiz — normal question, then the tall wrong-state (hint + Got it!)
   await openTableGrid(page);
-  await page.tap('.table-grid .table-btn:nth-child(3)');
+  await page.tap('.table-grid:not(.add-grid) .table-btn:nth-child(3)');
   await page.waitForSelector('.question');
   await clearCountingPath(page);
   expect(await overflow()).toBeLessThanOrEqual(0);

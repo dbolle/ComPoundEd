@@ -25,7 +25,7 @@ test('e2e: brand-new fact shows the whole equation; typing it advances; next tim
   await seedProfile(page, doc);
   await selectProfile(page, 'Newbie');
   await openTableGrid(page);
-  await page.tap('.table-grid .table-btn:nth-child(7)');
+  await page.tap('.table-grid:not(.add-grid) .table-btn:nth-child(7)');
   await clearCountingPath(page);
 
   // play until the echo question appears (7×8 is the only fresh fact and

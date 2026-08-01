@@ -47,8 +47,8 @@ test('e2e: counting path warms up a fresh table, unscored, then the round starts
   await seedProfile(page, doc);
   await selectProfile(page, 'Warmy');
 
-  if (await page.locator('.table-grid').isHidden()) await page.tap('[data-toggle="tables"]');
-  await page.tap('.table-grid .table-btn:nth-child(4)'); // ×4, untried
+  if (await page.locator('.table-grid:not(.add-grid):not(.div-grid)').isHidden()) await page.tap('[data-toggle="tables"]');
+  await page.tap('.table-grid:not(.add-grid) .table-btn:nth-child(4)'); // ×4, untried
   await page.waitForSelector('.question');
   await expect(page.locator('.feedback')).toContainText('Counting path');
   await expect(page.locator('.question')).toContainText('4, 8, 12');

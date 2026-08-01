@@ -64,7 +64,7 @@ test('B: e2e — a wrong first try celebrates the attempt', async ({ page }) => 
   await selectProfile(page, brave.name);
   await page.waitForSelector('.hero');
   await openTableGrid(page);
-  await page.tap('.table-grid .table-btn:nth-child(4)');
+  await page.tap('.table-grid:not(.add-grid) .table-btn:nth-child(4)');
   await page.waitForSelector('.question');
   await clearCountingPath(page);
   await page.tap('.numpad .key:text-is("1")');
@@ -95,7 +95,7 @@ test('C: e2e — untried table shows the teach banner; tried table does not', as
   await expect(page.locator('[data-suggest]')).toContainText(`Teach ${dogForTable(1).name}`);
 
   await openTableGrid(page);
-  await page.tap('.table-grid .table-btn:nth-child(3)');
+  await page.tap('.table-grid:not(.add-grid) .table-btn:nth-child(3)');
   await page.waitForSelector('.question');
   await expect(page.locator('.teach-banner')).toContainText(dogForTable(3).name);
 
@@ -109,7 +109,7 @@ test('C: e2e — untried table shows the teach banner; tried table does not', as
   await page.tap('[data-quit]');
   await page.waitForSelector('.hero');
   await openTableGrid(page);
-  await page.tap('.table-grid .table-btn:nth-child(3)');
+  await page.tap('.table-grid:not(.add-grid) .table-btn:nth-child(3)');
   await page.waitForSelector('.question');
   expect(await page.$('.teach-banner')).toBeNull();
 });
@@ -127,7 +127,7 @@ test('D: e2e — completing a row of attempts earns the sniffed badge', async ({
   await seedProfile(page, doc);
   await selectProfile(page, 'Sniffy');
   await openTableGrid(page);
-  await page.tap('.table-grid .table-btn:nth-child(2)');
+  await page.tap('.table-grid:not(.add-grid) .table-btn:nth-child(2)');
   await playQuestions(page, 14);
   await page.waitForSelector('.big-score');
   await expect(page.locator('.badge', { hasText: 'Sniffed every ×2 fact' })).toBeVisible();

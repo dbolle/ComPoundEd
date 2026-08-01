@@ -29,10 +29,10 @@ test('v1 profile loads, plays, and upgrades without losing anything', async ({ p
 
   // Mastered ×2 star still visible from v1 data
   await openTableGrid(page);
-  await expect(page.locator('.table-grid .table-btn:nth-child(2)')).toContainText('⭐');
+  await expect(page.locator('.table-grid:not(.add-grid) .table-btn:nth-child(2)')).toContainText('⭐');
 
   // Play (forces a save → persists the migration)
-  await page.tap('.table-grid .table-btn:nth-child(2)');
+  await page.tap('.table-grid:not(.add-grid) .table-btn:nth-child(2)');
   await playQuestions(page, 12);
   await page.waitForSelector('.big-score');
 

@@ -102,7 +102,7 @@ test('e2e: parent controls — hide sitting, limit tables; version in the footer
   await page.tap('.limit-chip:nth-child(2)');
   await page.tap('[data-back]');
   await expect(page.locator('.sitting-card')).toHaveCount(0);
-  await expect(page.locator('.table-grid .table-btn')).toHaveCount(1);
+  await expect(page.locator('.table-grid:not(.add-grid) .table-btn')).toHaveCount(1);
 
   await page.reload({ waitUntil: 'networkidle' }); // settings persist
   await expect(page.locator('.sitting-card')).toHaveCount(0);

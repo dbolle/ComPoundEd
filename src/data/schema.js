@@ -304,7 +304,10 @@ export function validProfileDoc(doc) {
 // Marks a settings/cosmetics change (subjects, avatar, wear, placements)
 // so merges keep the intended value even if a stale device saves later.
 export function touchMeta(profile) {
-  profile.metaAt = Date.now();
+  // strictly monotonic: two settings changes in the same millisecond
+  // (e.g. profile creation + its subject choice) must still order — a
+  // metaAt TIE resolves to the other doc and silently reverts the change
+  profile.metaAt = Math.max(Date.now(), (profile.metaAt ?? 0) + 1);
 }
 
 // Merges two versions of the same profile without losing progress from

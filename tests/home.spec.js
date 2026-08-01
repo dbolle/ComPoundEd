@@ -33,6 +33,10 @@ test('suggestNext: fresh kid → ×1; progress wins; division gets its turn', ()
       done.division[norm(t, b)] = stat(5, { ageMs: 3600e3 });
     }
   }
+  // v1.41: a fully-mastered × kid has proven the trail below — Adding
+  // is suggested next (the mid-trail readiness feature)
+  expect(suggestNext(done).label).toContain('➕');
+  done.subjects = { ...done.subjects, bridge: false }; // parent turns it off
   expect(suggestNext(done)).toBeNull(); // everything fresh and mastered
 
   done.facts['7x8'].lastSeen = Date.now() - 30 * 86400e3; // one rusty fact
@@ -43,7 +47,7 @@ test('e2e: collapsed home, suggestion works, expansion persists', async ({ page 
   await createProfileUI(page, uniqueName('Tidy'));
 
   // Default: both grids collapsed, suggestion visible
-  await expect(page.locator('.table-grid')).toBeHidden();
+  await expect(page.locator('.table-grid:not(.add-grid):not(.div-grid)')).toBeHidden();
   expect(await page.$('[data-division-slot] .div-grid')).toBeNull(); // gated until mastery
   const suggest = page.locator('[data-suggest]');
   await expect(suggest).toContainText('×1');
@@ -55,10 +59,10 @@ test('e2e: collapsed home, suggestion works, expansion persists', async ({ page 
 
   // Expand tables; state survives reload
   await openTableGrid(page);
-  await expect(page.locator('.table-grid')).toBeVisible();
+  await expect(page.locator('.table-grid:not(.add-grid):not(.div-grid)')).toBeVisible();
   await page.reload({ waitUntil: 'networkidle' });
   await page.waitForSelector('.hero');
-  await expect(page.locator('.table-grid')).toBeVisible();
+  await expect(page.locator('.table-grid:not(.add-grid):not(.div-grid)')).toBeVisible();
 });
 
 test('e2e: division section shows unlocked + next locked only, with a note', async ({ page }) => {
@@ -84,10 +88,10 @@ test('e2e: the tables toggle works immediately after rapid re-renders', async ({
   await page.evaluate(() => { location.hash = '#/pack'; });
   await page.evaluate(() => { location.hash = '#/home'; });
   await page.tap('[data-toggle="tables"]');
-  await expect(page.locator('.table-grid')).toBeVisible();
+  await expect(page.locator('.table-grid:not(.add-grid):not(.div-grid)')).toBeVisible();
   // and the persisted state survives another render cycle
   await page.evaluate(() => { location.hash = '#/pack'; });
   await page.evaluate(() => { location.hash = '#/home'; });
   await page.waitForSelector('[data-toggle="tables"]');
-  await expect(page.locator('.table-grid')).toBeVisible();
+  await expect(page.locator('.table-grid:not(.add-grid):not(.div-grid)')).toBeVisible();
 });
