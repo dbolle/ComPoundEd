@@ -16,13 +16,20 @@ const by = (key) => (a, b) => {
 export function canonicalizeProfile(doc) {
   const out = { ...doc };
   if (Array.isArray(out.unlocks)) {
-    out.unlocks = [...out.unlocks].sort((a, b) => `${a?.dogId}`.localeCompare(`${b?.dogId}`));
+    out.unlocks = [...out.unlocks].sort((a, b) => (`${a?.dogId}` < `${b?.dogId}` ? -1 : `${a?.dogId}` > `${b?.dogId}` ? 1 : 0));
   }
   if (Array.isArray(out.petUnlocks)) {
     out.petUnlocks = [...out.petUnlocks].sort(by('milestone'));
   }
   if (out.pawBucks?.txns) {
-    out.pawBucks = { ...out.pawBucks, txns: [...out.pawBucks.txns].sort(by('id')) };
+    // id alone is NOT a total order once one id has conflicting variants
+    // (the quarantine case) — tie-break on full content so the signature
+    // is stable for identical data
+    const key = (t) => `${t?.id}\u0000${stableStringify(t)}`;
+    out.pawBucks = {
+      ...out.pawBucks,
+      txns: [...out.pawBucks.txns].sort((x, y) => (key(x) < key(y) ? -1 : key(x) > key(y) ? 1 : 0)),
+    };
   }
   if (out.little?.revealed) {
     out.little = { ...out.little, revealed: [...out.little.revealed].sort() };

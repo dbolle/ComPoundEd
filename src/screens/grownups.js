@@ -23,6 +23,8 @@ import {
   getSyncStatus,
   getSyncKey,
   setSyncKey,
+  getMetaConflicts,
+  resolveMetaConflict,
   httpKeyAcknowledged,
   acknowledgeHttpKey,
   setSoundEnabled,
@@ -261,6 +263,7 @@ export function grownupsScreen(el, params, ctx) {
           <button class="btn ghost small" data-deleted-players>🗂 Deleted players</button>
         </div>
         <div data-deleted-list></div>
+        <div data-meta-conflicts></div>
         <div style="height:8px"></div>
         <div class="nav-row">
           <button class="btn ghost small" data-export>⬇️ Export all players</button>
@@ -466,6 +469,48 @@ export function grownupsScreen(el, params, ctx) {
         toast('Family backup turned off');
       }
     });
+    // Storage-recovery conflicts: two versions of the same setting with
+    // the same change-count (a storage hiccup). Both values are kept
+    // until a grown-up picks — never auto-resolved, never discarded.
+    getMetaConflicts().then((conflicts) => {
+      if (!conflicts.length) return;
+      const LABELS = {
+        syncKey: 'family key',
+        syncEnabled: 'backup on/off',
+        soundEnabled: 'sound',
+        voicePref: 'voice',
+        activeProfileId: 'last player',
+      };
+      const wrap = panel.querySelector('[data-meta-conflicts]');
+      const show = (v) =>
+        v === null || v === undefined
+          ? '(not set)'
+          : typeof v === 'boolean'
+            ? v ? 'on' : 'off'
+            : escapeHtml(String(v)).slice(0, 24);
+      wrap.innerHTML = `<div class="card" style="border:2px solid #f59e0b;margin-top:8px">
+        <h3 style="margin:0 0 6px">⚠️ Settings need a choice</h3>
+        <p class="muted" style="margin:0 0 6px;font-size:.8rem">A storage hiccup left two versions of these. Both are safe — pick the one you want.</p>
+        ${conflicts
+          .map(
+            (c) => `<div class="stat-row" data-mc-row="${escapeHtml(c.key)}">
+              <span>${LABELS[c.key] ?? escapeHtml(c.key)}</span>
+              <span><button class="btn ghost small" data-mc-keep="${escapeHtml(c.key)}">Keep ${show(c.kept)}</button>
+              <button class="btn ghost small" data-mc-other="${escapeHtml(c.key)}">Use ${show(c.other)}</button></span></div>`
+          )
+          .join('')}</div>`;
+      const settle = async (key, choice) => {
+        await resolveMetaConflict(key, choice);
+        wrap.querySelector(`[data-mc-row="${key}"]`)?.remove();
+        if (!wrap.querySelector('[data-mc-row]')) wrap.innerHTML = '';
+        toast('Setting saved');
+      };
+      for (const b of wrap.querySelectorAll('[data-mc-keep]'))
+        b.addEventListener('click', () => settle(b.dataset.mcKeep, 'kept'));
+      for (const b of wrap.querySelectorAll('[data-mc-other]'))
+        b.addEventListener('click', () => settle(b.dataset.mcOther, 'other'));
+    });
+
     // Deleted players: restore (back to every device) or purge forever.
     // Both are parental decisions; purge is irreversible by design.
     panel.querySelector('[data-deleted-players]').addEventListener('click', async () => {

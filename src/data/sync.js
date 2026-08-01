@@ -45,6 +45,7 @@ export function isLegacyMode() {
 }
 
 const denied = (res) => res.status === 401 || res.status === 403;
+const throttled = (res) => res.status === 429;
 
 // List remote LIVE profiles. CAS mode follows every page; a failure
 // after page one returns partial=true — callers must then never treat
@@ -64,6 +65,7 @@ export async function listRemote() {
       return first ? { ok: false } : { ok: true, mode: 'cas', ids, partial: true };
     }
     if (denied(res)) return { ok: false, denied: true };
+    if (throttled(res)) return { ok: false, throttled: true };
     if (!res.ok) return first ? { ok: false } : { ok: true, mode: 'cas', ids, partial: true };
     let body;
     try {

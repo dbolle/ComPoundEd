@@ -3,6 +3,27 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.42.0 — 2026-08-01
+
+The rest of the independent audit's findings.
+
+- Settings that collide during a storage recovery now keep BOTH values
+  and ask a grown-up which to use (previously the losing value was
+  deleted and the conflict was recorded where nothing could read it).
+- One device guessing the family key wrong can no longer lock the whole
+  family out: the limit is per device, and a correct key is never
+  refused.
+- The wallet's transaction merge is provably order-independent again
+  (a legacy and an upgraded copy of the same coin swap could disagree
+  and make two devices push each other in a loop). Randomized property
+  tests now cover it.
+- Merging two devices keeps unexpected fields from BOTH copies; absurdly
+  large or deeply nested backup files are rejected before they can be
+  stored; only one backup service can own the data directory.
+- New tests for the promises that shipped untested: deleted-player
+  listing pagination, a near-4MB profile through sync/delete/restore/
+  purge, an interrupted migration, and the single-instance guard.
+
 ## v1.41.2 — 2026-08-01
 
 Critical fixes from an independent audit of the hardening wave.

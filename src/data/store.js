@@ -115,17 +115,46 @@ async function reconcileFallback() {
       await repo.setMeta(key, fromLs);
       winner = fromLs;
     } else if (seqOf(fromLs) === seqOf(inIdb) && JSON.stringify(unwrapMeta(fromLs)) !== JSON.stringify(unwrapMeta(inIdb))) {
-      // equal sequence, different values: corruption/conflict — keep
-      // IDB's, surface it (syncKey specifically prompts in Grown-Ups)
-      await repo.setMeta('metaConflicts', [...new Set([...((await repo.getMeta('metaConflicts')) ?? []), key])]);
+      // Equal sequence, different values: corruption/conflict. Keep the
+      // IndexedDB value in place, but RETAIN the losing one so a
+      // grown-up can actually choose it (deleting it made the "surfaced,
+      // never auto-resolved" promise hollow — audit M1).
+      const list = (await repo.getMeta('metaConflicts')) ?? [];
+      const rest = list.filter((c) => c.key !== key);
+      await repo.setMeta('metaConflicts', [
+        ...rest,
+        { key, kept: unwrapMeta(inIdb) ?? null, other: unwrapMeta(fromLs) ?? null, at: Date.now() },
+      ]);
     }
     if (key === 'activeProfileId') {
       const id = unwrapMeta(winner);
       if (id && !(await repo.getProfile(id))) await repo.setMeta(key, null);
     }
+    const conflicted = ((await repo.getMeta('metaConflicts')) ?? []).some((c) => c.key === key);
     const verify = await repo.getMeta(key);
-    if (verify !== undefined) clearFallbackEntry('meta', key);
+    // never drop the fallback copy of a value a grown-up still has to
+    // choose between (it is the only place the losing value lives)
+    if (verify !== undefined && !conflicted) clearFallbackEntry('meta', key);
   }
+}
+
+// Unresolved meta conflicts (equal change-sequence, different values).
+// Surfaced in Grown-Ups; both values are preserved until a grown-up
+// picks one.
+export async function getMetaConflicts() {
+  return (await repo.getMeta('metaConflicts')) ?? [];
+}
+
+export async function resolveMetaConflict(key, choice) {
+  const list = await getMetaConflicts();
+  const entry = list.find((c) => c.key === key);
+  if (!entry) return false;
+  if (choice === 'other') await setMetaV(key, entry.other);
+  await repo.setMeta('metaConflicts', list.filter((c) => c.key !== key));
+  clearFallbackEntry('meta', key);
+  if (key === 'syncKey') setSyncHeaderKey(await getMetaV('syncKey'));
+  if (key === 'syncEnabled') syncEnabled = (await getMetaV('syncEnabled')) === true;
+  return true;
 }
 
 // The family key: device-local meta ONLY — never in profile docs,

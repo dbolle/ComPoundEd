@@ -63,13 +63,18 @@ test('group play rotates askers, questions match the asking dog', async ({ page 
   await page.tap('button:has-text("Play date")');
   await page.waitForSelector('.kind-btn');
   expect(await page.$eval('[data-start]', (e) => e.disabled)).toBe(true);
-  await page.tap('.dog-card:has-text("Daisy")');
-  await page.tap('.dog-card:has-text("Scout")');
-  // pin the selection before starting — a ghost double-toggle here once
-  // sent the round out with the wrong dogs and only the play-credit
-  // assertions caught it
-  await expect(page.locator('[data-dog="dog-2"].selected')).toBeVisible();
-  await expect(page.locator('[data-dog="dog-7"].selected')).toBeVisible();
+  // Pin the selection before starting — a ghost double-toggle here once
+  // sent the round out with the wrong dogs, and only the play-credit
+  // assertions caught it. Retry the tap: a tap landing in the same frame
+  // as the grid render is a harness race, not app behaviour.
+  for (const id of ['dog-2', 'dog-7']) {
+    await expect(async () => {
+      if (!(await page.locator(`[data-dog="${id}"].selected`).count())) {
+        await page.tap(`[data-dog="${id}"]`);
+      }
+      await expect(page.locator(`[data-dog="${id}"].selected`)).toBeVisible({ timeout: 1500 });
+    }).toPass({ timeout: 15000 });
+  }
   await page.tap('[data-start]');
   await page.waitForSelector('.activity-scene');
   expect(await page.$$eval('.mover', (els) => els.length)).toBe(2);

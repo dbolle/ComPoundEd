@@ -21,6 +21,9 @@ export function validEvent(t) {
   if (!t || typeof t !== 'object') return false;
   if (typeof t.id !== 'string' || !t.id) return false;
   if (!isInt(t.cents)) return false;
+  // `at` orders the replay — a non-finite value would make the sort
+  // comparator inconsistent (engine-defined result) and desync devices
+  if (t.at !== undefined && (typeof t.at !== 'number' || !Number.isFinite(t.at))) return false;
   if (t.denom !== undefined && !DENOMS.has(t.denom)) return false;
   if (t.count !== undefined && !isInt(t.count)) return false;
   if (typeof t.reason !== 'string') return false;
@@ -65,9 +68,17 @@ export function mergeTxns(a = [], b = []) {
     if (!variants) byId.set(t.id, (variants = new Map()));
     const prev = variants.get(fp);
     if (prev) {
-      if ((t.at ?? Infinity) < (prev.at ?? Infinity)) variants.set(fp, { ...prev, at: t.at });
+      // Coalesce deterministically: at = min(observed), and DERIVED
+      // metadata (group) is normalized away rather than inherited from
+      // whichever side was added first — otherwise mergeTxns(a,b) and
+      // (b,a) produced different arrays for a legacy event and its
+      // upgraded twin, and the two devices then healed each other in a
+      // loop forever (audit M3).
+      const at = Math.min(prev.at ?? Infinity, t.at ?? Infinity);
+      variants.set(fp, { ...prev, at: Number.isFinite(at) ? at : undefined });
     } else {
-      variants.set(fp, { ...t });
+      const { group, ...rest } = t; // group is re-derived by groupOf()
+      variants.set(fp, { ...rest });
     }
   };
   for (const t of a) add(t);
@@ -76,8 +87,11 @@ export function mergeTxns(a = [], b = []) {
   for (const variants of byId.values()) out.push(...variants.values());
   // canonical storage order: at, then id, then fingerprint — identical on
   // every device regardless of merge order
+  // byte-order comparison, never localeCompare: collation differs by
+  // device locale, and this order must be identical everywhere
+  const cmp = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
   out.sort(
-    (x, y) => (x.at ?? 0) - (y.at ?? 0) || x.id.localeCompare(y.id) || fingerprintOf(x).localeCompare(fingerprintOf(y))
+    (x, y) => (x.at ?? 0) - (y.at ?? 0) || cmp(x.id, y.id) || cmp(fingerprintOf(x), fingerprintOf(y))
   );
   return out;
 }
@@ -87,14 +101,23 @@ export function mergeTxns(a = [], b = []) {
 // The coin a denom-carrying event moves (legacy earns omit count = +1).
 const effCount = (t) => (t.denom ? (t.count ?? (t.cents > 0 ? 1 : 0)) : 0);
 
-// Memo keyed on the array object AND its length: merges create fresh
-// arrays, while in-place flows only ever APPEND — so (identity, length)
-// uniquely determines content.
+// Memo keyed on the array identity plus a cheap content digest — an
+// in-place same-length edit would otherwise return a stale result
+// (nothing does that today, but nothing enforced it either).
 const memo = new WeakMap();
+const digestOf = (txns) => {
+  let h = txns.length;
+  for (const t of txns) {
+    const s = `${t?.id}|${t?.cents}|${t?.at}|${t?.denom ?? ''}|${t?.count ?? ''}`;
+    for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  }
+  return h;
+};
 
 export function replayLedger(txns = []) {
   const cached = memo.get(txns);
-  if (cached && cached.len === txns.length) return cached.result;
+  const digest = digestOf(txns);
+  if (cached && cached.digest === digest) return cached.result;
 
   const quarantined = new Set();
   const byId = new Map();
@@ -128,7 +151,7 @@ export function replayLedger(txns = []) {
     (x, y) =>
       x[1].at - y[1].at ||
       (netOf(x[1]) < 0 ? 1 : 0) - (netOf(y[1]) < 0 ? 1 : 0) ||
-      x[0].localeCompare(y[0])
+      (x[0] < y[0] ? -1 : x[0] > y[0] ? 1 : 0)
   );
 
   let balance = 0;
@@ -155,6 +178,6 @@ export function replayLedger(txns = []) {
   }
 
   const result = { balance, counts, accepted, rejected, quarantined };
-  memo.set(txns, { len: txns.length, result });
+  memo.set(txns, { digest, result });
   return result;
 }
