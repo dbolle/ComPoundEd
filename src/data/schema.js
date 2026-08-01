@@ -279,8 +279,28 @@ export function migrateProfile(doc) {
 // job); FUTURE schemas are rejected — an old device must not mangle a
 // newer device's doc (the server copy is left untouched by callers).
 // Lifecycle envelopes (v1.38 sync platform) are recognized and allowed.
+// Structural sanity beyond types: a deeply nested or absurdly wide doc
+// can blow the stack in canonical serialization before anything else
+// gets a chance to reject it (audit M4).
+const MAX_DEPTH = 12;
+const MAX_NODES = 200_000;
+export function structurallySane(value, maxDepth = MAX_DEPTH, maxNodes = MAX_NODES) {
+  let nodes = 0;
+  const walk = (v, depth) => {
+    if (depth > maxDepth) return false;
+    if (++nodes > maxNodes) return false; // every value counts, not just objects
+    if (v === null || typeof v !== 'object') return true;
+    for (const child of Array.isArray(v) ? v : Object.values(v)) {
+      if (!walk(child, depth + 1)) return false;
+    }
+    return true;
+  };
+  return walk(value, 0);
+}
+
 export function validProfileDoc(doc) {
   if (!doc || typeof doc !== 'object') return false;
+  if (!structurallySane(doc)) return false;
   if (doc.deleted === true || doc.state === 'deleted' || doc.state === 'purged') {
     return typeof doc.id === 'string'; // tombstone/lifecycle shapes
   }
@@ -442,6 +462,9 @@ export function mergeProfiles(a, b) {
     };
   }
   return {
+    // unknown/extension fields from BOTH sides survive (the newer doc
+    // wins on collision) — "no loss of known or unknown user data"
+    ...older,
     ...newer,
     subjects,
     little,

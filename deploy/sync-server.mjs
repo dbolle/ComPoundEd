@@ -30,7 +30,7 @@
 import { createServer } from 'node:http';
 import { createHash, timingSafeEqual } from 'node:crypto';
 import { promises as fs } from 'node:fs';
-import { openSync, closeSync, fsyncSync } from 'node:fs';
+import { openSync, closeSync, fsyncSync, writeFileSync, unlinkSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 
@@ -50,17 +50,32 @@ const ID_RE = /^[A-Za-z0-9-]{1,64}$/;
 // ---- key auth (constant time over equal-length digests) -------------------
 const keyDigest = KEY ? createHash('sha256').update(KEY).digest() : null;
 const authFailures = new Map(); // ip -> { count, until }
+// The real client address: nginx proxies every request, so the socket
+// address is always the proxy's. Without this one bad device jailed the
+// WHOLE family (audit M2).
+export function clientIp(req) {
+  const fwd = req.headers['x-forwarded-for'];
+  if (typeof fwd === 'string' && fwd.length) return fwd.split(',')[0].trim();
+  return req.socket.remoteAddress ?? '?';
+}
+
 function authorized(req, ip) {
   if (!keyDigest) return ALLOW_ANON; // empty key: refuse (unless explicit rollout toggle)
   const now = Date.now();
+  const given = req.headers['x-sync-key'];
+  const ok =
+    typeof given === 'string' &&
+    given.length > 0 &&
+    timingSafeEqual(createHash('sha256').update(given).digest(), keyDigest);
+  // A CORRECT key is never throttled — the jail must not lock out the
+  // family because someone else guessed wrong.
+  if (ok) {
+    authFailures.delete(ip);
+    return true;
+  }
   const jail = authFailures.get(ip);
   if (jail && jail.until > now && jail.count >= 20) return 'throttled';
-  const given = req.headers['x-sync-key'];
-  if (typeof given !== 'string' || !given) return recordFail(ip, now);
-  const digest = createHash('sha256').update(given).digest();
-  if (!timingSafeEqual(digest, keyDigest)) return recordFail(ip, now);
-  authFailures.delete(ip);
-  return true;
+  return recordFail(ip, now);
 }
 function recordFail(ip, now) {
   const jail = authFailures.get(ip) ?? { count: 0, until: 0 };
@@ -182,7 +197,7 @@ const json = (res, code, body, headers = {}) =>
 
 export async function handleSync(req, res) {
   const url = new URL(req.url, 'http://x');
-  const ip = req.socket.remoteAddress ?? '?';
+  const ip = clientIp(req);
   const auth = authorized(req, ip);
   if (auth === 'throttled') return json(res, 429, { error: 'slow down' });
   if (auth !== true) return json(res, keyDigest ? 403 : 403, { error: 'family key required' });
@@ -299,9 +314,68 @@ export async function handleSync(req, res) {
   });
 }
 
-// Startup: clean abandoned tmp files; refuse to double-run (single replica).
+// Single-replica guard: an OS advisory lock on a lockfile inside the
+// data dir. It is released automatically when the process dies (no
+// stale-lock recovery needed), and a second instance exits rather than
+// sweeping tmp files a live instance is mid-write on.
+// Single-replica guard. An O_EXCL marker holding the owner's pid: a live
+// owner means refuse; a dead owner's marker is taken over (a killed
+// container leaves one behind). Released on exit — no stale lock to
+// clear by hand. MUST run before startupSweep, which deletes tmp files a
+// live instance could be mid-write on.
+export function acquireSingleInstanceLock() {
+  const marker = join(DIR, '.sidecar.running');
+  const take = () => {
+    const mfd = openSync(marker, 'wx', 0o600);
+    writeFileSync(marker, String(process.pid), { mode: 0o600 });
+    closeSync(mfd);
+    const release = () => {
+      try {
+        unlinkSync(marker);
+      } catch {
+        /* already gone */
+      }
+    };
+    process.on('exit', release);
+    for (const sig of ['SIGINT', 'SIGTERM'])
+      process.on(sig, () => {
+        release();
+        process.exit(0);
+      });
+    return true;
+  };
+  try {
+    return take();
+  } catch {
+    // marker exists — is its owner alive?
+    let owner = 0;
+    try {
+      owner = Number(readFileSync(marker, 'utf8').trim());
+    } catch {
+      /* unreadable: treat as dead */
+    }
+    if (owner && owner !== process.pid) {
+      try {
+        process.kill(owner, 0); // throws if the pid is gone
+        return false; // a live instance owns the directory
+      } catch {
+        /* dead owner: fall through and take over */
+      }
+    }
+    try {
+      unlinkSync(marker);
+      return take();
+    } catch {
+      return false;
+    }
+  }
+}
+
+// Startup: ensure the dir, drop the previous run's marker, clean
+// abandoned tmp files (safe: we hold the single-instance marker).
 export async function startupSweep() {
   await fs.mkdir(DIR, { recursive: true, mode: 0o700 }).catch(() => {});
+  await fs.chmod(DIR, 0o700).catch(() => {}); // bind mounts pre-exist mkdir
   const names = await fs.readdir(DIR).catch(() => []);
   for (const n of names) {
     if (n.includes('.json.tmp-')) await fs.unlink(join(DIR, n)).catch(() => {});
@@ -310,7 +384,12 @@ export async function startupSweep() {
 
 const isMain = process.argv[1] && import.meta.url.endsWith(process.argv[1].split('/').pop());
 if (isMain) {
-  await startupSweep();
+  await fs.mkdir(DIR, { recursive: true, mode: 0o700 }).catch(() => {});
+  if (!acquireSingleInstanceLock()) {
+    console.error('another sync sidecar instance is running — refusing to start');
+    process.exit(1);
+  }
+  await startupSweep(); // safe now: we own the directory
   createServer((req, res) => {
     handleSync(req, res).catch(() => {
       try {
