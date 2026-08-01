@@ -23,8 +23,8 @@ while read -r _local_ref local_sha _remote_ref remote_sha; do
       echo "Reword the commit before pushing (the term itself is not echoed here)." >&2
       exit 1
     fi
-    if git diff "$remote_sha" "$local_sha" 2>/dev/null | grep -qiF -- "$term"; then
-      echo "pre-push: a private term appears in the outgoing DIFF ($range)." >&2
+    if git diff "$remote_sha" "$local_sha" 2>/dev/null | grep "^+" | grep -qiF -- "$term"; then
+      echo "pre-push: a private term appears in ADDED lines of the outgoing diff ($range)." >&2
       exit 1
     fi
   done < "$TERMS_FILE"
