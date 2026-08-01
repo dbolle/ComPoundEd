@@ -2,6 +2,8 @@
 // migrateProfile() whenever the shape of stored data changes — this is the
 // contract a future sync backend will rely on.
 
+import { mergeTxns } from '../engine/ledger.js';
+
 export const SCHEMA_VERSION = 17;
 
 // bridge/tables are TRI-STATE since v16: 'auto' (readiness engine decides,
@@ -364,13 +366,12 @@ export function mergeProfiles(a, b) {
       train: Math.max(x.train ?? 0, y.train ?? 0),
     };
   }
-  // Paw Bucks: union of transactions by id — spends can never be
-  // resurrected and earns are never double-counted.
-  const seenTxns = new Map();
-  for (const t of [...(a.pawBucks?.txns ?? []), ...(b.pawBucks?.txns ?? [])]) {
-    if (t?.id && !seenTxns.has(t.id)) seenTxns.set(t.id, t);
-  }
-  const pawBucks = { txns: [...seenTxns.values()].sort((x, y) => x.at - y.at) };
+  // Paw Bucks: commutative/associative/idempotent event union (v1.40):
+  // matching payloads coalesce (at = min observed); conflicting payloads
+  // for one id are ALL preserved and replay quarantines that id. Spends
+  // can never be resurrected, earns never double-count, and
+  // mergeProfiles(a,b) ≡ mergeProfiles(b,a).
+  const pawBucks = { txns: mergeTxns(a.pawBucks?.txns ?? [], b.pawBucks?.txns ?? []) };
   // Wardrobe choices are cosmetic: the doc with the newer settings-change
   // wins per dog.
   const wear = { ...(metaOlder.wear ?? {}), ...(metaNewer.wear ?? {}) };

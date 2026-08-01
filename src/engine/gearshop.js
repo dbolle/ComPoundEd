@@ -5,7 +5,7 @@
 // only new state — profile.gear.placements, a preference merged newer-wins.
 
 import { GEAR_ACCESSORIES, TOYS } from '../art/gear.js';
-import { ensureBucks, balanceCents } from './money.js';
+import { ensureBucks, balanceCents, ledgerState } from './money.js';
 import { touchMeta } from '../data/schema.js';
 
 export const CATALOG = [...GEAR_ACCESSORIES, ...TOYS];
@@ -19,9 +19,31 @@ export function buyTxnId(itemId, forId = null) {
   return item?.tier === 'gift' ? `buy-${itemId}-${forId}` : `buy-${itemId}`;
 }
 
+// Owned = an ACCEPTED purchase group in the derived replay. A buy that
+// lost a cross-device race is derived-rejected: the item returns to the
+// shelf (still buyable) and the child owes nothing.
 export function isOwned(profile, itemId, forId = null) {
-  const id = buyTxnId(itemId, forId);
-  return ensureBucks(profile).txns.some((t) => t.id === id);
+  const base = buyTxnId(itemId, forId);
+  const { accepted } = ledgerState(profile);
+  for (const t of ensureBucks(profile).txns) {
+    if ((t.id === base || t.id.startsWith(`${base}~`)) && !t.id.includes('-c-') && accepted.has(t.group ?? t.id)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// A retry after a derived-rejected buy needs a FRESH deterministic id
+// (the original id is taken by the rejected group). Attempt suffixes are
+// deterministic per retry count, so two devices retrying converge.
+function nextBuyId(profile, base) {
+  const { accepted } = ledgerState(profile);
+  const tries = ensureBucks(profile)
+    .txns.filter((t) => (t.id === base || t.id.startsWith(`${base}~`)) && !t.id.includes('-c-'))
+    .map((t) => t.id);
+  if (!tries.length) return base;
+  if (tries.some((id) => accepted.has(id))) return null; // already owned
+  return `${base}~${tries.length + 1}`;
 }
 
 // Everything owned: [{ item, for }] — gifts carry their wearer, treasures
@@ -40,8 +62,11 @@ export function buyGear(profile, itemId, forId = null, now = Date.now(), coins =
   if (item.tier === 'gift' && !forId) return null;
   if (isOwned(profile, itemId, forId)) return null;
   if (balanceCents(profile) < item.price) return null;
+  const buyId = nextBuyId(profile, buyTxnId(itemId, forId));
+  if (buyId === null) return null; // raced to owned
   const txn = {
-    id: buyTxnId(itemId, forId),
+    id: buyId,
+    group: buyId,
     at: now,
     cents: -item.price,
     count: 1,
@@ -57,6 +82,7 @@ export function buyGear(profile, itemId, forId = null, now = Date.now(), coins =
     for (const [denom, n] of Object.entries(coins)) {
       if (n > 0) {
         ensureBucks(profile).txns.push({
+          group: txn.id,
           id: `${txn.id}-c-${denom}`,
           at: now,
           cents: 0,

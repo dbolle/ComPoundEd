@@ -3,6 +3,24 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.40.0 — 2026-08-01
+
+Hardening wave R5/6: the Paw Bucks economy becomes conflict-proof.
+
+- If two devices spend the same coins while apart (offline race), the
+  merged ledger now resolves it the same way on every device: the
+  earlier purchase stands, the later one is quietly returned to the
+  shelf — the child owes nothing, sees no negative numbers, and can
+  simply buy it again. If missing earnings arrive later, a returned
+  purchase can complete by itself, identically everywhere.
+- Balances and coin counts are now derived by replaying the transaction
+  history (nothing is ever rewritten or reversed); they are guaranteed
+  nonnegative in total AND per coin. Grown-Ups' ledger annotates
+  returned purchases and any corrupted duplicate entries (kept in the
+  history, excluded from the totals).
+- Merges of the transaction history are order-independent — syncing
+  A-then-B and B-then-A now provably produce the identical wallet.
+
 ## v1.39.0 — 2026-08-01
 
 Hardening wave R4/6: deleting a player is now safe, durable, and honest
