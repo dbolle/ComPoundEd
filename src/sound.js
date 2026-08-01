@@ -168,6 +168,89 @@ export const sfx = {
   bark: () => safe(() => VOICES.dog()),
 };
 
+// A real animal call is VOICED NOISE, not a filtered tone: turbulent
+// breath and an irregular vocal fold, shaped by several formants at
+// once. Two other things matter more than they look:
+//   * jitter — tiny random pitch wobble is what makes it rough/alive;
+//     a perfectly steady oscillator always reads as a beep.
+//   * where the energy sits — phone and tablet speakers radiate almost
+//     nothing below ~400Hz, so a "deep" voice built on a 100Hz
+//     fundamental arrives as a thin whistle. The body has to live in
+//     the 400–2000Hz formants; the low fundamental only supplies
+//     harmonics.
+function growl({
+  at = 0,
+  dur = 0.25,
+  vol = 0.12,
+  f0 = [260, 150], // pitch path (harmonic source, not the loudest part)
+  jitter = 0.06, // fraction of f0 wobbled every ~9ms
+  noiseMix = 0.55, // how much of the source is breath
+  formants = [
+    [620, 2.2, 1],
+    [1250, 3, 0.7],
+    [2500, 4, 0.35],
+  ],
+  sweep = 0.6, // formants close to this fraction by the end (the vowel)
+  type = 'sawtooth',
+  attack = 0.012,
+}) {
+  const c = ac();
+  if (!c) return;
+  at *= LEN;
+  dur *= LEN;
+  const t0 = c.currentTime + at;
+
+  const out = c.createGain();
+  out.gain.setValueAtTime(0.0001, t0);
+  out.gain.exponentialRampToValueAtTime(vol, t0 + attack);
+  out.gain.exponentialRampToValueAtTime(vol * 0.55, t0 + dur * 0.5);
+  out.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  out.connect(c.destination);
+
+  // --- voiced source with jitter (the roughness) ---
+  const osc = c.createOscillator();
+  osc.type = type;
+  const steps = Math.max(2, Math.round(dur / 0.009));
+  for (let i = 0; i <= steps; i++) {
+    const p = i / steps;
+    const base = f0[0] + (f0[f0.length - 1] - f0[0]) * p;
+    const wobble = 1 + (Math.random() * 2 - 1) * jitter;
+    osc.frequency.setValueAtTime(Math.max(40, base * wobble), t0 + dur * p);
+  }
+  const oscGain = c.createGain();
+  oscGain.gain.value = 1 - noiseMix;
+  osc.connect(oscGain);
+
+  // --- breath source ---
+  const frames = Math.max(1, Math.ceil(c.sampleRate * dur));
+  const buf = c.createBuffer(1, frames, c.sampleRate);
+  const nd = buf.getChannelData(0);
+  for (let i = 0; i < frames; i++) nd[i] = Math.random() * 2 - 1;
+  const nsrc = c.createBufferSource();
+  nsrc.buffer = buf;
+  const nGain = c.createGain();
+  nGain.gain.value = noiseMix;
+  nsrc.connect(nGain);
+
+  // --- formant bank: both sources through every formant ---
+  for (const [f, q, g] of formants) {
+    const bp = c.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.setValueAtTime(f, t0);
+    bp.frequency.exponentialRampToValueAtTime(Math.max(120, f * sweep), t0 + dur);
+    bp.Q.value = q;
+    const fg = c.createGain();
+    fg.gain.value = g;
+    oscGain.connect(bp);
+    nGain.connect(bp);
+    bp.connect(fg).connect(out);
+  }
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.02);
+  nsrc.start(t0);
+  nsrc.stop(t0 + dur + 0.02);
+}
+
 // ---------------------------------------------------------------------
 // Option banks for the voices still being chosen by ear. IMPORTANT: a
 // voice used by the listen-and-count game must be ONE clear event — a
@@ -178,57 +261,133 @@ export const sfx = {
 // SWEEP as the pitch falls (that fall IS the "woo→oo"). One oscillator
 // through one fixed filter can only ever be a beep.
 const DOG_OPTIONS = [
-  // 1 [1] deep classic woof
-  () => {
-    noise({ dur: 0.025, vol: 0.1, freq: 1100, slide: 420, q: 0.8 });
-    voiced({ at: 0.006, dur: 0.24, vol: 0.11, type: 'sawtooth', path: [210, 150, 95], formant: 700, formantTo: 330, formant2: 1400, q: 2.4 });
-  },
-  // 2 [1] chesty boof — big dog, lots of body
-  () => {
-    noise({ dur: 0.03, vol: 0.09, freq: 700, slide: 300, q: 0.7 });
-    voiced({ at: 0.008, dur: 0.32, vol: 0.12, type: 'square', path: [150, 120, 80], formant: 480, formantTo: 240, formant2: 1000, q: 2 });
-  },
-  // 3 [1] gruff ruff — faster fall, brighter, a hint of growl
+  // 1 [1] "RUFF" — your pick, unchanged: bright fast-falling bark
   () => {
     noise({ dur: 0.02, vol: 0.11, freq: 1600, slide: 500, q: 1 });
     voiced({ at: 0.005, dur: 0.2, vol: 0.1, type: 'sawtooth', path: [300, 170, 100], formant: 900, formantTo: 380, formant2: 1800, q: 3, vibrato: 45 });
   },
-  // 4 [1] low WOOF — deepest and slowest, big-dog-down-the-street
+  // 2 [1] "WOOF" — voiced-noise growl, energy in the speaker band
   () => {
-    noise({ dur: 0.035, vol: 0.08, freq: 600, slide: 260, q: 0.6 });
-    voiced({ at: 0.01, dur: 0.4, vol: 0.12, type: 'sawtooth', path: [120, 95, 70], formant: 400, formantTo: 200, formant2: 820, q: 1.8 });
+    noise({ dur: 0.018, vol: 0.1, freq: 1500, slide: 700, q: 0.8 });
+    growl({
+      dur: 0.26,
+      vol: 0.15,
+      f0: [300, 140],
+      jitter: 0.07,
+      noiseMix: 0.5,
+      formants: [[700, 1.8, 1], [1300, 2.6, 0.8], [2600, 3.5, 0.4]],
+      sweep: 0.55,
+    });
   },
-  // 5 [1] breathy husky bark — noise-forward with a voiced core
+  // 3 [1] "ARF" — short, snappy, higher formants, quick cutoff
   () => {
-    noise({ dur: 0.22, vol: 0.13, freq: 900, slide: 300, q: 1.4 });
-    voiced({ at: 0.01, dur: 0.2, vol: 0.07, type: 'sawtooth', path: [230, 140, 90], formant: 750, formantTo: 300, q: 2.2 });
+    noise({ dur: 0.014, vol: 0.12, freq: 2200, slide: 900, q: 0.9 });
+    growl({
+      dur: 0.15,
+      vol: 0.15,
+      f0: [420, 240],
+      jitter: 0.09,
+      noiseMix: 0.45,
+      formants: [[900, 2.4, 1], [1700, 3, 0.85], [3000, 4, 0.5]],
+      sweep: 0.5,
+      attack: 0.006,
+    });
   },
-  // 6 [1] muffled woof — soft-edged, the gentlest of the six
+  // 4 [1] "BOOF" — big chesty dog: rough, slow, lots of low-mid body
   () => {
-    noise({ dur: 0.05, vol: 0.06, freq: 500, slide: 220, q: 0.9, type: 'lowpass' });
-    voiced({ at: 0.012, dur: 0.3, vol: 0.115, type: 'triangle', path: [180, 130, 90], formant: 560, formantTo: 260, formant2: 900, q: 2.6 });
+    noise({ dur: 0.03, vol: 0.09, freq: 800, slide: 380, q: 0.7 });
+    growl({
+      dur: 0.36,
+      vol: 0.16,
+      f0: [190, 105],
+      jitter: 0.05,
+      noiseMix: 0.4,
+      formants: [[520, 1.6, 1], [1050, 2.2, 0.75], [2100, 3, 0.3]],
+      sweep: 0.6,
+      attack: 0.02,
+    });
+  },
+  // 5 [1] "YIP" — little dog: high, bright, very short
+  () => {
+    noise({ dur: 0.012, vol: 0.1, freq: 2800, slide: 1200, q: 1 });
+    growl({
+      dur: 0.12,
+      vol: 0.13,
+      f0: [560, 380],
+      jitter: 0.11,
+      noiseMix: 0.4,
+      formants: [[1150, 2.8, 1], [2200, 3.4, 0.9], [3600, 4, 0.5]],
+      sweep: 0.55,
+      attack: 0.005,
+      type: 'square',
+    });
+  },
+  // 6 [1] "RUFF-ruff" growl-tail — one bark that trails into a grumble
+  () => {
+    noise({ dur: 0.02, vol: 0.11, freq: 1700, slide: 600, q: 0.9 });
+    growl({
+      dur: 0.34,
+      vol: 0.15,
+      f0: [330, 190, 130],
+      jitter: 0.12,
+      noiseMix: 0.55,
+      formants: [[760, 2, 1], [1450, 2.8, 0.8], [2700, 3.6, 0.35]],
+      sweep: 0.45,
+    });
   },
 ];
 
 const RABBIT_OPTIONS = [
-  // 1 [1] one deep foot thump
-  () => noise({ dur: 0.26, vol: 0.26, freq: 130, slide: 60, q: 1, type: 'lowpass' }),
+  // Thumps are the hard case: a 130Hz thud is nearly silent on a tablet
+  // speaker, so the impact has to be carried by a 300–800Hz "knock" with
+  // the low end only adding weight underneath.
+  // 1 [1] one deep foot thump (knock + low weight)
+  () => {
+    noise({ dur: 0.1, vol: 0.3, freq: 480, slide: 220, q: 1.4 });
+    noise({ dur: 0.3, vol: 0.26, freq: 150, slide: 70, q: 1, type: 'lowpass' });
+  },
   // 2 [1] honk — the little grunt a happy rabbit makes
-  () => voiced({ dur: 0.22, vol: 0.13, type: 'sawtooth', path: [260, 210, 175], formant: 520, formantTo: 380, formant2: 1100, q: 4 }),
+  () => growl({ dur: 0.22, vol: 0.17, f0: [300, 220], jitter: 0.05, noiseMix: 0.35, formants: [[560, 2.4, 1], [1150, 3, 0.6]], sweep: 0.8 }),
   // 3 [1] soft squeak
-  () => voiced({ dur: 0.18, vol: 0.1, type: 'triangle', path: [780, 1180, 900], formant: 1900, q: 6, vibrato: 26 }),
+  () => voiced({ dur: 0.18, vol: 0.16, type: 'triangle', path: [780, 1180, 900], formant: 1900, q: 6, vibrato: 26 }),
   // 4 [1] purr-click (contentment) — one short burst
-  () => noise({ dur: 0.2, vol: 0.14, freq: 950, slide: 620, q: 3.5 }),
+  () => noise({ dur: 0.2, vol: 0.24, freq: 950, slide: 620, q: 3.5 }),
   // 5 [1] drum thump with room — deeper, longer tail
   () => {
-    noise({ dur: 0.34, vol: 0.24, freq: 105, slide: 55, q: 1.2, type: 'lowpass' });
-    voiced({ at: 0.005, dur: 0.3, vol: 0.07, type: 'sine', path: [95, 70], formant: 220, q: 3 });
+    noise({ dur: 0.12, vol: 0.28, freq: 420, slide: 190, q: 1.2 });
+    noise({ dur: 0.36, vol: 0.24, freq: 120, slide: 60, q: 1.2, type: 'lowpass' });
   },
-  // 6 [n] the current one: two thumps, then a squeak
+  // 6 [n] the original: two thumps, then a squeak
   () => {
-    for (const at of [0, 0.19]) noise({ at, dur: 0.12, vol: 0.2, freq: 190, slide: 90, q: 1, type: 'lowpass' });
-    voiced({ at: 0.4, dur: 0.12, vol: 0.09, type: 'triangle', path: [900, 1150], formant: 2000, q: 5 });
+    for (const at of [0, 0.19]) {
+      noise({ at, dur: 0.09, vol: 0.26, freq: 450, slide: 200, q: 1.4 });
+      noise({ at, dur: 0.12, vol: 0.2, freq: 190, slide: 90, q: 1, type: 'lowpass' });
+    }
+    voiced({ at: 0.4, dur: 0.12, vol: 0.14, type: 'triangle', path: [900, 1150], formant: 2000, q: 5 });
   },
+];
+
+const SLOTH_OPTIONS = [
+  // 1 [1] the original sigh (its noise burst has a fast attack — that is
+  // the "snare" crack before the breath)
+  () => {
+    noise({ dur: 0.55, vol: 0.1, freq: 700, slide: 380, q: 1.2 });
+    voiced({ dur: 0.55, vol: 0.08, type: 'triangle', path: [330, 300, 250], formant: 900, q: 4 });
+  },
+  // 2 [1] no onset crack: the breath FADES IN (growl's own envelope has a
+  // slow attack here) so nothing hits at t=0
+  () =>
+    growl({
+      dur: 0.6,
+      vol: 0.12,
+      f0: [300, 230],
+      jitter: 0.03,
+      noiseMix: 0.75, // mostly breath
+      formants: [[620, 1.4, 1], [1150, 1.8, 0.5]],
+      sweep: 0.7,
+      attack: 0.16, // long fade-in — no transient at all
+      type: 'triangle',
+    }),
 ];
 
 const BIRD_OPTIONS = [
@@ -245,9 +404,11 @@ const BIRD_OPTIONS = [
 
 // Which option each still-being-chosen voice uses (updated once the ear
 // check picks winners).
-const CHOICE = { dog: 0, rabbit: 0, bird: 0 };
+// Chosen by ear on the LAN build. The unused options stay in their banks
+// on purpose: they are a ready-made variety pool (see BACKLOG).
+const CHOICE = { dog: 0, rabbit: 0, bird: 2, sloth: 0 };
 
-export const VOICE_OPTIONS = { dog: DOG_OPTIONS, rabbit: RABBIT_OPTIONS, bird: BIRD_OPTIONS };
+export const VOICE_OPTIONS = { dog: DOG_OPTIONS, rabbit: RABBIT_OPTIONS, bird: BIRD_OPTIONS, sloth: SLOTH_OPTIONS };
 
 // Play one specific option — the chooser page only.
 export function playVoiceOption(species, index) {
@@ -277,14 +438,11 @@ const VOICES = {
   },
   bird: () => BIRD_OPTIONS[CHOICE.bird](),
   // sloth: a long, slow, breathy sigh — almost too quiet to notice
-  sloth: () => {
-    noise({ dur: 0.55, vol: 0.1, freq: 700, slide: 380, q: 1.2 });
-    voiced({ dur: 0.55, vol: 0.08, type: 'triangle', path: [330, 300, 250], formant: 900, q: 4 });
-  },
+  sloth: () => SLOTH_OPTIONS[CHOICE.sloth](),
   // hedgehog: quick snuffles, all breath, no voice
   hedgehog: () => {
     [0, 0.1, 0.19, 0.3].forEach((at, i) =>
-      noise({ at, dur: 0.08, vol: 0.2 - i * 0.018, freq: 1500 + i * 180, slide: 900, q: 1.5 })
+      noise({ at, dur: 0.08, vol: 0.14 - i * 0.013, freq: 1500 + i * 180, slide: 900, q: 1.5 })
     );
   },
   // turtle: a soft "hup" and a little water blip
