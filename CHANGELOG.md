@@ -3,6 +3,27 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.39.0 — 2026-08-01
+
+Hardening wave R4/6: deleting a player is now safe, durable, and honest
+across every device.
+
+- Deleting a player removes them from all devices but keeps their full
+  final progress archived in the family backup — even when the deleting
+  device was OFFLINE (the final snapshot rides a durable intent that
+  survives app restarts and uploads on reconnect). Product decision:
+  archives are kept until a grown-up explicitly restores or PURGES
+  them; purge is irreversible and leaves a marker that blocks any stale
+  device from resurrecting the profile.
+- Deleted players are managed in Grown-Ups (🗂 Deleted players:
+  restore or purge forever) — and a blank replacement device can
+  restore straight from the players screen.
+- A tombstone always wins during automatic sync; recovery is only ever
+  the explicit restore action. If a deletion collides with real
+  lifecycle changes elsewhere (e.g. the player was restored on another
+  device), NOTHING is auto-deleted — the grown-up gets a clear
+  "delete everywhere / keep the player" choice.
+
 ## v1.38.0 — 2026-08-01
 
 Hardening wave R3/6: the sync platform. Family backup moves to a real

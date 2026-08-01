@@ -8,6 +8,10 @@ import {
   knownEtag,
   remoteBackupCount,
   setSyncHeaderKey,
+  listDeleted,
+  getArchive,
+  lifecycleTransition,
+  isLegacyMode,
 } from './sync.js';
 
 let repo;
@@ -94,15 +98,22 @@ function withProfileLock(id, fn) {
 // blind overwrite (legacy servers excepted, where blind is all there is).
 async function syncOneProfile(profile) {
   for (let attempt = 0; attempt < 3; attempt++) {
+    if (deletedIds.has(profile.id)) return { ok: false, gone: true };
     const put = await putRemote(profile, knownEtag(profile.id));
     if (put.ok) return { ok: true };
     if (put.denied) return { ok: false, denied: true };
-    if (put.gone) return { ok: false, gone: true }; // lifecycle handled in v1.39
+    if (put.gone) {
+      await applyRemoteDeletion(profile.id); // tombstone wins
+      return { ok: false, gone: true };
+    }
     if (!put.conflict) return { ok: false };
     // conflict: someone else wrote — pull, merge, retry with their ETag
     const remote = await getRemote(profile.id);
     if (remote.denied) return { ok: false, denied: true };
-    if (remote.gone) return { ok: false, gone: true };
+    if (remote.gone) {
+      await applyRemoteDeletion(profile.id); // tombstone wins
+      return { ok: false, gone: true };
+    }
     if (remote.ok && remote.doc && validProfileDoc(remote.doc)) {
       const merged = await withProfileLock(profile.id, async () => {
         const local = await repo.getProfile(profile.id);
@@ -130,6 +141,7 @@ async function syncOneProfile(profile) {
 const PUSH_RETRY_MS = [4000, 15000, 60000];
 function schedulePush(profile, attempt = 0) {
   clearTimeout(pushTimers.get(profile.id));
+  if (deletedIds.has(profile.id)) return;
   syncOneProfile(profile).then((r) => {
     if (r.ok) {
       repo.setMeta('lastPushAt', Date.now());
@@ -145,7 +157,206 @@ function schedulePush(profile, attempt = 0) {
 // The pagehide flush can't run the full loop — a best-effort keepalive
 // conditional PUT with the cached ETag; the next check-in heals misses.
 export function flushProfile(profile) {
+  if (deletedIds.has(profile.id)) return;
   putRemote(profile, knownEtag(profile.id), { keepalive: true });
+}
+
+// ---------------------------------------------------------------------------
+// Deletion lifecycle (v1.39). A delete durably records a pending intent —
+// { intentId, baseGen, baseEtag, finalSnapshot, status } — in meta BEFORE
+// the local profile is removed, so the final progress always reaches the
+// server archive, even for offline deletions and app restarts. Ordering
+// is server generations (via CAS etags), never client clocks.
+
+const deletedIds = new Set(); // blocks queued/future pushes this session
+
+async function getPendingTombstones() {
+  return (await repo.getMeta('pendingTombstones')) ?? {};
+}
+
+async function setPendingTombstone(id, intent) {
+  const all = await getPendingTombstones();
+  if (intent === null) delete all[id];
+  else all[id] = intent;
+  await repo.setMeta('pendingTombstones', all);
+  // verify the commit before the caller may delete the live profile
+  const check = (await repo.getMeta('pendingTombstones')) ?? {};
+  if (intent !== null && !check[id]) throw new Error('pending tombstone did not commit');
+}
+
+function makeIntentId() {
+  return typeof crypto?.randomUUID === 'function'
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+// Resolve one pending deletion against the server. Matrix (review-locked):
+//  - server missing → nothing to archive remotely; confirmed.
+//  - server live at our observed base → merge live doc with the retained
+//    snapshot, CAS-PUT the complete merged doc, then CAS the delete
+//    transition — the server archives exactly the final merged document.
+//  - server already deleted with OUR tombstoneId → confirmed.
+//  - server purged → the stronger action wins; intent cleared.
+//  - server advanced any other way (restored, other tombstone, newer
+//    writes) → structured lifecycle conflict; the snapshot is RETAINED
+//    and a grown-up decides. Never auto-delete newer lifecycle state.
+async function resolveTombstone(id, intent) {
+  const remote = await getRemote(id);
+  if (remote.denied) return { state: 'denied' };
+  if (!remote.ok && !remote.missing) return { state: 'offline' };
+  if (remote.missing) {
+    await setPendingTombstone(id, null);
+    return { state: 'confirmed' };
+  }
+  if (remote.gone) {
+    if (remote.state === 'purged' || remote.meta?.tombstoneId === intent.intentId) {
+      await setPendingTombstone(id, null);
+      return { state: 'confirmed' };
+    }
+    return { state: 'conflict', reason: 'deleted-elsewhere', meta: remote.meta };
+  }
+  // live envelope
+  const baseMatches = intent.baseEtag == null || remote.etag === intent.baseEtag;
+  if (!baseMatches) return { state: 'conflict', reason: 'changed-since', meta: { etag: remote.etag } };
+  // merge final snapshot with the server's live doc, commit, then delete
+  let finalDoc = intent.finalSnapshot;
+  if (remote.doc && validProfileDoc(remote.doc)) {
+    finalDoc = finalDoc
+      ? mergeProfiles(migrateProfile(structuredClone(remote.doc)), migrateProfile(structuredClone(finalDoc)))
+      : migrateProfile(structuredClone(remote.doc));
+  }
+  let etag = remote.etag;
+  if (finalDoc && !isLegacyMode()) {
+    const put = await putRemote(finalDoc, etag);
+    if (put.denied) return { state: 'denied' };
+    if (!put.ok) return put.conflict ? { state: 'conflict', reason: 'changed-since' } : { state: 'offline' };
+    etag = put.etag;
+  }
+  if (isLegacyMode()) {
+    // pre-cutover server: no lifecycle support — the intent stays pending
+    // until the sidecar arrives; local deletion is already done.
+    return { state: 'pending-legacy' };
+  }
+  const t = await lifecycleTransition(id, 'delete', etag, { tombstoneId: intent.intentId });
+  if (t.denied) return { state: 'denied' };
+  if (t.ok) {
+    await setPendingTombstone(id, null);
+    return { state: 'confirmed' };
+  }
+  if (t.conflict || t.gone) return { state: 'conflict', reason: 'changed-since', meta: t.meta };
+  return { state: 'offline' };
+}
+
+// Called from syncNow: retries every pending intent; surfaces conflicts.
+async function resolvePendingTombstones() {
+  const all = await getPendingTombstones();
+  const conflicts = [];
+  for (const [id, intent] of Object.entries(all)) {
+    deletedIds.add(id);
+    try {
+      const r = await resolveTombstone(id, intent);
+      if (r.state === 'conflict') {
+        conflicts.push({ id, name: intent.finalSnapshot?.name ?? id, reason: r.reason });
+        intent.status = 'conflict';
+        await setPendingTombstone(id, intent);
+      }
+    } catch {
+      /* retried next sync */
+    }
+  }
+  return conflicts;
+}
+
+// A tombstone always wins during automatic sync: remove the local copy.
+// Recovery is ONLY the explicit grown-up restore action.
+let onRemoteDeleted = null;
+export function setOnRemoteDeleted(fn) {
+  onRemoteDeleted = fn;
+}
+
+async function applyRemoteDeletion(id) {
+  const pending = await getPendingTombstones();
+  if (pending[id]) return; // our own intent — handled by resolution
+  await withProfileLock(id, async () => {
+    const local = await repo.getProfile(id);
+    if (!local) return;
+    await repo.deleteProfile(id);
+    await repo.setMeta(`ui:${id}`, null);
+  });
+  deletedIds.add(id);
+  onRemoteDeleted?.(id);
+}
+
+// ---- explicit grown-up management (restore / purge / conflicts) ----------
+
+export async function listDeletedPlayers() {
+  return listDeleted();
+}
+
+export async function restoreDeletedPlayer(id) {
+  const remote = await getRemote(id);
+  if (!remote.gone || remote.state !== 'deleted') return { ok: false, reason: 'not-deleted' };
+  const archive = await getArchive(id);
+  if (archive.tooLarge) return { ok: false, reason: 'too-large' };
+  if (!archive.ok || !validProfileDoc(archive.doc)) return { ok: false, reason: 'unreadable' };
+  const t = await lifecycleTransition(id, 'restore', remote.etag, {});
+  if (!t.ok) return { ok: false, reason: t.conflict ? 'conflict' : 'offline' };
+  const doc = migrateProfile(structuredClone(archive.doc));
+  await withProfileLock(id, async () => {
+    const local = await repo.getProfile(id);
+    const merged = mergeProfiles(local ? migrateProfile(local) : null, doc);
+    await repo.saveProfile(merged);
+  });
+  deletedIds.delete(id);
+  await setPendingTombstone(id, null); // any stale local intent is superseded
+  return { ok: true, name: doc.name };
+}
+
+export async function purgeDeletedPlayer(id) {
+  const remote = await getRemote(id);
+  if (!remote.gone || remote.state !== 'deleted') return { ok: false, reason: 'not-deleted' };
+  const t = await lifecycleTransition(id, 'purge', remote.etag, {});
+  if (!t.ok) return { ok: false, reason: t.conflict ? 'conflict' : 'offline' };
+  await setPendingTombstone(id, null);
+  return { ok: true };
+}
+
+export async function getLifecycleConflicts() {
+  const all = await getPendingTombstones();
+  return Object.entries(all)
+    .filter(([, i]) => i.status === 'conflict')
+    .map(([id, i]) => ({ id, name: i.finalSnapshot?.name ?? id }));
+}
+
+// Grown-up resolution of a lifecycle conflict:
+//  - 'delete': re-arm the intent against the CURRENT server state (adopt
+//    its etag as the new base) and resolve — merges the snapshot in and
+//    archives everything.
+//  - 'keep': cancel the deletion; the snapshot merges back as a live
+//    local profile and re-syncs normally.
+export async function resolveLifecycleConflict(id, choice) {
+  const all = await getPendingTombstones();
+  const intent = all[id];
+  if (!intent) return { ok: false };
+  if (choice === 'keep') {
+    if (intent.finalSnapshot) {
+      const doc = migrateProfile(structuredClone(intent.finalSnapshot));
+      await withProfileLock(id, async () => {
+        const local = await repo.getProfile(id);
+        const merged = mergeProfiles(local ? migrateProfile(local) : null, doc);
+        await repo.saveProfile(merged);
+      });
+    }
+    deletedIds.delete(id);
+    await setPendingTombstone(id, null);
+    return { ok: true, kept: true };
+  }
+  const remote = await getRemote(id);
+  intent.baseEtag = remote.etag ?? null;
+  intent.status = 'pending';
+  await setPendingTombstone(id, intent);
+  const r = await resolveTombstone(id, intent);
+  return { ok: r.state === 'confirmed', state: r.state };
 }
 
 // One glance in Grown-Ups: is THIS device backing up, and when did it
@@ -185,6 +396,8 @@ export async function syncNow() {
   const listing = await listRemote();
   if (listing.denied) return { status: 'denied', found: 0, pushed: 0, failed: 0, conflicts: [] };
   if (!listing.ok) return { status: 'offline', found: 0, pushed: 0, failed: 0, conflicts: [] };
+  // durable offline deletions retry first (they may remove ids from play)
+  const lifecycleConflicts = await resolvePendingTombstones();
   if (listing.ids.length) repo.setMeta('lastPullAt', Date.now());
   let pushed = 0;
   let failed = 0;
@@ -193,8 +406,12 @@ export async function syncNow() {
   for (const id of listing.ids) {
     try {
       const remote = await getRemote(id);
-      if (remote.denied) return { status: 'denied', found, pushed, failed, conflicts: [] };
-      if (remote.gone) continue; // lifecycle states: client logic lands in v1.39
+      if (remote.denied) return { status: 'denied', found, pushed, failed, conflicts: lifecycleConflicts };
+      if (remote.gone) {
+        // a tombstone always wins during automatic sync
+        await applyRemoteDeletion(id);
+        continue;
+      }
       if (!remote.ok || !validProfileDoc(remote.doc) || !remote.doc?.id) {
         skipped += 1; // malformed or future-schema: never merged, never overwritten
         continue;
@@ -230,10 +447,12 @@ export async function syncNow() {
     }
   }
   // Push local-only profiles — but NEVER after a partial listing (an
-  // unseen profile is not an absent one).
+  // unseen profile is not an absent one), and never a deleted id.
   if (!listing.partial) {
     const remoteIds = new Set(listing.ids);
+    const pending = await getPendingTombstones();
     for (const local of await listProfiles()) {
+      if (deletedIds.has(local.id) || pending[local.id]) continue;
       if (!remoteIds.has(local.id)) {
         const res = await syncOneProfile(local);
         if (res.ok) {
@@ -251,10 +470,10 @@ export async function syncNow() {
   const status =
     failed > 0 || skipped > 0 || listing.partial
       ? 'partial'
-      : listing.ids.length === 0
+      : listing.ids.length === 0 && lifecycleConflicts.length === 0
         ? 'empty'
         : 'ok';
-  return { status, found, pushed, failed, conflicts: [] };
+  return { status, found, pushed, failed, conflicts: lifecycleConflicts };
 }
 
 export async function listProfiles() {
@@ -274,6 +493,7 @@ export async function loadProfile(id) {
 }
 
 export async function saveProfile(profile) {
+  if (deletedIds.has(profile.id)) return; // deletion already in progress
   profile.updatedAt = Date.now();
   // Merge with what's on disk before writing: a background pull that
   // landed while this screen held a stale in-memory copy is folded in
@@ -287,13 +507,33 @@ export async function saveProfile(profile) {
   if (syncEnabled) schedulePush(merged);
 }
 
+// Delete a player. The final local progress is captured into a durable
+// pending intent BEFORE anything is removed — verified in meta — so it
+// always reaches the server archive, even offline or across restarts.
+// Returns a truthful report for the confirming grown-up.
 export async function deleteProfile(id) {
-  // Full lifecycle deletion (tombstones, archives, offline intents) is
-  // the v1.39 release; until then deletion is local-only and honest
-  // about it — the server copy (if any) survives and can be re-pulled.
   clearTimeout(pushTimers.get(id));
   pushTimers.delete(id);
-  await repo.deleteProfile(id);
+  deletedIds.add(id);
+  let intent;
+  await withProfileLock(id, async () => {
+    const disk = await repo.getProfile(id);
+    intent = {
+      intentId: makeIntentId(),
+      baseEtag: knownEtag(id),
+      finalSnapshot: disk ? migrateProfile(disk) : null,
+      status: 'pending',
+    };
+    await setPendingTombstone(id, intent); // committed + verified first
+    await repo.deleteProfile(id);
+    await repo.setMeta(`ui:${id}`, null);
+  });
+  const r = await resolveTombstone(id, intent).catch(() => ({ state: 'offline' }));
+  if (r.state === 'conflict') {
+    intent.status = 'conflict';
+    await setPendingTombstone(id, intent);
+  }
+  return { localDeleted: true, remote: r.state };
 }
 
 // Merge externally-provided profile docs (file import) into local storage.

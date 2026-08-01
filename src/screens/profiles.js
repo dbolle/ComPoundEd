@@ -11,6 +11,8 @@ import {
   setSyncKey,
   httpKeyAcknowledged,
   acknowledgeHttpKey,
+  listDeletedPlayers,
+  restoreDeletedPlayer,
 } from '../data/store.js';
 import { navigate } from '../router.js';
 import { getDog, dogSVG, wornFor } from '../art/dogs.js';
@@ -114,6 +116,31 @@ export async function profilesScreen(el, params, ctx) {
         wrap.remove();
         resolve(true);
       });
+    });
+  }
+
+  // A device with ZERO live players (e.g. replaced hardware) must still
+  // be able to reach deleted-player recovery without Grown-Ups.
+  if (profiles.length === 0) {
+    listDeletedPlayers().then((r) => {
+      if (!r.ok || !r.entries.length || el.querySelector('[data-deleted-restore]')) return;
+      const card = document.createElement('div');
+      card.className = 'card center';
+      card.innerHTML = `<p style="margin:0 0 8px">🗂 The family backup holds deleted players.</p>
+        ${r.entries
+          .map(
+            (e) => `<div class="nav-row" style="margin:4px 0"><span>${escapeHtml(e.name ?? e.id)}</span>
+            <button class="btn ghost small" data-deleted-restore="${e.id}">↩️ Restore</button></div>`
+          )
+          .join('')}`;
+      for (const b of card.querySelectorAll('[data-deleted-restore]')) {
+        b.addEventListener('click', async () => {
+          const res = await restoreDeletedPlayer(b.dataset.deletedRestore);
+          toast(res.ok ? `${res.name} is back 🏡` : 'Could not restore');
+          if (res.ok) profilesScreen(el, params, ctx);
+        });
+      }
+      el.querySelector('[data-backup-offer]')?.appendChild(card);
     });
   }
 

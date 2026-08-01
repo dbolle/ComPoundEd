@@ -203,7 +203,13 @@ export async function handleSync(req, res) {
       if (wantDeleted ? env.state !== 'deleted' : env.state !== 'live') continue;
       page.push(
         wantDeleted
-          ? { id, gen: env.gen, tombstoneId: env.tombstoneId ?? null, size: JSON.stringify(env.archive ?? {}).length }
+          ? {
+              id,
+              gen: env.gen,
+              tombstoneId: env.tombstoneId ?? null,
+              name: env.archive?.name ?? null,
+              size: JSON.stringify(env.archive ?? {}).length,
+            }
           : { id, gen: env.gen }
       );
       if (page.length >= LIMITS.page) {
