@@ -30,6 +30,16 @@ export function validEvent(t) {
   return true;
 }
 
+// Which store epoch a purchase belongs to. Ids carry it as an "@n"
+// suffix from epoch 2 onward; anything without a suffix is epoch 1. A
+// grown-up "fresh start in the store" bumps the profile's epoch, which
+// VOIDS older purchases (no charge, no ownership) while leaving every
+// earning untouched.
+export function epochOfId(id = '') {
+  const m = /@(\d+)(?:-c-[a-z]+)?$/.exec(id);
+  return m ? Number(m[1]) : 1;
+}
+
 // Atomic-group derivation. `group` is DERIVED metadata (never part of
 // the immutable payload): explicit t.group wins; legacy purchases group
 // by their buy id prefix (buy-x, buy-x-c-*); legacy swap pairs by their
@@ -114,12 +124,13 @@ const digestOf = (txns) => {
   return h;
 };
 
-export function replayLedger(txns = []) {
+export function replayLedger(txns = [], epoch = 1) {
   const cached = memo.get(txns);
-  const digest = digestOf(txns);
+  const digest = digestOf(txns) ^ (epoch * 2654435761);
   if (cached && cached.digest === digest) return cached.result;
 
   const quarantined = new Set();
+  const voided = new Set();
   const byId = new Map();
   for (const t of txns) {
     if (!validEvent(t)) {
@@ -131,12 +142,36 @@ export function replayLedger(txns = []) {
     if (!set) byId.set(t.id, (set = new Set()));
     set.add(fp);
   }
-  for (const [id, fps] of byId) if (fps.size > 1) quarantined.add(id);
+  // Conflicting payloads for one id: only a CENTS disagreement can
+  // corrupt the money, so only that is quarantined. Coin-tray companions
+  // (zero cents) disagreeing across devices used to quarantine too,
+  // which silently corrupted coin counts and cascaded into rejected
+  // swaps — the live incident behind v1.45.0.
+  for (const [id, fps] of byId) {
+    if (fps.size <= 1) continue;
+    const variants = txns.filter((t) => t.id === id && validEvent(t));
+    const centsDiffer = new Set(variants.map((t) => t.cents)).size > 1;
+    if (centsDiffer) quarantined.add(id);
+  }
 
   // group the replayable events
   const groups = new Map(); // groupId -> { at, events }
+  const seenFp = new Set();
   for (const t of txns) {
     if (!validEvent(t) || quarantined.has(t.id)) continue;
+    // a spend/buy from an earlier store epoch is void: it never happened
+    if ((t.reason === 'buy' || t.reason === 'spend') && epochOfId(t.id) < epoch) {
+      voided.add(groupOf(t));
+      continue;
+    }
+    // conflicting non-cents variants: keep exactly one, deterministically
+    const fpKey = `${t.id}|${fingerprintOf(t)}`;
+    if (byId.get(t.id)?.size > 1) {
+      const chosen = [...byId.get(t.id)].sort()[0];
+      if (fingerprintOf(t) !== chosen) continue;
+      if (seenFp.has(fpKey)) continue;
+      seenFp.add(fpKey);
+    }
     const g = groupOf(t);
     let entry = groups.get(g);
     if (!entry) groups.set(g, (entry = { at: t.at ?? 0, events: [] }));
@@ -154,30 +189,26 @@ export function replayLedger(txns = []) {
       (x[0] < y[0] ? -1 : x[0] > y[0] ? 1 : 0)
   );
 
+  // Every surviving group STANDS. Retroactively rejecting a purchase
+  // un-owned things a child had already been given, which is strictly
+  // worse than the overspend it was guarding against (v1.45.0). The
+  // guard now lives only where it belongs: buyGear refuses at purchase
+  // time when the balance can't cover the price.
   let balance = 0;
   const counts = {};
   const accepted = new Set();
-  const rejected = new Set();
   for (const [gid, { events }] of ordered) {
-    let dBal = 0;
-    const dCounts = {};
     for (const t of events) {
-      dBal += t.cents;
+      balance += t.cents;
       const c = effCount(t);
-      if (c) dCounts[t.denom] = (dCounts[t.denom] ?? 0) + c;
+      // coin counts clamp at zero instead of cascading: they are a
+      // teaching aid, the cents balance is the truth
+      if (c) counts[t.denom] = Math.max(0, (counts[t.denom] ?? 0) + c);
     }
-    const okBal = balance + dBal >= 0;
-    const okCounts = Object.entries(dCounts).every(([d, c]) => (counts[d] ?? 0) + c >= 0);
-    if (okBal && okCounts) {
-      balance += dBal;
-      for (const [d, c] of Object.entries(dCounts)) counts[d] = (counts[d] ?? 0) + c;
-      accepted.add(gid);
-    } else {
-      rejected.add(gid); // derived — nothing written, converges as events arrive
-    }
+    accepted.add(gid);
   }
 
-  const result = { balance, counts, accepted, rejected, quarantined };
+  const result = { balance, counts, accepted, rejected: new Set(), voided, quarantined };
   memo.set(txns, { digest, result });
   return result;
 }

@@ -51,7 +51,7 @@ test('migration v9→v10 adds an empty ledger', () => {
     little: { xp: 0 }, achievements: {}, stats: {},
   });
   expect(doc.schemaVersion).toBe(SCHEMA_VERSION);
-  expect(doc.pawBucks).toEqual({ txns: [] });
+  expect(doc.pawBucks).toEqual({ txns: [], epoch: 1 }); // v18 store epoch, additive
 });
 
 test('e2e: sitting pays with ceremony; a full jar says so; wallet shows coins', async ({ page }) => {

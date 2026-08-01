@@ -112,19 +112,36 @@ export function swapCoins(profile, rule, now = Date.now()) {
 }
 
 export function ensureBucks(profile) {
-  if (!profile.pawBucks) profile.pawBucks = { txns: [] };
+  if (!profile.pawBucks) profile.pawBucks = { txns: [], epoch: 1 };
+  if (!Number.isInteger(profile.pawBucks.epoch) || profile.pawBucks.epoch < 1) profile.pawBucks.epoch = 1;
   return profile.pawBucks;
+}
+
+export function storeEpoch(profile) {
+  return ensureBucks(profile).epoch;
 }
 
 // Derived from convergent replay (v1.40): guaranteed >= 0, identical on
 // every device for the same event union, and groups that would overdraw
 // (a cross-device double-spend) are derived-rejected rather than owed.
+// What the child can spend. Floored at zero: if two devices spent the
+// same coins while apart, the shortfall is FORGIVEN rather than charged
+// to the child or clawed back by un-owning what they bought (that
+// retroactive clawback is what made toys vanish — see docs/PROJECT-NOTE
+// and the v1.45.0 changelog).
 export function balanceCents(profile) {
-  return replayLedger(ensureBucks(profile).txns).balance;
+  const b = ledgerState(profile).balance;
+  return b > 0 ? b : 0;
+}
+
+// The true signed total, for the Grown-Ups ledger only.
+export function trueBalanceCents(profile) {
+  return ledgerState(profile).balance;
 }
 
 export function ledgerState(profile) {
-  return replayLedger(ensureBucks(profile).txns);
+  const bucks = ensureBucks(profile);
+  return replayLedger(bucks.txns, bucks.epoch);
 }
 
 export function formatPaw(cents) {

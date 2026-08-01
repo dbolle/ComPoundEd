@@ -69,6 +69,12 @@ on the family's own home server (LAN) and GitHub Pages.
   answers move nothing.
 - Deleted players are archived, restorable, and **permanently purged only
   by a parent** — purge is irreversible by design.
+- **Bought means owned forever.** Ownership is evidence of payment, never
+  re-litigated by later bookkeeping; if two devices overspend the same
+  coins, the shortfall is forgiven rather than charged to the child or
+  clawed back by removing items (learned from a live incident, v1.45.0).
+- A parent can give a player a **fresh start in the store** (keeps all
+  earnings, voids past purchases) — two confirmations, nothing deleted.
 - Trace it! judging is gentle: follow the guide, cover most of it,
   wobbles fine, no stroke-order rules, no wrong answers.
 

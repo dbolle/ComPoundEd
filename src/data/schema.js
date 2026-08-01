@@ -4,7 +4,7 @@
 
 import { mergeTxns } from '../engine/ledger.js';
 
-export const SCHEMA_VERSION = 17;
+export const SCHEMA_VERSION = 18;
 
 // bridge/tables are TRI-STATE since v16: 'auto' (readiness engine decides,
 // with any started track always visible) | true (parent forces) | false
@@ -142,7 +142,7 @@ export function newProfile(name) {
     // Absent entry = default (wear earned gear in its first color).
     wear: {},
     // Paw Bucks: append-only transaction ledger (see engine/money.js).
-    pawBucks: { txns: [] },
+    pawBucks: { txns: [], epoch: 1 },
     updatedAt: Date.now(),
   };
 }
@@ -253,6 +253,14 @@ export function migrateProfile(doc) {
     doc.metaAt = doc.metaAt ?? doc.updatedAt ?? Date.now();
     doc.schemaVersion = 17;
   }
+  if (doc.schemaVersion === 17) {
+    // Store epoch (v18): a grown-up can give a player a fresh start in
+    // the store. Purchases from earlier epochs are VOID — never charged,
+    // never owned — while every earning still counts. Additive: existing
+    // docs are epoch 1, which changes nothing.
+    doc.pawBucks = { ...(doc.pawBucks ?? {}), epoch: doc.pawBucks?.epoch ?? 1 };
+    doc.schemaVersion = 18;
+  }
   // Defensive normalization (every version): known collections exist with
   // the right types whatever the input claimed; unknown fields pass
   // through untouched (no loss of known or unknown user data).
@@ -263,7 +271,11 @@ export function migrateProfile(doc) {
   }
   doc.unlocks = asArr(doc.unlocks);
   doc.petUnlocks = asArr(doc.petUnlocks);
-  doc.pawBucks = { ...(doc.pawBucks ?? {}), txns: asArr(doc.pawBucks?.txns) };
+  doc.pawBucks = {
+    ...(doc.pawBucks ?? {}),
+    txns: asArr(doc.pawBucks?.txns),
+    epoch: Number.isInteger(doc.pawBucks?.epoch) && doc.pawBucks.epoch > 0 ? doc.pawBucks.epoch : 1,
+  };
   doc.little = { xp: 0, skills: {}, revealed: [], ...asMap(doc.little) };
   doc.little.skills = asMap(doc.little.skills);
   doc.little.revealed = asArr(doc.little.revealed);
@@ -394,7 +406,13 @@ export function mergeProfiles(a, b) {
   // for one id are ALL preserved and replay quarantines that id. Spends
   // can never be resurrected, earns never double-count, and
   // mergeProfiles(a,b) ≡ mergeProfiles(b,a).
-  const pawBucks = { txns: mergeTxns(a.pawBucks?.txns ?? [], b.pawBucks?.txns ?? []) };
+  // The epoch RATCHETS: a reset done on one device can never be undone
+  // by syncing with a device that hasn't seen it (and the voided
+  // purchases stay voided everywhere).
+  const pawBucks = {
+    txns: mergeTxns(a.pawBucks?.txns ?? [], b.pawBucks?.txns ?? []),
+    epoch: Math.max(a.pawBucks?.epoch ?? 1, b.pawBucks?.epoch ?? 1),
+  };
   // Wardrobe choices are cosmetic: the doc with the newer settings-change
   // wins per dog.
   const wear = { ...(metaOlder.wear ?? {}), ...(metaNewer.wear ?? {}) };
