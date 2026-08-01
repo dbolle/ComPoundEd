@@ -3,6 +3,23 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.44.2 — 2026-08-01
+
+- Found why the barks read as beeps: a tablet speaker reproduces almost
+  nothing below ~400Hz, so voices built on a deep fundamental arrived as
+  a thin whistle. Sounds are now measured through a simulated small
+  speaker, and the animal voices carry their body in the band a real
+  device can actually play.
+- New dog options (2–6) are built from voiced noise with pitch jitter —
+  breath and an irregular voice, which is what a bark actually is — as
+  WOOF, ARF, BOOF, YIP and a RUFF-with-grumble. Option 1 (RUFF) is
+  unchanged.
+- Rabbit thumps are audible now (the impact moved into the 400–500Hz
+  knock a speaker can radiate, with the low end only adding weight).
+- Bird settles on the two-note tweet; the other two chirps are kept as a
+  variety pool. Sloth gains an alternative with no drum-hit before the
+  sigh. Hedgehog level brought back in line with the others.
+
 ## v1.44.1 — 2026-08-01
 
 - The dog barked TWICE per call — wrong for a sound the counting game

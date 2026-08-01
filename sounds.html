@@ -19,7 +19,12 @@
 
 <h1>Animal voices — ear check 🎧</h1>
 <p class="muted">
-  These sounds get counted by ear in the little-pup game ("how many?"), so each one should
+  Round 2. Dog 1 is your pick, unchanged; 2–6 are rebuilt on a voiced-noise
+  "growl" source with pitch jitter, and their body now sits in the
+  400–2000Hz band a tablet speaker can actually reproduce (the old deep
+  ones lost their fundamental entirely, which is why they read as beeps).
+  Rabbit thumps got a 400–500Hz knock so they're audible at all.
+  These get counted by ear in the little-pup game ("how many?"), so each should
   read as <strong>exactly one</strong> event.
   <span class="tag one">[1]</span> = single event, <span class="tag many">[n]</span> = several.
   Tap to hear, then tell me the option numbers you want.
@@ -31,8 +36,11 @@
 <h2>🐰 Rabbit — pick one (6 is today's)</h2>
 <div class="grid" id="rabbit"></div>
 
-<h2>🐦 Bird — pick one (1 is today's)</h2>
+<h2>🐦 Bird — 3 is in use; all three are keepers</h2>
 <div class="grid" id="bird"></div>
+
+<h2>🦥 Sloth — 2 removes the drum-hit before the sigh</h2>
+<div class="grid" id="sloth"></div>
 
 <h2>Settled voices (for comparison)</h2>
 <div class="grid settled" id="settled"></div>
@@ -41,13 +49,14 @@
   import { critterSound, soundWord, playVoiceOption, VOICE_OPTIONS } from './src/sound.js';
 
   const LABELS = {
-    dog: ['deep classic woof', 'chesty boof', 'gruff ruff', 'low WOOF (deepest)', 'breathy husky', 'muffled woof'],
-    rabbit: ['one deep thump', 'honk / grunt', 'soft squeak', 'purr-click', 'drum thump + room', 'two thumps + squeak'],
-    bird: ['three chirps', 'one sweet chirp', 'two-note tweet'],
+    dog: ['RUFF (your pick)', 'WOOF — growl voice', 'ARF — snappy', 'BOOF — big chesty', 'YIP — little dog', 'RUFF + grumble tail'],
+    rabbit: ['one thump', 'honk / grunt', 'soft squeak', 'purr-click', 'drum thump + room', 'two thumps + squeak'],
+    bird: ['three chirps', 'one sweet chirp', 'two-note tweet (in use)'],
+    sloth: ['original sigh', 'no onset crack'],
   };
   const MULTI = { rabbit: [5], bird: [0] }; // options that fire more than once
 
-  for (const species of ['dog', 'rabbit', 'bird']) {
+  for (const species of ['dog', 'rabbit', 'bird', 'sloth']) {
     document.getElementById(species).innerHTML = VOICE_OPTIONS[species]
       .map((_, i) => {
         const many = (MULTI[species] ?? []).includes(i);

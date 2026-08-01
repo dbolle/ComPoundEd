@@ -97,6 +97,11 @@ reconsider after calibration.
 
 ## Parked / reconsider later
 
+- **Voice variety pool** (2026-08-01): the unchosen options in
+  `VOICE_OPTIONS` (extra bird chirps, rabbit vocalizations, dog barks)
+  are deliberately kept — a future "the pets have moods" or
+  daily-variety feature can draw from them instead of new synthesis.
+
 - **Append-only ledger growth** (2026-08-01): pawBucks.txns only grows
   (deterministic ids make it merge-safe). Fine for years at kid pace,
   but unbounded; compaction needs its own lossless cross-device design

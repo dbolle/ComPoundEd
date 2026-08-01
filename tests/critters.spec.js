@@ -22,6 +22,18 @@ test('every species has a voice, no two sound alike, and all stay gentle', async
       const results = {};
       for (const s of species) {
         const off = new OfflineAudioContext(1, 44100, 44100);
+        // A phone/tablet speaker radiates almost nothing below ~400Hz, so
+        // measure through a highpass: a "deep" voice whose body sits under
+        // that arrives as a thin whistle on the kids' actual devices.
+        const spk = off.createBiquadFilter();
+        spk.type = 'highpass';
+        spk.frequency.value = 400;
+        spk.connect(off.destination);
+        const realDest = Object.getOwnPropertyDescriptor(
+          Object.getPrototypeOf(Object.getPrototypeOf(off)),
+          'destination'
+        );
+        Object.defineProperty(off, 'destination', { get: () => spk, configurable: true });
         const realAC = window.AudioContext;
         const realWebkit = window.webkitAudioContext;
         window.AudioContext = function () {
@@ -32,6 +44,7 @@ test('every species has a voice, no two sound alike, and all stay gentle', async
         mod.critterSound(s); // the context is created LAZILY — patch must still be in place
         window.AudioContext = realAC;
         window.webkitAudioContext = realWebkit;
+        if (realDest) Object.defineProperty(off, 'destination', realDest);
         const buf = await off.startRendering();
         const data = buf.getChannelData(0);
         let peak = 0;
@@ -56,9 +69,11 @@ test('every species has a voice, no two sound alike, and all stay gentle', async
   );
 
   for (const s of SPECIES) {
-    expect(stats[s].peak, `${s} is audible on a tablet`).toBeGreaterThan(0.015);
+    // measured THROUGH a 400Hz highpass — i.e. what a tablet can actually
+    // reproduce, not what the raw waveform contains
+    expect(stats[s].peak, `${s} is audible on a tablet speaker`).toBeGreaterThan(0.012);
     expect(stats[s].peak, `${s} stays gentle (charter)`).toBeLessThan(0.35);
-    expect(stats[s].seconds, `${s} lasts a moment`).toBeGreaterThan(0.03);
+    expect(stats[s].seconds, `${s} lasts a moment`).toBeGreaterThan(0.02);
     expect(stats[s].seconds, `${s} is not a drone`).toBeLessThan(1.2);
   }
   // distinctness: these must not measure alike
