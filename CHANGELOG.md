@@ -3,6 +3,19 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.45.1 — 2026-08-01
+
+- Fixed straight after the first live reset: the balance was right but
+  the coins weren't. The coin tally was still being computed as if the
+  fresh start hadn't happened, so old purchases were subtracted from the
+  wallet — leaving a full total that couldn't actually be spent, since
+  buying needs real coins counted out.
+- The wallet now has a hard rule: **the coins always add up to the
+  balance.** If the tallies ever disagree, the coins are rebuilt from the
+  balance, and a fresh start hands out a practical mix (some quarters,
+  dimes, nickels and pennies alongside the Paw Bucks) so even a 10¢ toy
+  can be paid for without a trip to the piggy bank first.
+
 ## v1.45.0 — 2026-08-01
 
 Fixes a real incident: toys disappeared from a child's pets, some could

@@ -155,7 +155,65 @@ export function coinCounts(profile) {
   // (earns +1, swap give negative, swap get positive). Buys carry no
   // denom — spending doesn't pick which coins leave (Phase 4b keeps it
   // simple; the balance is the truth).
-  return { ...replayLedger(ensureBucks(profile).txns).counts };
+  // MUST go through ledgerState so the store epoch applies: replaying
+  // without it re-subtracts voided purchases from the coins, which left
+  // a reset child with a full balance and almost no spendable coins
+  // (v1.45.1). And the coins must ALWAYS add up to the balance, or
+  // exact-change checkout can never be completed — if the tracked mix
+  // has drifted (a clamp, a half-synced swap), fall back to the plain
+  // canonical breakdown of the balance.
+  const tracked = { ...ledgerState(profile).counts };
+  return reconcileCoins(tracked, balanceCents(profile));
+}
+
+const coinValue = (counts) => Object.entries(counts).reduce((s, [d, n]) => s + (D[d] ?? 0) * n, 0);
+
+// Bring a coin mix in line with the balance with the SMALLEST possible
+// change: trim the smallest coins if it's over, top up with the biggest
+// if it's under. The child's real earned mix (lots of nickels and dimes,
+// which is what makes exact change payable) is preserved — rebuilding
+// from scratch over a 1¢ rounding wobble would have thrown it away.
+export function reconcileCoins(tracked, balance) {
+  const out = { ...tracked };
+  let value = coinValue(out);
+  if (value === balance) return out;
+  for (const { id } of [...DENOMS].reverse()) {
+    while (value > balance && (out[id] ?? 0) > 0 && value - D[id] >= balance) {
+      out[id] -= 1;
+      value -= D[id];
+      if (out[id] === 0) delete out[id];
+    }
+  }
+  for (const { id } of DENOMS) {
+    while (value + D[id] <= balance) {
+      out[id] = (out[id] ?? 0) + 1;
+      value += D[id];
+    }
+  }
+  // couldn't land exactly (a wildly inconsistent mix) — start clean
+  return value === balance ? out : canonicalCoins(balance);
+}
+
+// A coin set worth exactly `cents`. Biggest-first, but with a pocketful
+// of small change kept back when there's room: all-Paw-Bucks is tidy and
+// useless — a child could not pay for a 10¢ mouse without visiting the
+// piggy bank first. The kit below is worth exactly 100¢ so the total is
+// unchanged.
+const SMALL_CHANGE_KIT = { quarter: 2, dime: 3, nickel: 3, penny: 5 }; // = 100c
+export function canonicalCoins(cents) {
+  const out = {};
+  let left = Math.max(0, cents);
+  if (left >= 200) {
+    for (const [id, n] of Object.entries(SMALL_CHANGE_KIT)) out[id] = n;
+    left -= 100;
+  }
+  for (const { id } of DENOMS) {
+    const v = D[id];
+    const n = Math.floor(left / v);
+    if (n > 0) out[id] = (out[id] ?? 0) + n;
+    left -= n * v;
+  }
+  return out;
 }
 
 function sameLocalDay(a, b) {

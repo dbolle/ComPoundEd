@@ -5,7 +5,7 @@
 import { test, expect } from '@playwright/test';
 import { newProfile, migrateProfile, mergeProfiles, SCHEMA_VERSION } from '../src/data/schema.js';
 import { replayLedger, epochOfId } from '../src/engine/ledger.js';
-import { balanceCents, trueBalanceCents, coinCounts, storeEpoch, ensureBucks } from '../src/engine/money.js';
+import { balanceCents, trueBalanceCents, coinCounts, storeEpoch, ensureBucks, canMakeExact } from '../src/engine/money.js';
 import { buyGear, isOwned, ownedGear, boxedToys, toysOn, placeGear, resetStoreEpoch } from '../src/engine/gearshop.js';
 import { seedProfile, selectProfile, uniqueName, holdGrownupsGate } from './helpers.mjs';
 
@@ -167,4 +167,83 @@ test('e2e: the parent reset needs two confirmations and the typed word', async (
   expect(saved.pawBucks.epoch).toBe(2);
   expect(Object.values(saved.gear.placements).every((v) => v === null)).toBe(true);
   expect(saved.pawBucks.txns.length).toBeGreaterThan(10); // history intact
+});
+
+// The wallet must ALWAYS be spendable: whatever the history, the coins a
+// child holds have to add up to the balance shown, or exact-change
+// checkout is impossible. (v1.45.1: a reset left a full balance with
+// almost no coins because the coin replay ignored the store epoch.)
+const COIN_VALUE = { buck: 100, quarter: 25, dime: 10, nickel: 5, penny: 1 };
+const walletValue = (p) =>
+  Object.entries(coinCounts(p)).reduce((s, [d, n]) => s + COIN_VALUE[d] * n, 0);
+
+test('coins always add up to the balance — before and after a fresh start', () => {
+  const p = incidentProfile();
+  // add swaps and a spend so the coin mix is genuinely churned
+  p.pawBucks.txns.push(
+    { id: 'swap-x-a', group: 'swap-x', at: 6000, cents: -100, denom: 'buck', count: -1, reason: 'swap' },
+    { id: 'swap-x-b', group: 'swap-x', at: 6000, cents: 100, denom: 'dime', count: 10, reason: 'swap' },
+    { id: 'buy-bowl', at: 7000, cents: -90, count: 1, reason: 'buy', item: 'bowl', for: null },
+    { id: 'buy-bowl-c-dime', at: 7000, cents: 0, denom: 'dime', count: -9, reason: 'spend' }
+  );
+  expect(walletValue(p)).toBe(balanceCents(p));
+  resetStoreEpoch(p);
+  expect(balanceCents(p)).toBeGreaterThan(0);
+  expect(walletValue(p), 'a reset wallet is fully spendable').toBe(balanceCents(p));
+  // and a purchase right after the reset still works end to end
+  // (bowl at 90c — the fixture earns 1000c, so this is affordable)
+  const txn = buyGear(p, 'bowl');
+  expect(txn).toBeTruthy();
+  expect(walletValue(p)).toBe(balanceCents(p));
+});
+
+test('the live incident shape: reset leaves every earned cent spendable', () => {
+  // mirrors the real profile: many earns, 168 swap pairs' worth of churn,
+  // then purchases that get voided by the reset
+  const p = newProfile('LiveShape');
+  const txns = p.pawBucks.txns;
+  let at = 1000;
+  for (let i = 0; i < 17; i++) txns.push({ id: `set-${i}`, at: at++, cents: 100, denom: 'buck', count: 1, reason: 'set' });
+  for (let i = 0; i < 150; i++) txns.push({ id: `mastery-${i}`, at: at++, cents: 5, denom: 'nickel', count: 1, reason: 'mastery' });
+  for (let i = 0; i < 50; i++) txns.push({ id: `polish-${i}`, at: at++, cents: 1, denom: 'penny', count: 1, reason: 'polish' });
+  // swap churn: bucks into dimes and back
+  for (let i = 0; i < 5; i++) {
+    txns.push({ id: `swap-${i}-a`, group: `swap-${i}`, at: at, cents: -100, denom: 'buck', count: -1, reason: 'swap' });
+    txns.push({ id: `swap-${i}-b`, group: `swap-${i}`, at: at++, cents: 100, denom: 'dime', count: 10, reason: 'swap' });
+  }
+  // purchases with exact-change companions
+  for (const [item, price] of [['crown', 1200], ['tiara', 800], ['bowl', 90]]) {
+    txns.push({ id: `buy-${item}`, at: at, cents: -price, count: 1, reason: 'buy', item, for: null });
+    txns.push({ id: `buy-${item}-c-buck`, at: at++, cents: 0, denom: 'buck', count: -Math.floor(price / 100), reason: 'spend' });
+  }
+  const earned = 17 * 100 + 150 * 5 + 50 * 1;
+  resetStoreEpoch(p);
+  expect(balanceCents(p)).toBe(earned);
+  expect(walletValue(p)).toBe(earned); // every cent is in real coins
+});
+
+test('a reset wallet can pay exact change for everything it can afford', () => {
+  const p = newProfile('Payable');
+  for (let i = 0; i < 20; i++) {
+    p.pawBucks.txns.push({ id: `set-${i}`, at: 1000 + i, cents: 100, denom: 'buck', count: 1, reason: 'set' });
+  }
+  p.pawBucks.txns.push({ id: 'buy-crown', at: 5000, cents: -1200, count: 1, reason: 'buy', item: 'crown', for: null });
+  resetStoreEpoch(p);
+  const wallet = coinCounts(p);
+  expect(walletValue(p)).toBe(balanceCents(p));
+  // this fixture only ever earned Paw Bucks, so the wallet is all bucks:
+  // whole-dollar prices pay directly, andsmall change comes from the piggy
+  // bank (the intended money-math flow)
+  expect(canMakeExact(wallet, 100)).toBe(true);
+  expect(canMakeExact(wallet, 1200)).toBe(true);
+  expect(canMakeExact(wallet, 10)).toBe(false);
+  // a child who earned mixed coins keeps them and can pay small prices
+  const mixed = newProfile('Mixed');
+  for (let i = 0; i < 20; i++) {
+    mixed.pawBucks.txns.push({ id: `n-${i}`, at: 1000 + i, cents: 5, denom: 'nickel', count: 1, reason: 'mastery' });
+  }
+  mixed.pawBucks.txns.push({ id: 'buy-mouse', at: 5000, cents: -10, count: 1, reason: 'buy', item: 'mouse', for: null });
+  resetStoreEpoch(mixed);
+  expect(canMakeExact(coinCounts(mixed), 10)).toBe(true);
+  expect(walletValue(mixed)).toBe(balanceCents(mixed));
 });

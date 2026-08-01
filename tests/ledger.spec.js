@@ -82,18 +82,22 @@ test('legacy single-device ledgers replay to the same balances as before (regres
   // (shared prefix, no group field), a legacy buy + companions
   fund(p, 3, 100, 'buck');
   p.pawBucks.txns.push(
+    // a buck broken into ten dimes, one of which pays for the mouse below
     { id: 'swap-abc123-a', at: 4000, cents: -100, denom: 'buck', count: -1, reason: 'swap' },
-    { id: 'swap-abc123-b', at: 4000, cents: 100, denom: 'quarter', count: 4, reason: 'swap' },
+    { id: 'swap-abc123-b', at: 4000, cents: 100, denom: 'dime', count: 10, reason: 'swap' },
     { id: 'buy-mouse', at: 5000, cents: -10, count: 1, reason: 'buy', item: 'mouse', for: null },
-    { id: 'buy-mouse-c-quarter', at: 5000, cents: 0, denom: 'quarter', count: -1, reason: 'spend' }
+    // exact change: a 10c toy is paid with a dime, so the coin mix and the
+    // balance stay consistent (paying a quarter without change back would
+    // leave the wallet 15c short of the balance)
+    { id: 'buy-mouse-c-dime', at: 5000, cents: 0, denom: 'dime', count: -1, reason: 'spend' }
   );
   const oldBalance = p.pawBucks.txns.reduce((s, t) => s + (t.cents ?? 0), 0);
   expect(balanceCents(p)).toBe(oldBalance); // 290
   const counts = coinCounts(p);
   expect(counts.buck).toBe(2);
-  expect(counts.quarter).toBe(3);
+  expect(counts.dime).toBe(9); // ten from the swap, one spent on the mouse
   expect(groupOf({ id: 'swap-abc123-a' })).toBe('swap-abc123'); // legacy pair grouped
-  expect(groupOf({ id: 'buy-mouse-c-quarter' })).toBe('buy-mouse');
+  expect(groupOf({ id: 'buy-mouse-c-dime' })).toBe('buy-mouse');
 });
 
 test('swaps replay atomically; a purchase recorded before its funding still stands', () => {
