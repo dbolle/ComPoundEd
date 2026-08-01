@@ -32,8 +32,8 @@ In scope:
 
 - The PWA itself (everything under `src/`), especially anything that
   could expose or corrupt a child's locally stored progress.
-- The published self-hosting configuration in `deploy/` (nginx, the
-  optional same-origin WebDAV `/sync/` backup endpoint).
+- The published self-hosting configuration in `deploy/` (nginx and the
+  same-origin family-backup sync service in `deploy/sync-server.mjs`).
 - The service worker / update pipeline.
 
 Out of scope:

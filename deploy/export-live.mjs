@@ -11,7 +11,7 @@ if (!src || !out) {
   console.error('usage: node deploy/export-live.mjs <sync-profiles-dir> <output-dir>');
   process.exit(1);
 }
-await fs.mkdir(out, { recursive: true });
+await fs.mkdir(out, { recursive: true, mode: 0o700 });
 let exported = 0;
 for (const name of await fs.readdir(src)) {
   if (!name.endsWith('.json')) continue;
@@ -19,7 +19,8 @@ for (const name of await fs.readdir(src)) {
     const parsed = JSON.parse(await fs.readFile(join(src, name), 'utf8'));
     const doc = parsed.state === 'live' ? parsed.doc : parsed.gen === undefined ? parsed : null;
     if (doc && typeof doc.id === 'string' && typeof doc.name === 'string') {
-      await fs.writeFile(join(out, `${doc.id}.json`), JSON.stringify(doc));
+      // child data keeps the same restrictive perms as the live store
+      await fs.writeFile(join(out, `${doc.id}.json`), JSON.stringify(doc), { mode: 0o600 });
       exported += 1;
     }
   } catch {

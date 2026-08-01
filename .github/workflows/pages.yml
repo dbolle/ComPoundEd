@@ -6,8 +6,10 @@
 #  - test-insecure: the FULL suite on the runner's own LAN IP, an insecure
 #    origin like the kids' http://<server>:8091 devices — this preserves
 #    coverage of secure-context-only API regressions (crypto.randomUUID).
-#  - test-secure: the @secure-tagged specs (service worker, offline,
-#    privacy) on 127.0.0.1, where a service worker can actually register.
+#  - test-secure: the @secure-tagged specs on 127.0.0.1, where a service
+#    worker can actually register. Only the SW/offline spec needs that;
+#    the privacy invariants deliberately run in the insecure lane, since
+#    that is the origin the kids' devices actually use.
 name: Deploy to GitHub Pages
 
 on:

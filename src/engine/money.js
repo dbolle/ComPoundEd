@@ -85,9 +85,23 @@ export function canSwap(profile, rule) {
   return (coinCounts(profile)[rule.give.denom] ?? 0) >= rule.give.n;
 }
 
+// Replay order is (at, income-first, id). Two operations created in the
+// SAME millisecond would therefore tie and fall back to id order, which
+// is effectively random — so a swap that spends what the previous swap
+// just produced could replay first and be rejected. Stamping each new
+// spend/swap with a strictly increasing `at` keeps causality without
+// making the order device-dependent.
+export function txnAt(profile, now = Date.now()) {
+  const txns = ensureBucks(profile).txns;
+  let last = 0;
+  for (const t of txns) if ((t.at ?? 0) > last) last = t.at ?? 0;
+  return Math.max(now, last + 1);
+}
+
 export function swapCoins(profile, rule, now = Date.now()) {
   if (!canSwap(profile, rule)) return false;
   const cents = D[rule.give.denom] * rule.give.n;
+  now = txnAt(profile, now); // causal order for back-to-back swaps
   const rid = Math.random().toString(36).slice(2, 8);
   const gid = `swap-${now.toString(36)}-${rid}`;
   ensureBucks(profile).txns.push(

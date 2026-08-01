@@ -47,9 +47,15 @@ function tone({ freq, at = 0, dur = 0.12, type = 'sine', vol = 0.15, slide }) {
 // A burst of filtered noise — the breathy part of any real animal
 // sound. Pure oscillators can't make a bark; noise through a bandpass
 // (plus a formant peak) is what reads as a voice rather than a beep.
+// One knob for how long the critter voices run. They read as clipped
+// when short — a real animal sound has a body, not just an attack.
+const LEN = 2;
+
 function noise({ at = 0, dur = 0.12, vol = 0.12, freq = 800, q = 4, slide, type = 'bandpass' }) {
   const c = ac();
   if (!c) return;
+  at *= LEN;
+  dur *= LEN;
   const t0 = c.currentTime + at;
   const frames = Math.max(1, Math.ceil(c.sampleRate * dur));
   const buf = c.createBuffer(1, frames, c.sampleRate);
@@ -80,11 +86,14 @@ function voiced({
   type = 'sawtooth',
   path = [400, 400],
   formant = 1000,
+  formantTo = null, // sweeping the formant IS the vowel change ("oo"→"f")
+  formant2 = null, // a second peak: one formant reads as a tone, two as a voice
   q = 6,
-  vibrato = 0,
 }) {
   const c = ac();
   if (!c) return;
+  at *= LEN;
+  dur *= LEN;
   const t0 = c.currentTime + at;
   const osc = c.createOscillator();
   osc.type = type;
@@ -93,26 +102,33 @@ function voiced({
     const when = t0 + (dur * (i + 1)) / (path.length - 1);
     osc.frequency.exponentialRampToValueAtTime(Math.max(20, f), when);
   });
-  let lfo = null;
-  if (vibrato) {
-    lfo = c.createOscillator();
+  if (arguments[0].vibrato) {
+    const lfo = c.createOscillator();
     const lfoGain = c.createGain();
-    lfo.frequency.value = vibrato;
+    lfo.frequency.value = arguments[0].vibrato;
     lfoGain.gain.value = path[0] * 0.06;
     lfo.connect(lfoGain).connect(osc.frequency);
     lfo.start(t0);
     lfo.stop(t0 + dur + 0.02);
   }
-  const filter = c.createBiquadFilter();
-  filter.type = 'bandpass';
-  filter.frequency.value = formant;
-  filter.Q.value = q;
   const gain = c.createGain();
   gain.gain.setValueAtTime(0.0001, t0);
-  gain.gain.exponentialRampToValueAtTime(vol, t0 + dur * 0.18);
-  gain.gain.setValueAtTime(vol, t0 + dur * 0.6);
-  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-  osc.connect(filter).connect(gain).connect(c.destination);
+  gain.gain.exponentialRampToValueAtTime(vol, t0 + dur * 0.12); // quick attack
+  gain.gain.setValueAtTime(vol, t0 + dur * 0.55);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur); // full decay, no clip
+  const mkFormant = (f, weight) => {
+    const filter = c.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(f, t0);
+    if (formantTo) filter.frequency.exponentialRampToValueAtTime(Math.max(80, f * (formantTo / formant)), t0 + dur);
+    filter.Q.value = q;
+    const g = c.createGain();
+    g.gain.value = weight;
+    osc.connect(filter).connect(g).connect(gain);
+  };
+  mkFormant(formant, 1);
+  if (formant2) mkFormant(formant2, 0.6);
+  gain.connect(c.destination);
   osc.start(t0);
   osc.stop(t0 + dur + 0.02);
 }
@@ -158,10 +174,25 @@ export const sfx = {
 // an animal from a beep.
 const VOICES = {
   // two quick woofs: noise burst + a fast downward voiced growl
+  // A woof is three things in ~200ms: a broadband mouth-opening
+  // transient, a voiced body whose formants SWEEP down (that's the
+  // "oo"), and a breathy tail (the "f"). One oscillator through one
+  // fixed filter can only ever be a beep.
   dog: () => {
-    for (const at of [0, 0.17]) {
-      noise({ at, dur: 0.075, vol: 0.11, freq: 900, slide: 380, q: 2 });
-      voiced({ at, dur: 0.12, vol: 0.09, path: [420, 180], formant: 700, q: 3 });
+    for (const at of [0, 0.24]) {
+      noise({ at, dur: 0.02, vol: 0.1, freq: 1400, slide: 600, q: 0.8 }); // mouth opens
+      voiced({
+        at: at + 0.008,
+        dur: 0.16,
+        vol: 0.085,
+        type: 'sawtooth',
+        path: [340, 250, 150], // pitch falls hard — the "ruff" shape
+        formant: 950,
+        formantTo: 480, // vowel closes: woo → oo
+        formant2: 1900, // second peak keeps it from sounding like a hum
+        q: 2.5,
+      });
+      noise({ at: at + 0.12, dur: 0.07, vol: 0.05, freq: 2600, slide: 1400, q: 1 }); // breathy tail
     }
   },
   // meow: up then down, with the vibrato a cat's throat gives it

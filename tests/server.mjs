@@ -45,8 +45,13 @@ createServer(async (req, res) => {
 
   if (path.startsWith('/sync/profiles')) {
     if (req.method === 'DELETE') {
-      // test janitor only
+      // test janitor only — still validated: an unvalidated join() here
+      // is a path traversal in a repo-committed server
       const name = decodeURIComponent(path.slice('/sync/profiles/'.length)).replace(/\.json$/, '');
+      if (!/^[A-Za-z0-9-]{1,64}$/.test(name)) {
+        res.writeHead(400).end();
+        return;
+      }
       await rm(join(process.env.SYNC_DIR, `${name}.json`), { force: true });
       await rm(join(process.env.SYNC_DIR, `${name}.json.premigration`), { force: true });
       res.writeHead(204).end();

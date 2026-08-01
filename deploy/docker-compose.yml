@@ -20,6 +20,11 @@ services:
   sync:
     image: node:20-alpine
     restart: unless-stopped
+    # Runs unprivileged. The data directory must be owned by uid 1000
+    # ("node" in this image) — see deploy/README.md; a fresh install is
+    # fine, an EXISTING install needs a one-time chown or the service
+    # cannot read the family's backups. Comment `user:` out to fall back.
+    user: "1000:1000"
     command: ["node", "/app/sync-server.mjs"]
     environment:
       - SYNC_DIR=/sync/profiles
