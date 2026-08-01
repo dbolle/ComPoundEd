@@ -60,13 +60,25 @@ service will start and then fail to read the family's backups:
 ```
 sudo chown -R 1000:1000 deploy/sync-data
 docker compose up -d
-curl -s -o /dev/null -w '%{http_code}\n' -H "X-Sync-Key: $SYNC_KEY" \
-  http://localhost:8091/sync/profiles/     # expect 200
+
+# WAIT for the service to come up before checking — nginx returns 502
+# while the sidecar is still starting, which is not a failure:
+sleep 5
+docker compose logs --tail=3 sync          # expect "... key set"
+KEY=$(grep '^SYNC_KEY=' .env | cut -d= -f2)
+curl -s -o /dev/null -w '%{http_code}\n' -H "X-Sync-Key: $KEY" \
+  http://localhost:8091/sync/profiles/     # expect 200 (403 = wrong key)
 ```
 
-If the check does not return 200, comment out the `user:` line and
-restart — backups keep working as before while you sort the ownership
-out. (Verify with the listing above BEFORE the kids next play.)
+Reading the result:
+- **200** — done, backups are flowing.
+- **502** — the sidecar isn't answering *yet*. Wait a few seconds and
+  retry; if it persists, `docker compose logs sync` will say why.
+- **403** — the service is fine, the key in the header doesn't match
+  `.env`.
+
+If 502 persists, comment out the `user:` line and restart — backups keep
+working as before while you sort the ownership out.
 
 ## Operational notes
 
