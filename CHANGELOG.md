@@ -3,6 +3,13 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.41.1 — 2026-08-01
+
+- Trace it!: the green start dot on the 4 sat where both strokes met,
+  so it read as "trace the tall line first". The 4 now uses the
+  standard school form (down-left, across — then the stem beside it),
+  putting the dot at a clear starting point like every other number.
+
 ## v1.41.0 — 2026-08-01
 
 Hardening wave R6/6 — the wave is complete.
