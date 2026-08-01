@@ -104,3 +104,62 @@ test('e2e: tapping a Cozy Corner pet plays without errors, and the bark game spe
   expect(await page.getAttribute('.bark-dog', 'aria-label')).toContain('meows');
   expect(errors).toEqual([]);
 });
+
+test('every option is ONE event where it claims to be (counting integrity)', async ({ page }) => {
+  // The listen-and-count game counts these by ear: a "single" voice that
+  // fires twice would make "how many?" unanswerable.
+  await page.goto('/', { waitUntil: 'networkidle' });
+  const bursts = await page.evaluate(
+    async ({ src }) => {
+      const url = URL.createObjectURL(new Blob([src], { type: 'text/javascript' }));
+      const out = {};
+      const banks = { dog: 6, rabbit: 6, bird: 3 };
+      for (const [species, n] of Object.entries(banks)) {
+        out[species] = [];
+        for (let i = 0; i < n; i++) {
+          const off = new OfflineAudioContext(1, 44100 * 2, 44100);
+          const realAC = window.AudioContext;
+          const realWk = window.webkitAudioContext;
+          window.AudioContext = function () {
+            return off;
+          };
+          window.webkitAudioContext = undefined;
+          const mod = await import(/* @vite-ignore */ `${url}#${species}${i}`);
+          mod.playVoiceOption(species, i);
+          window.AudioContext = realAC;
+          window.webkitAudioContext = realWk;
+          const data = (await off.startRendering()).getChannelData(0);
+          // count runs of audible signal separated by >60ms of silence
+          const win = Math.round(44100 * 0.06);
+          let runs = 0;
+          let quiet = win;
+          for (let s = 0; s < data.length; s += 64) {
+            let peak = 0;
+            for (let k = s; k < Math.min(s + 64, data.length); k++) peak = Math.max(peak, Math.abs(data[k]));
+            if (peak > 0.004) {
+              if (quiet >= win) runs += 1;
+              quiet = 0;
+            } else {
+              quiet += 64;
+            }
+          }
+          out[species].push(runs);
+        }
+      }
+      URL.revokeObjectURL(url);
+      return out;
+    },
+    { src: SOUND_SRC }
+  );
+
+  // every dog option must be a SINGLE woof (the counting bug that started this)
+  for (const [i, runs] of bursts.dog.entries()) {
+    expect(runs, `dog option ${i + 1} is one event`).toBe(1);
+  }
+  // rabbit 1–5 single; 6 is the known multi-event one kept for comparison
+  for (const i of [0, 1, 2, 3, 4]) expect(bursts.rabbit[i], `rabbit option ${i + 1}`).toBe(1);
+  expect(bursts.rabbit[5]).toBeGreaterThan(1);
+  // bird 2–3 single; 1 is the three-chirp original
+  for (const i of [1, 2]) expect(bursts.bird[i], `bird option ${i + 1}`).toBe(1);
+  expect(bursts.bird[0]).toBeGreaterThan(1);
+});

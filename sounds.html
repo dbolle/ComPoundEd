@@ -3,26 +3,75 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Compounded — animal voices</title>
 <style>
-  body { font: 16px system-ui, sans-serif; background: #fdf8f0; color: #4b3b2a; margin: 0; padding: 20px; }
-  h1 { font-size: 1.2rem; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; max-width: 620px; }
-  button { font: inherit; padding: 14px; border-radius: 14px; border: 0; background: #fff;
-           box-shadow: 0 2px 6px rgba(0,0,0,.08); }
-  button:active { transform: scale(.97); }
-  p.muted { color: #8a7863; font-size: .85rem; max-width: 620px; }
+  body { font: 16px system-ui, sans-serif; background: #fdf8f0; color: #4b3b2a; margin: 0; padding: 18px 16px 40px; }
+  h1 { font-size: 1.15rem; margin: 0 0 4px; }
+  h2 { font-size: .95rem; margin: 22px 0 6px; }
+  p.muted { color: #8a7863; font-size: .85rem; max-width: 640px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 9px; max-width: 640px; }
+  button { font: inherit; padding: 13px 10px; border-radius: 14px; border: 0; background: #fff;
+           box-shadow: 0 2px 6px rgba(0,0,0,.08); text-align: center; line-height: 1.25; }
+  button:active { transform: scale(.97); background: #fff7ea; }
+  .tag { display: inline-block; font-size: .7rem; color: #8a7863; }
+  .one { color: #16a34a; }
+  .many { color: #d97706; }
+  .settled { opacity: .9; }
 </style>
+
 <h1>Animal voices — ear check 🎧</h1>
-<p class="muted">Tap each one. These are the synthesized voices used when a pet says hi in the
-Cozy Corner and when a buddy hosts a little-pup game. Nothing is recorded — all made in the
-browser, so they work offline.</p>
-<div class="grid" id="grid"></div>
+<p class="muted">
+  These sounds get counted by ear in the little-pup game ("how many?"), so each one should
+  read as <strong>exactly one</strong> event.
+  <span class="tag one">[1]</span> = single event, <span class="tag many">[n]</span> = several.
+  Tap to hear, then tell me the option numbers you want.
+</p>
+
+<h2>🐶 Dog — pick one (all single, all deeper)</h2>
+<div class="grid" id="dog"></div>
+
+<h2>🐰 Rabbit — pick one (6 is today's)</h2>
+<div class="grid" id="rabbit"></div>
+
+<h2>🐦 Bird — pick one (1 is today's)</h2>
+<div class="grid" id="bird"></div>
+
+<h2>Settled voices (for comparison)</h2>
+<div class="grid settled" id="settled"></div>
+
 <script type="module">
-  import { critterSound, soundWord, CRITTER_SPECIES } from './src/sound.js';
-  const EMOJI = { dog: '🐶', cat: '🐱', rabbit: '🐰', guinea: '🐹', bird: '🐦', sloth: '🦥', hedgehog: '🦔', turtle: '🐢' };
-  document.getElementById('grid').innerHTML = CRITTER_SPECIES.map(
-    (s) => `<button data-s="${s}">${EMOJI[s] ?? '🐾'} ${s}<br><small>${soundWord(s)}</small></button>`
-  ).join('');
-  for (const b of document.querySelectorAll('[data-s]')) {
-    b.addEventListener('click', () => critterSound(b.dataset.s));
+  import { critterSound, soundWord, playVoiceOption, VOICE_OPTIONS } from './src/sound.js';
+
+  const LABELS = {
+    dog: ['deep classic woof', 'chesty boof', 'gruff ruff', 'low WOOF (deepest)', 'breathy husky', 'muffled woof'],
+    rabbit: ['one deep thump', 'honk / grunt', 'soft squeak', 'purr-click', 'drum thump + room', 'two thumps + squeak'],
+    bird: ['three chirps', 'one sweet chirp', 'two-note tweet'],
+  };
+  const MULTI = { rabbit: [5], bird: [0] }; // options that fire more than once
+
+  for (const species of ['dog', 'rabbit', 'bird']) {
+    document.getElementById(species).innerHTML = VOICE_OPTIONS[species]
+      .map((_, i) => {
+        const many = (MULTI[species] ?? []).includes(i);
+        return `<button data-sp="${species}" data-i="${i}">${i + 1}. ${LABELS[species][i]}
+          <br><span class="tag ${many ? 'many' : 'one'}">${many ? '[n]' : '[1]'}</span></button>`;
+      })
+      .join('');
   }
+
+  const SETTLED = [
+    ['cat', '🐱'],
+    ['guinea', '🐹'],
+    ['sloth', '🦥'],
+    ['hedgehog', '🦔'],
+    ['turtle', '🐢'],
+  ];
+  document.getElementById('settled').innerHTML = SETTLED.map(
+    ([s, e]) => `<button data-critter="${s}">${e} ${s}<br><span class="tag">${soundWord(s)}</span></button>`
+  ).join('');
+
+  document.addEventListener('click', (e) => {
+    const opt = e.target.closest('[data-sp]');
+    if (opt) return playVoiceOption(opt.dataset.sp, Number(opt.dataset.i));
+    const critter = e.target.closest('[data-critter]');
+    if (critter) critterSound(critter.dataset.critter);
+  });
 </script>
