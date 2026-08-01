@@ -14,7 +14,7 @@ import {
 import { register, startRouter, currentRoute, navigate } from './router.js';
 import { isBeta, BETA_ROUTES } from './engine/beta.js';
 import { storeHome } from './screens/store.js';
-import { flushProfile } from './data/store.js';
+import { flushProfile, setOnRemoteDeleted } from './data/store.js';
 import { storeScreen } from './screens/store.js';
 import { initPressFeedback } from './ui.js';
 import { setSoundOn, setVoicePreference } from './sound.js';
@@ -139,6 +139,13 @@ function guard(path) {
   if (BETA_ROUTES.includes(path) && !isBeta(ctx.profile)) return storeHome(ctx.profile);
   return null;
 }
+
+setOnRemoteDeleted((id) => {
+  if (ctx.profile?.id === id) {
+    ctx.profile = null;
+    navigate('/profiles');
+  }
+});
 
 async function boot() {
   await initStore();

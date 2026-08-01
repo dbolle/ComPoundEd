@@ -145,6 +145,7 @@ export async function playQuestions(page, maxQuestions, options = {}) {
 }
 
 export async function holdGrownupsGate(page) {
+  if (await page.$('.stat-row')) return; // already unlocked this render
   await page.waitForSelector('[data-cell]');
   const isPrime = (n) => {
     for (let d = 2; d * d <= n; d++) if (n % d === 0) return false;

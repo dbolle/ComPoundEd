@@ -10,6 +10,11 @@ import {
 } from '../engine/leitner.js';
 import {
   deleteProfile,
+  listDeletedPlayers,
+  restoreDeletedPlayer,
+  purgeDeletedPlayer,
+  getLifecycleConflicts,
+  resolveLifecycleConflict,
   listProfiles,
   importProfiles,
   isSyncEnabled,
@@ -252,6 +257,10 @@ export function grownupsScreen(el, params, ctx) {
           <button class="btn ghost small" data-sync-key-save>🔑 Save</button>
         </div>
         <p class="muted" style="font-size:.75rem;margin:4px 0 0" data-key-note></p>
+        <div class="nav-row" style="margin-top:6px">
+          <button class="btn ghost small" data-deleted-players>🗂 Deleted players</button>
+        </div>
+        <div data-deleted-list></div>
         <div style="height:8px"></div>
         <div class="nav-row">
           <button class="btn ghost small" data-export>⬇️ Export all players</button>
@@ -457,6 +466,67 @@ export function grownupsScreen(el, params, ctx) {
         toast('Family backup turned off');
       }
     });
+    // Deleted players: restore (back to every device) or purge forever.
+    // Both are parental decisions; purge is irreversible by design.
+    panel.querySelector('[data-deleted-players]').addEventListener('click', async () => {
+      const listEl = panel.querySelector('[data-deleted-list]');
+      listEl.innerHTML = '<p class="muted">Looking…</p>';
+      const [remote, conflicts] = await Promise.all([listDeletedPlayers(), getLifecycleConflicts()]);
+      const rows = [];
+      for (const c of conflicts) {
+        rows.push(`<div class="stat-row" data-conflict-row="${c.id}">
+          <span>⚠️ ${escapeHtml(c.name)} — deleted here, changed elsewhere</span>
+          <span><button class="btn ghost small" data-resolve-del="${c.id}">Delete everywhere</button>
+          <button class="btn ghost small" data-resolve-keep="${c.id}">Keep player</button></span></div>`);
+      }
+      if (remote.ok) {
+        for (const e of remote.entries) {
+          rows.push(`<div class="stat-row" data-deleted-row="${e.id}">
+            <span>${escapeHtml(e.name ?? e.id)}</span>
+            <span><button class="btn ghost small" data-restore-id="${e.id}">↩️ Restore</button>
+            <button class="btn ghost small" data-purge-id="${e.id}">🔥 Purge forever</button></span></div>`);
+        }
+      }
+      listEl.innerHTML = rows.length
+        ? rows.join('')
+        : `<p class="muted">${remote.ok ? 'No deleted players in the family backup.' : remote.denied ? 'Backup is locked — enter the family key first.' : 'Could not reach the home server.'}</p>`;
+      for (const b of listEl.querySelectorAll('[data-restore-id]')) {
+        b.addEventListener('click', async () => {
+          const r = await restoreDeletedPlayer(b.dataset.restoreId);
+          toast(
+            r.ok
+              ? `${r.name} is back! They will return on every device 🏡`
+              : r.reason === 'too-large'
+                ? 'That backup is too large to restore here'
+                : 'Could not restore — try again near the home server'
+          );
+          if (r.ok) listEl.querySelector(`[data-deleted-row="${b.dataset.restoreId}"]`)?.remove();
+        });
+      }
+      for (const b of listEl.querySelectorAll('[data-purge-id]')) {
+        b.addEventListener('click', async () => {
+          if (!window.confirm('Purge forever? The archived progress is destroyed and can NEVER be restored.')) return;
+          const r = await purgeDeletedPlayer(b.dataset.purgeId);
+          toast(r.ok ? 'Purged — gone for good' : 'Could not purge — try again near the home server');
+          if (r.ok) listEl.querySelector(`[data-deleted-row="${b.dataset.purgeId}"]`)?.remove();
+        });
+      }
+      for (const b of listEl.querySelectorAll('[data-resolve-del]')) {
+        b.addEventListener('click', async () => {
+          const r = await resolveLifecycleConflict(b.dataset.resolveDel, 'delete');
+          toast(r.ok ? 'Deleted everywhere — final progress archived' : 'Could not finish — try again');
+          if (r.ok) listEl.querySelector(`[data-conflict-row="${b.dataset.resolveDel}"]`)?.remove();
+        });
+      }
+      for (const b of listEl.querySelectorAll('[data-resolve-keep]')) {
+        b.addEventListener('click', async () => {
+          const r = await resolveLifecycleConflict(b.dataset.resolveKeep, 'keep');
+          toast(r.ok ? 'Player kept — they are back on this device' : 'Could not finish — try again');
+          if (r.ok) listEl.querySelector(`[data-conflict-row="${b.dataset.resolveKeep}"]`)?.remove();
+        });
+      }
+    });
+
     panel.querySelector('[data-sync-now]').addEventListener('click', async () => {
       if (!isSyncEnabled()) {
         toast('Turn backup on first');
@@ -525,10 +595,17 @@ export function grownupsScreen(el, params, ctx) {
     panel.querySelector('[data-switch]').addEventListener('click', () => navigate('/profiles'));
     panel.querySelector('[data-delete]').addEventListener('click', async () => {
       const sure = window.confirm(
-        `Delete ${p.name} and all their progress? This cannot be undone.`
+        `Delete ${p.name}? They are removed from all devices — but kept safely in the family backup until you restore or permanently purge them from the Deleted players list.`
       );
       if (!sure) return;
-      await deleteProfile(p.id);
+      const r = await deleteProfile(p.id);
+      toast(
+        r.remote === 'confirmed'
+          ? `${p.name} removed here and archived in the family backup`
+          : r.remote === 'conflict'
+            ? `${p.name} removed here — the backup changed elsewhere; resolve it under Deleted players`
+            : `${p.name} removed here — the family backup will catch up when the server is reachable`
+      );
       await ctx.switchProfile(null);
       navigate('/profiles');
     });

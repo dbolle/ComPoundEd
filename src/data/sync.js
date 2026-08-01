@@ -100,7 +100,9 @@ export async function getRemote(id) {
     if (denied(res)) return { ok: false, denied: true };
     if (res.status === 410) {
       const meta = await res.json().catch(() => ({}));
-      return { ok: true, gone: true, state: meta.state ?? 'deleted', meta };
+      const etag = res.headers.get('ETag');
+      if (etag) etags.set(id, etag);
+      return { ok: true, gone: true, state: meta.state ?? 'deleted', meta, etag };
     }
     if (!res.ok) return { ok: false, missing: res.status === 404 };
     const text = await res.text();
@@ -137,6 +139,49 @@ export async function putRemote(profile, etag, { keepalive = false } = {}) {
     const newTag = res.headers.get('ETag');
     if (newTag) etags.set(profile.id, newTag);
     return { ok: true, etag: newTag ?? null };
+  } catch {
+    return { ok: false };
+  }
+}
+
+// Deleted-player metadata (id, name, gen, tombstoneId) — parental
+// restore/purge management only; ordinary sync never calls this.
+export async function listDeleted() {
+  const entries = [];
+  let cursor = '';
+  for (let page = 0; page < 50; page++) {
+    let res;
+    try {
+      res = await fetch(`${SYNC_BASE}deleted${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''}`, {
+        headers: { Accept: 'application/json', ...keyHeaders() },
+        signal: signal(),
+      });
+    } catch {
+      return { ok: false };
+    }
+    if (denied(res)) return { ok: false, denied: true };
+    if (!res.ok) return { ok: false };
+    const body = await res.json().catch(() => null);
+    if (!body || !Array.isArray(body.entries)) return { ok: false };
+    entries.push(...body.entries);
+    if (!body.nextCursor) return { ok: true, entries };
+    cursor = body.nextCursor;
+  }
+  return { ok: true, entries };
+}
+
+// Archive download — ONLY from the explicit restore-management flow.
+export async function getArchive(id) {
+  try {
+    const res = await fetch(`${SYNC_BASE}${encodeURIComponent(id)}/archive`, {
+      headers: { Accept: 'application/json', ...keyHeaders() },
+      signal: signal(),
+    });
+    if (denied(res)) return { ok: false, denied: true };
+    if (!res.ok) return { ok: false };
+    const text = await res.text();
+    if (text.length > MAX_DOC_BYTES) return { ok: false, tooLarge: true };
+    return { ok: true, doc: JSON.parse(text) };
   } catch {
     return { ok: false };
   }
