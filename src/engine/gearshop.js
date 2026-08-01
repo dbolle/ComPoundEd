@@ -5,7 +5,7 @@
 // only new state — profile.gear.placements, a preference merged newer-wins.
 
 import { GEAR_ACCESSORIES, TOYS } from '../art/gear.js';
-import { ensureBucks, balanceCents, ledgerState } from './money.js';
+import { ensureBucks, balanceCents, ledgerState, txnAt } from './money.js';
 import { touchMeta } from '../data/schema.js';
 
 export const CATALOG = [...GEAR_ACCESSORIES, ...TOYS];
@@ -64,6 +64,7 @@ export function buyGear(profile, itemId, forId = null, now = Date.now(), coins =
   if (balanceCents(profile) < item.price) return null;
   const buyId = nextBuyId(profile, buyTxnId(itemId, forId));
   if (buyId === null) return null; // raced to owned
+  now = txnAt(profile, now); // a purchase must replay after what funded it
   const txn = {
     id: buyId,
     group: buyId,

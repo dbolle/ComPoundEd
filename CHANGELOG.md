@@ -3,6 +3,19 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.44.0 — 2026-08-01
+
+- Animal voices are twice as long — they were being cut off mid-sound —
+  and the dog is an actual woof now: a mouth-opening burst, a voiced
+  body whose vowel closes as the pitch falls, and a breathy tail. (One
+  fixed filter could only ever make a beep.)
+- Cleanup from the audit's minor list: the backup service runs
+  unprivileged (existing installs need a one-time `chown` — see
+  deploy/README.md), exported profile files keep the same restrictive
+  permissions as the live ones, an unreadable file can no longer fail
+  the whole backup listing, and "Backed up" is no longer shown when
+  there was nothing new to send.
+
 ## v1.43.0 — 2026-08-01
 
 - Every animal now has its own voice. The old "bark" was two beeps that

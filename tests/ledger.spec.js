@@ -122,3 +122,17 @@ test('fingerprints ignore at and group (a legacy event equals its upgraded twin)
   expect(merged).toHaveLength(1);
   expect(merged[0].at).toBe(100);
 });
+
+test('back-to-back operations keep causal order (same-millisecond swaps)', () => {
+  const p = newProfile('Causal');
+  p.pawBucks.txns.push({ id: 'seed', at: 5, cents: 100, denom: 'buck', count: 1, reason: 'sitting' });
+  // both swaps ask for Date.now() at the same instant — the second spends
+  // what the first produced, so it must replay second
+  const now = 1000;
+  expect(swapCoins(p, SWAPS.find((r) => r.give.denom === 'buck' && r.get.denom === 'dime'), now)).toBe(true);
+  expect(swapCoins(p, SWAPS.find((r) => r.give.denom === 'dime' && r.get.denom === 'buck'), now)).toBe(true);
+  const counts = coinCounts(p);
+  expect(counts.buck).toBe(1); // round trip completed — neither swap rejected
+  expect(counts.dime).toBe(0);
+  expect(balanceCents(p)).toBe(100);
+});

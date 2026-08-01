@@ -586,7 +586,9 @@ export function grownupsScreen(el, params, ctx) {
             ? 'Backup is locked — enter the family key below'
             : r.status === 'partial'
               ? 'Some players did not back up — will retry automatically'
-              : 'Backed up to the home server 💾'
+              : r.pushed === 0
+                ? 'Already up to date on the home server ✅'
+                : 'Backed up to the home server 💾'
       );
     });
 

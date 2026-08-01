@@ -51,14 +51,35 @@ raw-client compatible). Instead:
 - Full restore: stop the stack, restore the step-1 tarball, start the
   previous config.
 
+## Running the sync service unprivileged (one-time)
+
+`docker-compose.yml` sets `user: "1000:1000"` so the sidecar does not run
+as root. Existing installs must hand the data directory over once, or the
+service will start and then fail to read the family's backups:
+
+```
+sudo chown -R 1000:1000 deploy/sync-data
+docker compose up -d
+curl -s -o /dev/null -w '%{http_code}\n' -H "X-Sync-Key: $SYNC_KEY" \
+  http://localhost:8091/sync/profiles/     # expect 200
+```
+
+If the check does not return 200, comment out the `user:` line and
+restart — backups keep working as before while you sort the ownership
+out. (Verify with the listing above BEFORE the kids next play.)
+
 ## Operational notes
 
 - Single sidecar replica only (per-profile writes serialize in-process).
 - The key check hashes both sides (constant-time compare); failed
-  attempts are throttled per-IP; the key and profile bodies are never
-  logged.
+  attempts are throttled per CLIENT (the proxy's forwarded address, so
+  one bad device can't lock out the family) and a correct key is never
+  throttled; the key and profile bodies are never logged.
 - Limits: profile docs ≤ 4MB, requests ≤ 4.5MB, listings paginated
   (100/page).
 - Test profiles: remove with the janitor only on the hermetic test
   server; on the live server use the app's delete flow (v1.39+) or
   curl with the key.
+- The deleted-player listing returns each archived player's NAME (the
+  restore UI needs it to tell them apart). It is behind the family key,
+  like everything else under /sync/profiles/.

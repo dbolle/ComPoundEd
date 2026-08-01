@@ -86,11 +86,17 @@ function recordFail(ip, now) {
 }
 
 // ---- storage helpers -------------------------------------------------------
-const chains = new Map(); // per-profile serialization
+// Per-profile serialization. The map is pruned when a chain settles so
+// a client touching many ids can't grow it without bound.
+const chains = new Map();
 function locked(id, fn) {
   const prev = chains.get(id) ?? Promise.resolve();
   const next = prev.then(fn, fn);
-  chains.set(id, next.catch(() => {}));
+  const tracked = next.catch(() => {});
+  chains.set(id, tracked);
+  tracked.then(() => {
+    if (chains.get(id) === tracked) chains.delete(id);
+  });
   return next;
 }
 
@@ -213,7 +219,12 @@ export async function handleSync(req, res) {
     const page = [];
     let nextCursor = null;
     for (const id of ids) {
-      const env = await locked(id, () => readEnvelope(id));
+      let env = null;
+      try {
+        env = await locked(id, () => readEnvelope(id));
+      } catch {
+        continue; // one unreadable file must never 500 the whole listing
+      }
       if (!env) continue;
       if (wantDeleted ? env.state !== 'deleted' : env.state !== 'live') continue;
       page.push(
