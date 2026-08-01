@@ -8,6 +8,17 @@ const base = process.env.VITE_BASE ?? '/';
 
 export default defineConfig({
   base,
+  // sounds.html is a tiny unlinked QA page for listening to the
+  // synthesized animal voices on a real device (no kid data, no links
+  // from the app). Built as a second entry so it uses the real module.
+  build: {
+    rollupOptions: {
+      input: {
+        main: new URL('./index.html', import.meta.url).pathname,
+        sounds: new URL('./sounds.html', import.meta.url).pathname,
+      },
+    },
+  },
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
   },

@@ -57,6 +57,9 @@ licensing.
 - **Toys & gifts for every friend** — store toys can be handed to pack
   dogs or Cozy Corner pets (one-tap give chips, no reading), and show up
   in walks, little-pup games, and on the little home buddy.
+- **A voice for every friend** — dogs woof, cats meow, rabbits thump,
+  birds chirp: all synthesized in the browser (no audio downloads, works
+  offline) and kept deliberately soft.
 - **Trace it! ✏️** — little pups learn to write the numbers 1–9 by
   finger-tracing a big friendly guide (gentle judging, no wrong
   answers); mastering all nine adopts a new Cozy Corner friend.

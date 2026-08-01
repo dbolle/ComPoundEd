@@ -16,7 +16,15 @@ function ac() {
     if (!AC) return null;
     ctx = new AC();
   }
-  if (ctx.state === 'suspended') ctx.resume();
+  // resume() can throw synchronously (offline/rendering contexts) or
+  // reject (autoplay policy) — neither may silence the whole sound
+  if (ctx.state === 'suspended') {
+    try {
+      ctx.resume()?.catch?.(() => {});
+    } catch {
+      /* nothing to resume */
+    }
+  }
   return ctx;
 }
 
@@ -32,6 +40,79 @@ function tone({ freq, at = 0, dur = 0.12, type = 'sine', vol = 0.15, slide }) {
   gain.gain.setValueAtTime(vol, t0);
   gain.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
   osc.connect(gain).connect(c.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.02);
+}
+
+// A burst of filtered noise — the breathy part of any real animal
+// sound. Pure oscillators can't make a bark; noise through a bandpass
+// (plus a formant peak) is what reads as a voice rather than a beep.
+function noise({ at = 0, dur = 0.12, vol = 0.12, freq = 800, q = 4, slide, type = 'bandpass' }) {
+  const c = ac();
+  if (!c) return;
+  const t0 = c.currentTime + at;
+  const frames = Math.max(1, Math.ceil(c.sampleRate * dur));
+  const buf = c.createBuffer(1, frames, c.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < frames; i++) data[i] = Math.random() * 2 - 1;
+  const src = c.createBufferSource();
+  src.buffer = buf;
+  const filter = c.createBiquadFilter();
+  filter.type = type;
+  filter.frequency.setValueAtTime(freq, t0);
+  if (slide) filter.frequency.exponentialRampToValueAtTime(slide, t0 + dur);
+  filter.Q.value = q;
+  const gain = c.createGain();
+  gain.gain.setValueAtTime(0.0001, t0);
+  gain.gain.exponentialRampToValueAtTime(vol, t0 + Math.min(0.012, dur / 3)); // fast attack
+  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  src.connect(filter).connect(gain).connect(c.destination);
+  src.start(t0);
+  src.stop(t0 + dur + 0.02);
+}
+
+// A voiced tone with a formant peak and an optional pitch path — the
+// difference between "a note" and "an animal saying something".
+function voiced({
+  at = 0,
+  dur = 0.3,
+  vol = 0.1,
+  type = 'sawtooth',
+  path = [400, 400],
+  formant = 1000,
+  q = 6,
+  vibrato = 0,
+}) {
+  const c = ac();
+  if (!c) return;
+  const t0 = c.currentTime + at;
+  const osc = c.createOscillator();
+  osc.type = type;
+  osc.frequency.setValueAtTime(path[0], t0);
+  path.slice(1).forEach((f, i) => {
+    const when = t0 + (dur * (i + 1)) / (path.length - 1);
+    osc.frequency.exponentialRampToValueAtTime(Math.max(20, f), when);
+  });
+  let lfo = null;
+  if (vibrato) {
+    lfo = c.createOscillator();
+    const lfoGain = c.createGain();
+    lfo.frequency.value = vibrato;
+    lfoGain.gain.value = path[0] * 0.06;
+    lfo.connect(lfoGain).connect(osc.frequency);
+    lfo.start(t0);
+    lfo.stop(t0 + dur + 0.02);
+  }
+  const filter = c.createBiquadFilter();
+  filter.type = 'bandpass';
+  filter.frequency.value = formant;
+  filter.Q.value = q;
+  const gain = c.createGain();
+  gain.gain.setValueAtTime(0.0001, t0);
+  gain.gain.exponentialRampToValueAtTime(vol, t0 + dur * 0.18);
+  gain.gain.setValueAtTime(vol, t0 + dur * 0.6);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(filter).connect(gain).connect(c.destination);
   osc.start(t0);
   osc.stop(t0 + dur + 0.02);
 }
@@ -68,12 +149,85 @@ export const sfx = {
       tone({ freq: 988, dur: 0.07, vol: 0.13 });
       tone({ freq: 1319, at: 0.08, dur: 0.16, vol: 0.13 });
     }),
-  bark: () =>
-    safe(() => {
-      tone({ freq: 520, slide: 180, dur: 0.09, type: 'sawtooth', vol: 0.12 });
-      tone({ freq: 560, slide: 200, at: 0.16, dur: 0.1, type: 'sawtooth', vol: 0.12 });
-    }),
+  bark: () => safe(() => VOICES.dog()),
 };
+
+// Per-species voices. Every one is deliberately soft (the charter asks
+// for calm): short, low volume, no startle. Built from a noise burst
+// (breath) plus a voiced formant (the "vowel"), which is what separates
+// an animal from a beep.
+const VOICES = {
+  // two quick woofs: noise burst + a fast downward voiced growl
+  dog: () => {
+    for (const at of [0, 0.17]) {
+      noise({ at, dur: 0.075, vol: 0.11, freq: 900, slide: 380, q: 2 });
+      voiced({ at, dur: 0.12, vol: 0.09, path: [420, 180], formant: 700, q: 3 });
+    }
+  },
+  // meow: up then down, with the vibrato a cat's throat gives it
+  cat: () => {
+    voiced({ dur: 0.45, vol: 0.1, type: 'sawtooth', path: [520, 780, 620, 430], formant: 1300, q: 7, vibrato: 22 });
+    noise({ at: 0.02, dur: 0.05, vol: 0.04, freq: 1800, q: 1 });
+  },
+  // rabbits mostly thump — a soft low thud, then a tiny squeak
+  rabbit: () => {
+    // two thumps (rabbits drum), then a small squeak
+    for (const at of [0, 0.19]) noise({ at, dur: 0.12, vol: 0.2, freq: 190, slide: 90, q: 1, type: 'lowpass' });
+    voiced({ at: 0.4, dur: 0.12, vol: 0.09, type: 'triangle', path: [900, 1150], formant: 2000, q: 5 });
+  },
+  // guinea pig "wheek": a rising squeal that keeps climbing
+  guinea: () => {
+    voiced({ dur: 0.34, vol: 0.1, type: 'sawtooth', path: [780, 1450, 1650], formant: 2200, q: 8, vibrato: 30 });
+  },
+  // bird: three tiny chirps, each a fast up-down glide
+  bird: () => {
+    [0, 0.12, 0.23].forEach((at, i) =>
+      voiced({ at, dur: 0.07, vol: 0.055, type: 'sine', path: [2600 + i * 250, 3800, 2900], formant: 3200, q: 4 })
+    );
+  },
+  // sloth: a long, slow, breathy sigh — almost too quiet to notice
+  sloth: () => {
+    noise({ dur: 0.55, vol: 0.1, freq: 700, slide: 380, q: 1.2 });
+    voiced({ dur: 0.55, vol: 0.08, type: 'triangle', path: [330, 300, 250], formant: 900, q: 4 });
+  },
+  // hedgehog: quick snuffles, all breath, no voice
+  hedgehog: () => {
+    [0, 0.1, 0.19, 0.3].forEach((at, i) =>
+      noise({ at, dur: 0.08, vol: 0.13 - i * 0.012, freq: 1500 + i * 180, slide: 900, q: 1.5 })
+    );
+  },
+  // turtle: a soft "hup" and a little water blip
+  turtle: () => {
+    noise({ dur: 0.12, vol: 0.16, freq: 420, slide: 240, q: 2 });
+    voiced({ at: 0.18, dur: 0.2, vol: 0.11, type: 'sine', path: [300, 520], formant: 800, q: 6 });
+  },
+};
+
+// Speak for a species (pets) — falls back to the dog for anything else.
+export function critterSound(species) {
+  safe(() => (VOICES[species] ?? VOICES.dog)());
+}
+
+export const CRITTER_SPECIES = Object.keys(VOICES);
+
+// What a child calls each animal's sound — "how many barks?" is wrong
+// when the buddy is a cat (same number–noun agreement rule as the rest
+// of the app). [one, many]
+const SOUND_WORDS = {
+  dog: ['bark', 'barks'],
+  cat: ['meow', 'meows'],
+  rabbit: ['thump', 'thumps'],
+  guinea: ['squeak', 'squeaks'],
+  bird: ['chirp', 'chirps'],
+  sloth: ['sigh', 'sighs'],
+  hedgehog: ['snuffle', 'snuffles'],
+  turtle: ['hum', 'hums'],
+};
+
+export function soundWord(species, n = 2) {
+  const pair = SOUND_WORDS[species] ?? SOUND_WORDS.dog;
+  return n === 1 ? pair[0] : pair[1];
+}
 
 // Spoken prompts for pre-readers (little-pup mode). Uses the device's local
 // speech voices — nothing leaves the device. Fails silently everywhere else.
