@@ -11,61 +11,37 @@
   button { font: inherit; padding: 13px 10px; border-radius: 14px; border: 0; background: #fff;
            box-shadow: 0 2px 6px rgba(0,0,0,.08); text-align: center; line-height: 1.25; }
   button:active { transform: scale(.97); background: #fff7ea; }
-  button.keeper { background: #fef3c7; }
   .tag { display: inline-block; font-size: .7rem; color: #8a7863; }
-  .settled { opacity: .9; }
 </style>
 
-<h1>Animal voices — ear check 🎧 (round 3)</h1>
+<h1>Animal voices 🎧 — all settled ✅</h1>
 <p class="muted">
-  Bird and sloth are locked in ✅. This round every dog option gets the
-  three things round 2 lacked: <strong>distortion</strong> on the voice (a bark is
-  pressed, not clean), a <strong>growl flutter</strong> in the loudness, and a
-  <strong>jaw snap</strong> — the formants swing open then closed, which is the
-  "w-AH-oo" of a woof — plus a breathy "f" at the end. The rabbit round
-  explores the squeak/click family you picked, all louder than the old
-  thumps. Your round-2 picks are the yellow <strong>A/B keeper</strong> buttons —
-  compare against them any time; they're saved and can win outright.
-  Every option is a single countable event. Tap to hear, then tell me
-  the numbers (or "keeper A/B").
+  Every voice is locked in (ear checks, rounds 1–3, settled 2026-08-02).
+  This page stays as the QA listening board: tap to hear each voice as
+  the app plays it. The dog has two — with a whole pack, each dog keeps
+  one consistent bark chosen by its id (roughly half BOOF, half YIP).
+  Unused runner-up options are saved in the code as a variety pool.
 </p>
 
-<h2>🐶 Dog — 6 new; A and B are your round-2 picks</h2>
+<h2>🐶 The two dog barks</h2>
 <div class="grid" id="dog"></div>
 
-<h2>🐰 Rabbit — 6 new; A and B are your round-2 picks</h2>
-<div class="grid" id="rabbit"></div>
-
-<h2>Settled voices ✅ (for comparison)</h2>
-<div class="grid settled" id="settled"></div>
+<h2>All species</h2>
+<div class="grid" id="settled"></div>
 
 <script type="module">
-  import { critterSound, soundWord, playVoiceOption, playVoiceKeeper, VOICE_OPTIONS, VOICE_KEEPERS } from './src/sound.js';
+  import { critterSound, soundWord, playVoiceOption } from './src/sound.js';
 
-  const LABELS = {
-    dog: ['WOOF — cough bark', 'WOOF — round wa-oo', 'RUFF — gruff', 'ARF — sharp', 'AWF — breathy', 'BOOF + roughness kit'],
-    rabbit: ['squeak — rounder', 'squeak + breath', 'squeak — falling', 'click — crisp', 'click + soft knock', 'grunt-squeak'],
-  };
-  const KEEPER_LABELS = {
-    dog: ['A. BOOF (round 2 #4)', 'B. YIP (round 2 #5)'],
-    rabbit: ['A. soft squeak (round 2 #3)', 'B. purr-click (round 2 #4)'],
-  };
-
-  for (const species of ['dog', 'rabbit']) {
-    document.getElementById(species).innerHTML =
-      VOICE_OPTIONS[species]
-        .map((_, i) => `<button data-sp="${species}" data-i="${i}">${i + 1}. ${LABELS[species][i]}</button>`)
-        .join('') +
-      VOICE_KEEPERS[species]
-        .map((_, i) => `<button class="keeper" data-keep="${species}" data-i="${i}">${KEEPER_LABELS[species][i]}</button>`)
-        .join('');
-  }
+  document.getElementById('dog').innerHTML = ['BOOF — big dog', 'YIP — little dog']
+    .map((label, i) => `<button data-sp="dog" data-i="${i}">${label}</button>`)
+    .join('');
 
   const SETTLED = [
-    ['bird', '🐦'],
-    ['sloth', '🦥'],
     ['cat', '🐱'],
+    ['rabbit', '🐰'],
+    ['bird', '🐦'],
     ['guinea', '🐹'],
+    ['sloth', '🦥'],
     ['hedgehog', '🦔'],
     ['turtle', '🐢'],
   ];
@@ -76,8 +52,6 @@
   document.addEventListener('click', (e) => {
     const opt = e.target.closest('[data-sp]');
     if (opt) return playVoiceOption(opt.dataset.sp, Number(opt.dataset.i));
-    const keep = e.target.closest('[data-keep]');
-    if (keep) return playVoiceKeeper(keep.dataset.keep, Number(keep.dataset.i));
     const critter = e.target.closest('[data-critter]');
     if (critter) critterSound(critter.dataset.critter);
   });

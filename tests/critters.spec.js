@@ -128,7 +128,7 @@ test('every option is ONE event where it claims to be (counting integrity)', asy
     async ({ src }) => {
       const url = URL.createObjectURL(new Blob([src], { type: 'text/javascript' }));
       const out = {};
-      const banks = { dog: 6, rabbit: 6, bird: 3 };
+      const banks = { dog: 2, rabbit: 2, bird: 3 };
       for (const [species, n] of Object.entries(banks)) {
         out[species] = [];
         for (let i = 0; i < n; i++) {
@@ -167,12 +167,12 @@ test('every option is ONE event where it claims to be (counting integrity)', asy
     { src: SOUND_SRC }
   );
 
-  // every dog option must be a SINGLE woof (the counting bug that started this)
+  // both locked barks and both rabbit options (the in-use purr-click
+  // and the saved squeak) must each be a SINGLE countable event — the
+  // multi-event bug is what started this suite
   for (const [i, runs] of bursts.dog.entries()) {
     expect(runs, `dog option ${i + 1} is one event`).toBe(1);
   }
-  // round 3: every rabbit option is a single event (the multi-event
-  // "two thumps + squeak" left the bank when the squeak/click family won)
   for (const [i, runs] of bursts.rabbit.entries()) {
     expect(runs, `rabbit option ${i + 1} is one event`).toBe(1);
   }

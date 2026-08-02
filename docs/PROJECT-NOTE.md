@@ -90,6 +90,12 @@ on the family's own home server (LAN) and GitHub Pages.
   earnings, voids past purchases) — two confirmations, nothing deleted.
 - Trace it! judging is gentle: follow the guide, cover most of it,
   wobbles fine, no stroke-order rules, no wrong answers.
+- **Animal voices are settled** (ear checks, settled 2026-08-02): dogs
+  keep TWO barks — each dog's voice is picked from its id so the same
+  dog always sounds the same; rabbit = purr-click, bird = two-note
+  tweet, sloth = soft sigh. Runner-up options stay in the code as a
+  variety pool; every bank option must render as ONE countable event
+  (enforced by test).
 
 **Technical**
 - Family backup is opt-in, LAN-only, to the family's own server, now
@@ -130,8 +136,6 @@ on the family's own home server (LAN) and GitHub Pages.
   totals and change) is the next feature phase, after reliability work.
 - **Phase 8 — beyond:** fraction equivalence first, then mental math
   within 100/1000, 10-more/less, squares/primes.
-- Per-species animal sounds (synthesized first; recorded samples are a
-  later option if synthesis isn't convincing enough).
 - Little-pup piggy-bank swap UI; two Cozy Corner pets still have no
   earning path; boredom guard (fast wrong taps shouldn't reset streaks).
 - Append-only transaction ledger growth needs a lossless compaction
