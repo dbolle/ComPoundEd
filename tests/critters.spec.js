@@ -171,9 +171,11 @@ test('every option is ONE event where it claims to be (counting integrity)', asy
   for (const [i, runs] of bursts.dog.entries()) {
     expect(runs, `dog option ${i + 1} is one event`).toBe(1);
   }
-  // rabbit 1–5 single; 6 is the known multi-event one kept for comparison
-  for (const i of [0, 1, 2, 3, 4]) expect(bursts.rabbit[i], `rabbit option ${i + 1}`).toBe(1);
-  expect(bursts.rabbit[5]).toBeGreaterThan(1);
+  // round 3: every rabbit option is a single event (the multi-event
+  // "two thumps + squeak" left the bank when the squeak/click family won)
+  for (const [i, runs] of bursts.rabbit.entries()) {
+    expect(runs, `rabbit option ${i + 1} is one event`).toBe(1);
+  }
   // bird 2–3 single; 1 is the three-chirp original
   for (const i of [1, 2]) expect(bursts.bird[i], `bird option ${i + 1}`).toBe(1);
   expect(bursts.bird[0]).toBeGreaterThan(1);
