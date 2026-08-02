@@ -179,6 +179,14 @@ export function grownupsScreen(el, params, ctx) {
         <div class="stat-row"><span>Award tiers earned</span><span>${totalTiers(p)}</span></div>
         <div class="stat-row"><span>Paw Bucks</span><span>${formatPaw(balanceCents(p))}</span></div>
         ${
+          ledgerState(p).needsAttention.length
+            ? `<div class="stat-row"><span class="muted" style="font-size:.8rem">⚠️ ${ledgerState(p).needsAttention.length}
+               ledger entr${ledgerState(p).needsAttention.length === 1 ? 'y' : 'ies'} could not be read and count for nothing
+               (${escapeHtml(ledgerState(p).needsAttention.slice(0, 3).map((n) => n.id).join(', '))}) —
+               tell the developer if a reward looks missing</span><span></span></div>`
+            : ''
+        }
+        ${
           forgivenCents(p) > 0
             ? `<div class="stat-row"><span class="muted" style="font-size:.8rem">…including ${formatPaw(forgivenCents(p))} written off
                (two devices spent the same coins while apart — not charged to ${escapeHtml(p.name)})</span>

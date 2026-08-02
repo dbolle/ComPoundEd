@@ -69,6 +69,16 @@ on the family's own home server (LAN) and GitHub Pages.
   answers move nothing.
 - Deleted players are archived, restorable, and **permanently purged only
   by a parent** — purge is irreversible by design.
+- **Store prices are fixed once listed** (enforced by a snapshot test);
+  new items may be added freely. **Payout rates may be tuned**, but an
+  amount change must bump that reward's rate version so re-rated
+  earnings get their own identity.
+- **The store accepts overpayment**: the child works out and counts back
+  the change, and a purchase is refused unless payment minus change
+  equals the price exactly.
+- **Ledger history is kept forever** — no compaction; reads are cached
+  instead. Damaged entries are repaired when unambiguous and surfaced to
+  the parent otherwise.
 - **The wallet's coins always add up to the balance shown**, and every
   swap the app offers really happens — enforced by a randomized property
   suite (tests/economy-invariants.spec.js) rather than by review.
