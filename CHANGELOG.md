@@ -3,6 +3,23 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.47.2 — 2026-08-02
+
+Every animal voice is settled. 🎧✅
+
+- **The dog keeps BOTH round-2 picks.** With a whole pack, two voices
+  beat one: each dog gets one consistent bark chosen from its id —
+  roughly half the pack barks the big BOOF, half the little YIP, and
+  the same dog always sounds the same (in the counting game, on the
+  results card, everywhere). The round-3 distortion experiments lost
+  and were removed; git remembers them.
+- **The rabbit is the purr-click**; the soft squeak is saved in the
+  bank for future use. The counting game asks "how many clicks?"
+- Bird (two-note tweet) and sloth (soft sigh) were locked last round.
+- The `/sounds.html` QA page becomes a settled listening board, and
+  the counting-integrity test pins every bank option — in use or
+  saved — to exactly one audible event.
+
 ## v1.47.1 — 2026-08-02
 
 Animal voices, round 3 of the ear check.

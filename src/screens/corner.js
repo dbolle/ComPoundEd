@@ -101,7 +101,7 @@ export function cornerScreen(el, params, ctx) {
           card.querySelector('.dog').classList.remove('wiggle');
           void card.offsetWidth;
           card.querySelector('.dog').classList.add('wiggle');
-          critterSound(pet.species);
+          critterSound(pet.species, pet.id);
           buzz(20);
         });
         for (const btn of card.querySelectorAll('[data-toy-give]')) {
@@ -109,7 +109,7 @@ export function cornerScreen(el, params, ctx) {
             const item = itemOf(btn.dataset.toyGive);
             placeGear(p, item.id, pet.id);
             await ctx.save();
-            critterSound(pet.species);
+            critterSound(pet.species, pet.id);
             buzz(20);
             say(`${pet.name} loves the ${item.name}!`);
             toast(`${pet.name} loves the ${item.name}! 🎉`);

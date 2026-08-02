@@ -691,7 +691,7 @@ export function littleGameScreen(el, params, ctx) {
         busy = true; // input stays blocked from render until the barks end
         const playBarks = () => {
           busy = true;
-          for (let i = 0; i < n; i++) setTimeout(() => critterSound(voice), 600 + i * 620);
+          for (let i = 0; i < n; i++) setTimeout(() => critterSound(voice, buddy.id), 600 + i * 620);
           setTimeout(() => {
             busy = false;
           }, 600 + n * 620);
