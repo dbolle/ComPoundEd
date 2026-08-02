@@ -178,6 +178,20 @@ export const sfx = {
 //     fundamental arrives as a thin whistle. The body has to live in
 //     the 400–2000Hz formants; the low fundamental only supplies
 //     harmonics.
+// tanh soft-clip curve — drives the voiced source into the chaotic,
+// pressed phonation of a real bark. A clean sawtooth through filters
+// stays "a note"; distortion is what vocal-fold chaos sounds like.
+function shaperCurve(amount) {
+  const n = 1024;
+  const curve = new Float32Array(n);
+  const k = Math.tanh(amount);
+  for (let i = 0; i < n; i++) {
+    const x = (i / (n - 1)) * 2 - 1;
+    curve[i] = Math.tanh(amount * x) / k;
+  }
+  return curve;
+}
+
 function growl({
   at = 0,
   dur = 0.25,
@@ -191,8 +205,12 @@ function growl({
     [2500, 4, 0.35],
   ],
   sweep = 0.6, // formants close to this fraction by the end (the vowel)
+  open = null, // jaw gesture: formants OPEN to f*open first, then close
   type = 'sawtooth',
   attack = 0.012,
+  drive = 0, // waveshaper amount on the voiced source (bark roughness)
+  rough = 0, // amplitude-flutter depth 0–1 (the growl in a woof)
+  roughHz = 45, // flutter rate — 25–70Hz reads as roughness, not tremolo
 }) {
   const c = ac();
   if (!c) return;
@@ -219,7 +237,25 @@ function growl({
   }
   const oscGain = c.createGain();
   oscGain.gain.value = 1 - noiseMix;
-  osc.connect(oscGain);
+  if (drive > 0) {
+    const ws = c.createWaveShaper();
+    ws.curve = shaperCurve(drive);
+    osc.connect(ws).connect(oscGain);
+  } else {
+    osc.connect(oscGain);
+  }
+
+  // --- amplitude flutter (roughness) — a sub-audio wobble on the output
+  // gain; without it the envelope is one smooth arc and reads as a beep
+  if (rough > 0) {
+    const am = c.createOscillator();
+    am.frequency.value = roughHz;
+    const amGain = c.createGain();
+    amGain.gain.value = vol * rough * 0.5;
+    am.connect(amGain).connect(out.gain);
+    am.start(t0);
+    am.stop(t0 + dur + 0.02);
+  }
 
   // --- breath source ---
   const frames = Math.max(1, Math.ceil(c.sampleRate * dur));
@@ -236,8 +272,16 @@ function growl({
   for (const [f, q, g] of formants) {
     const bp = c.createBiquadFilter();
     bp.type = 'bandpass';
-    bp.frequency.setValueAtTime(f, t0);
-    bp.frequency.exponentialRampToValueAtTime(Math.max(120, f * sweep), t0 + dur);
+    if (open) {
+      // "w-AH-oo": start part-closed, snap open by a quarter in, then
+      // close down — the jaw gesture is what makes "woof" a word
+      bp.frequency.setValueAtTime(f * 0.65, t0);
+      bp.frequency.exponentialRampToValueAtTime(f * open, t0 + dur * 0.25);
+      bp.frequency.exponentialRampToValueAtTime(Math.max(120, f * sweep), t0 + dur);
+    } else {
+      bp.frequency.setValueAtTime(f, t0);
+      bp.frequency.exponentialRampToValueAtTime(Math.max(120, f * sweep), t0 + dur);
+    }
     bp.Q.value = q;
     const fg = c.createGain();
     fg.gain.value = g;
@@ -260,111 +304,133 @@ function growl({
 // A woof is a mouth-opening transient plus a voiced body whose formants
 // SWEEP as the pitch falls (that fall IS the "woo→oo"). One oscillator
 // through one fixed filter can only ever be a beep.
+// Round 3. Round 2 still read as beeps because the source was CLEAN:
+// a smooth sawtooth arc through filters, however well-placed, is a
+// synth note. A real bark is a cough — pressed, distorted phonation
+// (drive), a sub-audio amplitude flutter (rough), a jaw that snaps
+// open and closes (open→sweep), and a breathy "f" release at the end.
+// Every option below uses all four; they differ in size and manner.
 const DOG_OPTIONS = [
-  // 1 [1] "RUFF" — your pick, unchanged: bright fast-falling bark
+  // 1 [1] "WOOF" — cough bark: hard drive, strong flutter
   () => {
-    noise({ dur: 0.02, vol: 0.11, freq: 1600, slide: 500, q: 1 });
-    voiced({ at: 0.005, dur: 0.2, vol: 0.1, type: 'sawtooth', path: [300, 170, 100], formant: 900, formantTo: 380, formant2: 1800, q: 3, vibrato: 45 });
-  },
-  // 2 [1] "WOOF" — voiced-noise growl, energy in the speaker band
-  () => {
-    noise({ dur: 0.018, vol: 0.1, freq: 1500, slide: 700, q: 0.8 });
+    noise({ dur: 0.02, vol: 0.12, freq: 1200, slide: 500, q: 0.8 });
     growl({
-      dur: 0.26,
-      vol: 0.15,
-      f0: [300, 140],
-      jitter: 0.07,
-      noiseMix: 0.5,
-      formants: [[700, 1.8, 1], [1300, 2.6, 0.8], [2600, 3.5, 0.4]],
-      sweep: 0.55,
+      dur: 0.22, vol: 0.16, f0: [240, 110], jitter: 0.08, noiseMix: 0.45,
+      formants: [[600, 1.6, 1], [1150, 2.4, 0.8], [2400, 3, 0.35]],
+      open: 1.5, sweep: 0.45, drive: 4, rough: 0.5, roughHz: 48, attack: 0.008,
     });
+    noise({ at: 0.17, dur: 0.08, vol: 0.05, freq: 1400, slide: 2000, q: 0.7 }); // "f"
   },
-  // 3 [1] "ARF" — short, snappy, higher formants, quick cutoff
+  // 2 [1] "WOOF" — round wa-oo: big jaw swing, softer drive
   () => {
-    noise({ dur: 0.014, vol: 0.12, freq: 2200, slide: 900, q: 0.9 });
+    noise({ dur: 0.022, vol: 0.1, freq: 1000, slide: 450, q: 0.8 });
     growl({
-      dur: 0.15,
-      vol: 0.15,
-      f0: [420, 240],
-      jitter: 0.09,
-      noiseMix: 0.45,
-      formants: [[900, 2.4, 1], [1700, 3, 0.85], [3000, 4, 0.5]],
-      sweep: 0.5,
-      attack: 0.006,
+      dur: 0.28, vol: 0.16, f0: [200, 95], jitter: 0.07, noiseMix: 0.4,
+      formants: [[520, 1.5, 1], [1000, 2.2, 0.75], [2100, 3, 0.3]],
+      open: 1.7, sweep: 0.4, drive: 2.5, rough: 0.35, roughHz: 35, attack: 0.01,
     });
+    noise({ at: 0.22, dur: 0.09, vol: 0.045, freq: 1300, slide: 1900, q: 0.7 });
   },
-  // 4 [1] "BOOF" — big chesty dog: rough, slow, lots of low-mid body
+  // 3 [1] "RUFF" — gruff: heaviest distortion, fast flutter
+  () => {
+    noise({ dur: 0.016, vol: 0.12, freq: 1600, slide: 650, q: 0.9 });
+    growl({
+      dur: 0.18, vol: 0.16, f0: [280, 140], jitter: 0.1, noiseMix: 0.5,
+      formants: [[700, 1.8, 1], [1350, 2.6, 0.85], [2700, 3.2, 0.4]],
+      open: 1.35, sweep: 0.5, drive: 6, rough: 0.6, roughHz: 60, attack: 0.006,
+    });
+    noise({ at: 0.14, dur: 0.07, vol: 0.05, freq: 1600, slide: 2200, q: 0.7 });
+  },
+  // 4 [1] "ARF" — sharp and quick, mid-size dog
+  () => {
+    noise({ dur: 0.014, vol: 0.13, freq: 2000, slide: 800, q: 0.9 });
+    growl({
+      dur: 0.14, vol: 0.15, f0: [330, 170], jitter: 0.1, noiseMix: 0.5,
+      formants: [[850, 2, 1], [1600, 2.8, 0.8], [3000, 3.5, 0.45]],
+      open: 1.3, sweep: 0.5, drive: 5, rough: 0.45, roughHz: 70, attack: 0.005,
+    });
+    noise({ at: 0.11, dur: 0.06, vol: 0.05, freq: 1800, slide: 2400, q: 0.7 });
+  },
+  // 5 [1] "AWF" — breathy: mostly air, voice underneath
+  () => {
+    noise({ dur: 0.025, vol: 0.1, freq: 1100, slide: 480, q: 0.8 });
+    growl({
+      dur: 0.24, vol: 0.17, f0: [210, 120], jitter: 0.07, noiseMix: 0.7,
+      formants: [[580, 1.4, 1], [1100, 2, 0.7], [2300, 2.8, 0.35]],
+      open: 1.5, sweep: 0.45, drive: 3, rough: 0.3, roughHz: 40, attack: 0.01,
+    });
+    noise({ at: 0.18, dur: 0.1, vol: 0.06, freq: 1300, slide: 1800, q: 0.6 });
+  },
+  // 6 [1] "BOOF" — round 2's chesty keeper, now with the roughness kit
   () => {
     noise({ dur: 0.03, vol: 0.09, freq: 800, slide: 380, q: 0.7 });
     growl({
-      dur: 0.36,
-      vol: 0.16,
-      f0: [190, 105],
-      jitter: 0.05,
-      noiseMix: 0.4,
+      dur: 0.34, vol: 0.17, f0: [180, 100], jitter: 0.06, noiseMix: 0.4,
       formants: [[520, 1.6, 1], [1050, 2.2, 0.75], [2100, 3, 0.3]],
-      sweep: 0.6,
-      attack: 0.02,
+      open: 1.4, sweep: 0.55, drive: 3.5, rough: 0.5, roughHz: 40, attack: 0.015,
+    });
+    noise({ at: 0.27, dur: 0.1, vol: 0.05, freq: 1200, slide: 1700, q: 0.7 });
+  },
+];
+
+// Best-so-far picks from earlier rounds, kept separately so the ear
+// check can always go back. The app speaks with keeper[0] until a
+// round-3 option wins.
+const DOG_KEEPERS = [
+  // A [1] round 2 #4 "BOOF" — big chesty dog, exactly as heard then
+  () => {
+    noise({ dur: 0.03, vol: 0.09, freq: 800, slide: 380, q: 0.7 });
+    growl({
+      dur: 0.36, vol: 0.16, f0: [190, 105], jitter: 0.05, noiseMix: 0.4,
+      formants: [[520, 1.6, 1], [1050, 2.2, 0.75], [2100, 3, 0.3]],
+      sweep: 0.6, attack: 0.02,
     });
   },
-  // 5 [1] "YIP" — little dog: high, bright, very short
+  // B [1] round 2 #5 "YIP" — little dog, exactly as heard then
   () => {
     noise({ dur: 0.012, vol: 0.1, freq: 2800, slide: 1200, q: 1 });
     growl({
-      dur: 0.12,
-      vol: 0.13,
-      f0: [560, 380],
-      jitter: 0.11,
-      noiseMix: 0.4,
+      dur: 0.12, vol: 0.13, f0: [560, 380], jitter: 0.11, noiseMix: 0.4,
       formants: [[1150, 2.8, 1], [2200, 3.4, 0.9], [3600, 4, 0.5]],
-      sweep: 0.55,
-      attack: 0.005,
-      type: 'square',
-    });
-  },
-  // 6 [1] "RUFF-ruff" growl-tail — one bark that trails into a grumble
-  () => {
-    noise({ dur: 0.02, vol: 0.11, freq: 1700, slide: 600, q: 0.9 });
-    growl({
-      dur: 0.34,
-      vol: 0.15,
-      f0: [330, 190, 130],
-      jitter: 0.12,
-      noiseMix: 0.55,
-      formants: [[760, 2, 1], [1450, 2.8, 0.8], [2700, 3.6, 0.35]],
-      sweep: 0.45,
+      sweep: 0.55, attack: 0.005, type: 'square',
     });
   },
 ];
 
+// Round 3. The round-2 winners were the two VOICE options (squeak and
+// purr-click), not the thumps — so this round explores that family:
+// squeak shapes, click textures, and one grunt-to-squeak. All kept
+// well above the too-quiet floor that sank the round-2 thumps.
 const RABBIT_OPTIONS = [
-  // Thumps are the hard case: a 130Hz thud is nearly silent on a tablet
-  // speaker, so the impact has to be carried by a 300–800Hz "knock" with
-  // the low end only adding weight underneath.
-  // 1 [1] one deep foot thump (knock + low weight)
+  // 1 [1] squeak — rounder and lower than the keeper
+  () => voiced({ dur: 0.2, vol: 0.18, type: 'triangle', path: [650, 1050, 800], formant: 1700, q: 6, vibrato: 24 }),
+  // 2 [1] squeak with breath — same shape, a whisper of air on top
   () => {
-    noise({ dur: 0.1, vol: 0.3, freq: 480, slide: 220, q: 1.4 });
-    noise({ dur: 0.3, vol: 0.26, freq: 150, slide: 70, q: 1, type: 'lowpass' });
+    voiced({ dur: 0.18, vol: 0.17, type: 'triangle', path: [780, 1180, 900], formant: 1900, q: 6, vibrato: 26 });
+    noise({ dur: 0.16, vol: 0.05, freq: 2500, slide: 1600, q: 1 });
   },
-  // 2 [1] honk — the little grunt a happy rabbit makes
-  () => growl({ dur: 0.22, vol: 0.17, f0: [300, 220], jitter: 0.05, noiseMix: 0.35, formants: [[560, 2.4, 1], [1150, 3, 0.6]], sweep: 0.8 }),
-  // 3 [1] soft squeak
+  // 3 [1] squeak — falling: starts high, settles down (a little sigh-squeak)
+  () => voiced({ dur: 0.22, vol: 0.18, type: 'triangle', path: [1100, 850, 600], formant: 2000, formantTo: 1200, q: 6, vibrato: 22 }),
+  // 4 [1] click — crisper and brighter than the keeper
+  () => noise({ dur: 0.12, vol: 0.26, freq: 1200, slide: 700, q: 4 }),
+  // 5 [1] click with a soft knock underneath (one gesture)
+  () => {
+    noise({ dur: 0.16, vol: 0.24, freq: 950, slide: 620, q: 3.5 });
+    noise({ dur: 0.18, vol: 0.18, freq: 180, slide: 90, q: 1, type: 'lowpass' });
+  },
+  // 6 [1] grunt-squeak — a happy honk that rises at the end
+  () =>
+    growl({
+      dur: 0.2, vol: 0.18, f0: [300, 240], jitter: 0.05, noiseMix: 0.3,
+      formants: [[600, 2.4, 1], [1300, 3, 0.6]], sweep: 1.25, type: 'triangle',
+    }),
+];
+
+const RABBIT_KEEPERS = [
+  // A [1] round 2 #3 "soft squeak" — exactly as heard then
   () => voiced({ dur: 0.18, vol: 0.16, type: 'triangle', path: [780, 1180, 900], formant: 1900, q: 6, vibrato: 26 }),
-  // 4 [1] purr-click (contentment) — one short burst
+  // B [1] round 2 #4 "purr-click" — exactly as heard then
   () => noise({ dur: 0.2, vol: 0.24, freq: 950, slide: 620, q: 3.5 }),
-  // 5 [1] drum thump with room — deeper, longer tail
-  () => {
-    noise({ dur: 0.12, vol: 0.28, freq: 420, slide: 190, q: 1.2 });
-    noise({ dur: 0.36, vol: 0.24, freq: 120, slide: 60, q: 1.2, type: 'lowpass' });
-  },
-  // 6 [n] the original: two thumps, then a squeak
-  () => {
-    for (const at of [0, 0.19]) {
-      noise({ at, dur: 0.09, vol: 0.26, freq: 450, slide: 200, q: 1.4 });
-      noise({ at, dur: 0.12, vol: 0.2, freq: 190, slide: 90, q: 1, type: 'lowpass' });
-    }
-    voiced({ at: 0.4, dur: 0.12, vol: 0.14, type: 'triangle', path: [900, 1150], formant: 2000, q: 5 });
-  },
 ];
 
 const SLOTH_OPTIONS = [
@@ -402,17 +468,26 @@ const BIRD_OPTIONS = [
   () => voiced({ dur: 0.2, vol: 0.065, type: 'sine', path: [3400, 2300, 3100, 2600], formant: 2900, q: 3.5 }),
 ];
 
-// Which option each still-being-chosen voice uses (updated once the ear
-// check picks winners).
-// Chosen by ear on the LAN build. The unused options stay in their banks
-// on purpose: they are a ready-made variety pool (see BACKLOG).
-const CHOICE = { dog: 0, rabbit: 0, bird: 2, sloth: 0 };
+// Which option each voice uses. LOCKED by ear check (2026-08-02):
+// bird = option 3, sloth = option 2. Dog and rabbit are still being
+// chosen — until round 3 settles, the app speaks with keeper A (the
+// best-so-far pick), marked here as -1. Unused options stay in their
+// banks on purpose: they are a ready-made variety pool (see BACKLOG).
+const CHOICE = { dog: -1, rabbit: -1, bird: 2, sloth: 1 };
 
 export const VOICE_OPTIONS = { dog: DOG_OPTIONS, rabbit: RABBIT_OPTIONS, bird: BIRD_OPTIONS, sloth: SLOTH_OPTIONS };
+export const VOICE_KEEPERS = { dog: DOG_KEEPERS, rabbit: RABBIT_KEEPERS };
+
+const pickVoice = (species) =>
+  CHOICE[species] >= 0 ? VOICE_OPTIONS[species][CHOICE[species]] : VOICE_KEEPERS[species][0];
 
 // Play one specific option — the chooser page only.
 export function playVoiceOption(species, index) {
   safe(() => VOICE_OPTIONS[species]?.[index]?.());
+}
+
+export function playVoiceKeeper(species, index) {
+  safe(() => VOICE_KEEPERS[species]?.[index]?.());
 }
 
 // Per-species voices. Every one is deliberately soft (the charter asks
@@ -425,13 +500,13 @@ const VOICES = {
   // transient, a voiced body whose formants SWEEP down (that's the
   // "oo"), and a breathy tail (the "f"). One oscillator through one
   // fixed filter can only ever be a beep.
-  dog: () => DOG_OPTIONS[CHOICE.dog](),
+  dog: () => pickVoice('dog')(),
   // meow: up then down, with the vibrato a cat's throat gives it
   cat: () => {
     voiced({ dur: 0.45, vol: 0.1, type: 'sawtooth', path: [520, 780, 620, 430], formant: 1300, q: 7, vibrato: 22 });
     noise({ at: 0.02, dur: 0.05, vol: 0.04, freq: 1800, q: 1 });
   },
-  rabbit: () => RABBIT_OPTIONS[CHOICE.rabbit](),
+  rabbit: () => pickVoice('rabbit')(),
   // guinea pig "wheek": a rising squeal that keeps climbing
   guinea: () => {
     voiced({ dur: 0.34, vol: 0.1, type: 'sawtooth', path: [780, 1450, 1650], formant: 2200, q: 8, vibrato: 30 });
@@ -465,7 +540,9 @@ export const CRITTER_SPECIES = Object.keys(VOICES);
 const SOUND_WORDS = {
   dog: ['bark', 'barks'],
   cat: ['meow', 'meows'],
-  rabbit: ['thump', 'thumps'],
+  // both round-2 keepers are voice sounds, not foot thumps — the
+  // counting question has to name what the child actually hears
+  rabbit: ['squeak', 'squeaks'],
   guinea: ['squeak', 'squeaks'],
   bird: ['chirp', 'chirps'],
   sloth: ['sigh', 'sighs'],

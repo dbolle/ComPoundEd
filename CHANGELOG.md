@@ -3,6 +3,26 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.47.1 — 2026-08-02
+
+Animal voices, round 3 of the ear check.
+
+- **Bird (option 3) and sloth (option 2) are locked in.** 🎉
+- **Six new dog barks.** Round 2 still read as beeps because the voice
+  was clean — a smooth tone through filters is a synth note however
+  well it's shaped. Every new option adds the three things a real bark
+  has: distortion on the voice (pressed phonation), a sub-audio growl
+  flutter in the loudness, and a jaw gesture (formants snap open, then
+  close — the "w-AH-oo"), plus a breathy "f" release. Your round-2
+  picks (BOOF, YIP) are kept as A/B keeper buttons and can still win.
+- **Six new rabbit voices** in the squeak/click family the round-2
+  winners came from, all above the volume floor that sank the thumps;
+  the two winners are kept as A/B keepers.
+- Until round 3 settles, the app speaks with each keeper A. Because
+  both rabbit keepers are voice sounds rather than foot thumps, the
+  counting game now asks "how many squeaks?" — the question must name
+  what the child actually hears.
+
 ## v1.47.0 — 2026-08-02
 
 Economy hardening finished, following four product decisions.
