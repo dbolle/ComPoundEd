@@ -139,6 +139,10 @@ export function storeScreen(el, params, ctx) {
     for (const b of checkoutEl.querySelectorAll('[data-wearer]:not([disabled])')) {
       b.addEventListener('click', () => runCheckout(item, b.dataset.wearer));
     }
+    checkoutEl.querySelector('[data-restart]').addEventListener('click', () => {
+      for (const k of Object.keys(paying)) delete paying[k];
+      render();
+    });
     checkoutEl.querySelector('[data-cancel]').addEventListener('click', closeCheckout);
   }
 
@@ -183,8 +187,22 @@ export function storeScreen(el, params, ctx) {
         <div class="little-numeral" data-paid>0¢</div>
         <button class="btn" data-pay disabled>💰 Pay ${formatPaw(item.price)}</button>
       </div>
-      <button class="btn ghost small" data-cancel>✕ Not today</button>`;
+      <div class="nav-row">
+        <button class="btn ghost small" data-restart>↩️ Start over</button>
+        <button class="btn ghost small" data-cancel>✕ Not today</button>
+      </div>`;
     const traysEl = checkoutEl.querySelector('[data-trays]');
+    // Could the child still reach the exact price after handing this coin
+    // over? Without this a legal-looking tap leads to a dead end where
+    // every button is greyed out (243 of 282 payable combinations had
+    // one) — recovery existed but nothing said so.
+    const canFinish = (denomId) => {
+      const left = { ...wallet };
+      for (const [d, n] of Object.entries(paying)) left[d] = (left[d] ?? 0) - n;
+      left[denomId] = (left[denomId] ?? 0) - 1;
+      const remaining = item.price - paidCents() - DENOMS.find((x) => x.id === denomId).cents;
+      return remaining === 0 || canMakeExact(left, remaining);
+    };
     const render = () => {
       const paid = paidCents();
       traysEl.innerHTML = DENOMS.map((d) => {
@@ -194,7 +212,9 @@ export function storeScreen(el, params, ctx) {
           <span class="coin ${d.id}"></span>
           <span class="wr-label">${escapeHtml(d.label)}</span>
           <span class="wallet-count">×${have}</span>
-          <button class="btn ghost small" data-give="${d.id}" ${have === 0 || paid + d.cents > item.price ? 'disabled' : ''}>➕ Pay one</button>
+          <button class="btn ghost small" data-give="${d.id}" ${
+            have === 0 || paid + d.cents > item.price || !canFinish(d.id) ? 'disabled' : ''
+          }>➕ Pay one</button>
         </div>`;
       }).join('');
       checkoutEl.querySelector('[data-pile]').innerHTML =
@@ -223,8 +243,10 @@ export function storeScreen(el, params, ctx) {
         });
       }
     };
-    checkoutEl.querySelector('[data-pay]').addEventListener('click', () => {
-      if (paidCents() === item.price) completePurchase(item, forId, { ...paying });
+    checkoutEl.querySelector('[data-pay]').addEventListener('click', (e) => {
+      if (paidCents() !== item.price) return;
+      e.currentTarget.disabled = true; // a double-tap used to "fail" after succeeding
+      completePurchase(item, forId, { ...paying });
     });
     checkoutEl.querySelector('[data-cancel]').addEventListener('click', closeCheckout);
     render();

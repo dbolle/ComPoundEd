@@ -5,9 +5,34 @@
 // only new state — profile.gear.placements, a preference merged newer-wins.
 
 import { GEAR_ACCESSORIES, TOYS } from '../art/gear.js';
-import { ensureBucks, balanceCents, ledgerState, txnAt, storeEpoch } from './money.js';
+import { ensureBucks, balanceCents, ledgerState, txnAt, storeEpoch, coinCounts, canMakeExact } from './money.js';
+
+const COIN_CENTS = { buck: 100, quarter: 25, dime: 10, nickel: 5, penny: 1 };
 import { touchMeta } from '../data/schema.js';
 import { epochOfId } from './ledger.js';
+
+// The epoch floored by the DATA: if the stored value is ever lost or
+// mangled (a bad merge, a non-integer), purchase ids still carry it — so
+// a parent's fresh start can never be silently undone (audit F8).
+export function effectiveEpoch(profile) {
+  let e = storeEpoch(profile);
+  for (const t of ensureBucks(profile).txns) {
+    if (t.reason !== 'buy') continue;
+    const k = epochOfId(t.id);
+    if (k > e) e = k;
+  }
+  return e;
+}
+
+// Placements belong to the store epoch they were made in. Scoping them
+// means a fresh start cannot be undone by a stale device whose cosmetic
+// change happens to carry a newer metaAt (audit M5) — and re-bought items
+// arrive in the toy box instead of pre-placed.
+function placementsFor(profile) {
+  const gear = profile.gear ?? {};
+  const epoch = effectiveEpoch(profile);
+  return (gear.placementEpoch ?? 1) < epoch ? {} : (gear.placements ?? {});
+}
 
 export const CATALOG = [...GEAR_ACCESSORIES, ...TOYS];
 
@@ -31,7 +56,7 @@ export function buyTxnId(itemId, forId = null, epoch = 1) {
 // check is what made toys disappear mid-play — v1.45.0). Older ids,
 // including the retired `~n` retry shapes, still count within epoch 1.
 export function isOwned(profile, itemId, forId = null) {
-  const epoch = storeEpoch(profile);
+  const epoch = effectiveEpoch(profile);
   const base = buyTxnId(itemId, forId, epoch);
   const legacy = buyTxnId(itemId, forId); // epoch-1 shape
   for (const t of ensureBucks(profile).txns) {
@@ -48,7 +73,7 @@ export function isOwned(profile, itemId, forId = null) {
 // an old retry id) must not show the same toy twice in the box, and
 // purchases from earlier store epochs don't appear at all.
 export function ownedGear(profile) {
-  const epoch = storeEpoch(profile);
+  const epoch = effectiveEpoch(profile);
   const seen = new Set();
   const out = [];
   for (const t of ensureBucks(profile).txns) {
@@ -70,7 +95,21 @@ export function buyGear(profile, itemId, forId = null, now = Date.now(), coins =
   if (item.tier === 'gift' && !forId) return null;
   if (isOwned(profile, itemId, forId)) return null;
   if (balanceCents(profile) < item.price) return null;
-  const buyId = buyTxnId(itemId, forId, storeEpoch(profile));
+  // The tray must actually pay the price, with coins the child holds —
+  // otherwise "change" gets invented downstream (audit M1). Phase 7 will
+  // want real change; that belongs in the ledger as its own event, not in
+  // a repair function.
+  if (coins) {
+    const held = coinCounts(profile);
+    let paid = 0;
+    for (const [denom, n] of Object.entries(coins)) {
+      if (!Number.isInteger(n) || n < 0) return null;
+      if (n > (held[denom] ?? 0)) return null;
+      paid += (COIN_CENTS[denom] ?? 0) * n;
+    }
+    if (paid !== item.price) return null;
+  }
+  const buyId = buyTxnId(itemId, forId, effectiveEpoch(profile));
   now = txnAt(profile, now); // a purchase must replay after what funded it
   const txn = {
     id: buyId,
@@ -111,7 +150,7 @@ export function placementKey(itemId, forId = null) {
 }
 
 export function placementOf(profile, itemId, forId = null) {
-  return profile.gear?.placements?.[placementKey(itemId, forId)] ?? null;
+  return placementsFor(profile)[placementKey(itemId, forId)] ?? null;
 }
 
 // Moves an owned item onto a wearer (or null = closet). Gifts only ever
@@ -126,13 +165,14 @@ export function placeGear(profile, itemId, wearerId, giftFor = null) {
   if (item.tier === 'gift' && wearerId != null && wearerId !== forId) return false;
   if (!profile.gear) profile.gear = { placements: {} };
   profile.gear.placements[placementKey(itemId, forId)] = wearerId ?? null;
+  profile.gear.placementEpoch = effectiveEpoch(profile); // stamp the epoch
   touchMeta(profile); // placements are a choice — survive stale-device merges
   return true;
 }
 
 // The gear a wearer currently has on — feeds the accessories pipeline.
 export function placedOn(profile, wearerId) {
-  const placements = profile.gear?.placements ?? {};
+  const placements = placementsFor(profile);
   return Object.entries(placements)
     .filter(([key, who]) => {
       if (who !== wearerId) return false;
@@ -145,7 +185,7 @@ export function placedOn(profile, wearerId) {
 // Toys placed with a wearer (placedOn filters to wearables for the
 // accessories pipeline — this is its toy sibling).
 export function toysOn(profile, wearerId) {
-  const placements = profile.gear?.placements ?? {};
+  const placements = placementsFor(profile);
   return Object.entries(placements)
     .filter(([key, who]) => {
       if (who !== wearerId) return false;
@@ -161,7 +201,7 @@ export function boxedToys(profile) {
   return ownedGear(profile)
     .filter(({ item }) => itemOf(item)?.tier === 'toy')
     .map(({ item }) => item)
-    .filter((id) => !(profile.gear?.placements?.[id]));
+    .filter((id) => !placementsFor(profile)[id]);
 }
 
 // A grown-up "fresh start in the store" (v1.45.0): bump the epoch so
@@ -172,13 +212,30 @@ export function boxedToys(profile) {
 // items behind them are no longer owned.
 export function resetStoreEpoch(profile) {
   const bucks = ensureBucks(profile);
-  bucks.epoch = (bucks.epoch ?? 1) + 1;
+  bucks.epoch = effectiveEpoch(profile) + 1;
   // Placements are TOMBSTONED (set to null), not deleted: placement maps
   // merge key-wise, so an emptied map would simply be refilled by the
   // next sync with any device that still had them.
   const cleared = {};
   for (const key of Object.keys(profile.gear?.placements ?? {})) cleared[key] = null;
-  profile.gear = { ...(profile.gear ?? {}), placements: cleared };
+  profile.gear = { ...(profile.gear ?? {}), placements: cleared, placementEpoch: bucks.epoch };
+  // A child who only ever earned Paw Bucks would hold nothing but Paw
+  // Bucks after a fresh start and could not pay for a 10¢ toy without a
+  // trip to the piggy bank first. Break one buck into change here — as a
+  // real, net-zero ledger event (deterministic id, merge-safe), not as a
+  // hidden adjustment.
+  const cheapest = Math.min(...CATALOG.map((i) => i.price));
+  if (balanceCents(profile) >= 100 && !canMakeExact(coinCounts(profile), cheapest)) {
+    const gid = `reset-change@${bucks.epoch}`;
+    const at = txnAt(profile);
+    bucks.txns.push(
+      { id: `${gid}-give`, group: gid, at, cents: -100, denom: 'buck', count: -1, reason: 'swap' },
+      { id: `${gid}-quarter`, group: gid, at, cents: 50, denom: 'quarter', count: 2, reason: 'swap' },
+      { id: `${gid}-dime`, group: gid, at, cents: 30, denom: 'dime', count: 3, reason: 'swap' },
+      { id: `${gid}-nickel`, group: gid, at, cents: 15, denom: 'nickel', count: 3, reason: 'swap' },
+      { id: `${gid}-penny`, group: gid, at, cents: 5, denom: 'penny', count: 5, reason: 'swap' }
+    );
+  }
   touchMeta(profile); // a deliberate parent action, not a play save
   return bucks.epoch;
 }

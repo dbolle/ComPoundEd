@@ -7,8 +7,16 @@ import { balanceCents } from '../src/engine/money.js';
 import { COLLAR_COLORS, collarColorsFor, dogSVG, getDog, wornFor } from '../src/art/dogs.js';
 import { seedProfile, selectProfile, playQuestions, norm, stat, uniqueName } from './helpers.mjs';
 
+// Fund with REAL coins: recording 2000c as `count: 1` made every wallet
+// in this file inconsistent, so no coin assertion here could have caught
+// anything (audit B's test critique).
 const fund = (p, cents) => {
-  p.pawBucks.txns.push({ id: `seed-${cents}`, at: Date.now(), cents, denom: 'buck', count: 1, reason: 'sitting' });
+  const bucks = Math.floor(cents / 100);
+  const rest = cents - bucks * 100;
+  // ids must stay DETERMINISTIC from the amount: two devices funded the
+  // same way have to coalesce on merge, not double the money
+  if (bucks) p.pawBucks.txns.push({ id: `seed-b-${bucks}`, at: 1, cents: bucks * 100, denom: 'buck', count: bucks, reason: 'sitting' });
+  if (rest) p.pawBucks.txns.push({ id: `seed-r-${rest}`, at: 1, cents: rest, denom: 'penny', count: rest, reason: 'sitting' });
 };
 
 test('catalog: every item priced in 5¢ steps with a tier; schema v15 adds placements', () => {

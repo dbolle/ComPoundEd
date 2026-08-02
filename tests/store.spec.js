@@ -25,7 +25,7 @@ test('canMakeExact + spend companions: coins really leave the wallet', () => {
   const txn = buyGear2(p, 'bowl', null, Date.now(), coins);
   expect(txn.cents).toBe(-90);
   expect(balanceCents(p)).toBe(0);
-  expect(coinCounts(p)).toEqual({ quarter: 0, dime: 0 });
+  expect(coinCounts(p)).toEqual({}); // spent to zero — empty piles are dropped
 });
 
 test('swaps: both directions, net-zero balance, round trip restores counts', () => {
@@ -33,13 +33,13 @@ test('swaps: both directions, net-zero balance, round trip restores counts', () 
   fund(p, [['dime', 10, 10]]);
   const before = balanceCents(p);
   expect(swapCoins(p, SWAPS.find((r) => r.give.denom === 'dime' && r.get.denom === 'buck'))).toBe(true);
-  expect(coinCounts(p)).toEqual({ dime: 0, buck: 1 });
+  expect(coinCounts(p)).toEqual({ buck: 1 });
   expect(balanceCents(p)).toBe(before);
   expect(swapCoins(p, SWAPS.find((r) => r.give.denom === 'buck' && r.get.denom === 'quarter'))).toBe(true);
-  expect(coinCounts(p)).toEqual({ dime: 0, buck: 0, quarter: 4 });
+  expect(coinCounts(p)).toEqual({ quarter: 4 });
   expect(swapCoins(p, SWAPS.find((r) => r.give.denom === 'quarter' && r.get.denom === 'buck'))).toBe(true);
   expect(swapCoins(p, SWAPS.find((r) => r.give.denom === 'buck' && r.get.denom === 'dime'))).toBe(true);
-  expect(coinCounts(p)).toEqual({ dime: 10, buck: 0, quarter: 0 }); // full circle
+  expect(coinCounts(p)).toEqual({ dime: 10 }); // full circle
   expect(balanceCents(p)).toBe(before);
   expect(swapCoins(p, SWAPS.find((r) => r.give.denom === 'penny'))).toBe(false); // no pennies
 });
