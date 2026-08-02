@@ -7,7 +7,8 @@ reconsider after calibration.
 
 ## Where we are
 
-- **v1.36.x**, schema v17 (saves v17), 220+-test suite green, deployed
+- **v1.47.x**, schema v18 (saves v18), 295-test suite green on both CI
+  lanes, deployed
   on LAN (https://compounded.lan + :8091) + GitHub Pages (CI-gated);
   versions in Grown-Ups footer, releases in CHANGELOG.md.
 - Big-kid mode: ×1–12 and ÷ tracks (Leitner, adaptive speed bar, hints,
@@ -57,9 +58,25 @@ reconsider after calibration.
    sync sidecar with conditional writes + family key (v1.38); durable
    delete/restore/purge lifecycle (v1.39); convergent economy replay
    (v1.40); storage reconciliation + mid-trail readiness fix (v1.41).
-7. **Phase 7 — Money math track.** Coin counting (2.MD.8), read-your-own
-   wallet, totals and change — Paw Bucks becomes curriculum.
-8. **Phase 8 — Beyond.** Fraction equivalence recognition first (highest
+7. **Economy hardening — ✅ SHIPPED v1.42–v1.47** (after a live toy
+   incident and two independent audits): purchases never un-owned,
+   cross-device overspend forgiven, per-profile store reset, wallet
+   coins always equal the balance, randomized invariant suite,
+   snapshot-locked prices, versioned payout rates, change-making
+   contract, damaged entries repaired-or-surfaced.
+8. **Phase 7 — Money math track. NEXT.** Coin counting (2.MD.8),
+   read-your-own wallet, totals and change — Paw Bucks becomes
+   curriculum. **The checkout's counting-out screen is the first
+   piece**: `buyGear` already accepts overpayment plus counted-back
+   change and refuses anything that doesn't balance, but the UI still
+   only offers exact change, so no child can reach it yet.
+
+   Also open from the economy audits: stale placements can pre-place a
+   re-bought item (partly scoped by store epoch); `profileSignature`
+   memoization; assorted minor findings (A-F5 malformed-event edges,
+   A-F10, B-m2/m3/m7/m8/m10). Ledger compaction stays deferred — it
+   needs its own lossless cross-device design.
+9. **Phase 8 — Beyond.** Fraction equivalence recognition first (highest
    predictive value), then mental math within 100/1000, 10-more/less,
    squares/primes.
 
