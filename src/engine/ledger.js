@@ -17,6 +17,24 @@ const isInt = (x) => Number.isInteger(x);
 
 // Validation per event type. Malformed events are excluded from replay
 // (quarantined) but NEVER removed from the raw history.
+// Coerce the damage that is unambiguous (a number stored as text by a
+// bad sync or a hand-edit) so a child's earning is not lost to a typo.
+// Anything ambiguous is left alone and reported instead (owner decision,
+// 2026-08-02: repair what's safely repairable, surface the rest).
+export function repairEvent(t) {
+  if (!t || typeof t !== 'object') return t;
+  const out = { ...t };
+  for (const k of ['cents', 'count', 'at']) {
+    if (typeof out[k] === 'string' && out[k].trim() !== '' && Number.isFinite(Number(out[k]))) {
+      const n = Number(out[k]);
+      if (Number.isInteger(n) || k === 'at') out[k] = n;
+    }
+  }
+  if (typeof out.denom === 'string') out.denom = out.denom.toLowerCase();
+  if (typeof out.reason === 'string') out.reason = out.reason.toLowerCase();
+  return out;
+}
+
 export function validEvent(t) {
   if (!t || typeof t !== 'object') return false;
   if (typeof t.id !== 'string' || !t.id) return false;
@@ -47,7 +65,7 @@ export function epochOfId(id = '') {
 // alone.
 export function groupOf(t) {
   if (typeof t.group === 'string' && t.group) return t.group;
-  const buy = /^(buy-.+?)(-c-[a-z]+)?$/.exec(t.id);
+  const buy = /^(buy-.+?)(-[cr]-[a-z]+)?$/.exec(t.id);
   // Retired `~n` retry ids (v1.40-1.44) are the SAME purchase: grouping
   // them together means the duplicate charge disappears while ownership
   // is unaffected. Real ledgers still contain them.
@@ -183,11 +201,21 @@ export function replayLedger(txns = [], epoch = 1) {
 
   const quarantined = new Set();
   const voided = new Set();
+  const needsAttention = [];
   const byId = new Map();
-  for (const t of txns) {
+  const repaired = new Map(); // original -> coerced, applied below
+  for (const raw of txns) {
+    let t = raw;
     if (!validEvent(t)) {
-      if (t?.id) quarantined.add(t.id);
-      continue;
+      const fixed = repairEvent(t);
+      if (validEvent(fixed)) {
+        repaired.set(raw, fixed); // safely repairable — keep the value
+        t = fixed;
+      } else {
+        if (t?.id) quarantined.add(t.id);
+        needsAttention.push({ id: t?.id ?? '(no id)', why: 'unreadable', raw: t });
+        continue;
+      }
     }
     const fp = fingerprintOf(t);
     let set = byId.get(t.id);
@@ -201,7 +229,9 @@ export function replayLedger(txns = [], epoch = 1) {
   // swaps — the live incident behind v1.45.0.
   for (const [id, fps] of byId) {
     if (fps.size <= 1) continue;
-    const variants = txns.filter((t) => t.id === id && validEvent(t));
+    const variants = txns
+      .map((x) => repaired.get(x) ?? x)
+      .filter((t) => t.id === id && validEvent(t));
     const centsDiffer = new Set(variants.map((t) => t.cents)).size > 1;
     if (centsDiffer) quarantined.add(id);
   }
@@ -209,10 +239,11 @@ export function replayLedger(txns = [], epoch = 1) {
   // group the replayable events
   const groups = new Map(); // groupId -> { at, events }
   const seenFp = new Set();
-  for (const t of txns) {
+  for (const raw of txns) {
+    const t = repaired.get(raw) ?? raw;
     if (!validEvent(t) || quarantined.has(t.id)) continue;
     // a spend/buy from an earlier store epoch is void: it never happened
-    if ((t.reason === 'buy' || t.reason === 'spend') && epochOfId(t.id) < epoch) {
+    if ((t.reason === 'buy' || t.reason === 'spend' || t.reason === 'change') && epochOfId(t.id) < epoch) {
       voided.add(groupOf(t));
       continue;
     }
@@ -250,6 +281,7 @@ export function replayLedger(txns = [], epoch = 1) {
   let low = 0; // worst underwater point — what gets forgiven
   const counts = {};
   const accepted = new Set();
+  const owned = new Set(); // "item|wearer" for every purchase in this epoch
   for (const [gid, { events: raw }] of ordered) {
     // One purchase per group. The retired `~n` retry ids are the SAME
     // purchase recorded twice (v1.40-1.44 created them when a toy looked
@@ -293,6 +325,9 @@ export function replayLedger(txns = [], epoch = 1) {
     // next swap and left the button doing nothing (audit F1/C1/I8).
     // Correcting per group means the tracked mix always equals what the
     // child can spend, so a swap is always a real move.
+    for (const t of events) {
+      if (t.reason === 'buy' && t.item) owned.add(`${t.item}|${t.for ?? ''}`);
+    }
     const target = balance - low; // what the child is shown (incl. forgiveness)
     const drift = coinsValue(counts) - Math.max(0, target);
     if (drift > 0) payFromCounts(counts, drift);
@@ -311,6 +346,15 @@ export function replayLedger(txns = [], epoch = 1) {
     // child's future earnings (v1.46.0): the shortfall is added back, so
     // "forgiven" is literally true instead of merely displayed.
     forgiven: low < 0 ? -low : 0,
+    // Entries a grown-up should look at: nothing is silently dropped.
+    needsAttention: needsAttention.concat(
+      [...quarantined].map((id) => ({ id, why: 'two different amounts recorded', raw: null }))
+    ),
+    repairedCount: repaired.size,
+    // Ownership as a SET, computed in the pass we are already making —
+    // isOwned used to rescan every transaction per catalogue item, which
+    // dominated store-render cost (owner decision: optimize reads).
+    owned,
   };
   memo.set(txns, { digest, result });
   return result;

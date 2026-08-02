@@ -8,7 +8,7 @@
 // counterexample is reproducible with one number.
 import { test, expect } from '@playwright/test';
 import { newProfile, mergeProfiles, migrateProfile } from '../src/data/schema.js';
-import { replayLedger } from '../src/engine/ledger.js';
+import { replayLedger, epochOfId } from '../src/engine/ledger.js';
 import {
   balanceCents,
   trueBalanceCents,
@@ -20,6 +20,11 @@ import {
   ensureBucks,
   SWAPS,
   DENOMS,
+  SIT_PAY,
+  FACT_MASTERY_PAY,
+  SET_MASTERY_PAY,
+  POLISH_PAY,
+  RATE_VERSION,
 } from '../src/engine/money.js';
 import { buyGear, isOwned, ownedGear, resetStoreEpoch, effectiveEpoch, CATALOG } from '../src/engine/gearshop.js';
 import { profileSignature } from '../src/data/canonical.js';
@@ -246,4 +251,89 @@ test('catalog and wearer ids never contain the characters the ledger parses', ()
   for (const item of CATALOG) {
     expect(item.id, `${item.id} is parser-safe`).not.toMatch(/[@~]|-c-/);
   }
+});
+
+// PRODUCT RULE (owner, 2026-08-02): once an item is listed in the
+// production store its price is FIXED forever. A price change would give
+// the same purchase id two different amounts across devices, and the
+// ledger would quarantine both — charging nothing and handing the item
+// over free. The snapshot below makes that rule mechanical: adding items
+// is fine, repricing an existing one fails here.
+import PRICE_LOCK from './fixtures-store-prices.json' with { type: 'json' };
+
+test('listed prices never change (add freely, reprice never)', () => {
+  for (const item of CATALOG) {
+    const locked = PRICE_LOCK[item.id];
+    if (locked === undefined) continue; // a new item — nothing to honour yet
+    expect(
+      item.price,
+      `${item.id} was listed at ${locked}c. Prices are fixed once listed: ` +
+        `a repriced id makes the same purchase worth two amounts across devices, ` +
+        `which the ledger quarantines (item free, nothing charged). ` +
+        `List a NEW item id instead.`
+    ).toBe(locked);
+  }
+});
+
+// PRODUCT RULE (owner, 2026-08-02): payout amounts stay tunable, but an
+// amount may only change together with its rate version — otherwise the
+// same earning exists at two amounts across devices and the ledger voids
+// both, silently costing the child that earning.
+import RATE_LOCK from './fixtures-rates.json' with { type: 'json' };
+
+test('a payout amount cannot change without bumping its rate version', () => {
+  const current = {
+    sitting: { cents: SIT_PAY.cents, v: RATE_VERSION.sitting },
+    mastery: { cents: FACT_MASTERY_PAY.cents, v: RATE_VERSION.mastery },
+    set: { cents: SET_MASTERY_PAY.cents, v: RATE_VERSION.set },
+    polish: { cents: POLISH_PAY.cents, v: RATE_VERSION.polish },
+    skill: { cents: 1, v: RATE_VERSION.skill },
+  };
+  for (const [reason, { cents, v }] of Object.entries(current)) {
+    const locked = RATE_LOCK[reason];
+    if (!locked) continue;
+    if (cents !== locked.cents) {
+      expect(
+        v,
+        `the ${reason} payout changed from ${locked.cents}c to ${cents}c — bump ` +
+          `RATE_VERSION.${reason} (to ${locked.v + 1}) so re-rated earnings get their own ids, ` +
+          `then update tests/fixtures-rates.json`
+      ).toBeGreaterThan(locked.v);
+    }
+  }
+});
+
+test('rate tags and store epochs cannot be confused for each other', () => {
+  // `@rN` (rate) must never parse as `@N` (store epoch)
+  expect(epochOfId('mastery-mul-3x4@r2')).toBe(1);
+  expect(epochOfId('buy-crown@2')).toBe(2);
+  expect(epochOfId('buy-crown@2-c-buck')).toBe(2);
+});
+
+test('the child counts the change, and the sum has to be right', () => {
+  const p = newProfile('Change');
+  p.pawBucks.txns.push({ id: 'q', at: 1, cents: 100, denom: 'quarter', count: 4, reason: 'set' });
+  // a 10c toy paid with a quarter: 15c must come back
+  expect(buyGear(p, 'mouse', null, Date.now(), { quarter: 1 }, { dime: 1, nickel: 1 })).toBeTruthy();
+  expect(balanceCents(p)).toBe(90);
+  expect(coinValue(coinCounts(p))).toBe(90);
+  // wrong change is refused outright — no "close enough"
+  const q = newProfile('BadChange');
+  q.pawBucks.txns.push({ id: 'q', at: 1, cents: 100, denom: 'quarter', count: 4, reason: 'set' });
+  expect(buyGear(q, 'mouse', null, Date.now(), { quarter: 1 }, { dime: 1 })).toBe(null); // 5c short
+  expect(buyGear(q, 'mouse', null, Date.now(), { quarter: 1 }, { quarter: 1 })).toBe(null); // free toy
+  expect(balanceCents(q)).toBe(100); // nothing happened
+});
+
+test('a damaged entry is repaired when that is unambiguous, and surfaced when it is not', () => {
+  const p = newProfile('Damaged');
+  p.pawBucks.txns.push(
+    { id: 'ok', at: 1, cents: 100, denom: 'buck', count: 1, reason: 'set' },
+    { id: 'typed', at: 2, cents: '5', denom: 'NICKEL', count: '1', reason: 'mastery' }, // repairable
+    { id: 'junk', at: 3, cents: 'lots', denom: 'dime', count: 1, reason: 'sitting' } // not
+  );
+  const st = replayLedger(p.pawBucks.txns, 1);
+  expect(balanceCents(p), 'the repairable earning still counts').toBe(105);
+  expect(st.repairedCount).toBe(1);
+  expect(st.needsAttention.map((n) => n.id)).toContain('junk');
 });

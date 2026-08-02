@@ -3,6 +3,31 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.47.0 — 2026-08-02
+
+Economy hardening finished, following four product decisions.
+
+- **Listed prices are now fixed by the build**, not just by intention: a
+  snapshot test refuses any change to an already-listed price (adding new
+  items stays free). Repricing an id would make one purchase worth two
+  amounts across devices, which costs the child the item or the coins.
+- **Payout rates stay tunable, safely.** Changing an amount now requires
+  bumping that reward's version, which gives the re-rated earnings their
+  own identity so old and new coexist. The build fails if an amount moves
+  without it.
+- **The store can take more than the exact price.** A child may hand over
+  a quarter for a 10¢ toy and count the change back — and the purchase is
+  refused unless the arithmetic is exactly right. (The counting-out screen
+  itself comes with Phase 7; the rules underneath are in place.)
+- **A damaged ledger entry is repaired when the fix is obvious** (a number
+  stored as text) instead of being silently worth nothing; anything
+  genuinely unreadable is listed in Grown-Ups so a missing reward can be
+  explained rather than lost.
+- The store is markedly faster on a long history (three screens' worth of
+  bookkeeping went from 58ms to 18ms at today's size, and from 310ms to
+  72ms at 5,000 entries) — ownership is now answered from one pass
+  instead of rescanning the whole history for every item.
+
 ## v1.46.0 — 2026-08-01
 
 Two independent audits of the money code, and the fixes they found. The

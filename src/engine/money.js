@@ -21,6 +21,18 @@ export const DENOMS = [
 
 // Deliberately slow faucet (easier to turn up than down): a paw dime per
 // completed pet-sitting visit, first two visits per day.
+// RATE VERSIONS (owner decision, 2026-08-02). Payout amounts stay
+// tunable — but the SAME earning must never exist at two amounts, or the
+// ledger sees a conflict and voids both, silently costing the child that
+// earning. So an amount change REQUIRES bumping its version here: from
+// v2 on, ids carry the version (`mastery-mul-3x4@r2`), which makes the
+// re-rated earning a genuinely new event that coexists with the old one.
+// tests/economy-invariants.spec.js fails if an amount moves without a
+// version bump. (`@rN` cannot collide with the store epoch's `@N` — the
+// epoch parser only reads digits.)
+export const RATE_VERSION = { sitting: 1, mastery: 1, set: 1, polish: 1, skill: 1 };
+export const rateTag = (reason) => (RATE_VERSION[reason] > 1 ? `@r${RATE_VERSION[reason]}` : '');
+
 export const SIT_PAY = { denom: 'dime', cents: 10 };
 export const SIT_PAID_VISITS_PER_DAY = 2;
 
@@ -41,6 +53,7 @@ export const REASON_LABELS = {
   skill: 'new number known',
   buy: 'pet store',
   swap: 'coin swap',
+  change: 'change back',
   spend: 'coins paid',
 };
 
@@ -298,7 +311,7 @@ function hasTxn(profile, id) {
 export function earnFactMastery(profile, a, b, track, now = Date.now()) {
   const sep = track === 'add' || track === 'sub' ? '+' : 'x'; // +/− share family keys
   const key = a <= b ? `${a}${sep}${b}` : `${b}${sep}${a}`;
-  const id = `mastery-${track}-${key}`;
+  const id = `mastery-${track}-${key}${rateTag('mastery')}`;
   if (hasTxn(profile, id)) return null;
   const txn = {
     id,
@@ -313,7 +326,7 @@ export function earnFactMastery(profile, a, b, track, now = Date.now()) {
 }
 
 export function earnSetMastery(profile, table, track, now = Date.now()) {
-  const id = `set-${track}-${table}`;
+  const id = `set-${track}-${table}${rateTag('set')}`;
   if (hasTxn(profile, id)) return null;
   const txn = {
     id,
@@ -330,7 +343,7 @@ export function earnSetMastery(profile, table, track, now = Date.now()) {
 // A paw penny the first time a little-pup number becomes "known" (streak
 // of 3). Deterministic id: re-derives and cross-device merges pay once.
 export function earnSkillKnown(profile, skillKey, now = Date.now()) {
-  const id = `skill-${skillKey}`;
+  const id = `skill-${skillKey}${rateTag('skill')}`;
   if (hasTxn(profile, id)) return null;
   const txn = { id, at: now, cents: 1, denom: 'penny', count: 1, reason: 'skill' };
   ensureBucks(profile).txns.push(txn);

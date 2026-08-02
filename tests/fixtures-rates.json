@@ -1,0 +1,22 @@
+{
+  "sitting": {
+    "cents": 10,
+    "v": 1
+  },
+  "mastery": {
+    "cents": 5,
+    "v": 1
+  },
+  "set": {
+    "cents": 100,
+    "v": 1
+  },
+  "polish": {
+    "cents": 1,
+    "v": 1
+  },
+  "skill": {
+    "cents": 1,
+    "v": 1
+  }
+}
