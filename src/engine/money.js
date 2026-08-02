@@ -64,6 +64,7 @@ export const SWAPS = [
 // Can these coin counts make EXACTLY `price`? Bounded DP over the coin
 // piles (counts are small) — greedy fails with limited coins.
 export function canMakeExact(counts, price) {
+  if (!Number.isInteger(price) || price < 0) return false;
   let reachable = new Set([0]);
   for (const { id, cents } of DENOMS) {
     const n = counts[id] ?? 0;
@@ -130,8 +131,17 @@ export function storeEpoch(profile) {
 // retroactive clawback is what made toys vanish — see docs/PROJECT-NOTE
 // and the v1.45.0 changelog).
 export function balanceCents(profile) {
-  const b = ledgerState(profile).balance;
+  const { balance, forgiven } = ledgerState(profile);
+  // A cross-device overspend is FORGIVEN: the shortfall is added back so
+  // it isn't quietly charged against the child's next earnings (they
+  // finished a whole table and the wallet went up 10¢ — audit F2).
+  const b = balance + forgiven;
   return b > 0 ? b : 0;
+}
+
+// How much has been written off (0 normally). Shown to grown-ups only.
+export function forgivenCents(profile) {
+  return ledgerState(profile).forgiven;
 }
 
 // The true signed total, for the Grown-Ups ledger only.
@@ -174,23 +184,30 @@ const coinValue = (counts) => Object.entries(counts).reduce((s, [d, n]) => s + (
 // which is what makes exact change payable) is preserved — rebuilding
 // from scratch over a 1¢ rounding wobble would have thrown it away.
 export function reconcileCoins(tracked, balance) {
-  const out = { ...tracked };
+  const out = {};
+  for (const [d, n] of Object.entries(tracked)) if (n > 0) out[d] = n;
   let value = coinValue(out);
   if (value === balance) return out;
-  for (const { id } of [...DENOMS].reverse()) {
-    while (value > balance && (out[id] ?? 0) > 0 && value - D[id] >= balance) {
-      out[id] -= 1;
-      value -= D[id];
+  // Over: take back the BIGGEST coins first. Trimming smallest-first (the
+  // v1.45.1 order) removed the pennies, nickels and dimes and left a
+  // wallet of Paw Bucks that couldn't pay for a 10¢ toy (audit C1/F7).
+  for (const { id } of DENOMS) {
+    const over = value - balance;
+    if (over <= 0) break;
+    const take = Math.min(out[id] ?? 0, Math.floor(over / D[id]));
+    if (take > 0) {
+      out[id] -= take;
+      value -= take * D[id];
       if (out[id] === 0) delete out[id];
     }
   }
-  for (const { id } of DENOMS) {
-    while (value + D[id] <= balance) {
-      out[id] = (out[id] ?? 0) + 1;
-      value += D[id];
+  // Under: pay the difference in a practical mix, not one huge coin.
+  if (value < balance) {
+    for (const [d, n] of Object.entries(canonicalCoins(balance - value))) {
+      out[d] = (out[d] ?? 0) + n;
     }
+    value = coinValue(out);
   }
-  // couldn't land exactly (a wildly inconsistent mix) — start clean
   return value === balance ? out : canonicalCoins(balance);
 }
 

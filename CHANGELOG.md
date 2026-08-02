@@ -3,6 +3,37 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.46.0 — 2026-08-01
+
+Two independent audits of the money code, and the fixes they found. The
+headline one was reachable today: a child could hold Paw Bucks she
+literally could not spend, and the piggy bank's swap button would say
+"1 quarter makes 5 nickels", play the sound, and change nothing —
+forever.
+
+- **The wallet is honest coin by coin now.** Purchases made before exact
+  change existed (and any bought without counting coins out) never said
+  which coins left, so the coin mix drifted above the balance and got
+  quietly rebuilt on every read — swallowing swaps. Spending now moves
+  real coins the way a shop counter does: hand over the biggest coins,
+  take change back. Every swap the piggy bank offers now actually
+  happens.
+- **The double charge from the old "buy it again" bug is refunded.**
+  Duplicate purchase records are recognised as one purchase, so those
+  Paw Bucks come back automatically.
+- **Overspending across two devices is genuinely forgiven** rather than
+  quietly taken out of the next thing the child earns (finishing a whole
+  table used to add 10¢ instead of a Paw Buck). Grown-Ups shows what was
+  written off and the true total.
+- **The checkout can't dead-end.** A coin is only offered if the rest of
+  the wallet can still reach the price, there's a "Start over" button,
+  and double-tapping Pay no longer claims the purchase failed after it
+  succeeded.
+- A fresh start now hands out real change (a Paw Buck broken into
+  quarters, dimes, nickels and pennies) so even a 10¢ toy is payable,
+  a parent's reset can't be undone by a stale device, and re-bought toys
+  arrive in the toy box instead of pre-placed.
+
 ## v1.45.1 — 2026-08-01
 
 - Fixed straight after the first live reset: the balance was right but

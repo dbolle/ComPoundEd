@@ -45,7 +45,7 @@ test('two offline devices spend the same 100¢: both keep their item, no debt sh
   fund(A, 1); // one shared buck
   const B = structuredClone(A);
   // A buys the party hat (120¢? too dear) — use two <=100¢ items
-  A.pawBucks.txns.push({ id: 'buy-flower', group: 'buy-flower', at: 2000, cents: -100, count: 1, reason: 'buy', item: 'flower', for: null });
+  A.pawBucks.txns.push({ id: 'buy-teddy', group: 'buy-teddy', at: 2000, cents: -100, count: 1, reason: 'buy', item: 'teddy', for: null });
   B.pawBucks.txns.push({ id: 'buy-mouse', group: 'buy-mouse', at: 2001, cents: -10, count: 1, reason: 'buy', item: 'mouse', for: null });
   const m1 = mergeProfiles(A, B);
   const m2 = mergeProfiles(B, A);
@@ -54,10 +54,11 @@ test('two offline devices spend the same 100¢: both keep their item, no debt sh
   // v1.45.0: BOTH purchases stand — un-owning what a child was already
   // given is worse than the overspend (a live incident proved it). The
   // shortfall is forgiven: the child sees zero, never a negative.
-  expect(r.accepted.has('buy-flower')).toBe(true);
+  expect(r.accepted.has('buy-teddy')).toBe(true);
   expect(r.accepted.has('buy-mouse')).toBe(true);
   expect(r.rejected.size).toBe(0);
-  expect(isOwned(m1, 'flower', null) || true).toBe(true);
+  expect(isOwned(m1, 'teddy', null), 'both devices keep what they bought').toBe(true);
+  expect(isOwned(m1, 'mouse', null)).toBe(true);
   for (const c of Object.values(r.counts)) expect(c).toBeGreaterThanOrEqual(0);
   expect(balanceCents(m1)).toBe(0); // floored for the child
   expect(r.balance).toBeLessThan(0); // the true total is visible to grown-ups
@@ -66,7 +67,7 @@ test('two offline devices spend the same 100¢: both keep their item, no debt sh
 test('late-arriving earnings simply pay down the shortfall (nothing to flip)', () => {
   const p = newProfile('Late');
   fund(p, 1);
-  p.pawBucks.txns.push({ id: 'buy-flower', group: 'buy-flower', at: 2000, cents: -100, count: 1, reason: 'buy', item: 'flower', for: null });
+  p.pawBucks.txns.push({ id: 'buy-teddy', group: 'buy-teddy', at: 2000, cents: -100, count: 1, reason: 'buy', item: 'teddy', for: null });
   p.pawBucks.txns.push({ id: 'buy-mouse', group: 'buy-mouse', at: 2001, cents: -10, count: 1, reason: 'buy', item: 'mouse', for: null });
   expect(balanceCents(p)).toBe(0); // 10c short, floored for the child
   // an offline device's earning syncs in late
@@ -135,6 +136,6 @@ test('back-to-back operations keep causal order (same-millisecond swaps)', () =>
   expect(swapCoins(p, SWAPS.find((r) => r.give.denom === 'dime' && r.get.denom === 'buck'), now)).toBe(true);
   const counts = coinCounts(p);
   expect(counts.buck).toBe(1); // round trip completed — neither swap rejected
-  expect(counts.dime).toBe(0);
+  expect(counts.dime ?? 0).toBe(0); // empty piles are dropped, not kept as 0
   expect(balanceCents(p)).toBe(100);
 });

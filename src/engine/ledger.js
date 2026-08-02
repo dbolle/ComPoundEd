@@ -48,7 +48,10 @@ export function epochOfId(id = '') {
 export function groupOf(t) {
   if (typeof t.group === 'string' && t.group) return t.group;
   const buy = /^(buy-.+?)(-c-[a-z]+)?$/.exec(t.id);
-  if (buy) return buy[1];
+  // Retired `~n` retry ids (v1.40-1.44) are the SAME purchase: grouping
+  // them together means the duplicate charge disappears while ownership
+  // is unaffected. Real ledgers still contain them.
+  if (buy) return buy[1].replace(/~\d+$/, '');
   const swap = /^(swap-.+)-(a|b)$/.exec(t.id);
   if (swap) return swap[1];
   return t.id;
@@ -111,22 +114,71 @@ export function mergeTxns(a = [], b = []) {
 // The coin a denom-carrying event moves (legacy earns omit count = +1).
 const effCount = (t) => (t.denom ? (t.count ?? (t.cents > 0 ? 1 : 0)) : 0);
 
+const COIN_CENTS = { buck: 100, quarter: 25, dime: 10, nickel: 5, penny: 1 };
+const BIG_FIRST = ['buck', 'quarter', 'dime', 'nickel', 'penny'];
+const coinsValue = (counts) =>
+  Object.entries(counts).reduce((s, [d, n]) => s + (COIN_CENTS[d] ?? 0) * n, 0);
+
+// Add coins worth exactly `cents`, keeping a usable mix rather than one
+// big coin (a wallet of Paw Bucks cannot pay for a 10¢ toy).
+function addCoins(counts, cents) {
+  let left = cents;
+  if (left >= 200) {
+    for (const [d, n] of Object.entries({ quarter: 2, dime: 3, nickel: 3, penny: 5 })) {
+      counts[d] = (counts[d] ?? 0) + n;
+    }
+    left -= 100;
+  }
+  for (const d of BIG_FIRST) {
+    const n = Math.floor(left / COIN_CENTS[d]);
+    if (n > 0) {
+      counts[d] = (counts[d] ?? 0) + n;
+      left -= n * COIN_CENTS[d];
+    }
+  }
+}
+
+// Hand over coins worth at least `cents`, largest first, and take the
+// change back — the shop-counter model. Mutates `counts`.
+function payFromCounts(counts, cents) {
+  let owed = cents;
+  for (const d of BIG_FIRST) {
+    while (owed > 0 && (counts[d] ?? 0) > 0) {
+      counts[d] -= 1;
+      owed -= COIN_CENTS[d];
+      if (counts[d] === 0) delete counts[d];
+      if (owed <= 0) break;
+    }
+    if (owed <= 0) break;
+  }
+  let change = owed < 0 ? -owed : 0; // overpaid — give change back
+  for (const d of BIG_FIRST) {
+    const n = Math.floor(change / COIN_CENTS[d]);
+    if (n > 0) {
+      counts[d] = (counts[d] ?? 0) + n;
+      change -= n * COIN_CENTS[d];
+    }
+  }
+}
+
 // Memo keyed on the array identity plus a cheap content digest — an
 // in-place same-length edit would otherwise return a stale result
 // (nothing does that today, but nothing enforced it either).
+// The memo key must be O(1): a store render asks for balance/coins/
+// ownership dozens of times, and hashing the whole array each time made
+// a cache hit cost as much as a small replay (audit M6/F11). Identity +
+// length + epoch + a fingerprint of the LAST event covers everything the
+// app does (append-only pushes and fresh arrays from merges); an
+// in-place edit of an earlier event would need an explicit bump.
 const memo = new WeakMap();
 const digestOf = (txns) => {
-  let h = txns.length;
-  for (const t of txns) {
-    const s = `${t?.id}|${t?.cents}|${t?.at}|${t?.denom ?? ''}|${t?.count ?? ''}`;
-    for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
-  }
-  return h;
+  const t = txns[txns.length - 1];
+  return `${txns.length}|${t?.id ?? ''}|${t?.cents ?? ''}|${t?.reason ?? ''}|${t?.count ?? ''}`;
 };
 
 export function replayLedger(txns = [], epoch = 1) {
   const cached = memo.get(txns);
-  const digest = digestOf(txns) ^ (epoch * 2654435761);
+  const digest = `${epoch}#${digestOf(txns)}`;
   if (cached && cached.digest === digest) return cached.result;
 
   const quarantined = new Set();
@@ -195,20 +247,71 @@ export function replayLedger(txns = [], epoch = 1) {
   // guard now lives only where it belongs: buyGear refuses at purchase
   // time when the balance can't cover the price.
   let balance = 0;
+  let low = 0; // worst underwater point — what gets forgiven
   const counts = {};
   const accepted = new Set();
-  for (const [gid, { events }] of ordered) {
+  for (const [gid, { events: raw }] of ordered) {
+    // One purchase per group. The retired `~n` retry ids are the SAME
+    // purchase recorded twice (v1.40-1.44 created them when a toy looked
+    // un-owned) — charging both is the double-charge still sitting in real
+    // ledgers. Keep the earliest buy and its own coin companions; drop the
+    // retry and the coins it claimed to take.
+    const buys = raw.filter((t) => t.reason === 'buy');
+    let events = raw;
+    if (buys.length > 1) {
+      const keep = [...buys].sort((a, b) => (a.at ?? 0) - (b.at ?? 0) || (a.id < b.id ? -1 : 1))[0];
+      events = raw.filter(
+        (t) => t === keep || (t.reason !== 'buy' && t.id.startsWith(`${keep.id}-c-`))
+      );
+    }
+    let groupCents = 0;
+    let movedCoins = false;
     for (const t of events) {
       balance += t.cents;
+      groupCents += t.cents;
       const c = effCount(t);
-      // coin counts clamp at zero instead of cascading: they are a
-      // teaching aid, the cents balance is the truth
-      if (c) counts[t.denom] = Math.max(0, (counts[t.denom] ?? 0) + c);
+      if (c) {
+        movedCoins = true;
+        counts[t.denom] = Math.max(0, (counts[t.denom] ?? 0) + c);
+        if (counts[t.denom] === 0) delete counts[t.denom]; // no empty piles
+      }
     }
+    if (balance < low) low = balance;
+    // A spend with no coin companions (every purchase before exact-change
+    // checkout existed, and any caller passing coins=null) used to move
+    // NO coins at all, so the tracked mix drifted permanently above the
+    // balance. That drift is what made the wallet unspendable and the
+    // swap button a no-op. Model it instead: pay largest-coin-first and
+    // take change back, exactly like a shop counter. Still a pure
+    // function of the ordered union, so merges stay convergent.
+    if (!movedCoins && groupCents < 0) payFromCounts(counts, -groupCents);
+    // Keep the coins honest AT EVERY STEP. Companion records can be
+    // inconsistent with the cents (two devices counting out different
+    // trays for the same purchase, a merge clamp, a pre-exact-change
+    // buy), and any leftover drift used to be repaired later by
+    // rebuilding the whole wallet — which silently swallowed the child's
+    // next swap and left the button doing nothing (audit F1/C1/I8).
+    // Correcting per group means the tracked mix always equals what the
+    // child can spend, so a swap is always a real move.
+    const target = balance - low; // what the child is shown (incl. forgiveness)
+    const drift = coinsValue(counts) - Math.max(0, target);
+    if (drift > 0) payFromCounts(counts, drift);
+    else if (drift < 0) addCoins(counts, -drift);
     accepted.add(gid);
   }
 
-  const result = { balance, counts, accepted, rejected: new Set(), voided, quarantined };
+  const result = {
+    balance,
+    counts,
+    accepted,
+    rejected: new Set(),
+    voided,
+    quarantined,
+    // Cross-device overspends are forgiven rather than charged to the
+    // child's future earnings (v1.46.0): the shortfall is added back, so
+    // "forgiven" is literally true instead of merely displayed.
+    forgiven: low < 0 ? -low : 0,
+  };
   memo.set(txns, { digest, result });
   return result;
 }

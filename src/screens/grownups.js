@@ -34,7 +34,16 @@ import {
 } from '../data/store.js';
 import { sfx, setSoundOn, currentVoiceName, say, listVoices, setVoicePreference } from '../sound.js';
 import { totalTiers } from '../engine/achievements.js';
-import { balanceCents, formatPaw, ensureBucks, REASON_LABELS, ledgerState, trueBalanceCents } from '../engine/money.js';
+import {
+  balanceCents,
+  formatPaw,
+  ensureBucks,
+  REASON_LABELS,
+  ledgerState,
+  trueBalanceCents,
+  forgivenCents,
+} from '../engine/money.js';
+import { groupOf } from '../engine/ledger.js';
 import { ownedGear, resetStoreEpoch } from '../engine/gearshop.js';
 import { DOGS } from '../art/dogs.js';
 import { PETS } from '../art/pets.js';
@@ -169,6 +178,13 @@ export function grownupsScreen(el, params, ctx) {
         }
         <div class="stat-row"><span>Award tiers earned</span><span>${totalTiers(p)}</span></div>
         <div class="stat-row"><span>Paw Bucks</span><span>${formatPaw(balanceCents(p))}</span></div>
+        ${
+          forgivenCents(p) > 0
+            ? `<div class="stat-row"><span class="muted" style="font-size:.8rem">…including ${formatPaw(forgivenCents(p))} written off
+               (two devices spent the same coins while apart — not charged to ${escapeHtml(p.name)})</span>
+               <span class="muted" style="font-size:.8rem">true total ${formatPaw(trueBalanceCents(p))}</span></div>`
+            : ''
+        }
       </div>
       ${littleStatsCard(p)}
       <div style="height:12px"></div>
@@ -644,7 +660,7 @@ export function grownupsScreen(el, params, ctx) {
           // are quarantined out of the totals but kept in the history
           const { voided, quarantined } = ledgerState(p);
           const note = (t) => {
-            const gid = t.group ?? t.id;
+            const gid = groupOf(t);
             if (quarantined.has(t.id)) return ' · ⚠️ conflicting copies — not counted';
             if (voided.has(gid)) return ' · 🏪 void (fresh start in the store)';
             return '';
@@ -652,7 +668,7 @@ export function grownupsScreen(el, params, ctx) {
           return txns
             .map(
               (t) =>
-                `<div class="stat-row"><span>${new Date(t.at).toLocaleDateString()} · ${REASON_LABELS[t.reason] ?? t.reason}${note(t)}</span><span>${t.cents > 0 ? '+' : ''}${formatPaw(t.cents)}</span></div>`
+                `<div class="stat-row"><span>${Number.isFinite(t.at) ? new Date(t.at).toLocaleDateString() : '—'} · ${REASON_LABELS[t.reason] ?? t.reason}${note(t)}</span><span>${t.cents > 0 ? '+' : ''}${formatPaw(t.cents)}</span></div>`
             )
             .join('');
         })()

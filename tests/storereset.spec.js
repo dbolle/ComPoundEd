@@ -46,8 +46,11 @@ test('the incident shape: nothing is un-owned, no cascade, no debt shown', () =>
   // the child sees zero, never a negative balance; the grown-up sees the truth
   expect(balanceCents(p)).toBe(0);
   expect(trueBalanceCents(p)).toBeLessThan(0);
-  // every coin count is nonnegative
-  for (const [d, c] of Object.entries(coinCounts(p))) expect(c, d).toBeGreaterThanOrEqual(0);
+  // assert on the RAW replay counts: coinCounts is reconciled, so it
+  // could never emit a negative and the old check meant nothing
+  for (const [d, c] of Object.entries(replayLedger(ensureBucks(p).txns, storeEpoch(p)).counts)) {
+    expect(c, d).toBeGreaterThan(0);
+  }
   // the duplicate does not show the toy twice
   const toys = ownedGear(p).filter(({ item }) => item === 'frisbee');
   expect(toys).toHaveLength(1);
@@ -231,12 +234,13 @@ test('a reset wallet can pay exact change for everything it can afford', () => {
   resetStoreEpoch(p);
   const wallet = coinCounts(p);
   expect(walletValue(p)).toBe(balanceCents(p));
-  // this fixture only ever earned Paw Bucks, so the wallet is all bucks:
-  // whole-dollar prices pay directly, andsmall change comes from the piggy
-  // bank (the intended money-math flow)
+  // Even a child who only ever earned Paw Bucks must be able to SPEND
+  // after a fresh start. This line previously asserted the opposite —
+  // an all-bucks wallet that cannot pay for a 10c toy is exactly the
+  // soft-lock both audits found, and the test was locking it in.
   expect(canMakeExact(wallet, 100)).toBe(true);
   expect(canMakeExact(wallet, 1200)).toBe(true);
-  expect(canMakeExact(wallet, 10)).toBe(false);
+  expect(canMakeExact(wallet, 10)).toBe(true);
   // a child who earned mixed coins keeps them and can pay small prices
   const mixed = newProfile('Mixed');
   for (let i = 0; i < 20; i++) {

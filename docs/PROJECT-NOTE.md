@@ -69,6 +69,9 @@ on the family's own home server (LAN) and GitHub Pages.
   answers move nothing.
 - Deleted players are archived, restorable, and **permanently purged only
   by a parent** — purge is irreversible by design.
+- **The wallet's coins always add up to the balance shown**, and every
+  swap the app offers really happens — enforced by a randomized property
+  suite (tests/economy-invariants.spec.js) rather than by review.
 - **Bought means owned forever.** Ownership is evidence of payment, never
   re-litigated by later bookkeeping; if two devices overspend the same
   coins, the shortfall is forgiven rather than charged to the child or
