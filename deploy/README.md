@@ -80,6 +80,42 @@ Reading the result:
 If 502 persists, comment out the `user:` line and restart — backups keep
 working as before while you sort the ownership out.
 
+## Troubleshooting: "couldn't reach the home server"
+
+**Check the device's certificate trust FIRST.** `compounded.lan` is
+HTTPS-only and its certificate is signed by a LOCAL mkcert CA. A device
+that does not trust that CA cannot reach `/sync/` at all — and an
+INSTALLED PWA never shows the "trust this certificate?" prompt Safari
+shows, so the failure is completely silent. The app can only report
+"couldn't reach the home server", which reads like the server is down.
+
+Diagnostic signature (all three together mean device trust, not server):
+
+1. The app says **"couldn't reach the home server"** — that string comes
+   from `status === 'offline'` only. A missing family key says
+   "Backup is locked" instead, so this is never a key problem.
+2. `docker logs compounded-web-1 | grep /sync/` shows **no requests from
+   that device at all** — not a 403, not a 5xx, nothing. Its traffic
+   never arrives.
+3. The device is **stuck on an old app version** (Grown-Ups footer). A
+   PWA that can't reach its origin can't fetch a service-worker update
+   either, so it freezes at whatever it last downloaded.
+
+Fix: install the mkcert root CA on the device **and enable it** — on
+iOS/iPadOS the profile must additionally be switched on under
+Settings → General → About → Certificate Trust Settings. Installing
+without enabling looks identical to not installing.
+
+Confirmed in the field 2026-08-03: two iPads showed exactly this
+signature while a phone on the same network synced fine; the CA had
+never been trusted on them. Suspected cause of earlier unexplained
+"sync issues" too.
+
+Before reinstalling anything: each origin is its own storage bucket, so
+reinstalling from a different address makes existing progress invisible
+rather than migrating it. Export from Grown-Ups first if the device may
+hold play newer than the server's copy.
+
 ## Operational notes
 
 - Single sidecar replica only (per-profile writes serialize in-process).

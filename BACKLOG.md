@@ -112,6 +112,27 @@ reconsider after calibration.
   savings; pets receive toys via corner give-chips. Still open: a
   little-home piggy swap UI (see parked list).
 
+## Sync honesty (from the 2026-08-03 cert incident)
+
+Two iPads couldn't back up for an unknown length of time because they
+never trusted the local CA. The app was honest but not *useful*, and
+nothing anywhere said "this device hasn't reached the server in days".
+Two small features would have surfaced it immediately:
+
+- **Staleness is the real signal.** Grown-Ups already stores
+  `lastPushAt`/`lastPullAt`. Show "last backed up N days ago" per device
+  and flag it once it passes a threshold, on the profiles screen as well
+  as in Grown-Ups. A device silently not syncing for weeks is the
+  failure mode that actually costs progress — and it also catches a
+  stranded service worker, since a device that can't sync can't update.
+- **A transport failure on an https origin should name the likely
+  cause.** JS cannot see *why* a fetch failed (a TLS rejection is an
+  opaque error), but the app knows it is on https and knows the cert is
+  locally signed, so the offline message can add: "if this device has
+  never trusted your home server's certificate, backup fails silently —
+  open https://compounded.lan in Safari to check." Companion to the
+  existing http-transport acknowledgement.
+
 ## Parked / reconsider later
 
 - **Voice variety pool** (2026-08-01): the unchosen options in

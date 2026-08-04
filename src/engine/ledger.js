@@ -54,7 +54,10 @@ export function validEvent(t) {
 // VOIDS older purchases (no charge, no ownership) while leaving every
 // earning untouched.
 export function epochOfId(id = '') {
-  const m = /@(\d+)(?:-c-[a-z]+)?$/.exec(id);
+  // -c- is a spend companion, -r- is change back; both ride the buy id, so
+  // both must resolve to the buy's epoch or the companion replays as epoch
+  // 1 and gets voided — which silently costs the child their change.
+  const m = /@(\d+)(?:-[cr]-[a-z]+)?$/.exec(id);
   return m ? Number(m[1]) : 1;
 }
 
