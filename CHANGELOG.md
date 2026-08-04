@@ -3,6 +3,27 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.47.4 — 2026-08-04
+
+Backup tells you when it stops working.
+
+- **A device that has gone quiet now says so.** If backup is on but the
+  device hasn't reached the home server in a few days, both the players
+  screen and Grown-Ups say how long it's been — and that it can't pick up
+  app updates either, which is the same problem wearing a different hat.
+  Prompted by two tablets that went days without backing up: the app was
+  telling the truth every time ("couldn't reach the home server") but only
+  at the moment someone pressed the button, and nobody was pressing it.
+- **A device that only checks in still counts as healthy.** A tablet with
+  nothing new to save doesn't upload anything, and calling that "not
+  backed up" would have cried wolf constantly.
+- **When a secure address can't be reached, the app now names the likely
+  reason** — a home-server certificate this device was never given. That
+  failure is invisible in an installed app, because no certificate warning
+  is ever shown; it simply looks like the server is missing.
+- Nothing is claimed when backup is off, and the warning disappears the
+  moment a device gets through again.
+
 ## v1.47.3 — 2026-08-04
 
 Four defects, each one a gate in front of something a child was meant to

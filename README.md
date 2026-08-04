@@ -80,7 +80,13 @@ licensing.
   Tip: pick ONE address per device (the hostname or the IP) — each
   address keeps its own separate local data, and the backup switch is
   per-address; the app will offer to enable backup where it's off.
-  Conflicts merge without losing progress from either side.
+  Conflicts merge without losing progress from either side. Each device
+  knows when it last reached the server and says so on the players screen
+  if it has been days — a device that can't back up can't pick up app
+  updates either. On an `https` address, a failure to connect names the
+  likeliest cause: a home-server certificate this device was never given,
+  which is invisible in an installed app (no certificate warning is ever
+  shown). See `deploy/README.md` for the diagnostic signature.
 
 ## Develop
 
