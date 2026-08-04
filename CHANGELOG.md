@@ -3,6 +3,31 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.47.3 — 2026-08-04
+
+Four defects, each one a gate in front of something a child was meant to
+reach. Groundwork for Phase 7 (docs/PHASE7 plan).
+
+- **Buying a gift crashed the shop.** Picking who a gift was for threw an
+  error that killed "← Back to the shelves", so the only way out of the
+  wearer picker was to leave the store. `↩️ Start over` in the checkout
+  did nothing at all, for the same reason — one block of code had been
+  pasted into the wrong function.
+- **Counting paths could never be the "Play!" suggestion**, even though
+  skip-counting by 2s, 5s and 10s is exactly what opens the times-tables
+  track. A child could be waiting on a game the app would never offer.
+- **Take away! never left the suggestion rotation**, however well it was
+  known, crowding out games that still needed practice.
+- **Change coins would have been voided after a store reset** — the
+  ledger's epoch reader didn't recognise change entries. Nothing was lost
+  (no screen can hand back change yet), but it would have cost a child
+  their change the first time one did.
+- Documented, after two iPads went days without backing up: a device that
+  doesn't trust the home server's certificate cannot sync **or update**,
+  and says only "couldn't reach the home server". The runbook now lists
+  the three-part signature that identifies it, and the release checklist
+  requires certificate trust per device.
+
 ## v1.47.2 — 2026-08-02
 
 Every animal voice is settled. 🎧✅

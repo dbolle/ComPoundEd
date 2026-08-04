@@ -119,6 +119,13 @@ const SKILL_DOMAIN = {
   count: [1, 10], find: [1, 10], look: [1, 10], feed: [1, 10],
   more: [2, 10], next: [4, 10], add: [2, 10], type: [1, 19], taway: [0, 9], trace: [1, 9],
 };
+// A few games record under a key that isn't their game id (`taway` writes
+// `takeaway:n`) or over a set rather than a range (`paths` writes one key
+// per stride). Both were invisible to hasFrontier: taway looked
+// permanently unlearned and paths permanently finished — while the tables
+// gate depends on paths being learned.
+const SKILL_KEY = { taway: 'takeaway' };
+const SKILL_SET = { paths: [2, 5, 10] };
 
 // Does this game still have numbers to learn? Drives the Play-next pick.
 function hasFrontier(profile, game) {
@@ -132,9 +139,15 @@ function hasFrontier(profile, game) {
     for (let n = 1; n <= 9; n++) if (!knows(little, 'teen', n)) return true;
     return false;
   }
+  const set = SKILL_SET[game];
+  if (set) {
+    for (const n of set) if (!knows(little, game === 'paths' ? 'path' : game, n)) return true;
+    return false;
+  }
   const dom = SKILL_DOMAIN[game];
   if (!dom) return false; // tap/shape/pattern: joyful, untracked
-  for (let n = dom[0]; n <= dom[1]; n++) if (!knows(little, game, n)) return true;
+  const key = SKILL_KEY[game] ?? game;
+  for (let n = dom[0]; n <= dom[1]; n++) if (!knows(little, key, n)) return true;
   return false;
 }
 

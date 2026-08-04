@@ -139,10 +139,6 @@ export function storeScreen(el, params, ctx) {
     for (const b of checkoutEl.querySelectorAll('[data-wearer]:not([disabled])')) {
       b.addEventListener('click', () => runCheckout(item, b.dataset.wearer));
     }
-    checkoutEl.querySelector('[data-restart]').addEventListener('click', () => {
-      for (const k of Object.keys(paying)) delete paying[k];
-      render();
-    });
     checkoutEl.querySelector('[data-cancel]').addEventListener('click', closeCheckout);
   }
 
@@ -243,6 +239,10 @@ export function storeScreen(el, params, ctx) {
         });
       }
     };
+    checkoutEl.querySelector('[data-restart]').addEventListener('click', () => {
+      for (const k of Object.keys(paying)) delete paying[k];
+      render();
+    });
     checkoutEl.querySelector('[data-pay]').addEventListener('click', (e) => {
       if (paidCents() !== item.price) return;
       e.currentTarget.disabled = true; // a double-tap used to "fail" after succeeding

@@ -4,6 +4,12 @@ Chromium emulation cannot establish these — a human runs this list on
 real hardware before declaring a wave-final release done.
 
 ## Devices & install
+- [ ] **Every device trusts the mkcert CA** — installed AND enabled
+      (iOS: Settings → General → About → Certificate Trust Settings).
+      Without this a device silently cannot reach `/sync/` and cannot
+      self-update; an installed PWA shows no certificate prompt. Verify
+      per device by loading `https://compounded.lan` in Safari with no
+      warning. (See deploy/README.md troubleshooting.)
 - [ ] iPhone/iPad Safari: install to Home Screen; relaunch; profiles
       intact (IndexedDB survives); play one round per kid mode.
 - [ ] Insecure-origin smoke: load `http://<server>:8091`, create a
