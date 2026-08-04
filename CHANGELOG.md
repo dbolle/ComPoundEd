@@ -3,6 +3,35 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.48.0 — 2026-08-04
+
+The trail is written down, and readiness gates become one-way doors.
+First release of Phase 7.
+
+- **One place says what a child can learn.** Every game and track now has a
+  single record — its names on both sides of the screen, the standards it
+  supports, the skills it records and the exact numbers those cover. Five
+  hand-maintained lists used to have to agree with each other; two of the
+  four bugs fixed last release were them disagreeing.
+- **A count that had quietly drifted.** The Grown-Ups "numbers known" total
+  was measured against 130 when the real number is 132, so the figure was
+  always slightly wrong. It's derived now. (The little-game count was wrong
+  in two other places too — the README said twelve, the backlog said nine,
+  and there are seventeen.)
+- **A readiness gate can now be changed without taking anything away.**
+  Once a track has been opened for a child it stays open, whatever later
+  happens to the rule that opened it. Before, opening was recalculated from
+  scratch every time, so a child who had *qualified* but not yet *played*
+  could lose a track if the rule was ever adjusted — which in practice meant
+  the rules could never be improved. A grown-up can still hide a track by
+  hand, and Grown-Ups now distinguishes "opened" from "ready".
+- **Two new documents.** `docs/TRAIL.md` maps the whole path from pre-K to
+  upper elementary; `docs/PEDAGOGY.md` gives the reasoning, with every claim
+  labelled as a standard, a research finding, a practice-guide
+  recommendation, or our own inference — including where the research
+  genuinely doesn't support what we built, and a plain statement that this
+  app is not a curriculum and does not assess standards.
+
 ## v1.47.5 — 2026-08-04
 
 - Security: patched a high-severity advisory in `fast-uri`

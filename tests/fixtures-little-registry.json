@@ -1,0 +1,170 @@
+{
+  "QUESTIONS_BY_GAME": {
+    "count": 5,
+    "find": 5,
+    "more": 5,
+    "tap": 3,
+    "feed": 3,
+    "shape": 5,
+    "pattern": 5,
+    "next": 5,
+    "add": 5,
+    "look": 5,
+    "bond": 5,
+    "teen": 5,
+    "type": 5,
+    "taway": 5,
+    "paths": 5,
+    "trace": 4,
+    "surprise": 5
+  },
+  "KIND_BY_GAME": {
+    "count": "fetch",
+    "find": "walk",
+    "more": "feed",
+    "tap": "fetch",
+    "feed": "feed",
+    "shape": "walk",
+    "pattern": "feed",
+    "next": "walk",
+    "add": "fetch",
+    "look": "walk",
+    "bond": "feed",
+    "teen": "fetch",
+    "type": "walk",
+    "taway": "feed",
+    "paths": "fetch",
+    "trace": "walk",
+    "surprise": "fetch"
+  },
+  "PRAISE_BY_GAME": {
+    "surprise": [
+      "Surprise superstar!",
+      "You can play anything!"
+    ],
+    "trace": [
+      "Number writer!",
+      "You traced it just right!"
+    ],
+    "taway": [
+      "Take-away champion!",
+      "You knew how many were left!"
+    ],
+    "paths": [
+      "Path finder! Amazing!",
+      "You hopped the whole path!"
+    ],
+    "type": [
+      "Typing champion!",
+      "You typed it just right!"
+    ],
+    "look": [
+      "Quick eyes! Amazing!",
+      "You saw it in a flash!"
+    ],
+    "bond": [
+      "Number friends forever!",
+      "You know the number friends!"
+    ],
+    "teen": [
+      "Teen numbers, no problem!",
+      "Ten and more — you got it!"
+    ],
+    "count": [
+      "Hooray! Great counting!",
+      "Wow! You counted them all!"
+    ],
+    "tap": [
+      "Hooray! Great counting!",
+      "You counted every single one!"
+    ],
+    "find": [
+      "You found all the numbers!",
+      "Hooray! Super number finding!"
+    ],
+    "feed": [
+      "Yum yum! Perfectly fed!",
+      "Hooray! What a good helper!"
+    ],
+    "more": [
+      "Great comparing!",
+      "You always knew who had more!"
+    ],
+    "shape": [
+      "Hooray! You know your shapes!",
+      "Super shape spotting!"
+    ],
+    "pattern": [
+      "Pattern power! Amazing!",
+      "You cracked every pattern!"
+    ],
+    "next": [
+      "You know what comes next!",
+      "Hooray! Number detective!"
+    ],
+    "add": [
+      "Hooray! Great adding!",
+      "Wow! You put them all together!"
+    ]
+  },
+  "SKILL_GAMES": [
+    "count",
+    "find",
+    "more",
+    "next",
+    "add",
+    "look",
+    "bond",
+    "teen",
+    "feed",
+    "type",
+    "taway",
+    "paths",
+    "trace"
+  ],
+  "SKILL_DOMAIN": {
+    "count": [
+      1,
+      10
+    ],
+    "find": [
+      1,
+      10
+    ],
+    "look": [
+      1,
+      10
+    ],
+    "feed": [
+      1,
+      10
+    ],
+    "more": [
+      2,
+      10
+    ],
+    "next": [
+      4,
+      10
+    ],
+    "add": [
+      2,
+      10
+    ],
+    "type": [
+      1,
+      19
+    ],
+    "taway": [
+      0,
+      9
+    ],
+    "trace": [
+      1,
+      9
+    ]
+  },
+  "STREAK_NEEDED": {
+    "more": 4
+  }
+}

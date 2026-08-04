@@ -11,7 +11,7 @@ import {
 import { sittingReady } from '../engine/selector.js';
 import { suggestNext } from '../engine/suggest.js';
 import { avatarFor } from '../art/avatar.js';
-import { bridgeVisible, tablesVisible, ratchetReveals } from '../engine/readiness.js';
+import { bridgeVisible, tablesVisible, stampReveals } from '../engine/readiness.js';
 import { WAVES, waveProgress, waveUnlocked, isWaveMastered, subWaveProgress, subWaveUnlocked, isSubWaveMastered } from '../engine/waves.js';
 import { getUiPrefs, setUiPrefs } from '../data/store.js';
 import { getDog, dogSVG, wornFor, dirtFor, GUESTS } from '../art/dogs.js';
@@ -258,11 +258,9 @@ export async function homeScreen(el, params, ctx) {
 
   // Reveal ceremony: the first time a track earns its place, celebrate once.
   {
-    const ready = [];
-    if (bridgeVisible(p)) ready.push('track:adding');
-    if (bridgeVisible(p) && subWaveUnlocked(p, 0)) ready.push('track:takingaway');
-    if (showTables) ready.push('track:tables');
-    const fresh = ratchetReveals(p, ready);
+    // One list, in readiness.js. A screen deciding this for itself is how a
+    // track ends up re-closable the moment its gate is edited.
+    const fresh = stampReveals(p);
     if (fresh.length && (p.little?.xp || Object.keys(p.little?.skills ?? {}).length)) {
       // celebrate only for trail kids — long-time big kids just keep their app
       import('../ui.js').then(({ confetti }) => confetti?.(14));

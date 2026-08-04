@@ -21,7 +21,9 @@ reconsider after calibration.
   piggy bank, cross-track suggest.
 - Store **gear assets shipped** (8 wearables incl. crown/tiara, 8 toys) and
   the **"opening soon" teaser** is live on pack + wallet. No store yet.
-- Little Pup: 9 games, ten-frame quantity layouts, staged patterns
+- Little Pup: 17 games (see docs/TRAIL.md — the count was wrong in two
+  places until the registry made it derivable), ten-frame quantity
+  layouts, staged patterns
   (one dimension at a time), CVD-safe palette, **real mastery tracking**
   (little.skills first-try streaks; known = 3 in a row), adaptive 5→7→10
   range, guided recount on misses (`GUIDED_RECOUNT` flag rolls back).
