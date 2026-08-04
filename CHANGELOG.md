@@ -3,6 +3,17 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.47.5 — 2026-08-04
+
+- Security: patched a high-severity advisory in `fast-uri`
+  (GHSA-7p8r-x3mc-p8w7, host confusion via a backslash authority
+  introducer). Build-tooling only — it sits under
+  vite-plugin-pwa → workbox-build → ajv and never reaches a browser.
+  Unlike the `brace-expansion` pin, the fix was inside the range ajv
+  already allows (3.1.4 → 3.1.5), so no override was needed and none was
+  added; it will stay fixed on its own. Validated by a clean build and
+  the full suite.
+
 ## v1.47.4 — 2026-08-04
 
 Backup tells you when it stops working.
