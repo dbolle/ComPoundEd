@@ -2,8 +2,15 @@
 
 A dog-themed PWA a child can follow from pre-K through upper elementary,
 building automaticity for math facts: counting → number bonds → addition
-and subtraction within 20 → multiplication and division. Master a set,
-adopt a companion for your pack.
+and subtraction within 20 → multiplication and division → money math →
+fractions and mental-math fluencies. Master a set, adopt a companion for
+your pack.
+
+The full map of what exists, with standards and code ids, is
+[docs/TRAIL.md](docs/TRAIL.md); the reasoning behind its shape — labelled
+by what is a standard, a research finding, a practice-guide
+recommendation, or our own inference — is
+[docs/PEDAGOGY.md](docs/PEDAGOGY.md).
 
 See [CHARTER.md](CHARTER.md) for the project vision, roadmap, and design
 principles, and [src/art/ATTRIBUTION.md](src/art/ATTRIBUTION.md) for art
@@ -46,10 +53,11 @@ licensing.
   firm facts to reinforce, and 1–2 weak facts tucked in the middle.
 - **Multiple players** — sibling-friendly profiles on one device.
 - **Little Pup mode (ages 3–5)** — a per-profile preschool experience:
-  twelve tap-only games (counting, numerals, comparison, shapes, patterns,
-  bonds…) with spoken prompts, guided recounts on misses, per-number
-  mastery tracking, a Play-next hero tile, and a goal preview for the next
-  unlock. Numbers grow 1–5 → 1–10 as they're genuinely known.
+  seventeen tap-only games (counting, numerals, comparison, shapes,
+  patterns, bonds, teens, tracing, skip-counting…) with spoken prompts,
+  guided recounts on misses, per-number mastery tracking, a Play-next hero
+  tile, and a goal preview for the next unlock. Numbers grow 1–5 → 1–10 as
+  they're genuinely known.
 - **The Pet Store** — earn Paw Bucks, then pay with exact change at
   the counter (real coin math: count out bucks, quarters, dimes, and
   nickels; swap denominations in the wallet). Toys, gifts, and

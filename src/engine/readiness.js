@@ -1,9 +1,18 @@
 // The automated readiness trail: each track answers "should this exist for
-// this child right now?" A track is auto-visible when its readiness
-// predicate passes OR it has any history — nothing a child ever touched can
-// disappear (the grandfathering guarantee). Parents override with
-// subjects.* = true (force show) / false (hide); 'auto' is the default.
-// Reveals are one-way via the little.revealed ratchet.
+// this child right now?" Parents override with subjects.* = true (force
+// show) / false (hide); 'auto' is the default.
+//
+// READINESS GATES ARE ONE-WAY DOORS. A gate may be changed — tightened,
+// loosened, re-scoped as the trail is understood better — but it may never
+// close on a child it has already opened. That is what `revealed` is for:
+// once a track has been shown to a profile the reveal is recorded, and
+// visibility consults the record as well as the live predicate. Before
+// v1.48.0 this held only by accident, through `hasHistory`, so a child who
+// had *qualified* but not yet *played* could lose a track the moment a
+// predicate was edited — which made every gate effectively frozen.
+//
+// A parent's explicit `false` still hides: an override outranks the
+// ratchet, deliberately.
 
 import { isWaveMastered, isSubWaveMastered } from './waves.js';
 
@@ -55,15 +64,42 @@ function visible(override, auto) {
   return auto; // 'auto' or legacy undefined
 }
 
+// What a child has EARNED, ignoring parent overrides. These serve as both
+// the auto-visibility test and the thing the ratchet records, so a
+// force-show a parent might later withdraw can never stamp the door open.
+// `hasHistory` still carries the original grandfathering guarantee for
+// profiles that predate reveals.
+const bridgeEarned = (p) =>
+  addingReady(p) || hasHistory(p.addition) || hasHistory(p.subtraction);
+const tablesEarned = (p) => tablesReady(p) || hasHistory(p.facts) || hasHistory(p.division);
+
+// The reveal ids are the ones the home screen has always stamped.
+const TRACK_REVEALS = [
+  ['track:adding', bridgeEarned],
+  ['track:takingaway', (p) => bridgeEarned(p) && takingAwayReady(p)],
+  ['track:tables', tablesEarned],
+];
+
+// The one-way door: already revealed OR earned now.
+const autoVisible = (p, revealId, earned) => isRevealed(p, revealId) || earned;
+
 export function bridgeVisible(p) {
-  return visible(
-    p.subjects?.bridge,
-    addingReady(p) || hasHistory(p.addition) || hasHistory(p.subtraction)
-  );
+  return visible(p.subjects?.bridge, autoVisible(p, 'track:adding', bridgeEarned(p)));
 }
 
 export function tablesVisible(p) {
-  return visible(p.subjects?.tables, tablesReady(p) || hasHistory(p.facts) || hasHistory(p.division));
+  return visible(p.subjects?.tables, autoVisible(p, 'track:tables', tablesEarned(p)));
+}
+
+// Record every track this profile has earned, so a later gate change cannot
+// take it away. One list drives it rather than each screen deciding for
+// itself — a screen that forgot to stamp would leave its track re-closable.
+// Returns the freshly-stamped ids so the caller can celebrate them.
+export function stampReveals(p) {
+  return ratchetReveals(
+    p,
+    TRACK_REVEALS.filter(([, earned]) => earned(p)).map(([id]) => id)
+  );
 }
 
 // --- the ratchet: reveals are forever --------------------------------------
@@ -104,5 +140,8 @@ export function trackState(p, track) {
           : false;
   if (started) return 'started';
   if (ready) return 'ready';
+  // opened earlier and still open, even though the predicate no longer
+  // passes — saying 'ready' here would imply the gate is currently met
+  if (isRevealed(p, `track:${track}`)) return 'revealed';
   return 'hidden';
 }

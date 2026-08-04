@@ -52,11 +52,18 @@ export const FOOD_BY_SPECIES = {
   sloth: '🍃', hedgehog: '🍓', turtle: '🥬',
 };
 const foodFor = (buddy) => (buddy.kind === 'pet' ? FOOD_BY_SPECIES[buddy.species] ?? '🥕' : '🦴');
+import {
+  QUESTIONS_BY_GAME,
+  KIND_BY_GAME,
+  PRAISE_BY_GAME,
+  SKILL_GAMES,
+  STREAK_NEEDED,
+  RANGE_DOMAIN,
+  gameHasFrontier,
+} from '../engine/trail.js';
+
 const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 const STARS = ['⭐', '🌟', '🎉', '🐾'];
-const KIND_BY_GAME = { count: 'fetch', find: 'walk', more: 'feed', tap: 'fetch', feed: 'feed', shape: 'walk', pattern: 'feed', next: 'walk', add: 'fetch', look: 'walk', bond: 'feed', teen: 'fetch', type: 'walk', taway: 'feed', paths: 'fetch', trace: 'walk', surprise: 'fetch' };
-// trace rounds are shorter: a careful finger-trace takes a 3yo ~4× a tap
-const QUESTIONS_BY_GAME = { count: 5, find: 5, more: 5, tap: 3, feed: 3, shape: 5, pattern: 5, next: 5, add: 5, look: 5, bond: 5, teen: 5, type: 5, taway: 5, paths: 5, trace: 4, surprise: 5 };
 
 // New species from the pet pool host the non-counting games — a pre-reader
 // navigates by which animal, not by words.
@@ -109,48 +116,12 @@ function ensureLittle(profile) {
 // Choice games record per-number skills; a number is "known" after three
 // first-try corrects in a row (a guesser fakes that 3.7% of the time, vs 33%
 // per question). Tap & feed stay error-less joy — they never feed the signal.
-const SKILL_GAMES = new Set(['count', 'find', 'more', 'next', 'add', 'look', 'bond', 'teen', 'feed', 'type', 'taway', 'paths', 'trace']);
-// Two-choice games are guessable 50/50 — they need a longer streak to
-// count as knowing (12.5% → 6% fake odds).
-const STREAK_NEEDED = { more: 4 };
-// Which numbers each game can actually ask (more can never ask "1", next
-// starts at 4…) — bands only wait on reachable keys.
-const SKILL_DOMAIN = {
-  count: [1, 10], find: [1, 10], look: [1, 10], feed: [1, 10],
-  more: [2, 10], next: [4, 10], add: [2, 10], type: [1, 19], taway: [0, 9], trace: [1, 9],
-};
-// A few games record under a key that isn't their game id (`taway` writes
-// `takeaway:n`) or over a set rather than a range (`paths` writes one key
-// per stride). Both were invisible to hasFrontier: taway looked
-// permanently unlearned and paths permanently finished — while the tables
-// gate depends on paths being learned.
-const SKILL_KEY = { taway: 'takeaway' };
-const SKILL_SET = { paths: [2, 5, 10] };
 
 // Does this game still have numbers to learn? Drives the Play-next pick.
-function hasFrontier(profile, game) {
-  const little = profile.little ?? {};
-  if (game === 'bond') {
-    for (let k = 0; k <= 5; k++) if (!knows(little, 'bond5', k)) return true;
-    for (let k = 0; k <= 10; k++) if (!knows(little, 'bond10', k)) return true;
-    return false;
-  }
-  if (game === 'teen') {
-    for (let n = 1; n <= 9; n++) if (!knows(little, 'teen', n)) return true;
-    return false;
-  }
-  const set = SKILL_SET[game];
-  if (set) {
-    for (const n of set) if (!knows(little, game === 'paths' ? 'path' : game, n)) return true;
-    return false;
-  }
-  const dom = SKILL_DOMAIN[game];
-  if (!dom) return false; // tap/shape/pattern: joyful, untracked
-  const key = SKILL_KEY[game] ?? game;
-  for (let n = dom[0]; n <= dom[1]; n++) if (!knows(little, key, n)) return true;
-  return false;
-}
-
+// Generic over skill namespaces now (src/engine/trail.js): the bond/teen
+// special cases and the paths/taway key mismatches all disappear, because
+// each game states the keys it actually writes.
+const hasFrontier = (profile, game) => gameHasFrontier(profile, game);
 // The one tile most worth playing now: the trail-order first ready game
 // with numbers still to learn; falls back to a daily rotation of the
 // untracked games so "Play!" always points somewhere.
@@ -169,25 +140,6 @@ export function littleSuggestNext(profile, readyTiles) {
 // Round-finish praise that matches what the child actually did — shape
 // games shouldn't hear "great counting". A couple of options each so the
 // cheer doesn't wear out.
-const PRAISE_BY_GAME = {
-  surprise: ['Surprise superstar!', 'You can play anything!'],
-  trace: ['Number writer!', 'You traced it just right!'],
-  taway: ['Take-away champion!', 'You knew how many were left!'],
-  paths: ['Path finder! Amazing!', 'You hopped the whole path!'],
-  type: ['Typing champion!', 'You typed it just right!'],
-  look: ['Quick eyes! Amazing!', 'You saw it in a flash!'],
-  bond: ['Number friends forever!', 'You know the number friends!'],
-  teen: ['Teen numbers, no problem!', 'Ten and more — you got it!'],
-  count: ['Hooray! Great counting!', 'Wow! You counted them all!'],
-  tap: ['Hooray! Great counting!', 'You counted every single one!'],
-  find: ['You found all the numbers!', 'Hooray! Super number finding!'],
-  feed: ['Yum yum! Perfectly fed!', 'Hooray! What a good helper!'],
-  more: ['Great comparing!', 'You always knew who had more!'],
-  shape: ['Hooray! You know your shapes!', 'Super shape spotting!'],
-  pattern: ['Pattern power! Amazing!', 'You cracked every pattern!'],
-  next: ['You know what comes next!', 'Hooray! Number detective!'],
-  add: ['Hooray! Great adding!', 'Wow! You put them all together!'],
-};
 const KNOWN_STREAK = 3;
 
 const knows = (little, g, n) =>
@@ -203,7 +155,7 @@ const knowsRange = (little, g, lo, hi) => {
 // round or two. Exported for the unit tests.
 export function rangeFor(profile, g = 'count') {
   const little = profile.little ?? {};
-  const [dLo, dHi] = SKILL_DOMAIN[g] ?? [1, 10];
+  const [dLo, dHi] = RANGE_DOMAIN[g] ?? [1, 10];
   const band = (lo, hi) => {
     for (let n = Math.max(lo, dLo); n <= Math.min(hi, dHi); n++) {
       if (!knows(little, g, n)) return false;

@@ -35,6 +35,7 @@ import {
 } from '../data/store.js';
 import { sfx, setSoundOn, currentVoiceName, say, listVoices, setVoicePreference } from '../sound.js';
 import { totalTiers } from '../engine/achievements.js';
+import { littleSkillTotal } from '../engine/trail.js';
 import {
   balanceCents,
   formatPaw,
@@ -80,8 +81,11 @@ function buildGateGrid() {
 }
 
 // Little Pup progress: shown once the profile has any little activity.
-// 81 = every skill key a little pup can make "known" (streak of 3).
-const LITTLE_SKILL_TOTAL = 130; // + take-away, paths, decades (v1.20.0)
+// The denominator is DERIVED from the trail registry — every skill key a
+// little pup can make "known". It used to be a hand-maintained constant
+// and had drifted to 130 against a real 132, so this row was quietly
+// reporting the wrong total.
+const LITTLE_SKILL_TOTAL = littleSkillTotal();
 
 function littleStatsCard(p) {
   const skills = p.little?.skills ?? {};
