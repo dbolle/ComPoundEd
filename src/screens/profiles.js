@@ -14,10 +14,12 @@ import {
   listDeletedPlayers,
   restoreDeletedPlayer,
   storageStatus,
+  getSyncStatus,
+  syncStaleness,
 } from '../data/store.js';
 import { navigate } from '../router.js';
 import { getDog, dogSVG, wornFor } from '../art/dogs.js';
-import { toast, escapeHtml } from '../ui.js';
+import { toast, escapeHtml, stalenessLine } from '../ui.js';
 
 export async function profilesScreen(el, params, ctx) {
   const profiles = await listProfiles();
@@ -48,6 +50,19 @@ export async function profilesScreen(el, params, ctx) {
   // The family server holds backups but this device/origin has the switch
   // off — offer once (parents see this screen; a kid tapping "turn on" is
   // harmless, it's the family's own server).
+  // A device switched ON but not reaching the server looks identical to a
+  // healthy one from here — which is exactly how two iPads went days
+  // without backing up. Say it plainly, on the screen a parent lands on.
+  getSyncStatus().then((s) => {
+    const warn = stalenessLine(syncStaleness(s));
+    if (!warn || el.querySelector('[data-stale]')) return;
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.stale = '1';
+    card.innerHTML = `<p class="muted" style="margin:0;font-size:.85rem">⚠️ ${escapeHtml(warn)}</p>`;
+    el.querySelector('[data-backup-offer]')?.appendChild(card);
+  });
+
   offerBackup().then(({ offer, denied }) => {
     // the screen can render more than once at boot — one card only
     if (!offer || el.querySelector('[data-offer-on]')) return;

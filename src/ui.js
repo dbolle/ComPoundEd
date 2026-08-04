@@ -51,6 +51,25 @@ export function confetti(count = 26) {
 // plural(1, 'bone') → 'bone'; plural(3, 'bone') → 'bones'.
 export const plural = (n, one, many = `${one}s`) => (n === 1 ? one : many);
 
+// Grown-up copy about backup health, in one place so Grown-Ups and the
+// profiles screen can never disagree about what a device's state means.
+export function stalenessLine({ level, days }) {
+  if (level === 'never') return "This device has never backed up — it may not be reaching the home server.";
+  if (level === 'alarm' || level === 'warn')
+    return `This device hasn't reached the home server in ${days} ${plural(days, 'day')} — it isn't backing up, and it can't pick up app updates either.`;
+  return null; // 'ok' and 'off' say nothing: silence is the honest default
+}
+
+// A transport failure tells us nothing about WHY — a rejected certificate
+// and an unplugged server are the same opaque error in JS. But on an https
+// origin serving a locally-signed certificate, untrusted-on-this-device is
+// by far the likeliest cause, and it is invisible in an installed app: no
+// certificate prompt ever appears, so it just looks broken. Name it.
+export function offlineHint(origin = location.origin) {
+  if (!origin.startsWith('https:')) return null;
+  return `If this device has never been given your home server's certificate, backup fails silently. Open ${origin} in the browser — a certificate warning there is the problem.`;
+}
+
 export function celebrationLine(r, streak, fallback) {
   let msg;
   if ([3, 5, 8, 10].includes(streak)) msg = `🔥 ${streak} in a row!`;

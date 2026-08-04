@@ -21,6 +21,7 @@ import {
   setSyncEnabled,
   isSoundEnabled,
   getSyncStatus,
+  syncStaleness,
   getSyncKey,
   setSyncKey,
   getMetaConflicts,
@@ -47,7 +48,7 @@ import { groupOf } from '../engine/ledger.js';
 import { ownedGear, resetStoreEpoch } from '../engine/gearshop.js';
 import { DOGS } from '../art/dogs.js';
 import { PETS } from '../art/pets.js';
-import { toast, escapeHtml } from '../ui.js';
+import { toast, escapeHtml, stalenessLine, offlineHint } from '../ui.js';
 import { SCHEMA_VERSION, touchMeta } from '../data/schema.js';
 import { bridgeVisible, tablesVisible, trackState, addingReady } from '../engine/readiness.js';
 
@@ -441,12 +442,25 @@ export function grownupsScreen(el, params, ctx) {
     const renderStatus = async (lastResult = null) => {
       const s = await getSyncStatus();
       const statusEl = panel.querySelector('[data-sync-status]');
+      const stale = syncStaleness(s);
       if (lastResult?.status === 'denied') {
         statusEl.textContent = '🔑 Backup is locked — the server needs the family key (below).';
+        statusEl.dataset.level = 'denied';
+      } else if (lastResult?.status === 'offline') {
+        // couldn't connect: say so, and name the cause we can't detect
+        statusEl.textContent = [
+          "⚠️ Couldn't reach the home server — nothing was backed up.",
+          offlineHint(),
+        ]
+          .filter(Boolean)
+          .join(' ');
+        statusEl.dataset.level = 'alarm';
       } else {
+        const warn = stalenessLine(stale);
         statusEl.textContent = s.enabled
-          ? `This device — last backup: ${ago(s.lastPushAt)} · last check-in: ${ago(s.lastPullAt)}`
+          ? `${warn ? `⚠️ ${warn} ` : ''}This device — last backup: ${ago(s.lastPushAt)} · last check-in: ${ago(s.lastPullAt)}`
           : 'This device is not backing up. Each device (and each address it uses) has its own switch.';
+        statusEl.dataset.level = warn ? stale.level : 'ok';
       }
     };
     renderStatus();
@@ -611,7 +625,12 @@ export function grownupsScreen(el, params, ctx) {
       renderStatus(r);
       toast(
         r.status === 'offline'
-          ? "Couldn't reach the home server — nothing was backed up"
+          ? [
+              "Couldn't reach the home server — nothing was backed up.",
+              offlineHint(),
+            ]
+              .filter(Boolean)
+              .join(' ')
           : r.status === 'denied'
             ? 'Backup is locked — enter the family key below'
             : r.status === 'partial'

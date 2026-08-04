@@ -506,6 +506,30 @@ export async function getSyncStatus() {
   };
 }
 
+// Has this device gone quiet? A device can be switched ON and still never
+// reach the server — an untrusted certificate, a changed address, a guest
+// network. That failure is silent by nature: the app can only say it
+// couldn't connect, and nobody reads a message they never see. Two iPads
+// went days unnoticed that way (2026-08-03), so staleness gets surfaced
+// where a parent actually looks.
+//
+// "Reached the server" is max(push, pull), not push alone: a device with
+// nothing new to send still checks in, and that check-in proves the path
+// works. A device that can't sync also can't fetch an app update, so this
+// doubles as the alarm for a version left behind.
+export const STALE_WARN_DAYS = 3;
+export const STALE_ALARM_DAYS = 7;
+
+export function syncStaleness({ enabled, lastPushAt, lastPullAt }, now = Date.now()) {
+  if (!enabled) return { level: 'off', days: null };
+  const last = Math.max(lastPushAt ?? 0, lastPullAt ?? 0);
+  if (!last) return { level: 'never', days: null };
+  const days = Math.floor((now - last) / 86400000);
+  if (days >= STALE_ALARM_DAYS) return { level: 'alarm', days };
+  if (days >= STALE_WARN_DAYS) return { level: 'warn', days };
+  return { level: 'ok', days };
+}
+
 // The family opted into backup if their server already holds profiles —
 // but the on/off switch lives in per-origin browser storage, so a device
 // (or the same device via the other address) can be silently dark. This
