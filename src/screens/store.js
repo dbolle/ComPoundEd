@@ -6,13 +6,14 @@
 
 import { navigate } from '../router.js';
 import { CATALOG, buyGear, isOwned, ownedGear, itemOf, placedOn } from '../engine/gearshop.js';
-import { balanceCents, formatPaw, coinCounts, canMakeExact, DENOMS } from '../engine/money.js';
+import { balanceCents, formatPaw, coinCounts, canMakeExact, canOverpay, DENOMS } from '../engine/money.js';
 import { GEAR_ACCESSORIES, TOYS, toySVG } from '../art/gear.js';
 import { DOGS, dogSVG, wornFor, gearSVG } from '../art/dogs.js';
 import { PETS, petSVG } from '../art/pets.js';
 import { isUnlocked } from '../engine/unlocks.js';
 import { confetti, escapeHtml, toast } from '../ui.js';
-import { sfx, buzz, cheer } from '../sound.js';
+import { sfx, buzz, cheer, say } from '../sound.js';
+import { coinTray } from '../ui/cointray.js';
 
 // Where leaving the store lands: littles (and anyone whose pack is just
 // Biscuit) live in the Cozy Corner; the pack takes over once real dogs
@@ -153,24 +154,50 @@ export function storeScreen(el, params, ctx) {
   // pile (and back); Pay unlocks only at the exact price. No running
   // total is done FOR the child beyond showing it — choosing the
   // denominations is the math.
+  // Which door: paying the exact price, or paying big and counting the
+  // change back? Both are real ways to buy something, and a child who can
+  // only ever do one of them is missing half the lesson — so when both are
+  // possible they get the choice. When only one is, it opens directly.
   function runCheckout(item, forId) {
     shelves.hidden = true;
     checkoutEl.hidden = false;
     const wallet = coinCounts(p);
-    if (!canMakeExact(wallet, item.price)) {
-      // affordable, but no combination hits the price exactly — time to
-      // make change (the wallet's swap table exists for exactly this)
-      checkoutEl.innerHTML = `
-        <div class="card center">
-          <h3>${item.emoji} ${escapeHtml(item.name)} — ${formatPaw(item.price)}</h3>
-          <p class="muted">You have enough Paw Bucks, but not the right coins for exact change!</p>
-          <button class="btn accent" data-to-wallet>🔁 Make change at the wallet</button>
-          <button class="btn ghost small" data-cancel>← Back to the shelves</button>
-        </div>`;
-      checkoutEl.querySelector('[data-to-wallet]').addEventListener('click', () => navigate('/wallet'));
-      checkoutEl.querySelector('[data-cancel]').addEventListener('click', closeCheckout);
-      return;
-    }
+    const exact = canMakeExact(wallet, item.price);
+    const over = canOverpay(wallet, item.price);
+    if (exact && over) return pickDoor(item, forId);
+    if (over) return runOverpay(item, forId);
+    if (exact) return runExact(item, forId);
+    // Unreachable while the shelf blocks unaffordable items: covering the
+    // price always lands either ON it or past it. Kept as an honest
+    // fallback rather than a crash, and asserted unreachable in
+    // tests/change.spec.js.
+    checkoutEl.innerHTML = `
+      <div class="card center">
+        <h3>${item.emoji} ${escapeHtml(item.name)} — ${formatPaw(item.price)}</h3>
+        <p class="muted">You have enough Paw Bucks, but not the right coins!</p>
+        <button class="btn accent" data-to-wallet>🔁 Swap coins at the wallet</button>
+        <button class="btn ghost small" data-cancel>← Back to the shelves</button>
+      </div>`;
+    checkoutEl.querySelector('[data-to-wallet]').addEventListener('click', () => navigate('/wallet'));
+    checkoutEl.querySelector('[data-cancel]').addEventListener('click', closeCheckout);
+  }
+
+  function pickDoor(item, forId) {
+    checkoutEl.innerHTML = `
+      <div class="card center">
+        <h3>${item.emoji} ${escapeHtml(item.name)} — ${formatPaw(item.price)}</h3>
+        <p class="muted">How do you want to pay?</p>
+        <button class="btn accent" data-door-exact>🪙 Pay the exact price</button>
+        <button class="btn accent" data-door-over>🔁 Pay big and count the change</button>
+        <button class="btn ghost small" data-cancel>✕ Not today</button>
+      </div>`;
+    checkoutEl.querySelector('[data-door-exact]').addEventListener('click', () => runExact(item, forId));
+    checkoutEl.querySelector('[data-door-over]').addEventListener('click', () => runOverpay(item, forId));
+    checkoutEl.querySelector('[data-cancel]').addEventListener('click', closeCheckout);
+  }
+
+  function runExact(item, forId) {
+    const wallet = coinCounts(p);
     const paying = {};
     const paidCents = () =>
       DENOMS.reduce((sum, d) => sum + (paying[d.id] ?? 0) * d.cents, 0);
@@ -252,8 +279,138 @@ export function storeScreen(el, params, ctx) {
     render();
   }
 
-  async function completePurchase(item, forId, coins = null) {
-    const txn = buyGear(p, item.id, forId, Date.now(), coins);
+  // Pay big, then count the change UP from the price — the way a shopkeeper
+  // counts it back to you ("that's 60, 65, 70, 75"), which is counting on
+  // rather than subtraction. Two steps: hand coins over until the price is
+  // covered, then take your change out of the shop's drawer.
+  function runOverpay(item, forId) {
+    const wallet = coinCounts(p);
+    const paying = {};
+    const paidCents = () => DENOMS.reduce((s, d) => s + (paying[d.id] ?? 0) * d.cents, 0);
+
+    // --- step 1: hand coins over ---------------------------------------
+    const payStep = () => {
+      checkoutEl.innerHTML = `
+        <h3 class="center">${item.emoji} ${escapeHtml(item.name)} — ${formatPaw(item.price)}</h3>
+        <p class="muted center" style="margin:0">Hand over coins until you have enough! 🪙</p>
+        <div data-trays></div>
+        <div class="card center pay-pile">
+          <div data-pile class="pile-row">&nbsp;</div>
+          <div class="little-numeral" data-paid>0¢</div>
+          <button class="btn" data-next-step disabled>Count my change →</button>
+        </div>
+        <div class="nav-row">
+          <button class="btn ghost small" data-restart>↩️ Start over</button>
+          <button class="btn ghost small" data-cancel>✕ Not today</button>
+        </div>`;
+      const traysEl = checkoutEl.querySelector('[data-trays]');
+      const render = () => {
+        const paid = paidCents();
+        const covered = paid >= item.price;
+        traysEl.innerHTML = DENOMS.map((d) => {
+          const have = (wallet[d.id] ?? 0) - (paying[d.id] ?? 0);
+          if ((wallet[d.id] ?? 0) === 0) return '';
+          return `<div class="card wallet-row">
+            <span class="coin ${d.id}"></span>
+            <span class="wr-label">${escapeHtml(d.label)}</span>
+            <span class="wallet-count">×${have}</span>
+            <button class="btn ghost small" data-give="${d.id}"
+              aria-label="Hand over a ${escapeHtml(d.label)}, ${d.cents} cents"
+              ${have === 0 || covered ? 'disabled' : ''}>➕ Pay one</button>
+          </div>`;
+        }).join('');
+        checkoutEl.querySelector('[data-pile]').innerHTML =
+          DENOMS.map((d) =>
+            Array.from({ length: paying[d.id] ?? 0 })
+              .map(
+                () =>
+                  `<button class="coin ${d.id} pile-coin" data-take="${d.id}"
+                     aria-label="Take a ${escapeHtml(d.label)} back"></button>`
+              )
+              .join('')
+          ).join('') || '&nbsp;';
+        checkoutEl.querySelector('[data-paid]').textContent =
+          paid >= 100 ? formatPaw(paid) : `${paid}¢`;
+        const next = checkoutEl.querySelector('[data-next-step]');
+        next.disabled = !covered;
+        next.textContent =
+          paid === item.price ? '💰 Pay — that\'s exactly right!' : 'Count my change →';
+        for (const b of traysEl.querySelectorAll('[data-give]')) {
+          b.addEventListener('click', () => {
+            paying[b.dataset.give] = (paying[b.dataset.give] ?? 0) + 1;
+            buzz(10);
+            render();
+          });
+        }
+        for (const c of checkoutEl.querySelectorAll('[data-take]')) {
+          c.addEventListener('click', () => {
+            paying[c.dataset.take] -= 1;
+            if (!paying[c.dataset.take]) delete paying[c.dataset.take];
+            buzz(10);
+            render();
+          });
+        }
+      };
+      checkoutEl.querySelector('[data-restart]').addEventListener('click', () => {
+        for (const k of Object.keys(paying)) delete paying[k];
+        render();
+      });
+      checkoutEl.querySelector('[data-next-step]').addEventListener('click', () => {
+        const paid = paidCents();
+        if (paid < item.price) return;
+        // landed exactly on it by hand — no change to count
+        if (paid === item.price) return completePurchase(item, forId, { ...paying });
+        changeStep(paid);
+      });
+      checkoutEl.querySelector('[data-cancel]').addEventListener('click', closeCheckout);
+      render();
+    };
+
+    // --- step 2: count the change up from the price ---------------------
+    const changeStep = (paid) => {
+      const owed = paid - item.price;
+      checkoutEl.innerHTML = `
+        <h3 class="center">Your change 🪙</h3>
+        <p class="muted center" style="margin:0">
+          It costs ${formatPaw(item.price)} — you paid ${formatPaw(paid)}.
+        </p>
+        <div data-tray></div>
+        <div class="nav-row">
+          <button class="btn accent" data-take-change disabled>💰 Take your change!</button>
+        </div>
+        <div class="nav-row">
+          <button class="btn ghost small" data-restart>↩️ Again</button>
+          <button class="btn ghost small" data-repay>← Pay differently</button>
+          <button class="btn ghost small" data-cancel>✕ Not today</button>
+        </div>`;
+      const btn = checkoutEl.querySelector('[data-take-change]');
+      const tray = coinTray(checkoutEl.querySelector('[data-tray]'), {
+        target: owed,
+        from: null, // the shop's drawer: a shop has plenty
+        start: item.price,
+        countUp: true,
+        say: (t) => say(t),
+        onChange: (_picked, total) => {
+          btn.disabled = total !== owed;
+          if (total === owed) sfx.correct();
+        },
+      });
+      btn.addEventListener('click', () => {
+        if (!tray.done()) return;
+        btn.disabled = true; // a double-tap used to "fail" after succeeding
+        completePurchase(item, forId, { ...paying }, tray.picked());
+      });
+      checkoutEl.querySelector('[data-restart]').addEventListener('click', () => tray.reset());
+      // back to step 1 with the payment intact, so different coins can go in
+      checkoutEl.querySelector('[data-repay]').addEventListener('click', payStep);
+      checkoutEl.querySelector('[data-cancel]').addEventListener('click', closeCheckout);
+    };
+
+    payStep();
+  }
+
+  async function completePurchase(item, forId, coins = null, change = null) {
+    const txn = buyGear(p, item.id, forId, Date.now(), coins, change);
     if (!txn) {
       toast('Hmm, that purchase did not go through.');
       return closeCheckout();

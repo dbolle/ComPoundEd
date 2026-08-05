@@ -3,6 +3,31 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.49.0 — 2026-08-05
+
+Counting out change at the shop counter — Phase 7 R2.
+
+- **You can pay with a big coin now.** Hand coins over until the price is
+  covered, then count your change back out of the shop's drawer, the way a
+  shopkeeper counts it to you: "that's 90, 95, a dollar." The chain of
+  numbers is shown as it grows, because counting *up* is the point — it's
+  the same skill as counting on, not subtraction.
+- **A dead end became the lesson.** A wallet that couldn't make the exact
+  price used to be told to go swap coins somewhere else. Four quarters and a
+  90¢ bowl is the honest version of that problem: no combination makes 90,
+  so the only way to buy it is to hand over a dollar and count 10¢ back.
+  That route now exists.
+- **When both ways work, the child picks.** Paying exactly is still there
+  and unchanged, and a child with a full wallet can still choose the harder
+  counting-back route rather than only meeting it when stuck.
+- **No way to get it wrong.** Coins that would overshoot are greyed out
+  rather than accepted and corrected, coins too big to ever be part of the
+  change aren't offered at all, and every coin can be put back. Nothing is
+  bought until the change adds up exactly.
+- You can also step back to pay with different coins without losing your
+  place, start the change over, or walk away — and walking away charges
+  nothing.
+
 ## v1.48.0 — 2026-08-04
 
 The trail is written down, and readiness gates become one-way doors.
