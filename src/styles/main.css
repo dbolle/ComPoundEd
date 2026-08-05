@@ -2082,3 +2082,42 @@ button.pressed {
     height: 56px;
   }
 }
+
+/* Counting change up from the price: 60¢ → 65¢ → 70¢ → 75¢. The chain is
+   the lesson — it shows the child they are counting ON, not subtracting. */
+.count-chain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px 6px;
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: 10px 8px;
+}
+.chain-step {
+  color: #8a7863;
+}
+.chain-step.now {
+  color: #0f766e;
+  font-size: 1.3rem;
+}
+.chain-arrow {
+  color: #c9bda9;
+  font-size: 0.85rem;
+}
+.tray-rows {
+  display: block;
+}
+
+/* The change step stacks a chain, coin rows, a pile and two nav rows on a
+   664px-tall phone — the action button fell off the bottom. Tighten the
+   tray's own rows only, leaving the wallet screen's spacing alone. */
+.tray-rows .wallet-row {
+  padding: 6px 10px;
+  margin-bottom: 5px;
+}
+.count-chain {
+  padding: 7px 8px;
+  margin-bottom: 6px;
+}

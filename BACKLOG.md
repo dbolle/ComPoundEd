@@ -66,12 +66,16 @@ reconsider after calibration.
    coins always equal the balance, randomized invariant suite,
    snapshot-locked prices, versioned payout rates, change-making
    contract, damaged entries repaired-or-surfaced.
-8. **Phase 7 — Money math track. NEXT.** Coin counting (2.MD.8),
+8. **Phase 7 — Money math track. IN PROGRESS.** Coin counting (2.MD.8),
    read-your-own wallet, totals and change — Paw Bucks becomes
-   curriculum. **The checkout's counting-out screen is the first
-   piece**: `buyGear` already accepts overpayment plus counted-back
-   change and refuses anything that doesn't balance, but the UI still
-   only offers exact change, so no child can reach it yet.
+   curriculum. Plan of record: docs/TRAIL.md + docs/PEDAGOGY.md.
+   - ✅ R0 (v1.47.3) four blocking defects
+   - ✅ R1 (v1.48.0) trail registry, one-way readiness gates, the two docs
+   - ✅ R2 (v1.49.0) counting-out change at the checkout (`canOverpay`,
+     the two doors, `src/ui/cointray.js` for reuse in R5)
+   - R3 `counton` — number sequence to 120 + the number path
+   - R4 skip counting widened + `groups` (equal groups, composite units)
+   - R5 the money track proper (schema v19, coin art, 7 waves, new pets)
 
    Also open from the economy audits: stale placements can pre-place a
    re-bought item (partly scoped by store epoch); `profileSignature`

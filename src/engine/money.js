@@ -95,6 +95,67 @@ export function canMakeExact(counts, price) {
   return reachable.has(price);
 }
 
+// Can the child end up ABOVE the price, handing coins over one at a time
+// and stopping as soon as the price is covered?
+//
+// The obvious test — "do they hold a coin bigger than the remaining price?"
+// — is wrong. Four quarters buying a 90¢ item has no such coin (25 < 90),
+// yet overpayment is FORCED: 25, 50, 75 are all short, and the fourth
+// quarter lands on 100. Exact change is impossible there, so that wrong
+// test would have hidden the only route to the item.
+//
+// Reachable stopping states are exactly the multisets M with sum(M) > price
+// whose last coin c leaves sum(M) − c < price. So the question becomes:
+// is there a reachable sum s < price and a denomination d with a coin of d
+// still unspent on some path to s, where s + d > price?
+//
+// Bounded DP over the five piles. State is s ∈ [0, price); the value is a
+// 5-bit mask where bit d means "some path to s left a d unspent". OR-ing
+// masks across paths is sound because each bit only needs its own witness
+// multiset and we ask about one (s, d) pair at a time.
+//
+// Corollary worth knowing: change = sum(M) − price < c ≤ 100, so change is
+// ALWAYS under a dollar.
+export function canOverpay(counts, price) {
+  if (!Number.isInteger(price) || price <= 0) return false;
+  let reach = new Map([[0, 0]]);
+  for (const [i, { id, cents }] of DENOMS.entries()) {
+    const have = counts[id] ?? 0;
+    const next = new Map();
+    for (const [s, mask] of reach) {
+      const maxK = Math.min(have, Math.floor((price - 1 - s) / cents));
+      for (let k = 0; k <= maxK; k++) {
+        const sum = s + k * cents;
+        const m = mask | (k < have ? 1 << i : 0); // a spare of d remains
+        next.set(sum, (next.get(sum) ?? 0) | m);
+      }
+    }
+    reach = next;
+  }
+  for (const [s, mask] of reach) {
+    for (const [i, { cents }] of DENOMS.entries()) {
+      if (mask & (1 << i) && s + cents > price) return true;
+    }
+  }
+  return false;
+}
+
+// What the shop hands back, largest coin first. The drawer is unlimited —
+// a shop has plenty — so any amount under a dollar is always makeable, and
+// the change step can never dead-end.
+export function changeFor(cents) {
+  const out = {};
+  let left = cents;
+  for (const { id, cents: v } of DENOMS) {
+    const n = Math.floor(left / v);
+    if (n > 0) {
+      out[id] = n;
+      left -= n * v;
+    }
+  }
+  return out;
+}
+
 export function canSwap(profile, rule) {
   return (coinCounts(profile)[rule.give.denom] ?? 0) >= rule.give.n;
 }
