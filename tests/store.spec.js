@@ -124,7 +124,7 @@ test('e2e: the grown-ups 🧪 chip opens the store; full checkout buys the bowl 
 });
 
 
-test('e2e: a lone Paw Buck cannot make 90¢ — the store sends you to make change', async ({ page }) => {
+test('e2e: a lone Paw Buck cannot make 90¢ — so you pay big and count the change', async ({ page }) => {
   await page.goto('/', { waitUntil: 'networkidle' });
   const doc = newProfile(uniqueName('Change'));
   doc.id = 'change-kid';
@@ -136,11 +136,19 @@ test('e2e: a lone Paw Buck cannot make 90¢ — the store sends you to make chan
   await page.evaluate(() => { location.hash = '#/store'; });
   await page.waitForSelector('[data-shelves]');
   await page.tap('[data-item="bowl"]');
-  await expect(page.locator('[data-checkout]')).toContainText('exact change');
-  await page.tap('[data-to-wallet]');
-  await page.waitForSelector('[data-swaps]');
-  await page.tap('[data-swap="0"]'); // break the buck into quarters
-  await expect(page.locator('.wallet-row', { hasText: 'Paw Quarter' })).toContainText('×4');
+  // v1.49.0: this used to be a dead end — "you have enough Paw Bucks but not
+  // the right coins", with a trip to the wallet to swap. A buck for a 90¢
+  // bowl is now the lesson instead: hand it over, count 10¢ back.
+  await expect(page.locator('[data-checkout]')).toContainText('Hand over coins');
+  await page.tap('[data-give="buck"]');
+  await expect(page.locator('[data-paid]')).toHaveText('🐾$1.00');
+  await page.tap('[data-next-step]');
+  await page.waitForSelector('[data-tray]');
+  await expect(page.locator('[data-chain]')).toContainText('90¢');
+  await page.tap('[data-add="dime"]');
+  await expect(page.locator('[data-take-change]')).toBeEnabled();
+  await page.tap('[data-take-change]');
+  await expect(page.locator('[data-checkout]')).toContainText("It's yours");
 });
 test('e2e: leaving the store lands littles in the Cozy Corner, dog-earners in the pack', async ({ page }) => {
   await page.goto('/', { waitUntil: 'networkidle' });

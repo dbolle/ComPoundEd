@@ -2121,3 +2121,164 @@ button.pressed {
   padding: 7px 8px;
   margin-bottom: 6px;
 }
+
+/* ── Number path 0–120 (src/art/numberpath.js) ─────────────────────────
+   This block only PAINTS. Every position comes from the module's xFor(),
+   so no width, offset or tick spacing lives here that could drift out of
+   agreement with the other two renderings. The SVGs scale by viewBox
+   (width:100%), and grading works off the fraction across the button —
+   so a wider tablet strip needs no CSS of its own.
+
+   The placement button is the single tap target on the screen: 92px tall,
+   twice the 44px floor, with ~90px-wide decade bins at phone width. */
+.np-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.np-overview,
+.np-strip {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.np-oline {
+  fill: rgba(74, 63, 53, 0.16);
+}
+.np-otick {
+  stroke: rgba(74, 63, 53, 0.3);
+  stroke-width: 1.2;
+}
+.np-owin {
+  fill: rgba(20, 184, 166, 0.22);
+  stroke: var(--accent-deep);
+  stroke-width: 1.4;
+}
+.np-oend {
+  font-size: 9px;
+  font-weight: 700;
+  fill: var(--ink-soft);
+}
+
+/* Ten columns of a 358px content width leave ~34px a cell: too small for a
+   finger, which is fine — the chart is read, never tapped. Tabular figures
+   keep the columns aligned so 7, 17 and 117 stack. */
+.np-chart {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 2px;
+  width: 100%;
+  max-width: 358px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.np-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  padding: 7px 0;
+  border-radius: 8px;
+  background: var(--card);
+  box-shadow: 0 1px 3px rgba(59, 47, 47, 0.1);
+  color: var(--ink);
+}
+
+/* Past 120 the chart runs out of numbers; the slot stays to hold the
+   column, empty and unpainted. */
+.np-cell.gap {
+  background: none;
+  box-shadow: none;
+}
+
+/* Same highlight yellow as the counted item in the little games. */
+.np-cell.now {
+  background: #fde68a;
+}
+
+.np-cell.ask {
+  background: none;
+  box-shadow: none;
+  border: 2px dashed rgba(74, 63, 53, 0.35);
+  color: var(--brand-deep);
+}
+
+.np-place {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.np-tap {
+  display: block;
+  width: 100%;
+  max-width: 358px;
+  min-height: 92px;
+  padding: 0;
+  border: 0;
+  border-radius: 14px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+
+.np-tap:active {
+  transform: scale(0.99);
+}
+
+.np-bin {
+  fill: rgba(20, 184, 166, 0.1);
+}
+.np-bin.alt {
+  fill: rgba(20, 184, 166, 0.2);
+}
+.np-line {
+  fill: var(--ink-soft);
+}
+.np-tick.major {
+  fill: var(--brand-deep);
+}
+.np-tick.minor {
+  fill: rgba(74, 63, 53, 0.35);
+}
+.np-lab {
+  font-size: 15px;
+  font-weight: 900;
+  fill: var(--ink);
+}
+.np-mark line {
+  stroke: var(--accent-deep);
+  stroke-width: 2.4;
+}
+.np-mark circle {
+  fill: var(--accent);
+}
+.np-mark text {
+  font-size: 13px;
+  font-weight: 900;
+  fill: #fff;
+}
+
+/* Tablet tier: the same strip, more room (see tests/ipad.spec.js). */
+@media (min-width: 700px) {
+  .np-chart {
+    max-width: 480px;
+    font-size: 1.15rem;
+    gap: 4px;
+  }
+  .np-cell {
+    padding: 10px 0;
+    border-radius: 10px;
+  }
+  .np-tap {
+    max-width: 480px;
+    min-height: 124px;
+  }
+}

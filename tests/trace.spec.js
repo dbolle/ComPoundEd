@@ -32,9 +32,14 @@ test('digits 1–9 exist, stay in the box, and judge sanely', () => {
   expect(traceCoverage(8, half)).toBeLessThan(0.8);
 });
 
-test('the trace milestone is LAST (positional mapping) and adopts PETS[23]', () => {
-  expect(MILESTONES[MILESTONES.length - 1].id).toBe('trace');
-  expect(MILESTONES.length).toBe(24);
+test('the trace milestone keeps index 23 (positional mapping) and adopts PETS[23]', () => {
+  // What must hold is trace's INDEX, because that is the pet it adopts —
+  // not that it is the final entry. Milestones are appended over time
+  // (`counton` in v1.50.0), and asserting "last" made every future append
+  // look like a regression here while an actual INSERTION — the change that
+  // silently re-assigns every pet after it, on every device — would have
+  // been caught by neither.
+  expect(MILESTONES.findIndex((m) => m.id === 'trace')).toBe(23);
   expect(petForMilestone('trace').id).toBe(PETS[23].id);
 
   const p = newProfile('Tracer');

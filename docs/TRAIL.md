@@ -40,6 +40,7 @@ cannot be wrong at birth; the test is what keeps them right.
 | 🥣 Take away! | concrete subtraction | `K.OA.1` `K.OA.2` | `taway` | `takeaway:` 0–9 | `taway` | 5 | shipped |
 | 🐾 Counting paths | skip-count chains (tables connector) | `2.NBT.2` | `paths` | `path:` {2,5,10} | `paths` | 5 | shipped |
 | ✏️ Trace it! | digit formation 1–9 | `K.CC.3` | `trace` | `trace:` 1–9 | `trace` | 4 | shipped |
+| 🔢 Count on! | number sequence to 120, decade crossings | `1.NBT.1` `2.NBT.2` | `counton` | `seq:` 2–12<br>`ten:` 1–9<br>`place:` 1–5 (streak 4) *enrichment* | `counton` | 5 | shipped |
 | 🎁 Surprise! | interleaved practice over revealed games | — | `surprise` | — | — | 5 | shipped |
 
 ## The bridge — within 20 (ages ~4½–7)
@@ -68,12 +69,12 @@ away waves 1–2, and skip-counting by 2s, 5s and 10s.
 
 ## Phase 7 — money math and the counting gaps
 
-Planned in the approved Phase 7 plan; rows appear in the registry as they
-ship, and this table's ids become real then.
+Rows appear in the registry as they ship. `counton` shipped in v1.50.0 and
+now lives in the Little Pup table above, with its three namespaces spelled
+out there.
 
 | Kid-facing | Grown-up | Standards | id | Notes | Status |
 |---|---|---|---|---|---|
-| Count on! 🔢 | number sequence to 120, decade crossings | `1.NBT.1` `2.NBT.2` | `counton` | three independent namespaces: `seq:` crossings, `ten:` by-tens off-decade, `place:` magnitude (enrichment) | R3 |
 | Groups! 🧺 | equal groups and arrays | `2.OA.4` | `groups` | keyed by factor pair, not total; assesses groups, size, and total | R4 |
 | Paw Bucks 🪙 | money math: recognition → counting → equivalence → change → notation | `2.MD.8` | `money` | 7 waves, 134 identities, untimed mastery | R5 |
 

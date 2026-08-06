@@ -25,6 +25,46 @@ import { sfx, buzz } from '../sound.js';
 
 const CHEERS = ['Woof! 🎉', 'Good dog-gone job! 🐶', 'Fetch-tastic! 🦴', 'Paw-some! 🐾'];
 
+// --- Counting Path warm-up (isolated: generator + the COUNTING_PATH flag in
+// quizScreen are the whole feature; flip the flag to roll it back) ---------
+//
+// Three unscored skip-count chains before a barely-tried × table round.
+// docs/PEDAGOGY.md §3: skip counting is NOT multiplicative reasoning, so
+// this stays a warm-up — nothing here records a Leitner attempt or a coin.
+// Three shapes, mixed order, so the kid practises the count rather than one
+// habit: a low run, a run that starts higher up the table, and a run with
+// the gap in the middle. Every question shows three of four terms, so the
+// step is always readable off the numbers on screen. All terms are real
+// multiples 1×t … 12×t, so answers stay positive and inside the table.
+export function buildCountingPath(table, rand = Math.random) {
+  const pick = (lo, hi) => lo + Math.floor(rand() * (hi - lo + 1));
+  // A four-term run k…k+3 of the table with one term blanked out.
+  const run = (k, blank) => {
+    const ks = [k, k + 1, k + 2, k + 3];
+    return {
+      text: ks.map((n, i) => (i === blank ? '_' : n * table)).join(', '),
+      answer: ks[blank] * table,
+      correction: ks.map((n) => n * table).join(', '),
+    };
+  };
+  const lowK = pick(1, 3); //  low run:         4, 8, 12, _
+  const highK = pick(5, 9); // start anywhere: 28, 32, 36, _
+  // the gap run walks a third stretch of the table, so no two of the three
+  // questions count over the same numbers
+  const rest = [1, 2, 3, 4, 5, 6, 7, 8, 9].filter((k) => k !== lowK && k !== highK);
+  const midK = rest[Math.floor(rand() * rest.length)];
+  const shapes = [
+    () => run(lowK, 3),
+    () => run(highK, 3),
+    () => run(midK, pick(1, 2)), // missing middle: 4, _, 12, 16
+  ];
+  for (let i = shapes.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [shapes[i], shapes[j]] = [shapes[j], shapes[i]];
+  }
+  return shapes.map((make) => make());
+}
+
 export function quizScreen(el, params, ctx) {
   const table = params.get('table');
   const dtable = params.get('dtable');
@@ -61,15 +101,7 @@ export function quizScreen(el, params, ctx) {
   const COUNTING_PATH = true;
   let chains =
     COUNTING_PATH && scope.type === 'table' && tableTriedCount(ctx.profile, scope.table) <= 3
-      ? Array.from({ length: 3 }, (_, i) => {
-          const t = scope.table;
-          const k = i + 1;
-          return {
-            text: `${k * t}, ${(k + 1) * t}, ${(k + 2) * t}, _`,
-            answer: (k + 3) * t,
-            correction: `${k * t}, ${(k + 1) * t}, ${(k + 2) * t}, ${(k + 3) * t}`,
-          };
-        })
+      ? buildCountingPath(scope.table)
       : [];
 
   // Untried table: reframe the round — the table's own dog is the one

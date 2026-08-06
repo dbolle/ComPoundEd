@@ -3,6 +3,50 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.50.0 — 2026-08-05
+
+**Count on! 🔢** — counting past nineteen, all the way to 120. Phase 7 R3.
+
+- **A new little-pup game with three kinds of question.** What comes after
+  29 (the crossings, which is exactly where counting stops being
+  predictable); counting by tens from an odd starting place (24, 34,
+  44…), where the tens pattern becomes visible; and where a number *sits*
+  on a number path.
+- **Each kind is tracked separately**, because knowing one says nothing
+  about the others. Finishing the game needs the two counting skills;
+  the number-path question pays but is never required — the research
+  behind it used a board numbered to ten, and we don't pretend that
+  licenses a line to 120.
+- **The number path is graded by decade, not by pixel.** Tapping anywhere
+  in the right ten counts, which on a phone means a target about the width
+  of a thumb rather than three pixels. The whole 0–120 line sits above as
+  a map, with the zoomed-in stretch highlighted.
+- **The app can say every number up to 120** — it could only say them up
+  to ten before, so anything larger was read out as digits. Eleven,
+  twelve, thirteen and fifteen are spelled out rather than guessed at,
+  which is the same reason the game hunts for the crossings.
+- Finishing it adopts a new Cozy Corner friend.
+**Counting paths, less predictable.** The skip-count warm-up before a
+barely-tried times table always asked the same shape — the next number in a
+run starting low. It now mixes three: a low run, a run starting further up
+the table, and one with a gap in the middle (`8, _, 16, 20`). Still three
+questions, still unscored, still no coins.
+
+- Fixed: a coin for learning a number was paid one try early on the
+  compare game, which needs a longer streak than the others to count as
+  learned.
+- Fixed: buying something with a well-stocked wallet briefly asked "how do
+  you want to pay?" before every purchase. Paying the exact price is the
+  one-tap default again, with counting change back offered as a button
+  inside it — almost every wallet can do both, so the question was being
+  asked nearly every time.
+- Fixed: an animal-voice test compared a bird's brightness to a rabbit's
+  with no margin left after the rabbit's voice changed, so a full test run
+  failed at random.
+- Groundwork not yet reachable by a child: the equal-groups engine, coin
+  artwork with readable face values, and the money-track design
+  (`docs/PHASE7.md`) — all landing in the next two releases.
+
 ## v1.49.0 — 2026-08-05
 
 Counting out change at the shop counter — Phase 7 R2.

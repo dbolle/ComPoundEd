@@ -242,20 +242,42 @@ test('e2e: four quarters, a 90¢ bowl — the old dead end is now the lesson', a
   expect(errors).toEqual([]);
 });
 
-test('e2e: when both ways work, the child chooses', async ({ page }) => {
-  // a quarter pays 25 exactly; three dimes overshoot it
+test('e2e: exact change stays one tap; counting back is offered, not imposed', async ({ page }) => {
+  // A quarter pays 25 exactly; three dimes overshoot it — so BOTH routes
+  // work. Nearly every stocked wallet is in this position (2426 of 2438
+  // sampled cases), so an interstitial "how do you want to pay?" would have
+  // appeared on almost every purchase. Exact change stays the default and
+  // the other route is a secondary button inside it.
   await shopper(page, 'Chooser', { quarter: 1, dime: 3 });
   await page.tap('[data-item="ball"]'); // 25¢
-  await expect(page.locator('[data-checkout]')).toContainText('How do you want to pay?');
-  await expect(page.locator('[data-door-exact]')).toBeVisible();
+  await page.waitForSelector('[data-trays]');
+  await expect(page.locator('[data-checkout]'), 'no interstitial').not.toContainText(
+    'How do you want to pay?'
+  );
+  // ...but the counting-back route is findable from here
   await expect(page.locator('[data-door-over]')).toBeVisible();
 
-  // the exact door is the flow that already existed
-  await page.tap('[data-door-exact]');
-  await page.waitForSelector('[data-trays]');
+  // the default flow is unchanged: one tap in, pay, done
   await page.tap('[data-give="quarter"]');
   await expect(page.locator('[data-pay]')).toBeEnabled();
   await page.tap('[data-pay]');
+  await expect(page.locator('[data-checkout]')).toContainText("It's yours");
+});
+
+test('e2e: the secondary button reaches the counting-back route', async ({ page }) => {
+  await shopper(page, 'Switcher', { quarter: 1, dime: 3 });
+  await page.tap('[data-item="ball"]'); // 25¢, payable exactly
+  await page.waitForSelector('[data-trays]');
+  await page.tap('[data-door-over]');
+  await expect(page.locator('[data-checkout]')).toContainText('Hand over coins');
+  // three dimes: 10, 20, then 30 — the third overshoots 25
+  for (let i = 0; i < 3; i++) await page.tap('[data-give="dime"]');
+  await expect(page.locator('[data-paid]')).toHaveText('30¢');
+  await page.tap('[data-next-step]');
+  await page.waitForSelector('[data-tray]');
+  await page.tap('[data-add="nickel"]'); // 25 → 30
+  await expect(page.locator('[data-take-change]')).toBeEnabled();
+  await page.tap('[data-take-change]');
   await expect(page.locator('[data-checkout]')).toContainText("It's yours");
 });
 

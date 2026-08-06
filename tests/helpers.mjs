@@ -91,10 +91,19 @@ export async function clearCountingPath(page) {
   await page.waitForSelector('.question');
   for (let i = 0; i < 4; i++) {
     const txt = ((await page.textContent('.question')) ?? '').trim();
-    const m = txt.match(/^(\d+), (\d+), (\d+), _$/);
-    if (!m) return;
-    const step = Number(m[2]) - Number(m[1]);
-    await answer(page, Number(m[3]) + step);
+    // v1.51.0: the warm-up has three shapes and the blank is no longer
+    // always last (`8, _, 16, 20`). Solve it from whichever adjacent pair
+    // is visible — the blank is never first, so a step is always readable.
+    if (!/^(\d+|_)(, (\d+|_)){3}$/.test(txt)) return;
+    const nums = txt.split(', ').map((part) => (part === '_' ? null : Number(part)));
+    const gap = nums.indexOf(null);
+    if (gap < 1) return;
+    let step = 0;
+    for (let j = 0; j + 1 < nums.length; j++) {
+      if (nums[j] != null && nums[j + 1] != null) step = nums[j + 1] - nums[j];
+    }
+    if (!step) return;
+    await answer(page, nums[gap - 1] + step);
     await page.waitForTimeout(1450);
   }
 }

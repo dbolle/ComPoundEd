@@ -32,7 +32,8 @@ import {
   STREAK_NEEDED,
   RANGE_DOMAIN,
 } from '../src/engine/trail.js';
-import { MILESTONES } from '../src/engine/cozy.js';
+import { MILESTONES, petForMilestone } from '../src/engine/cozy.js';
+import { PETS } from '../src/art/pets.js';
 import * as readiness from '../src/engine/readiness.js';
 import { newProfile, mergeProfiles } from '../src/data/schema.js';
 import { waveFacts } from '../src/engine/waves.js';
@@ -46,14 +47,32 @@ const FIX = JSON.parse(readFileSync('tests/fixtures-little-registry.json', 'utf8
 // existed in data but were missing from the map entirely — which is
 // precisely the drift that hid two games from the frontier picker.
 const RENAMED = { taway: 'takeaway' };
-const INTENTIONAL_ADDITIONS = ['bond5', 'bond10', 'teen', 'path'];
+const INTENTIONAL_ADDITIONS = ['bond5', 'bond10', 'teen', 'path', 'seq', 'ten', 'place'];
+
+// The fixture is a HISTORICAL snapshot of the literals the registry
+// replaced, so it pins the extraction. Games added afterwards must be
+// declared here — the test then still catches an accidental change to
+// anything that shipped before, while an intended new game is one line.
+const ADDED_SINCE_FIXTURE = ['counton'];
 
 test('derived maps still equal the literals they replaced', () => {
-  expect(QUESTIONS_BY_GAME).toEqual(FIX.QUESTIONS_BY_GAME);
-  expect(KIND_BY_GAME).toEqual(FIX.KIND_BY_GAME);
-  expect(PRAISE_BY_GAME).toEqual(FIX.PRAISE_BY_GAME);
-  expect([...SKILL_GAMES].sort()).toEqual([...FIX.SKILL_GAMES].sort());
-  expect(STREAK_NEEDED).toEqual(FIX.STREAK_NEEDED);
+  // every pre-existing entry unchanged...
+  for (const [game, v] of Object.entries(FIX.QUESTIONS_BY_GAME)) {
+    expect(QUESTIONS_BY_GAME[game], `questions for ${game}`).toBe(v);
+  }
+  for (const [game, v] of Object.entries(FIX.KIND_BY_GAME)) {
+    expect(KIND_BY_GAME[game], `play kind for ${game}`).toBe(v);
+  }
+  for (const [game, v] of Object.entries(FIX.PRAISE_BY_GAME)) {
+    expect(PRAISE_BY_GAME[game], `praise for ${game}`).toEqual(v);
+  }
+  for (const g of FIX.SKILL_GAMES) expect(SKILL_GAMES.has(g), `${g} still tracked`).toBe(true);
+  for (const [ns, v] of Object.entries(FIX.STREAK_NEEDED)) {
+    expect(STREAK_NEEDED[ns], `streak for ${ns}`).toBe(v);
+  }
+  // ...and the only new games are the declared ones
+  const extra = Object.keys(QUESTIONS_BY_GAME).filter((g) => !(g in FIX.QUESTIONS_BY_GAME));
+  expect(extra.sort()).toEqual([...ADDED_SINCE_FIXTURE].sort());
 });
 
 test('the adaptive band: no old entry changed, and additions cannot move rangeFor', () => {
@@ -116,6 +135,9 @@ test('skill domains: every old entry survives, and the additions are the known f
     (ns) => !Object.keys(FIX.SKILL_DOMAIN).map((k) => RENAMED[k] ?? k).includes(ns)
   );
   expect(added.sort()).toEqual([...INTENTIONAL_ADDITIONS].sort());
+  // the enrichment namespace needs the longer streak: a binned answer is
+  // more guessable than a numeral, so 3 in a row proves less
+  expect(STREAK_NEEDED.place, 'placement is binned ⇒ needs 4').toBe(4);
   // the set-valued one is a set, not a range — three strides, not 2..10
   expect(SKILL_DOMAIN.path).toEqual({ set: [2, 5, 10] });
   expect(skillNumbers({ domain: { set: [2, 5, 10] } })).toEqual([2, 5, 10]);
@@ -188,6 +210,10 @@ test('generic frontier == old special-cased frontier, on every profile shape', (
 
   for (const p of shapes) {
     for (const g of games) {
+      // the old implementation predates these games and has no branch for
+      // them, so there is nothing to compare against — they are covered by
+      // their own specs instead
+      if (ADDED_SINCE_FIXTURE.includes(g)) continue;
       expect(gameHasFrontier(p, g), `${g} on ${p.name}`).toBe(oldHasFrontier(p, g));
     }
   }
@@ -363,4 +389,22 @@ test('a profile that never qualified is unaffected', () => {
   expect(readiness.tablesVisible(p)).toBe(false);
   expect(readiness.bridgeVisible(p)).toBe(false);
   expect(readiness.trackState(p, 'tables')).toBe('hidden');
+});
+
+// --- the pet/milestone pairing, which had been holding by luck -----------
+
+test('every milestone maps to its OWN pet, and the list never wraps', () => {
+  // petForMilestone indexes PETS positionally with `% PETS.length`, and
+  // checkPetUnlocks de-dupes by MILESTONE id rather than pet id. So one
+  // milestone past the end of PETS re-adopts an owned pet: the child is
+  // offered a "new friend" they already have, mergeProfiles unions the
+  // duplicate petId away, and checkPetUnlocks pushes it again next
+  // session — a heal-loop. Nothing tested this; it held by luck.
+  expect(PETS.length, 'a pet for every milestone').toBeGreaterThanOrEqual(MILESTONES.length);
+  const mapped = MILESTONES.map((m) => petForMilestone(m.id).id);
+  expect(new Set(mapped).size, 'no two milestones share a pet').toBe(MILESTONES.length);
+  for (const m of MILESTONES) {
+    const i = MILESTONES.findIndex((x) => x.id === m.id);
+    expect(i, `${m.id} is within PETS`).toBeLessThan(PETS.length);
+  }
 });

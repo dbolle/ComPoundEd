@@ -13,6 +13,20 @@ import {
   openTableGrid,
 } from './helpers.mjs';
 
+// The hermetic /sync/ store lives in the test server's memory, and
+// playwright.config.js sets `reuseExistingServer: true` — so a server left
+// running by an earlier invocation still holds whatever the last run pushed.
+// This test seeds 13 facts and then plays ×3 on device B, so a leftover
+// `sync-kid` comes back with 19 and the restore assertion fails with
+// "expected 13, received 19". That is not flake: it failed intermittently
+// for exactly this reason and cost a misread gate. Clear our own remote
+// state first, via the server's test-only janitor.
+test.beforeEach(async ({ baseURL }) => {
+  for (const id of ['sync-kid', 'sync-kid-b']) {
+    await fetch(`${baseURL}/sync/profiles/${id}.json`, { method: 'DELETE' }).catch(() => {});
+  }
+});
+
 function doc(id, name) {
   const facts = {};
   for (let b = 0; b <= 12; b++) facts[norm(2, b)] = stat(4);
