@@ -232,6 +232,28 @@ export const TRAIL = [
     revealId: 'tile:trace',
   }),
   R({
+    id: 'counton',
+    labels: { kid: 'Count on!', icon: '🔢', grownup: 'number sequence to 120, decade crossings' },
+    standards: ['1.NBT.1', '2.NBT.2'],
+    questions: 5,
+    playKind: 'walk',
+    tracked: true,
+    // Three forms, three namespaces, on purpose: they must not certify one
+    // another. Knowing what follows 29 says nothing about counting by tens
+    // from 24, and neither says where 47 sits on a line. `place` is
+    // ENRICHMENT — a representational bridge, not a fluency — so it pays
+    // but gates nothing (docs/PEDAGOGY.md §2 explains why the research does
+    // not license treating placement as a required skill).
+    skills: [
+      { ns: 'seq', domain: [2, 12], streak: 3, required: true },
+      { ns: 'ten', domain: [1, 9], streak: 3, required: true },
+      { ns: 'place', domain: [1, 5], streak: 4, required: false },
+    ],
+    praise: ['Big number counter!', 'You counted way past ten!'],
+    milestones: ['counton'],
+    revealId: 'tile:counton',
+  }),
+  R({
     id: 'surprise',
     labels: { kid: 'Surprise!', icon: '🎁', grownup: 'interleaved practice over revealed games' },
     standards: [],
@@ -300,15 +322,6 @@ export const TRACKS = [
 const P = (rec) => ({ status: 'planned', tracked: false, skills: [], milestones: [], ...rec });
 
 export const PLANNED = [
-  P({
-    id: 'counton',
-    type: 'little-game',
-    labels: { kid: 'Count on!', icon: '🔢', grownup: 'number sequence to 120, decade crossings' },
-    standards: ['1.NBT.1', '2.NBT.2'],
-    questions: 5,
-    revealId: 'tile:counton',
-    plannedIn: 'R3',
-  }),
   P({
     id: 'groups',
     type: 'little-game',

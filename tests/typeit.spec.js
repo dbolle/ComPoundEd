@@ -13,8 +13,18 @@ const skilled = (game, lo, hi, streak = 3) => {
   return s;
 };
 
-test('type milestone appended last; adding readiness needs typing', () => {
-  expect(MILESTONES.slice(-6).map((m) => m.id)).toEqual(['type', 'taway', 'paths', 'count3', 'count5', 'trace']); // appended, never inserted
+test('type milestone keeps its index; adding readiness needs typing', () => {
+  // The pet a milestone adopts is its POSITION in this list, so what has to
+  // hold is that these six keep their indices — not that they stay at the
+  // end. `slice(-6)` asserted the latter, which fails the moment anything
+  // is appended (as `counton` was in v1.50.0) even though nothing moved.
+  // Asserting the indices lets appending stay free while an insertion or a
+  // reorder — the changes that would silently re-assign pets across every
+  // device — still fail here.
+  expect(MILESTONES.slice(18, 24).map((m) => m.id)).toEqual([
+    'type', 'taway', 'paths', 'count3', 'count5', 'trace',
+  ]);
+  expect(MILESTONES.findIndex((m) => m.id === 'type'), 'type is index 18').toBe(18);
   const p = newProfile('R');
   p.little.skills = { ...skilled('count', 1, 10), ...skilled('next', 4, 10) };
   expect(addingReady(p)).toBe(false); // can count on but can't type yet

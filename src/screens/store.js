@@ -155,18 +155,23 @@ export function storeScreen(el, params, ctx) {
   // total is done FOR the child beyond showing it — choosing the
   // denominations is the math.
   // Which door: paying the exact price, or paying big and counting the
-  // change back? Both are real ways to buy something, and a child who can
-  // only ever do one of them is missing half the lesson — so when both are
-  // possible they get the choice. When only one is, it opens directly.
+  // change back?
+  //
+  // Exact change stays the DEFAULT whenever it is possible, reached in one
+  // tap exactly as before. Counting change back is offered from inside it
+  // as a secondary button. An interstitial "how do you want to pay?" was
+  // the first design, and it was wrong: almost every wallet that can pay
+  // exactly can also overpay (2426 of 2438 sampled cases), so the choice
+  // screen would have appeared on nearly every purchase — an extra
+  // decision, and more reading, between a child and their toy.
   function runCheckout(item, forId) {
     shelves.hidden = true;
     checkoutEl.hidden = false;
     const wallet = coinCounts(p);
     const exact = canMakeExact(wallet, item.price);
     const over = canOverpay(wallet, item.price);
-    if (exact && over) return pickDoor(item, forId);
+    if (exact) return runExact(item, forId, over);
     if (over) return runOverpay(item, forId);
-    if (exact) return runExact(item, forId);
     // Unreachable while the shelf blocks unaffordable items: covering the
     // price always lands either ON it or past it. Kept as an honest
     // fallback rather than a crash, and asserted unreachable in
@@ -182,21 +187,7 @@ export function storeScreen(el, params, ctx) {
     checkoutEl.querySelector('[data-cancel]').addEventListener('click', closeCheckout);
   }
 
-  function pickDoor(item, forId) {
-    checkoutEl.innerHTML = `
-      <div class="card center">
-        <h3>${item.emoji} ${escapeHtml(item.name)} — ${formatPaw(item.price)}</h3>
-        <p class="muted">How do you want to pay?</p>
-        <button class="btn accent" data-door-exact>🪙 Pay the exact price</button>
-        <button class="btn accent" data-door-over>🔁 Pay big and count the change</button>
-        <button class="btn ghost small" data-cancel>✕ Not today</button>
-      </div>`;
-    checkoutEl.querySelector('[data-door-exact]').addEventListener('click', () => runExact(item, forId));
-    checkoutEl.querySelector('[data-door-over]').addEventListener('click', () => runOverpay(item, forId));
-    checkoutEl.querySelector('[data-cancel]').addEventListener('click', closeCheckout);
-  }
-
-  function runExact(item, forId) {
+  function runExact(item, forId, canAlsoOverpay = false) {
     const wallet = coinCounts(p);
     const paying = {};
     const paidCents = () =>
@@ -212,8 +203,20 @@ export function storeScreen(el, params, ctx) {
       </div>
       <div class="nav-row">
         <button class="btn ghost small" data-restart>↩️ Start over</button>
+        ${
+          canAlsoOverpay
+            ? '<button class="btn ghost small" data-door-over>🔁 Pay big instead</button>'
+            : ''
+        }
         <button class="btn ghost small" data-cancel>✕ Not today</button>
       </div>`;
+    // The counting-back route lives here rather than behind an interstitial,
+    // so an experienced profile with a full wallet can still FIND it
+    // (CLAUDE.md: gates have hidden features twice) without every purchase
+    // costing an extra decision.
+    checkoutEl
+      .querySelector('[data-door-over]')
+      ?.addEventListener('click', () => runOverpay(item, forId));
     const traysEl = checkoutEl.querySelector('[data-trays]');
     // Could the child still reach the exact price after handing this coin
     // over? Without this a legal-looking tap leads to a dead end where

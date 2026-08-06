@@ -8,7 +8,8 @@
 import { navigate } from '../router.js';
 import { getDog, dogSVG, wornFor, DOGS, GUESTS } from '../art/dogs.js';
 import { getPet, petSVG } from '../art/pets.js';
-import { sfx, buzz, say, cheer, critterSound, soundWord } from '../sound.js';
+import { sfx, buzz, say, cheer, critterSound, soundWord, numberWord } from '../sound.js';
+import { WINDOWS, overviewSVG, placementSVG, placementCorrect } from '../art/numberpath.js';
 import { earnSkillKnown, balanceCents, formatPaw } from '../engine/money.js';
 import { avatarFor } from '../art/avatar.js';
 import { checkPetUnlocks, nextPetGoal, gameGoal } from '../engine/cozy.js';
@@ -314,6 +315,26 @@ function tiles(p, buddy) {
       }),
       caption: 'Trace it!',
       art: `<span class="tile-art">✏️</span><span class="tile-mark">1️⃣2️⃣3️⃣</span>`,
+    },
+    {
+      game: 'counton',
+      minXp: 0,
+      // Open once teen numbers are known — OR for any child with real
+      // higher-track history, who has plainly counted past ten already.
+      // An experienced profile must be able to REACH this (CLAUDE.md: gates
+      // have hidden features twice), and the counting gates below it were
+      // never meant to hold a tables kid back.
+      ready: (p) =>
+        knowsRange(p.little ?? {}, 'teen', 1, 9) ||
+        Object.values(p.facts ?? {}).some((s) => (s.attempts ?? 0) > 0) ||
+        Object.values(p.division ?? {}).some((s) => (s.attempts ?? 0) > 0),
+      gate: (p) => ({
+        icon: '🔢',
+        have: [1, 2, 3, 4, 5, 6, 7, 8, 9].filter((n) => knows(p.little ?? {}, 'teen', n)).length,
+        need: 9,
+      }),
+      caption: 'Count on!',
+      art: `<span class="tile-num">99</span><span class="tile-mark">🔢</span>`,
     },
     {
       game: 'teen',
@@ -1143,6 +1164,126 @@ export function littleGameScreen(el, params, ctx) {
         choicesEl.children[ri(choicesEl.children.length)].remove();
         choiceButton('<span class="little-numeral">0</span>', true);
       }
+    } else if (g === 'counton') {
+      // Count on! The number sequence past nineteen (1.NBT.1). Two
+      // fluencies plus one representational bridge, each with its OWN skill
+      // namespace so they cannot certify one another:
+      //   seq:<d>   what follows 29, 39, … — the crossings where children
+      //             actually stall, so questions are aimed AT them rather
+      //             than sprinkled uniformly
+      //   ten:<r>   counting by tens from an off-decade start (24, 34, 44…),
+      //             which is where the tens pattern becomes visible
+      //   place:<w> where a number sits (enrichment; added with the number
+      //             path in a follow-up — see docs/PEDAGOGY.md §2)
+      //
+      // Staged so a child meets one idea at a time: crossings first, tens
+      // once two crossings are known. Stages advance, never regress.
+      const canTens = knows(little, 'seq', 2) && knows(little, 'seq', 3);
+      const canPlace = canTens && [1, 2, 3, 4, 5, 6, 7, 8, 9].some((r) => knows(little, 'ten', r));
+      const form = canPlace && ri(3) === 0 ? 'place' : canTens && ri(2) ? 'ten' : 'seq';
+      let seq;
+      let answer;
+      let skill;
+      if (form === 'seq') {
+        // d = the decade being crossed INTO: 2 → 20, 12 → 120
+        const unknown = [];
+        for (let d = 2; d <= 12; d++) if (!knows(little, 'seq', d)) unknown.push(d);
+        const d = unknown.length && Math.random() < 0.7 ? unknown[ri(unknown.length)] : 2 + ri(11);
+        const target = d * 10;
+        seq = [target - 3, target - 2, target - 1];
+        answer = target;
+        skill = `seq:${d}`;
+        speak(`What comes after ${numberWord(target - 1)}?`);
+      } else {
+        // r = the ones digit the chain keeps: 24, 34, 44 → 54
+        const unknown = [];
+        for (let r = 1; r <= 9; r++) if (!knows(little, 'ten', r)) unknown.push(r);
+        const r = unknown.length && Math.random() < 0.7 ? unknown[ri(unknown.length)] : 1 + ri(9);
+        const start = 10 * (1 + ri(7)) + r; // 11..79, ones digit r
+        seq = [start, start + 10, start + 20];
+        answer = start + 30;
+        skill = `ten:${r}`;
+        speak('Count by tens!');
+      }
+      if (form === 'place') {
+        // Where does it SIT? A zoomed four-decade window, graded by decade
+        // rather than by exact pixel, so the answer bins are ~90px on a
+        // phone instead of 3px. Enrichment: this pays but gates nothing,
+        // because the research behind it used a 1–10 board and does not
+        // license treating 0–120 placement as a fluency (PEDAGOGY.md §2).
+        const unknown = [];
+        for (let w = 1; w <= 5; w++) if (!knows(little, 'place', w)) unknown.push(w);
+        const w = unknown.length && Math.random() < 0.7 ? unknown[ri(unknown.length)] : 1 + ri(5);
+        const [lo, hi] = WINDOWS[w - 1];
+        const target = lo + 4 + ri(hi - lo - 7); // inside, never on an end
+        promptEl.textContent = '🔢📍❓';
+        speak(`Where does ${numberWord(target)} go?`);
+        stageEl.dataset.answer = target;
+        stageEl.dataset.skill = `place:${w}`;
+        stageEl.innerHTML = `<div class="np-wrap">
+          ${overviewSVG(lo, hi)}
+          ${placementSVG(lo, hi, { target })}
+        </div>`;
+        const tap = stageEl.querySelector('.np-tap');
+        tap.addEventListener('click', (e) => {
+          if (busy || performance.now() < inputReadyAt) return;
+          const rect = tap.getBoundingClientRect();
+          const frac = (e.clientX - rect.left) / rect.width;
+          // show where they meant AND where it really goes, either way
+          const reveal = (markAt) => {
+            stageEl.querySelector('.np-wrap').innerHTML = `${overviewSVG(lo, hi)}
+              ${placementSVG(lo, hi, { target, markAt })}`;
+          };
+          if (placementCorrect(target, frac, lo, hi)) {
+            reveal(target);
+            celebrate(null, { speakWord: false });
+          } else {
+            firstTry = false;
+            reveal(target);
+            sfx.wrong();
+            say(`${numberWord(target)} goes here.`);
+          }
+        });
+        return;
+      }
+      promptEl.textContent = '🔢➡️❓';
+      stageEl.dataset.answer = answer;
+      stageEl.dataset.skill = skill;
+      stageEl.innerHTML = `<div class="pattern-row">${seq
+        .map((v) => `<span class="path-num">${v}</span>`)
+        .join('<span class="path-paw">🐾</span>')}<span class="path-paw">🐾</span><span class="pattern-q">❓</span></div>`;
+      // Typed once the child can type two digits; tap-choices before that.
+      if (knowsRange(little, 'type', 1, 10)) {
+        stageEl.innerHTML += `<div class="type-entry little-numeral">&nbsp;</div><div class="numpad little-numpad"></div>`;
+        const entry = stageEl.querySelector('.type-entry');
+        let input = '';
+        buildNumpad(stageEl.querySelector('.numpad'), (k) => {
+          if (busy || performance.now() < inputReadyAt) return;
+          if (k === 'ok') {
+            if (!input) return;
+            if (Number(input) === answer) celebrate(null, { speakWord: false });
+            else {
+              firstTry = false;
+              input = '';
+              entry.textContent = ' ';
+              sfx.wrong();
+            }
+            return;
+          }
+          if (k === 'del') input = input.slice(0, -1);
+          // three digits, because the sequence runs to 120
+          else if (input.length < 3) input += k;
+          entry.textContent = input || ' ';
+        });
+      } else {
+        // distractors a decade away in each direction — the confusion this
+        // game exists to fix is "what comes after 29", so 29+1 vs 29+11
+        const opts = new Set([answer]);
+        while (opts.size < 3) opts.add(Math.max(1, answer + (ri(2) ? 10 : -10) * (1 + ri(2))));
+        for (const v of [...opts].sort(() => Math.random() - 0.5)) {
+          choiceButton(`<span class="little-numeral">${v}</span>`, v === answer);
+        }
+      }
     } else if (g === 'teen') {
       // Teen numbers: ten and some more (K.NBT.1).
       const n = 1 + ri(9);
@@ -1195,7 +1336,12 @@ export function littleGameScreen(el, params, ctx) {
     if (stageEl.dataset.teachOnly !== '1') {
       sk.streak = firstTry ? sk.streak + 1 : 0;
     }
-    if (sk.streak === KNOWN_STREAK) {
+    // Pay when the skill is genuinely KNOWN, which is not always 3: a
+    // two-choice game needs 4 because 3 is guessable. This used to pay at a
+    // flat 3, so `more` earned its penny a streak before it counted as
+    // learned. The id is deterministic (`skill-<key>`), so a child who was
+    // already paid early keeps it — paying later is idempotent, not a claw-back.
+    if (sk.streak === (STREAK_NEEDED[key.split(':')[0]] ?? KNOWN_STREAK)) {
       const coin = earnSkillKnown(p, key);
       if (coin) {
         roundCoins.push(coin);

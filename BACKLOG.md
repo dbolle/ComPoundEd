@@ -73,8 +73,21 @@ reconsider after calibration.
    - ✅ R1 (v1.48.0) trail registry, one-way readiness gates, the two docs
    - ✅ R2 (v1.49.0) counting-out change at the checkout (`canOverpay`,
      the two doors, `src/ui/cointray.js` for reuse in R5)
-   - R3 `counton` — number sequence to 120 + the number path
-   - R4 skip counting widened + `groups` (equal groups, composite units)
+   - ✅ R3 (v1.50.0) `counton` — sequence to 120, the number path,
+     `numberWord` 0–120; groundwork landed for R4/R5 (groups engine,
+     coin art, docs/PHASE7.md)
+   - ✅ R4a (v1.50.0) skip-count warm-up widened to three shapes
+   - R4b `groups` (equal groups, composite units) — the engine
+     (`src/engine/groups.js`) landed in v1.50.0; the game still needs
+     wiring into the little-pup shelf and a milestone
+   - **R5 must also fix the CSS coin sizes.** `.coin.penny` inherits 34px
+     while `.coin.nickel` is 30px, so the app draws the penny LARGER than
+     the nickel — the reverse of reality (19.05mm vs 21.21mm). The money
+     track's central fact is "the dime is the smallest coin yet worth more
+     than the nickel", so this has to be right before that wave ships.
+     Real ratios (quarter = 38px): dime 28, penny 30, nickel 33. Deferred
+     from v1.50.0 only so the visual change lands with the coin art it
+     belongs to, under one test run.
    - R5 the money track proper (schema v19, coin art, 7 waves, new pets)
 
    Also open from the economy audits: stale placements can pre-place a

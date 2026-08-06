@@ -60,6 +60,21 @@ export const MILESTONES = [
   // v1.35.0 — appended (never inserted): Trace it! adopts PETS[23], the
   // first of the three pets that previously had no earning path.
   { id: 'trace', kind: 'little', label: 'Writing numbers 1–9', earned: (p) => rangeKnown(p, 'trace', 1, 9), prog: (p) => rangeProg(p, 'trace', 1, 9) },
+  // v1.50.0 — appended (never inserted): adopts PETS[24], one of the two
+  // pets that had no earning path. Requires the two FLUENCIES only —
+  // `place` (magnitude) is enrichment and deliberately not required, so the
+  // fuzziest of the three forms cannot stall the trail.
+  {
+    id: 'counton',
+    kind: 'little',
+    label: 'Counting past ten (to 120)',
+    earned: (p) => rangeKnown(p, 'seq', 2, 12) && rangeKnown(p, 'ten', 1, 9),
+    prog: (p) => {
+      const a = rangeProg(p, 'seq', 2, 12);
+      const b = rangeProg(p, 'ten', 1, 9);
+      return { have: a.have + b.have, need: a.need + b.need };
+    },
+  },
 ];
 
 // Can this profile ever earn this milestone? Little-skill milestones need

@@ -465,6 +465,63 @@ export function soundWord(species, n = 2) {
   return n === 1 ? pair[0] : pair[1];
 }
 
+// Numbers as words, 0–120 — the counting range of the hundred chart plus
+// the 101–120 tail. Prompts for pre-readers are SPOKEN, and a bare numeral
+// is at the mercy of whichever voice the device picked; a word is not.
+//
+// English composes above twenty ("forty-seven") but NOT below it: eleven,
+// twelve, thirteen and fifteen are irregular, and the decade words are
+// their own vocabulary rather than derivations. So 0–20 and the decades are
+// a lookup, and only the composition rule is a rule. That irregularity is
+// the reason the counting game targets decade crossings: 29→30 is a
+// vocabulary jump for a child, not an increment.
+const ONES = [
+  'zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight',
+  'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen',
+  'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty',
+];
+const TENS = {
+  20: 'twenty', 30: 'thirty', 40: 'forty', 50: 'fifty',
+  60: 'sixty', 70: 'seventy', 80: 'eighty', 90: 'ninety',
+};
+
+// The judgement calls, all decided for a child's EAR rather than for a
+// grammar book:
+//  * "one hundred one", not "one hundred and one" — the app speaks US
+//    English (as its spelling does), and that is the sequence a child
+//    chants off a hundred chart. The "and" also invites a listener to hear
+//    a second, separate number ("one hundred... and one").
+//  * "one hundred", never "a hundred" — counting needs the number, and it
+//    keeps 100 parallel with 101–120.
+//  * a hyphen in "forty-seven": correct written English (these strings also
+//    end up in aria-labels), and every voice reads a hyphen BETWEEN LETTERS
+//    as a word break — only a hyphen before a digit risks "minus".
+//  * out of range or fractional (121, -1, 7.5) → the numeral via String(n).
+//    A voice still reads "121" and "-1" aloud correctly, and the numeral is
+//    honest on screen, so a range slip degrades to today's behaviour rather
+//    than throwing or inventing a word.
+//  * anything that is not a finite number (undefined, null, NaN, '7', {})
+//    → '', because say('') is a silent no-op while String() would have a
+//    voice tell a six-year-old "undefined", "NaN" or "[object Object]".
+//    Deliberately NO coercion: the same Number() that turns '7' into 7 also
+//    turns null, '' and [] into 0, and a confidently spoken WRONG number
+//    ("zero") is far worse in a counting game than saying nothing.
+export function numberWord(n) {
+  if (typeof n !== 'number' || !Number.isFinite(n)) return '';
+  if (!Number.isInteger(n) || n < 0 || n > 120) return String(n);
+  if (n <= 20) return ONES[n];
+  if (n < 100) {
+    const tens = Math.floor(n / 10) * 10;
+    const ones = n % 10;
+    return ones ? `${TENS[tens]}-${ONES[ones]}` : TENS[tens];
+  }
+  // Above 120 would need real hundreds vocabulary, so this prefix is a
+  // literal on purpose: raising the cap has to be a deliberate edit here
+  // instead of silently saying "one hundred four hundred".
+  const rest = n - 100;
+  return rest ? `one hundred ${numberWord(rest)}` : 'one hundred';
+}
+
 // Spoken prompts for pre-readers (little-pup mode). Uses the device's local
 // speech voices — nothing leaves the device. Fails silently everywhere else.
 //

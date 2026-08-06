@@ -51,13 +51,15 @@ test('e2e: counting path warms up a fresh table, unscored, then the round starts
   await page.tap('.table-grid:not(.add-grid) .table-btn:nth-child(4)'); // ×4, untried
   await page.waitForSelector('.question');
   await expect(page.locator('.feedback')).toContainText('Counting path');
-  await expect(page.locator('.question')).toContainText('4, 8, 12');
+  // v1.51.0: runs are randomised across three shapes, so assert the shape.
+  // (A literal run would pin one of three possibilities and pass by luck.)
+  await expect(page.locator('.question')).toHaveText(/^(\d+|_)(, (\d+|_)){3}$/);
   // wrong warm-up answer: shown the chain, gently, and it moves on
   await page.tap('.numpad .key:text-is("7")');
   await page.tap('.numpad .key.ok');
   await expect(page.locator('.feedback')).toContainText('keep hopping');
   await page.waitForTimeout(1400);
-  await expect(page.locator('.question')).toContainText('8, 12, 16');
+  await expect(page.locator('.question')).toHaveText(/^(\d+|_)(, (\d+|_)){3}$/);
   // right answers clear the remaining chains
   for (const ans of ['24', '28']) {
     for (const d of ans) await page.tap(`.numpad .key:text-is("${d}")`);

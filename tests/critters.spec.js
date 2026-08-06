@@ -76,8 +76,15 @@ test('every species has a voice, no two sound alike, and all stay gentle', async
     expect(stats[s].seconds, `${s} lasts a moment`).toBeGreaterThan(0.02);
     expect(stats[s].seconds, `${s} is not a drone`).toBeLessThan(1.2);
   }
-  // distinctness: these must not measure alike
-  expect(stats.bird.brightness).toBeGreaterThan(stats.rabbit.brightness * 2);
+  // Distinctness: these must not measure alike. The bird/rabbit margin is
+  // deliberately 1.6× and not 2×. The 2× was set when the rabbit voice was a
+  // foot THUMP — low, few zero crossings — and when the ear check replaced it
+  // with a purr-click (filtered noise at ~950Hz) the rabbit's crossing count
+  // rose and the margin vanished: measured over 15 renders the ratio sits at
+  // 2.00–2.27 against a > 2 threshold, so the test had been passing on luck
+  // and failed intermittently in a full run. 1.6× still says "clearly
+  // brighter" and leaves real headroom against randomised synthesis.
+  expect(stats.bird.brightness).toBeGreaterThan(stats.rabbit.brightness * 1.6);
   expect(stats.sloth.seconds).toBeGreaterThan(stats.dog.seconds);
   expect(stats.guinea.brightness).toBeGreaterThan(stats.turtle.brightness);
 });

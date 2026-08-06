@@ -39,7 +39,11 @@ test('milestones adopt pets once; addition waves adopt too', () => {
   expect(subPet).toHaveLength(1);
   expect(subPet[0].milestone).toBe('s1');
   expect(subPet[0].pet.id).not.toBe(wavePet[0].pet.id);
-  expect(MILESTONES).toHaveLength(24); // + early friends + Trace it! (v1.35)
+  // Milestones only ever grow (append-only, because the pet mapping is
+  // positional), so pin the ORDER of the ones this test relies on rather
+  // than a total that every future game has to come back and edit.
+  expect(MILESTONES.slice(0, 4).map((m) => m.id)).toEqual(['look', 'bond5', 'bond10', 'teen']);
+  expect(MILESTONES.length, 'append-only: never shrinks').toBeGreaterThanOrEqual(24);
 });
 
 test('a known number pays one penny, ever', () => {
