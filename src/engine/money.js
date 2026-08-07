@@ -42,14 +42,31 @@ export const SIT_PAID_VISITS_PER_DAY = 2;
 export const FACT_MASTERY_PAY = { denom: 'nickel', cents: 5 };
 export const SET_MASTERY_PAY = { denom: 'buck', cents: 100 };
 export const POLISH_PAY = { denom: 'penny', cents: 1 };
-export const POLISH_CAP_CENTS_PER_DAY = 5;
+// The daily ceiling on grooming pennies. Raised 5 → 25 (owner, 2026-08-07)
+// now that grooming is a routed activity: it is a CEILING, not a quota, and
+// it self-lowers as the child masters more facts (fewer rusty facts exist to
+// pay for on any given day).
+//
+// No RATE_VERSION bump, deliberately: the rule above only binds AMOUNTS. A
+// bump is what stops one earning from existing at two values across devices
+// — and the amount here is untouched (POLISH_PAY is still 1¢, and every
+// penny already paid stays worth exactly 1¢). The cap changes how many
+// separate earnings a day can hold, never what one is worth, so no ledger
+// event is re-rated and nothing can conflict on merge.
+//
+// LEDGER IDENTIFIERS — do not rename: `reason: 'polish'`, `earnPolish`,
+// `POLISH_PAY`, `polishedCentsToday`. `reason: 'polish'` is written into
+// stored transactions on real children's devices; renaming it would orphan
+// their earning history. The kid-facing WORDS moved to the grooming
+// register (docs/VOCABULARY.md); the identifiers did not.
+export const POLISH_CAP_CENTS_PER_DAY = 25;
 
 // Human words for the grown-ups ledger.
 export const REASON_LABELS = {
   sitting: 'pet sitting',
   mastery: 'new fact mastered',
   set: 'whole table mastered',
-  polish: 'rusty fact polished',
+  polish: 'rusty fact polished', // grown-up register keeps "rusty" on purpose
   skill: 'new number known',
   buy: 'pet store',
   swap: 'coin swap',
@@ -345,7 +362,8 @@ export function earnSitting(profile, now = Date.now()) {
 const BADGE_TEXT = {
   set: (n) => `💵 Paw Buck${n > 1 ? ` ×${n}` : ''} — a whole set mastered!`,
   mastery: (n) => `🪙 Paw Nickel${n > 1 ? ` ×${n}` : ''} — new trick${n > 1 ? 's' : ''} learned!`,
-  polish: (n) => `🪙 Paw Penny${n > 1 ? ` ×${n}` : ''} — rusty fact${n > 1 ? 's' : ''} polished!`,
+  // Kid register: a fact goes dusty and a bath cleans it (docs/VOCABULARY.md).
+  polish: (n) => `🪙 Paw Penny${n > 1 ? ` ×${n}` : ''} — dusty fact${n > 1 ? 's' : ''} cleaned!`,
   sitting: () => '🪙 +1 paw dime!',
   skill: (n) => `🪙 Paw Penn${n > 1 ? `ies ×${n}` : 'y'} — new number${n > 1 ? 's' : ''} known!`,
 };

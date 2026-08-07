@@ -10,8 +10,7 @@ import {
   holdGrownupsGate,
   norm,
   stat,
-  openTableGrid,
-} from './helpers.mjs';
+  openTableGrid, openServerSection } from './helpers.mjs';
 
 // The hermetic /sync/ store lives in the test server's memory, and
 // playwright.config.js sets `reuseExistingServer: true` — so a server left
@@ -49,6 +48,7 @@ function doc(id, name) {
 async function enableBackup(page) {
   await page.tap('[data-nav="/grownups"]');
   await holdGrownupsGate(page);
+  await openServerSection(page);
   await page.tap('[data-sync-toggle]');
   await page.waitForTimeout(1200);
 }

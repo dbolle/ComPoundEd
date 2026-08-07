@@ -14,9 +14,23 @@ test('kid screens never say "Master …" — the kid word is "strong"', () => {
   expect(src('pack.js')).toContain('strong ⭐');
 });
 
-test('rusty is the kid word everywhere; "needs a refresh" is gone', () => {
-  expect(src('heatmap.js')).not.toContain('needs a refresh');
-  expect(src('heatmap.js')).toContain('rusty');
+// A dog cannot get rusty: the kid word for a decayed fact is "dusty", and
+// the fix is the bath the child actually taps. Grown-ups keep "rusty".
+test('"dusty" is the kid word for a decayed fact; rusty/polish are grown-up only', () => {
+  const hm = src('heatmap.js');
+  expect(hm).toContain('dusty');
+  expect(hm).not.toContain('needs a refresh');
+  expect(hm.toLowerCase()).not.toContain('rusty');
+  expect(hm.toLowerCase()).not.toContain('polish');
+  // The coin ceremony is kid-facing too — the badge cleans, it never polishes.
+  const money = readFileSync('src/engine/money.js', 'utf8');
+  const badge = money.match(/polish: \(n\) =>.*/)[0];
+  expect(badge).toContain('dusty fact');
+  expect(badge).not.toContain('rusty');
+  // ...but the grown-ups ledger label stays in the accurate register, and
+  // the ledger identifiers (reason: 'polish') must never be renamed.
+  expect(money).toContain("polish: 'rusty fact polished'");
+  expect(money).toContain("reason: 'polish'");
 });
 
 test('group vocabulary: play date everywhere, collar training as the badge', () => {

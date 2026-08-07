@@ -13,6 +13,16 @@
 // stored in device-local meta only — never in profiles or exports.
 
 const SYNC_BASE = '/sync/profiles/';
+
+// Family backup talks to a SAME-ORIGIN /sync/ on a server the family runs.
+// On the public build there is no such server and there never can be, so
+// every request would be a guaranteed 404 — and requests a family did not
+// ask for are exactly what this app promises not to make. Refuse at the
+// transport, not at each caller: hiding the buttons stopped the controls
+// but the probes carried on regardless (six of them, measured), because
+// `offerBackup` and the deleted-players check run from the profiles screen.
+export const NO_SERVER_POSSIBLE =
+  typeof __PUBLIC_DEMO__ !== 'undefined' && __PUBLIC_DEMO__;
 const TIMEOUT_MS = 5000;
 // Live profiles can legitimately reach ~4MB (long Paw Bucks ledgers) —
 // the cap matches the server limit, no lower.
@@ -51,6 +61,7 @@ const throttled = (res) => res.status === 429;
 // after page one returns partial=true — callers must then never treat
 // unseen profiles as remotely absent.
 export async function listRemote() {
+  if (NO_SERVER_POSSIBLE) return { ok: false, ids: [] };
   const ids = [];
   let cursor = '';
   let first = true;
@@ -94,6 +105,7 @@ export async function listRemote() {
 // Fetch one profile. CAS mode returns { doc, etag }; lifecycle states
 // return { gone, state }. Legacy returns { doc, etag: null }.
 export async function getRemote(id) {
+  if (NO_SERVER_POSSIBLE) return { ok: false };
   try {
     const res = await fetch(`${SYNC_BASE}${encodeURIComponent(id)}.json`, {
       headers: { Accept: 'application/json', ...keyHeaders() },
@@ -120,6 +132,7 @@ export async function getRemote(id) {
 // Conditional write. etag=null means CREATE (If-None-Match: *). In
 // legacy mode conditionals are omitted (the old server ignores them).
 export async function putRemote(profile, etag, { keepalive = false } = {}) {
+  if (NO_SERVER_POSSIBLE) return { ok: false };
   const url = `${SYNC_BASE}${encodeURIComponent(profile.id)}.json`;
   const body = JSON.stringify(profile);
   if (body.length > MAX_DOC_BYTES) return { ok: false, tooLarge: true };
@@ -149,6 +162,7 @@ export async function putRemote(profile, etag, { keepalive = false } = {}) {
 // Deleted-player metadata (id, name, gen, tombstoneId) — parental
 // restore/purge management only; ordinary sync never calls this.
 export async function listDeleted() {
+  if (NO_SERVER_POSSIBLE) return { ok: false, entries: [] };
   const entries = [];
   let cursor = '';
   for (let page = 0; page < 50; page++) {
@@ -174,6 +188,7 @@ export async function listDeleted() {
 
 // Archive download — ONLY from the explicit restore-management flow.
 export async function getArchive(id) {
+  if (NO_SERVER_POSSIBLE) return { ok: false };
   try {
     const res = await fetch(`${SYNC_BASE}${encodeURIComponent(id)}/archive`, {
       headers: { Accept: 'application/json', ...keyHeaders() },
@@ -192,6 +207,7 @@ export async function getArchive(id) {
 // Lifecycle transitions (the v1.39 delete/restore/purge release drives
 // these; the protocol ships with the platform).
 export async function lifecycleTransition(id, action, etag, payload = {}) {
+  if (NO_SERVER_POSSIBLE) return { ok: false };
   try {
     const res = await fetch(`${SYNC_BASE}${encodeURIComponent(id)}/${action}`, {
       method: 'POST',

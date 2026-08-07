@@ -269,7 +269,7 @@ and **stop at `SLOW_CAP = 2`**. `MASTERY_BOX` is 3. Therefore:
   fills to exactly **2/3 and freezes** — a bar that looks like it is
   working and never finishes;
 - the only surviving income is `polished` (`correct && wasDue`), still
-  1¢ and capped at 5¢/day. A track that pays a penny a day and cannot
+  1¢ and capped at 25¢/day. A track that pays a penny a day and cannot
   advance.
 
 That is precisely the failure shape the trail registry was built to end
@@ -408,7 +408,7 @@ payouts today are × (91 keys × 5¢ + 12 × 100¢ = 1655¢) + ÷ (90 × 5¢ +
 at the little-skill total of the time, 76 — which is the check that the
 arithmetic is right.) Money takes it to **6867¢ = 🐾$68.67, +24.9%**.
 On top of that sit the two uncapped daily faucets: sitting ≤ 20¢/day and
-polish ≤ 5¢/day.
+polish ≤ 25¢/day.
 
 ### Is that a calibration problem? Flagged, with the actual numbers
 

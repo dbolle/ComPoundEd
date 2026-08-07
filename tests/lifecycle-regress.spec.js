@@ -5,7 +5,7 @@
 //     the intent, so a dropped delete call self-conflicted forever.
 import { test, expect } from '@playwright/test';
 import { newProfile } from '../src/data/schema.js';
-import { seedProfile, selectProfile, uniqueName, holdGrownupsGate, seedRemote } from './helpers.mjs';
+import { seedProfile, selectProfile, uniqueName, holdGrownupsGate, seedRemote, openServerSection } from './helpers.mjs';
 
 async function readLocal(page, id) {
   return page.evaluate(
@@ -24,6 +24,7 @@ async function readLocal(page, id) {
 async function enableSync(page) {
   await page.evaluate(() => { location.hash = '#/grownups'; });
   await holdGrownupsGate(page);
+  await openServerSection(page);
   await page.tap('[data-sync-toggle]');
   await page.waitForTimeout(1200);
 }
@@ -158,6 +159,7 @@ test('C2: a dropped delete call does not self-conflict on the retry', async ({ p
   await page.waitForSelector('.hero');
   await page.evaluate(() => { location.hash = '#/grownups'; });
   await holdGrownupsGate(page);
+  await openServerSection(page);
   await page.tap('[data-deleted-players]');
   await page.waitForTimeout(1200);
   await expect(page.locator('[data-conflict-row="wedge-kid"]')).toHaveCount(0);

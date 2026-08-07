@@ -201,3 +201,15 @@ export async function seedRemote(page, doc) {
   }
   if (![200, 201].includes(res.status())) throw new Error(`seedRemote ${doc.id}: ${res.status()}`);
 }
+
+// The Grown-Ups home-server controls live inside a <details> that stays
+// SHUT unless the app already knows this family has a server (v1.52.0) —
+// so a family without one never has to read past it. A closed <details>
+// hides its contents outright, so anything driving those controls has to
+// open the section first, exactly as a parent setting one up would.
+export async function openServerSection(page) {
+  await page.waitForSelector('[data-server-group]');
+  await page.evaluate(() => {
+    document.querySelector('[data-server-group]')?.setAttribute('open', '');
+  });
+}

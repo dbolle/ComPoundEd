@@ -137,15 +137,18 @@ test('species with different heads get their accessories moved to match', () => 
   const cat = PETS.find((p) => p.species === 'cat');
 
   // Each slot answers to a DIFFERENT feature, which is why one number per
-  // species is not enough. Eyes are derivable — a turtle's really are 8px
-  // lower than a dog's. Hats are NOT: the head circle argues +18 (and
-  // buries the hat, since that feature hides behind the shell) while the
-  // shell dome argues +2 (and balances it on the apex). The value that
-  // looks right is between them, because a dome is not a flat head. So
-  // this pins the RANGE and the reason, not a formula that would be a lie.
+  // species is not enough. Eyes are derivable: a turtle's really are 8px
+  // lower than a dog's, and +8 is simply right. Hats are not. They still
+  // sit on the HEAD — but the offset cannot be read off the head's top
+  // edge, because the turtle's head is smaller as well as lower and its
+  // upper arc is partly behind the shell. Matching top edges gives +18 and
+  // sits far too low; a hat rests a PROPORTION of the way down a head, so
+  // on a 64-wide head that is ~11px rather than 18. The value was settled
+  // by eye at +10, so this pins the range and the reason rather than a
+  // formula that would be a lie.
   expect(PET_FIT.turtle.eyes[0], 'glasses follow the eyes, which really moved').toBeGreaterThan(4);
-  expect(PET_FIT.turtle.head[0], 'hats sit below the shell apex').toBeGreaterThan(2);
-  expect(PET_FIT.turtle.head[0], 'but well above the hidden head circle').toBeLessThan(18);
+  expect(PET_FIT.turtle.head[0], 'hats sit ON the head, not at its top edge').toBeGreaterThan(4);
+  expect(PET_FIT.turtle.head[0], 'and not as low as matching top edges implies').toBeLessThan(18);
   expect(PET_FIT.turtle.ear[0], 'no ears — both ear items rest on the head').toBeGreaterThan(8);
   expect(PET_FIT.turtle.flower, 'the bloom takes the earmuffs’ fit, not its own').toBeUndefined();
   expect(PET_FIT.cat, 'a cat shares the dog geometry exactly').toBeUndefined();

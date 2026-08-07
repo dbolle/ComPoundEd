@@ -77,9 +77,16 @@ reconsider after calibration.
      `numberWord` 0–120; groundwork landed for R4/R5 (groups engine,
      coin art, docs/PHASE7.md)
    - ✅ R4a (v1.50.0) skip-count warm-up widened to three shapes
+   - ✅ v1.51.0 seven new store wearables (prices locked after an art
+     review behind the 🧪 chip), per-species accessory fitting,
+     one-item-per-slot wearing, `tablesReady` raised to 2/3/4/5/10 with
+     `paths` teaching all five
    - R4b `groups` (equal groups, composite units) — the engine
      (`src/engine/groups.js`) landed in v1.50.0; the game still needs
      wiring into the little-pup shelf and a milestone
+   - Still open from the art review: on the **bird**, tall headwear
+     overlaps the head tuft (pre-existing, visible now that every item is
+     rendered side by side).
    - **R5 must also fix the CSS coin sizes.** `.coin.penny` inherits 34px
      while `.coin.nickel` is 30px, so the app draws the penny LARGER than
      the nickel — the reverse of reality (19.05mm vs 21.21mm). The money
@@ -130,6 +137,53 @@ reconsider after calibration.
   reachable from the Cozy Corner; micro toys (10–15¢) sized to little
   savings; pets receive toys via corner give-chips. Still open: a
   little-home piggy swap UI (see parked list).
+
+## ✅ SHIPPED v1.52.0 — decided with the owner 2026-08-07
+
+**A. Polishing becomes a visible activity (its own release).**
+Polishing already works and is better aimed than the README says: a fact in
+box 0 is ALWAYS due, so a penny is paid for every correct answer on a
+child's weakest facts, not only on decayed mastered ones. And the activity
+already exists — `buildGroomRound` sorts a dog's facts due-first, and
+Biscuit's spa quizzes the 13 rustiest on the whole board. What is missing is
+a ROUTE and a REASON:
+- Add grooming to `suggest.js` ("Practice next" has four candidate branches
+  and grooming is not one of them — the affordance a child actually looks at
+  ignores the polish activity entirely).
+- Raise `POLISH_CAP_CENTS_PER_DAY` 5 → **25**. My concern was that 25¢/day
+  (9,125¢/yr) dwarfs the entire one-time pot (4,750¢); the owner's answer is
+  that the cap self-lowers in practice, because a child who has mastered
+  more facts has fewer rusty ones on any given day. The cap is a ceiling,
+  not a quota. (No `RATE_VERSION` bump: the penny itself does not change.)
+- Show the cap as a goal, house pattern (icon + meter + reward at the point
+  of action): "🧼 3 friends need a bath · 🪙 4 of 25 today".
+
+**B. Kid vocabulary moves from rusty/polish to the grooming metaphor.**
+Owner decision: centre the kid register on **dusty / dirty / cleaning /
+bath / grooming**, not rusty/polish. An animal cannot get rusty, so the
+metaphor was incoherent; the grooming framing also keeps the attention on
+the child's effort at a hard thing rather than on playing with the puppy.
+Touches `docs/VOCABULARY.md` (the canon row), `tests/vocab.spec.js` (which
+currently REQUIRES the word "rusty" in heatmap.js), `src/screens/heatmap.js`,
+and `BADGE_TEXT.polish` in money.js. Grown-up register keeps "rusty" —
+this is a kid-register change only.
+
+**C. Grown-Ups backup panel (started in v1.51.0, more to do).**
+- Long descriptions become collapsible, collapsed by default.
+- The home-server group collapses by default unless there is EVIDENCE of a
+  server. The evidence already exists without any network call:
+  `isSyncEnabled()`, or a non-null `lastPushAt`/`lastPullAt`, or a probe
+  that returned `denied` (a server that wants a key) or `count > 0`.
+  Expand on evidence, collapse otherwise.
+- On the public GitHub Pages build, hide the home-server controls entirely
+  and show one line plus a link to the setup docs. A same-origin `/sync/`
+  on github.io can never be a home server, so the buttons are noise and the
+  probe is a pointless request. Cleanest signal is a build-time flag set by
+  the Pages workflow rather than sniffing the hostname.
+- Probe answer for the record: the app DOES probe, in `offerBackup()` —
+  a same-origin GET to `/sync/profiles/`, carrying no key and no child data
+  (enforced by privacy.spec.js), and only while backup is off and the offer
+  has not been dismissed. It stops once dismissed or enabled.
 
 ## Sync honesty — ✅ SHIPPED v1.47.4 (from the 2026-08-03 cert incident)
 

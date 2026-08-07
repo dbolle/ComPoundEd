@@ -3,6 +3,37 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.52.0 — 2026-08-07
+
+Bath time is a thing you can choose to do.
+
+- **"Practice next" can now send a child to a bath.** Facts that were once
+  strong and have gone dusty had no route to them: grooming existed, and
+  paid, but a child only found it by wandering to a dog's page and noticing
+  the dirt. It is now a real suggestion, aimed at the dog that most needs
+  one — or at Biscuit's board-wide spa day when the dust is spread thin.
+- **Only faded mastery counts as dust.** A child still learning has plenty
+  of shaky facts, and none of them will ever send them to the tub instead
+  of to the learning. Grooming is maintenance and is ranked as maintenance.
+- **Cleaning pays five times more per day** (up to 25¢ rather than 5¢). It
+  is a ceiling, not a target — a child who knows more has fewer dusty facts
+  to find, so it quietly lowers itself as they improve.
+- **"Rusty" and "polish" are gone from the child's side.** A dog can't go
+  rusty. A fact goes **dusty**, and the fix is the bath they already tap —
+  one idea with one word. The heatmap says how many dusty spots there are
+  and gained a legend for them; grown-ups still see "rusty", which is the
+  accurate word on a progress screen.
+- **The Grown-Ups backup section was rewritten.** It now says plainly that
+  everything lives on this device only and what could erase it, then
+  separates the two ways to keep a copy: saving a file (works anywhere) and
+  a home server (needs one you run). Long explanations are tucked away
+  until asked for, and the home-server part stays shut unless this family
+  plainly has a server — decided from what the app already knows, without
+  asking the network.
+- **The public version no longer offers home-server backup at all**, and no
+  longer asks the network for one. It cannot exist there, so it now says so
+  and links to the setup guide instead.
+
 ## v1.51.0 — 2026-08-07
 
 Seven new things to save up for, and everything fits every friend properly.

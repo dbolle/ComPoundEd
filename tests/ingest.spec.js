@@ -3,7 +3,7 @@
 // honest backup reporting. Written failing-first against v1.36 behavior.
 import { test, expect } from '@playwright/test';
 import { newProfile, migrateProfile, mergeProfiles, validProfileDoc, SCHEMA_VERSION } from '../src/data/schema.js';
-import { seedProfile, selectProfile, uniqueName, norm, stat, holdGrownupsGate, seedRemote } from './helpers.mjs';
+import { seedProfile, selectProfile, uniqueName, norm, stat, holdGrownupsGate, seedRemote, openServerSection } from './helpers.mjs';
 
 test('validProfileDoc: shape matrix', () => {
   const good = newProfile('Good');
@@ -97,6 +97,7 @@ test('e2e: stranded progress converges — remote newer, local has disjoint work
   // turn backup on and force a check-in via Grown-Ups "Back up now"
   await page.evaluate(() => { location.hash = '#/grownups'; });
   await holdGrownupsGate(page);
+  await openServerSection(page);
   await page.tap('[data-sync-toggle]');
   await page.waitForTimeout(1500);
   await page.tap('[data-sync-now]');
@@ -116,6 +117,7 @@ test('e2e: "Back up now" is honest when the server is unreachable', async ({ pag
   await selectProfile(page, doc.name);
   await page.evaluate(() => { location.hash = '#/grownups'; });
   await holdGrownupsGate(page);
+  await openServerSection(page);
   await page.tap('[data-sync-toggle]'); // enable (server reachable here)
   await page.waitForTimeout(1000);
 
@@ -134,6 +136,7 @@ test('e2e: a failed listing never treats local profiles as remotely absent', asy
   await selectProfile(page, doc.name);
   await page.evaluate(() => { location.hash = '#/grownups'; });
   await holdGrownupsGate(page);
+  await openServerSection(page);
   await page.tap('[data-sync-toggle]');
   await page.waitForTimeout(1200);
 

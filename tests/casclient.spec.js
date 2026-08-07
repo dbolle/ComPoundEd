@@ -3,7 +3,7 @@
 // key header path.
 import { test, expect } from '@playwright/test';
 import { newProfile } from '../src/data/schema.js';
-import { seedProfile, selectProfile, uniqueName, holdGrownupsGate, seedRemote } from './helpers.mjs';
+import { seedProfile, selectProfile, uniqueName, holdGrownupsGate, seedRemote, openServerSection } from './helpers.mjs';
 
 test('e2e: a write landing between pull and push is merged, not overwritten', async ({ page }) => {
   const doc = newProfile(uniqueName('Race'));
@@ -16,6 +16,7 @@ test('e2e: a write landing between pull and push is merged, not overwritten', as
   await page.waitForSelector('.hero');
   await page.evaluate(() => { location.hash = '#/grownups'; });
   await holdGrownupsGate(page);
+  await openServerSection(page);
   await page.tap('[data-sync-toggle]'); // sync on; app now holds the current ETag
   await page.waitForTimeout(1500);
 
@@ -56,6 +57,7 @@ test('e2e: denied server shows the locked state; the key header unlocks it', asy
   await selectProfile(page, doc.name);
   await page.evaluate(() => { location.hash = '#/grownups'; });
   await holdGrownupsGate(page);
+  await openServerSection(page);
   await page.tap('[data-sync-toggle]');
   await page.waitForTimeout(800);
   await page.tap('[data-sync-now]');

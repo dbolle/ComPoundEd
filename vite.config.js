@@ -6,6 +6,14 @@ import pkg from './package.json' with { type: 'json' };
 // VITE_BASE=/ComPoundEd/ since project pages live under a subpath.
 const base = process.env.VITE_BASE ?? '/';
 
+// The public demo build (GitHub Pages). Family backup syncs to a
+// SAME-ORIGIN /sync/ on a server the family runs, so on a public host it
+// can never exist: the controls would be dead ends and the "is a server
+// there?" probe a guaranteed 404. A build flag rather than sniffing the
+// hostname, so a family self-hosting on any domain still gets the real
+// thing, and so the decision is explicit and testable.
+const publicDemo = process.env.VITE_PUBLIC_DEMO === '1';
+
 export default defineConfig({
   base,
   // sounds.html is a tiny unlinked QA page for listening to the
@@ -21,6 +29,7 @@ export default defineConfig({
   },
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
+    __PUBLIC_DEMO__: JSON.stringify(publicDemo),
   },
   plugins: [
     VitePWA({
