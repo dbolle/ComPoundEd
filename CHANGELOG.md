@@ -3,6 +3,35 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.51.0 — 2026-08-07
+
+Seven new things to save up for, and everything fits every friend properly.
+
+- **New treasures and gifts**: a diamond collar ($11), a flower crown ($9)
+  and a matching flower collar ($6) as one-of-a-kind treasures that move
+  between friends; winter earmuffs ($4.50), a tiny top hat ($4), an
+  engraved name tag ($3.50) and snow goggles ($3) as gifts for one friend.
+  There was nothing at all to want between $2 and $8 before, and nothing
+  new since the crown.
+- **The name tag carries your friend's initial** — R for Rusty, K for
+  Kiwi — so it's genuinely theirs rather than a spare collar tag.
+- **Accessories now fit each animal.** Every item was drawn once for a
+  dog, and most friends share that shape exactly, but a turtle's face sits
+  far lower behind its shell and a hedgehog's is lower too. Hats floated,
+  glasses missed the eyes, and the ear flower landed on a shell. Each
+  species now says how it differs and the art follows, per kind of item —
+  a hat and a pair of glasses need different answers on the same animal.
+- **Wearing one thing at a time.** Putting something on now takes off
+  whatever was already in that spot. Nothing enforced this before, which
+  didn't show while the neck held only a flat scarf and a small bow — but
+  three collar pieces that each cover the collar tag would have stacked.
+  Toys are unaffected: a friend can still have several.
+- The party hat is bigger, and its stripes now follow the cone instead of
+  sitting slightly off it.
+- **The times-tables trail now asks for counting by 3s and 4s too**, and
+  Counting paths teaches those strides — the tables that gain most from a
+  chain had none. No child who already has the tables loses them.
+
 ## v1.50.0 — 2026-08-05
 
 **Count on! 🔢** — counting past nineteen, all the way to 120. Phase 7 R3.

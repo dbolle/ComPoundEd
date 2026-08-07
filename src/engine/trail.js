@@ -212,9 +212,12 @@ export const TRAIL = [
     questions: 5,
     playKind: 'fetch',
     tracked: true,
-    // one key per stride, not a range — and the tables gate depends on
-    // all three, so a missing domain here hid the whole game (v1.47.3)
-    skills: [{ ns: 'path', domain: { set: [2, 5, 10] }, streak: 3, required: true }],
+    // One key per stride, not a range — and the tables gate depends on
+    // these, so a missing domain here hid the whole game (v1.47.3).
+    // 3s and 4s added in v1.51.0 alongside raising `tablesReady`: the ×3
+    // and ×4 tables had no chain at all, and a gate may only ever require
+    // what the app actually teaches.
+    skills: [{ ns: 'path', domain: { set: [2, 3, 4, 5, 10] }, streak: 3, required: true }],
     praise: ['Path finder! Amazing!', 'You hopped the whole path!'],
     milestones: ['paths'],
     revealId: 'tile:paths',
@@ -334,7 +337,14 @@ export const PLANNED = [
   P({
     id: 'money',
     type: 'track',
-    labels: { kid: 'Paw Bucks', icon: '🪙', grownup: 'money math: recognition → counting → equivalence → change → notation' },
+    // Named "Money Math" by the owner (2026-08-06). The placeholder was
+    // "Paw Bucks", which is the CURRENCY's name and the piggy bank's — one
+    // phrase meaning two things is exactly what docs/VOCABULARY.md exists
+    // to prevent. Lives on BOTH homes: the first track that genuinely
+    // belongs to the little shelf and the pack, since coin counting spans
+    // the ages either side.
+    labels: { kid: 'Money Math', icon: '🪙', grownup: 'money math: recognition → counting → equivalence → change → notation' },
+    homes: ['little', 'pack'],
     standards: ['2.MD.8'],
     statMap: 'money',
     revealId: 'track:money',

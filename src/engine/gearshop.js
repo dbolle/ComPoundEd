@@ -182,6 +182,20 @@ export function placeGear(profile, itemId, wearerId, giftFor = null) {
   if (!isOwned(profile, itemId, forId)) return false;
   if (item.tier === 'gift' && wearerId != null && wearerId !== forId) return false;
   if (!profile.gear) profile.gear = { placements: {} };
+  // One thing per slot. Nothing enforced this, which was survivable when
+  // the neck held a flat scarf and a small bow — but the name tag, the bow
+  // and the flower collar now all cover the collar disc deliberately, so
+  // two at once would visibly stack. Putting something on takes off
+  // whatever was already in that place, which is what wearing means.
+  // Toys are untouched: they have no slot, and a friend may have several.
+  if (wearerId != null && item.slot) {
+    for (const [key, who] of Object.entries(profile.gear.placements)) {
+      if (who !== wearerId) continue;
+      const otherId = key.split(':')[0];
+      if (otherId === itemId) continue;
+      if (itemOf(otherId)?.slot === item.slot) profile.gear.placements[key] = null;
+    }
+  }
   profile.gear.placements[placementKey(itemId, forId)] = wearerId ?? null;
   profile.gear.placementEpoch = effectiveEpoch(profile); // stamp the epoch
   touchMeta(profile); // placements are a choice — survive stale-device merges

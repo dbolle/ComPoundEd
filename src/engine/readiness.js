@@ -50,10 +50,18 @@ export function takingAwayReady(p) {
 
 export function tablesReady(p) {
   // within-20 strategies through Tens & Teens, the first two Taking Away
-  // waves, and the skip-count paths (the counting→tables connector)
+  // waves, and the skip-count paths (the counting→tables connector).
+  //
+  // v1.51.0 raised this from [2, 5, 10] to include 3s and 4s (owner
+  // decision): the ×3 and ×4 tables are the ones a chain helps most, and
+  // they had no chain at all. Raising a gate is only safe because reveals
+  // are one-way since v1.48.0 — a child who already has the tables track
+  // keeps it, whatever this predicate says afterwards. The `paths` game
+  // gained those strides in the SAME release: a gate may never require
+  // something the app doesn't teach.
   for (let w = 0; w <= 4; w++) if (!isWaveMastered(p, w)) return false;
   if (!isSubWaveMastered(p, 0) || !isSubWaveMastered(p, 1)) return false;
-  return [2, 5, 10].every((t) => knows(p, 'path', t));
+  return [2, 3, 4, 5, 10].every((t) => knows(p, 'path', t));
 }
 
 // --- visibility: override ?? (predicate || history) ------------------------

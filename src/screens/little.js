@@ -1008,10 +1008,14 @@ export function littleGameScreen(el, params, ctx) {
       // Counting Paths: skip-count chains for 2s/5s/10s — plus descending
       // paths (counting backward, subtraction's engine). Typed once the
       // child can type; tap-choices before that.
-      const kind2 = ri(4); // 0:×2 1:×5 2:×10 3:descending
-      const stride = [2, 5, 10][Math.min(kind2, 2)];
+      // v1.51.0: 3s and 4s joined the strides when the tables gate began
+      // requiring them — ×3 and ×4 previously had no chain to practise.
+      const STRIDES = [2, 3, 4, 5, 10];
+      const DESCENDING = STRIDES.length; // the one kind that isn't a stride
+      const kind2 = ri(STRIDES.length + 1);
+      const stride = STRIDES[Math.min(kind2, STRIDES.length - 1)];
       let seq, answer, skill;
-      if (kind2 === 3) {
+      if (kind2 === DESCENDING) {
         const s0 = 5 + ri(5); // 9..5 start high enough
         seq = [s0 + 3, s0 + 2, s0 + 1];
         answer = s0;
@@ -1023,7 +1027,7 @@ export function littleGameScreen(el, params, ctx) {
         skill = `path:${stride}`;
       }
       promptEl.textContent = '🐾➡️❓';
-      speak(kind2 === 3 ? 'Count backward! What comes next?' : `Count by ${stride}s!`);
+      speak(kind2 === DESCENDING ? 'Count backward! What comes next?' : `Count by ${stride}s!`);
       stageEl.dataset.answer = answer;
       if (skill) stageEl.dataset.skill = skill;
       else delete stageEl.dataset.skill;

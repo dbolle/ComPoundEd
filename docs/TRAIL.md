@@ -76,7 +76,7 @@ out there.
 | Kid-facing | Grown-up | Standards | id | Notes | Status |
 |---|---|---|---|---|---|
 | Groups! 🧺 | equal groups and arrays | `2.OA.4` | `groups` | keyed by factor pair, not total; assesses groups, size, and total | R4 |
-| Paw Bucks 🪙 | money math: recognition → counting → equivalence → change → notation | `2.MD.8` | `money` | 7 waves, 134 identities, untimed mastery | R5 |
+| Money Math 🪙 | money math: recognition → counting → equivalence → change → notation | `2.MD.8` | `money` | 7 waves, 134 identities, untimed mastery; appears on BOTH the little shelf and the pack home | R5 |
 
 ## Phase 8 — planned, not built
 

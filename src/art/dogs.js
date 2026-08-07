@@ -273,7 +273,7 @@ export function dogSVG(dog, size = 96, accessories = [], dirt = 0) {
   ${dirtLayer(dirt, uid)}
   <path d="M31 91 a40 40 0 0 0 58 0 l-4 9 a40 40 0 0 1 -50 0 Z" fill="${d.collar}"/>
   ${collarTag(accessories)}
-  ${accessoryOverlays(accessories)}
+  ${accessoryOverlays(accessories, { initial: dog?.name ?? '' })}
 </svg>`;
 }
 
@@ -320,10 +320,15 @@ const GEAR_LAYERS = {
     <circle cx="50" cy="26" r="1.9" fill="#7dd3fc"/>
     <circle cx="70" cy="26" r="1.9" fill="#7dd3fc"/>
   </g>`,
+  // Cone: base (47,37)–(77,37), apex (64,6). The stripe's corners are
+  // computed ON those edges rather than eyeballed — the old one was ~1.8
+  // short of the right edge at both ends, which is what made it look
+  // pasted on rather than wrapped around.
   party: `<g data-acc="party">
-    <path d="M50 36 L74 36 L66 6 Z" fill="#8b5cf6"/>
-    <path d="M55.5 25 L69.4 25 L67.3 17.5 L58 17.5 Z" fill="#facc15"/>
-    <circle cx="66" cy="6" r="4.5" fill="#ec4899"/>
+    <path d="M47 37 L77 37 L64 6 Z" fill="#8b5cf6"/>
+    <path d="M53 26 L72.4 26 L69 18 L57.4 18 Z" fill="#facc15"/>
+    <path d="M49.4 32 L75 32 L73.3 28 L51.1 28 Z" fill="#a78bfa"/>
+    <circle cx="64" cy="6" r="5" fill="#ec4899"/>
   </g>`,
   flower: `<g data-acc="flower">
     <g fill="#fff" stroke="#dfd2b8" stroke-width="1.4">
@@ -352,9 +357,128 @@ const GEAR_LAYERS = {
     <path d="M34 94 Q60 106 86 94" stroke="#b23c38" stroke-width="2.4" fill="none"/>
   </g>`,
   bowtie: `<g data-acc="bowtie">
-    <path d="M60 99 L44 91 L44 107 Z" fill="#3b82f6"/>
-    <path d="M60 99 L76 91 L76 107 Z" fill="#3b82f6"/>
-    <circle cx="60" cy="99" r="4.5" fill="#1d4ed8"/>
+    <path d="M60 103 L44 95 L44 111 Z" fill="#3b82f6"/>
+    <path d="M60 103 L76 95 L76 111 Z" fill="#3b82f6"/>
+    <circle cx="60" cy="103" r="7.5" fill="#1d4ed8"/>
+  </g>`,
+  diamond: `<g data-acc="diamond">
+    <path d="M30 90 a41 41 0 0 0 60 0" fill="none" stroke="#b8860b" stroke-width="11" stroke-linecap="round"/>
+    <path d="M30 90 a41 41 0 0 0 60 0" fill="none" stroke="#f5c542" stroke-width="8" stroke-linecap="round"/>
+    <path d="M33.7 90.2 a38.5 38.5 0 0 0 52.6 0" fill="none" stroke="#ffe9a8" stroke-width="2.2"/>
+    <g fill="#e9f6fd" stroke="#4d9dc4" stroke-width="1.2" stroke-linejoin="round">
+      <path d="M29.8 92.2 L31.7 90.4 L35.5 90.4 L37.4 92.2 L33.6 96.9 Z"/>
+      <path d="M37.6 97.4 L39.5 95.6 L43.3 95.6 L45.2 97.4 L41.4 102.1 Z"/>
+      <path d="M46.6 100.7 L48.5 98.9 L52.3 98.9 L54.2 100.7 L50.4 105.4 Z"/>
+      <path d="M65.8 100.7 L67.7 98.9 L71.5 98.9 L73.4 100.7 L69.6 105.4 Z"/>
+      <path d="M74.8 97.4 L76.7 95.6 L80.5 95.6 L82.4 97.4 L78.6 102.1 Z"/>
+      <path d="M82.6 92.2 L84.5 90.4 L88.3 90.4 L90.2 92.2 L86.4 96.9 Z"/>
+    </g>
+    <path d="M55.5 102.5 L60 107.5 L64.5 102.5 Z" fill="#d99b1e"/>
+    <path d="M49 110 L54.5 105.5 L65.5 105.5 L71 110 L60 119.5 Z" fill="#a8def5" stroke="#4d9dc4" stroke-width="1.8" stroke-linejoin="round"/>
+    <path d="M51.6 109.8 L56 105.6 L64 105.6 L68.4 109.8 Z" fill="#eaf9ff"/>
+    <path d="M51.6 109.9 L60 119.4 L68.4 109.9 Z" fill="#c9ecfb"/>
+    <path d="M49.4 109.9 H70.6 M60 109.9 V119.4" stroke="#4d9dc4" stroke-width="1.2"/>
+    <g fill="#fff" stroke="#7cc4e0" stroke-width="0.9">
+      <path d="M45 106 q1 3 4 4 q-3 1 -4 4 q-1 -3 -4 -4 q3 -1 4 -4 Z"/>
+      <path d="M75 104.8 q0.8 2.4 3.2 3.2 q-2.4 0.8 -3.2 3.2 q-0.8 -2.4 -3.2 -3.2 q2.4 -0.8 3.2 -3.2 Z"/>
+    </g>
+  </g>`,
+  flowercrown: `<g data-acc="flowercrown">
+    <path d="M31 43 Q60 9 89 43" fill="none" stroke="#5f9448" stroke-width="3.4" stroke-linecap="round"/>
+    <path d="M50 27 Q46 18 47.5 12" fill="none" stroke="#5f9448" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M70 27 Q74 18 72.5 13" fill="none" stroke="#5f9448" stroke-width="2.2" stroke-linecap="round"/>
+    <circle cx="47.5" cy="11" r="3.1" fill="#f9a8c4" stroke="#e181a6" stroke-width="1.2"/>
+    <circle cx="72.5" cy="12" r="2.8" fill="#c8b3f2" stroke="#a48ce0" stroke-width="1.2"/>
+    <g fill="#7cb85e">
+      <ellipse cx="35.6" cy="43.6" rx="5.4" ry="2.8" transform="rotate(34 35.6 43.6)"/>
+      <ellipse cx="84.4" cy="43.6" rx="5.4" ry="2.8" transform="rotate(-34 84.4 43.6)"/>
+      <ellipse cx="44.5" cy="22.6" rx="4.8" ry="2.5" transform="rotate(-32 44.5 22.6)"/>
+      <ellipse cx="75.5" cy="22.6" rx="4.8" ry="2.5" transform="rotate(32 75.5 22.6)"/>
+      <ellipse cx="51.5" cy="16" rx="3.6" ry="1.9" transform="rotate(-40 51.5 16)"/>
+      <ellipse cx="68.7" cy="16.8" rx="3.6" ry="1.9" transform="rotate(40 68.7 16.8)"/>
+    </g>
+    <g fill="#fdc9a0" stroke="#e8a173" stroke-width="1.2">
+      <circle cx="34.4" cy="35.5" r="3.4"/><circle cx="37.92" cy="38.06" r="3.4"/>
+      <circle cx="36.57" cy="42.19" r="3.4"/><circle cx="32.23" cy="42.19" r="3.4"/>
+      <circle cx="30.88" cy="38.06" r="3.4"/>
+    </g>
+    <circle cx="34.4" cy="39.2" r="2.3" fill="#f6d35e"/>
+    <g fill="#c8b3f2" stroke="#a48ce0" stroke-width="1.2">
+      <circle cx="85.6" cy="35.5" r="3.4"/><circle cx="89.12" cy="38.06" r="3.4"/>
+      <circle cx="87.77" cy="42.19" r="3.4"/><circle cx="83.43" cy="42.19" r="3.4"/>
+      <circle cx="82.08" cy="38.06" r="3.4"/>
+    </g>
+    <circle cx="85.6" cy="39.2" r="2.3" fill="#f6d35e"/>
+    <g fill="#fff7ea" stroke="#e2d0b4" stroke-width="1.3">
+      <circle cx="44" cy="26.95" r="4.4"/><circle cx="48.57" cy="30.27" r="4.4"/>
+      <circle cx="46.82" cy="35.63" r="4.4"/><circle cx="41.18" cy="35.63" r="4.4"/>
+      <circle cx="39.43" cy="30.27" r="4.4"/>
+    </g>
+    <circle cx="44" cy="31.75" r="2.9" fill="#f6d35e"/>
+    <circle cx="44" cy="31.75" r="1.2" fill="#dd9f26"/>
+    <g fill="#fff7ea" stroke="#e2d0b4" stroke-width="1.3">
+      <circle cx="76" cy="26.95" r="4.4"/><circle cx="80.57" cy="30.27" r="4.4"/>
+      <circle cx="78.82" cy="35.63" r="4.4"/><circle cx="73.18" cy="35.63" r="4.4"/>
+      <circle cx="71.43" cy="30.27" r="4.4"/>
+    </g>
+    <circle cx="76" cy="31.75" r="2.9" fill="#f6d35e"/>
+    <circle cx="76" cy="31.75" r="1.2" fill="#dd9f26"/>
+    <g fill="#f9a8c4" stroke="#e181a6" stroke-width="1.4">
+      <circle cx="60" cy="19.4" r="5.2"/><circle cx="65.33" cy="23.27" r="5.2"/>
+      <circle cx="63.29" cy="29.53" r="5.2"/><circle cx="56.71" cy="29.53" r="5.2"/>
+      <circle cx="54.67" cy="23.27" r="5.2"/>
+    </g>
+    <circle cx="60" cy="25" r="3.6" fill="#f6d35e"/>
+    <circle cx="60" cy="25" r="1.5" fill="#dd9f26"/>
+  </g>`,
+  earmuffs: `<g data-acc="earmuffs">
+    <path d="M28 46 Q60 6 92 46" fill="none" stroke="#42597a" stroke-width="7" stroke-linecap="round"/>
+    <path d="M29.5 45 Q60 11 90.5 45" fill="none" stroke="#7f9dc4" stroke-width="2.6" stroke-linecap="round"/>
+    <circle cx="26" cy="48" r="12.5" fill="#42597a"/>
+    <circle cx="94" cy="48" r="12.5" fill="#42597a"/>
+    <g fill="#f8f0e0" stroke="#dfcfb4" stroke-width="1.3">
+      <circle cx="26" cy="41.6" r="4.1"/><circle cx="31.5" cy="44.8" r="4.1"/>
+      <circle cx="31.5" cy="51.2" r="4.1"/><circle cx="26" cy="54.4" r="4.1"/>
+      <circle cx="20.5" cy="51.2" r="4.1"/><circle cx="20.5" cy="44.8" r="4.1"/>
+      <circle cx="26" cy="48" r="7.4"/>
+      <circle cx="94" cy="41.6" r="4.1"/><circle cx="99.5" cy="44.8" r="4.1"/>
+      <circle cx="99.5" cy="51.2" r="4.1"/><circle cx="94" cy="54.4" r="4.1"/>
+      <circle cx="88.5" cy="51.2" r="4.1"/><circle cx="88.5" cy="44.8" r="4.1"/>
+      <circle cx="94" cy="48" r="7.4"/>
+    </g>
+  </g>`,
+  tophat: `<g data-acc="tophat" transform="translate(-7 0) rotate(-9 60 36)">
+    <ellipse cx="60" cy="37" rx="21" ry="5.6" fill="#22222b"/>
+    <ellipse cx="60" cy="35.6" rx="21" ry="5.6" fill="#3a3a46" stroke="#6f6f80" stroke-width="1.6"/>
+    <path d="M49 13 L71 13 L71.5 36 L48.5 36 Z" fill="#33333d" stroke="#6f6f80" stroke-width="1.8" stroke-linejoin="round"/>
+    <ellipse cx="60" cy="13" rx="11" ry="3.6" fill="#4a4a58" stroke="#6f6f80" stroke-width="1.6"/>
+    <rect x="48.6" y="27" width="22.7" height="6.4" fill="#d9534f"/>
+    <rect x="56" y="26.6" width="7" height="7.2" rx="1.6" fill="#f5c542" stroke="#d99b1e" stroke-width="1.4"/>
+    <path d="M52.5 16 L52.5 26" stroke="#5c5c6c" stroke-width="2.4" stroke-linecap="round"/>
+  </g>`,
+  // The only accessory whose art depends on WHO is wearing it, so it is a
+  // function rather than a string — see nametagLayer() below.
+  nametag: null,
+  // Partners the flower crown: same palette, same five-petal blooms. The
+  // blossoms sit on the collar band's own arc (centre (60, 63.5), r 40, so
+  // it dips to y≈103.5 at the middle), and the centre rosette covers the
+  // collar disc the way the bow and the name tag now do.
+  flowercollar: `<g data-acc="flowercollar">
+    <path d="M33 92 a38 38 0 0 0 54 0" stroke="#7cb85e" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+    ${blossom(40, 98, 4.6, '#fff7ea')}
+    ${blossom(48.5, 101.8, 4.2, '#c8b3f2')}
+    ${blossom(71.5, 101.8, 4.2, '#fdc9a0')}
+    ${blossom(80, 98, 4.6, '#fff7ea')}
+    ${blossom(60, 103.2, 9, '#f9a8c4')}
+  </g>`,
+  goggles: `<g data-acc="goggles">
+    <path d="M22 52 Q60 45 98 52" fill="none" stroke="#c2503a" stroke-width="8" stroke-linecap="round"/>
+    <path d="M22 52 Q60 45 98 52" fill="none" stroke="#f0a08a" stroke-width="2.6"/>
+    <rect x="28" y="43" width="64" height="24" rx="11" fill="#e0674a" stroke="#b6432f" stroke-width="2"/>
+    <rect x="32.5" y="47.5" width="55" height="15" rx="7.5" fill="#5fb6db"/>
+    <rect x="32.5" y="47.5" width="55" height="7" rx="3.5" fill="#a5dff2"/>
+    <path d="M41 62 L50 48 L55 48 L46 62 Z" fill="#eaf9ff"/>
+    <path d="M59 62 L68 48 L70.5 48 L61.5 62 Z" fill="#eaf9ff"/>
   </g>`,
 };
 
@@ -364,25 +488,116 @@ const GEAR_LAYERS = {
 const GEAR_CROPS = {
   crown: '30 8 60 40',
   tiara: '34 12 52 30',
-  party: '44 0 36 40',
+  party: '44 0 38 42',
   flower: '75 21 27 30',
   glasses: '20 42 80 30',
   sunglasses: '20 42 80 26',
   scarf: '24 86 72 36',
-  bowtie: '40 85 40 26',
+  bowtie: '41 92 38 24',
+  diamond: '27 86 66 36',
+  flowercrown: '25 5 70 44',
+  earmuffs: '11 8 98 56',
+  tophat: '36 2 48 44',
+  nametag: '43 90 34 26',
+  flowercollar: '31 88 58 28',
+  goggles: '16 40 88 32',
 };
 
-export function gearSVG(accId, size = 56) {
-  const layer = GEAR_LAYERS[accId];
+export function gearSVG(accId, size = 56, { initial = 'A' } = {}) {
+  // The name tag has no fixed art — it carries the wearer's initial — so the
+  // shelf shows a sample letter rather than an empty plate.
+  const layer = accId === 'nametag' ? nametagLayer(initial) : GEAR_LAYERS[accId];
   const crop = GEAR_CROPS[accId];
   if (!layer || !crop) return '';
   return `<svg viewBox="${crop}" width="${size}" height="${size}" role="img" data-gear="${accId}" xmlns="http://www.w3.org/2000/svg">${layer}</svg>`;
 }
 
-export function accessoryOverlays(accessories = []) {
+// The engraved name tag: a gold plate hanging BELOW the collar disc (it
+// used to sit on top of it, and since both are gold it read as one bigger
+// tag), with the wearer's initial on it. This is the only accessory that
+// knows who is wearing it, which is the point of buying one per friend.
+// A five-petal blossom, so the flower collar is visibly the same garden as
+// the flower crown rather than a different artist's flowers. Petals are
+// laid out on a circle, which keeps every bloom identical at any size.
+function blossom(cx, cy, r, petal, core = '#f6d35e') {
+  let out = '';
+  for (let a = -90; a < 270; a += 72) {
+    const t = (a * Math.PI) / 180;
+    const px = (cx + Math.cos(t) * r * 0.7).toFixed(1);
+    const py = (cy + Math.sin(t) * r * 0.7).toFixed(1);
+    out += `<circle cx="${px}" cy="${py}" r="${(r * 0.56).toFixed(1)}" fill="${petal}"/>`;
+  }
+  return `${out}<circle cx="${cx}" cy="${cy}" r="${(r * 0.32).toFixed(1)}" fill="${core}"/>`;
+}
+
+export function nametagLayer(initial = '') {
+  const ch = String(initial ?? '').trim().slice(0, 1).toUpperCase();
+  // The canvas is 0 0 120 120 and the collar disc sits at cy=103 r=6, so
+  // the plate has to live in the ~104–120 band: any lower and it renders
+  // off the bottom edge (which is exactly what happened when I first tried
+  // to clear the disc — the tag vanished on every animal). It therefore
+  // hangs FROM the disc rather than below it, which is how a real tag
+  // hangs anyway; the engraved initial is what stops it reading as one
+  // bigger gold blob.
+  return `<g data-acc="nametag" data-initial="${ch}">
+    <rect x="46" y="94" width="28" height="18" rx="5.5" fill="#f5c542" stroke="#a97609" stroke-width="2.2"/>
+    <rect x="49.5" y="96.6" width="21" height="2.6" rx="1.3" fill="#ffe9a8"/>
+    ${
+      ch
+        ? `<text x="60" y="107.4" text-anchor="middle" font-size="12" font-weight="700"
+             fill="#8a5f07" font-family="system-ui, sans-serif">${ch}</text>`
+        : `<path d="M53 105 h14" stroke="#a97609" stroke-width="2.4" stroke-linecap="round"/>`
+    }
+  </g>`;
+}
+
+// Every accessory is drawn once, in DOG coordinates (head circle cx 60,
+// cy 62, r 40; eyes at y 56). The Cozy Corner pets reuse those same layers,
+// and most of them share that geometry exactly — but a hedgehog's head is
+// smaller and lower (cy 66, r 36) and a turtle's much more so (cy 72,
+// r 32), because the shell takes the top of the frame. So hats floated
+// above a turtle's head, glasses missed its eyes, and the ear flower landed
+// on the shell.
+//
+// Rather than redraw every item per species, each species states how its
+// features differ and the layers are nudged to match, per SLOT — a hat and
+// a pair of glasses need different corrections on the same animal.
+// Fits are TRANSLATIONS. Scaling was tried and abandoned: it moves the art
+// as well as resizing it, so the two corrections fight each other. A crown
+// spanning y 12–43 scaled 0.8 about y 40 becomes 17.6–42.4, and the +18 that
+// should have landed its band exactly on a turtle's head top then buried it
+// 20px inside the head. Translation alone puts each item where the same
+// feature sits on that animal, which is the whole job.
+const SLOT_ANCHOR = { head: 40, eyes: 56, ear: 36, neck: 103 };
+
+export const GEAR_SLOT = {
+  crown: 'head', tiara: 'head', party: 'head', tophat: 'head', flowercrown: 'head',
+  glasses: 'eyes', sunglasses: 'eyes', goggles: 'eyes',
+  flower: 'ear', earmuffs: 'ear',
+  scarf: 'neck', bowtie: 'neck', nametag: 'neck', diamond: 'neck', flowercollar: 'neck',
+};
+
+function fitted(id, slot, layer, fit) {
+  // A per-ITEM entry wins over its slot: `ear` holds both a single flower
+  // (which has to come inboard on an animal with no ear to hang from) and a
+  // symmetric headband (which must NOT move sideways, or a muff slides over
+  // an eye — which is exactly what happened to the turtle).
+  const f = fit?.[id] ?? fit?.[slot];
+  if (!f) return layer;
+  const [dy = 0, scale = 1, dx = 0] = f;
+  if (!dy && !dx && scale === 1) return layer;
+  const a = SLOT_ANCHOR[slot] ?? 60;
+  const s =
+    scale === 1 ? '' : ` translate(60 ${a}) scale(${scale}) translate(-60 ${-a})`;
+  return `<g transform="translate(${dx} ${dy})${s}">${layer}</g>`;
+}
+
+export function accessoryOverlays(accessories = [], { initial = '', fit = null } = {}) {
   let gear = '';
   for (const id of Object.keys(GEAR_LAYERS)) {
-    if (accEntry(accessories, id)) gear += GEAR_LAYERS[id];
+    if (!accEntry(accessories, id)) continue;
+    const layer = id === 'nametag' ? nametagLayer(initial) : GEAR_LAYERS[id];
+    gear += fitted(id, GEAR_SLOT[id], layer, fit);
   }
   const bandana = accEntry(accessories, 'bandana');
   const cap = accEntry(accessories, 'cap');

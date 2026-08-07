@@ -261,6 +261,30 @@ test('catalog and wearer ids never contain the characters the ledger parses', ()
 // is fine, repricing an existing one fails here.
 import PRICE_LOCK from './fixtures-store-prices.json' with { type: 'json' };
 
+test('a live price is locked; a beta price deliberately is not', () => {
+  // The lock skips ids it has never seen, which is what lets a new item be
+  // added freely — but on its own that also means an item could go live
+  // with its price still unlocked, and nothing would say so. Beta is the
+  // exemption ON PURPOSE (it is how a provisional price stays changeable);
+  // everything a child can actually reach must be frozen.
+  for (const item of CATALOG) {
+    if (item.beta) {
+      expect(
+        PRICE_LOCK[item.id],
+        `${item.id} is beta, so its price must NOT be locked yet — that is the ` +
+          `whole point of shipping it behind the 🧪 chip.`
+      ).toBeUndefined();
+      continue;
+    }
+    expect(
+      PRICE_LOCK[item.id],
+      `${item.id} is on sale to every child but has no locked price. Add it to ` +
+        `tests/fixtures-store-prices.json in the same commit that takes it out ` +
+        `of beta — writing it down is what freezes it.`
+    ).toBeDefined();
+  }
+});
+
 test('listed prices never change (add freely, reprice never)', () => {
   for (const item of CATALOG) {
     const locked = PRICE_LOCK[item.id];

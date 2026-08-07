@@ -6,6 +6,13 @@
 // Tiers (docs/PHASE store plan, prices pinned 2026-07-20 against the
 // known economy): treasures are one-of-a-kind and move between wearers;
 // gifts are bought FOR a wearer; toys are shared household things.
+// `beta: true` items are visible only with the 🧪 chip on. That is not a
+// soft launch — it is how a price stays UNLOCKED. Listed prices are frozen
+// by tests/economy-invariants.spec.js the moment a child can reach them
+// (one purchase must never be worth two amounts across devices), and beta
+// features are the documented exemption to the preservation rule. So a new
+// item is drawn, priced provisionally, judged by eye, and only then leaves
+// beta — at which point its price enters the lock for good.
 export const GEAR_ACCESSORIES = [
   { id: 'crown', name: 'royal crown', emoji: '👑', slot: 'head', tier: 'treasure', price: 1200 },
   { id: 'tiara', name: 'sparkle tiara', emoji: '👸', slot: 'head', tier: 'treasure', price: 800 },
@@ -15,6 +22,24 @@ export const GEAR_ACCESSORIES = [
   { id: 'sunglasses', name: 'cool shades', emoji: '😎', slot: 'eyes', tier: 'gift', price: 200 },
   { id: 'scarf', name: 'cozy scarf', emoji: '🧣', slot: 'neck', tier: 'gift', price: 160 },
   { id: 'bowtie', name: 'fancy bowtie', emoji: '🎀', slot: 'neck', tier: 'gift', price: 125 },
+
+  // --- v1.51.0: shipped after an art review, prices now locked ----------
+  // The dear ones are `treasure` (one-of-a-kind, moving between wearers);
+  // the rest are `gift` (bought for one friend, arriving worn) — which
+  // reads more naturally for a name tag or goggles than for a diamond
+  // collar. Spread across four slots on purpose: the store already stacks
+  // items on `head`, and piling three onto `neck` would have made
+  // overlapping collars the common case (wearing is now one-per-slot).
+  { id: 'diamond', name: 'diamond collar', emoji: '💎', slot: 'neck', tier: 'treasure', price: 1100 },
+  { id: 'flowercrown', name: 'flower crown', emoji: '🌸', slot: 'head', tier: 'treasure', price: 900 },
+  // Partners the flower crown, so it takes the same tier: a matching set a
+  // child can put on one friend at once, rather than one piece that moves
+  // and one that doesn't.
+  { id: 'flowercollar', name: 'flower collar', emoji: '💐', slot: 'neck', tier: 'treasure', price: 600 },
+  { id: 'earmuffs', name: 'winter earmuffs', emoji: '🎧', slot: 'ear', tier: 'gift', price: 450 },
+  { id: 'tophat', name: 'tiny top hat', emoji: '🎩', slot: 'head', tier: 'gift', price: 400 },
+  { id: 'nametag', name: 'golden name tag', emoji: '🏷️', slot: 'neck', tier: 'gift', price: 350 },
+  { id: 'goggles', name: 'snow goggles', emoji: '🥽', slot: 'eyes', tier: 'gift', price: 300 },
 ];
 
 export const TOYS = [

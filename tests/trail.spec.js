@@ -139,7 +139,7 @@ test('skill domains: every old entry survives, and the additions are the known f
   // more guessable than a numeral, so 3 in a row proves less
   expect(STREAK_NEEDED.place, 'placement is binned ⇒ needs 4').toBe(4);
   // the set-valued one is a set, not a range — three strides, not 2..10
-  expect(SKILL_DOMAIN.path).toEqual({ set: [2, 5, 10] });
+  expect(SKILL_DOMAIN.path).toEqual({ set: [2, 3, 4, 5, 10] }); // 3s and 4s added v1.51.0
   expect(skillNumbers({ domain: { set: [2, 5, 10] } })).toEqual([2, 5, 10]);
 });
 
@@ -158,7 +158,10 @@ const mulberry32 = (a) => () => {
 const OLD_DOMAIN = FIX.SKILL_DOMAIN;
 const OLD_STREAK = FIX.STREAK_NEEDED;
 const OLD_KEY = { taway: 'takeaway' };
-const OLD_SET = { paths: [2, 5, 10] };
+// The stride LIST is data that has intentionally changed (v1.51.0 added 3s
+// and 4s); what this comparison is for is the set-valued frontier LOGIC, so
+// it tracks the current strides rather than pinning the historical ones.
+const OLD_SET = { paths: [2, 3, 4, 5, 10] };
 const oldKnows = (little, g, n) =>
   (little.skills?.[`${g}:${n}`]?.streak ?? 0) >= (OLD_STREAK[g] ?? 3);
 function oldHasFrontier(profile, game) {
@@ -332,7 +335,7 @@ test('a gate may be tightened; it may not close on a child it opened', () => {
   const p = newProfile('Earner');
   p.subjects = { ...p.subjects, tables: 'auto' };
   // qualify for tables the honest way: waves 1–5, sub-waves 1–2, all strides
-  for (const t of [2, 5, 10]) p.little.skills[`path:${t}`] = { attempts: 9, streak: 9 };
+  for (const t of [2, 3, 4, 5, 10]) p.little.skills[`path:${t}`] = { attempts: 9, streak: 9 };
   const masterWave = (w, map = 'addition') => {
     for (const [a, b] of waveFacts(w)) p[map][normAddKey(a, b)] = stat(3);
   };
@@ -407,4 +410,49 @@ test('every milestone maps to its OWN pet, and the list never wraps', () => {
     const i = MILESTONES.findIndex((x) => x.id === m.id);
     expect(i, `${m.id} is within PETS`).toBeLessThan(PETS.length);
   }
+});
+
+// --- raising a gate for real (v1.51.0) ------------------------------------
+
+test('the tables gate now wants 3s and 4s, and the game teaches them', () => {
+  // A gate may only ever require what the app actually teaches. Requiring
+  // path:3/path:4 while `paths` still only served 2s, 5s and 10s would have
+  // been the v1.47.3 defect again — a gate in front of something nothing
+  // surfaces — so both moved in the same release.
+  const taught = new Set(skillKeys('paths'));
+  for (const t of [2, 3, 4, 5, 10]) {
+    expect(taught.has(`path:${t}`), `Counting paths teaches ${t}s`).toBe(true);
+  }
+  const p = newProfile('Gated');
+  const masterWave = (w, map = 'addition') => {
+    for (const [a, b] of waveFacts(w)) p[map][normAddKey(a, b)] = stat(3);
+  };
+  for (let w = 0; w <= 4; w++) masterWave(w);
+  masterWave(0, 'subtraction');
+  masterWave(1, 'subtraction');
+  for (const t of [2, 5, 10]) p.little.skills[`path:${t}`] = { attempts: 9, streak: 9 };
+  expect(readiness.tablesReady(p), 'the old three are no longer enough').toBe(false);
+  for (const t of [3, 4]) p.little.skills[`path:${t}`] = { attempts: 9, streak: 9 };
+  expect(readiness.tablesReady(p), 'all five open it').toBe(true);
+});
+
+test('raising the gate cannot take the tables away from a child who has them', () => {
+  // This is the property that made the decision safe to take at all. A
+  // child who qualified under the OLD rule (2s, 5s, 10s) and was stamped
+  // keeps the track, even though the current predicate now refuses them.
+  const p = newProfile('Grandfathered');
+  p.subjects = { ...p.subjects, tables: 'auto' };
+  const masterWave = (w, map = 'addition') => {
+    for (const [a, b] of waveFacts(w)) p[map][normAddKey(a, b)] = stat(3);
+  };
+  for (let w = 0; w <= 4; w++) masterWave(w);
+  masterWave(0, 'subtraction');
+  masterWave(1, 'subtraction');
+  for (const t of [2, 5, 10]) p.little.skills[`path:${t}`] = { attempts: 9, streak: 9 };
+
+  // stamp them as the old rule would have (they were shown the track)
+  readiness.ratchetReveals(p, ['track:tables']);
+  expect(readiness.tablesReady(p), 'the new rule refuses them').toBe(false);
+  expect(readiness.tablesVisible(p), 'but the door stays open').toBe(true);
+  expect(readiness.trackState(p, 'tables')).toBe('revealed');
 });
