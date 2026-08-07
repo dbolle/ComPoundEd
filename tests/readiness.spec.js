@@ -59,11 +59,9 @@ test('tables readiness: adding w1–w5 + taking away w1–w2 + counting paths', 
   masterWave(p, 0, 'subtraction');
   masterWave(p, 1, 'subtraction');
   expect(tablesReady(p)).toBe(false); // paths still missing (v1.20)
-  p.little.skills = {
-    'path:2': { attempts: 3, streak: 3 },
-    'path:5': { attempts: 3, streak: 3 },
-    'path:10': { attempts: 3, streak: 3 },
-  };
+  // v1.51.0 raised the gate to all five strides (2, 3, 4, 5, 10)
+  p.little.skills = {};
+  for (const t of [2, 3, 4, 5, 10]) p.little.skills[`path:${t}`] = { attempts: 3, streak: 3 };
   expect(tablesReady(p)).toBe(true);
 });
 

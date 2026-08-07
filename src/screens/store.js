@@ -11,6 +11,7 @@ import { GEAR_ACCESSORIES, TOYS, toySVG } from '../art/gear.js';
 import { DOGS, dogSVG, wornFor, gearSVG } from '../art/dogs.js';
 import { PETS, petSVG } from '../art/pets.js';
 import { isUnlocked } from '../engine/unlocks.js';
+import { isBeta } from '../engine/beta.js';
 import { confetti, escapeHtml, toast } from '../ui.js';
 import { sfx, buzz, cheer, say } from '../sound.js';
 import { coinTray } from '../ui/cointray.js';
@@ -56,13 +57,19 @@ export function storeScreen(el, params, ctx) {
   const artFor = (item) =>
     item.tier === 'toy' ? toySVG(item.id, 64) : gearSVG(item.id, 64);
 
+  const shelved = (item) => !item.beta || isBeta(p);
+
   function renderShelves() {
     el.querySelector('[data-balance]').textContent = formatPaw(balanceCents(p));
     shelves.innerHTML = '';
     const groups = [
-      { title: 'Toys 🧸', items: TOYS },
-      { title: 'Gifts 🎁 (pick who they’re for!)', items: GEAR_ACCESSORIES.filter((i) => i.tier === 'gift') },
-      { title: 'Treasures 👑', items: GEAR_ACCESSORIES.filter((i) => i.tier === 'treasure') },
+      // Beta items are shelved only with the 🧪 chip on — which is what
+      // keeps their prices unlocked (see the note in src/art/gear.js).
+      // Already-owned beta gear keeps rendering on its wearer either way:
+      // `placedOn` asks whether it was bought, not whether it is on sale.
+      { title: 'Toys 🧸', items: TOYS.filter(shelved) },
+      { title: 'Gifts 🎁 (pick who they’re for!)', items: GEAR_ACCESSORIES.filter((i) => i.tier === 'gift' && shelved(i)) },
+      { title: 'Treasures 👑', items: GEAR_ACCESSORIES.filter((i) => i.tier === 'treasure' && shelved(i)) },
     ];
     const ownedToys = ownedGear(p).filter(({ item }) => itemOf(item)?.tier === 'toy');
     if (ownedToys.length) {

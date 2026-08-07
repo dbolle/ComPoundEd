@@ -58,10 +58,12 @@ licensing.
   guided recounts on misses, per-number mastery tracking, a Play-next hero
   tile, and a goal preview for the next unlock. Numbers grow 1–5 → 1–10 as
   they're genuinely known.
-- **The Pet Store** — earn Paw Bucks, then pay with exact change at
-  the counter (real coin math: count out bucks, quarters, dimes, and
-  nickels; swap denominations in the wallet). Toys, gifts, and
-  one-of-a-kind treasures at pocket-money prices.
+- **The Pet Store** — earn Paw Bucks, then pay at the counter: exact
+  change, or hand over a big coin and count the change back the way a
+  shopkeeper does. Toys, gifts for one friend, and one-of-a-kind treasures
+  that move between friends — a royal crown, a diamond collar, a flower
+  crown and collar, and more. Accessories are fitted to each animal, and a
+  friend wears one thing per spot.
 - **Toys & gifts for every friend** — store toys can be handed to pack
   dogs or Cozy Corner pets (one-tap give chips, no reading), and show up
   in walks, little-pup games, and on the little home buddy.

@@ -5,12 +5,18 @@
   "bowl": 90,
   "bowtie": 125,
   "crown": 1200,
+  "diamond": 1100,
   "ducky": 30,
+  "earmuffs": 450,
   "feather": 15,
   "flower": 100,
+  "flowercollar": 600,
+  "flowercrown": 900,
   "frisbee": 75,
   "glasses": 150,
+  "goggles": 300,
   "mouse": 10,
+  "nametag": 350,
   "party": 120,
   "pinecone": 15,
   "ring": 50,
@@ -20,5 +26,6 @@
   "stick": 10,
   "sunglasses": 200,
   "teddy": 100,
-  "tiara": 800
+  "tiara": 800,
+  "tophat": 400
 }

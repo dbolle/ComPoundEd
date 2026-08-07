@@ -18,7 +18,12 @@ test('tables readiness now requires the counting paths', () => {
   for (let w = 0; w <= 4; w++) for (const [a, b] of waveFacts(w)) p.addition[normAddKey(a, b)] = stat(3);
   for (let w = 0; w <= 1; w++) for (const [a, b] of waveFacts(w)) p.subtraction[normAddKey(a, b)] = stat(3);
   expect(tablesReady(p)).toBe(false);
+  // v1.51.0: the gate wants 3s and 4s too — the ×3 and ×4 tables are the
+  // ones a chain helps most and had none. The three old strides no longer
+  // suffice on their own.
   p.little.skills = { 'path:2': { attempts: 3, streak: 3 }, 'path:5': { attempts: 3, streak: 3 }, 'path:10': { attempts: 3, streak: 3 } };
+  expect(tablesReady(p), 'the old three alone are not enough now').toBe(false);
+  for (const t of [3, 4]) p.little.skills[`path:${t}`] = { attempts: 3, streak: 3 };
   expect(tablesReady(p)).toBe(true);
 });
 

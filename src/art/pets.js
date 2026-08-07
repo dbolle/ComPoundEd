@@ -174,6 +174,40 @@ function turtle(p, uid) {
 
 const SPECIES = { cat, rabbit, guinea, bird, sloth, hedgehog, turtle };
 
+// How each species differs from the dog geometry the accessories were drawn
+// for: [dy, scale, dx] per slot. Derived from each drawing's own numbers —
+// head circle and eye line — not guessed. Species that match the dog
+// exactly (cat, rabbit) simply have no entry.
+export const PET_FIT = {
+  // eyes(52): the bird's eyes sit high on its face
+  bird: { eyes: [-4] },
+  // eyes(57) / eyes(58): a whisker lower than a dog's
+  sloth: { eyes: [1] },
+  guinea: { eyes: [2] },
+  // head circle cy 66 r 36 — 8px lower than a dog's
+  hedgehog: { head: [8], eyes: [2], ear: [8] },
+  // A turtle wants THREE different corrections, because a hat, a pair of
+  // glasses and a headband each answer to a different feature:
+  //   head +10  Settled BY EYE, and deliberately between the two numbers
+  //             geometry offers. Matching the head circle (cy 72 r 32, top
+  //             y 40) says +18 and buries the hat; matching the shell dome
+  //             (peak y 24, level with a dog's head top at 22) says +2 and
+  //             leaves it balanced on the apex. A dome is not a flat head:
+  //             a hat rests DOWN in its curve, so the value that looks
+  //             right sits between the features rather than on either.
+  //             Owner's call after seeing the offsets side by side.
+  //   eyes  +8  eyes(64) against a dog's eyes(56); a real feature, really moved.
+  //   ear  +14  no ears to hang from, so both ear items rest on the head.
+  // Both ear items take the SAME fit: an inboard shift for the single bloom
+  // slid the earmuff band sideways until a cup covered an eye.
+  turtle: { head: [10], eyes: [8], ear: [14] },
+  // the tag would otherwise touch the teeth (which end at y 93); +3 clears
+  // them and still covers the collar disc (y 96–110) exactly: the plate
+  // starts at y 94, so +2 puts its top edge on the disc's top edge — any
+  // more and a sliver of gold shows above it
+  rabbit: { nametag: [2] },
+};
+
 export function petSVG(pet, size = 96, accessories = []) {
   const uid = `pt-${pet.id}`;
   const draw = SPECIES[pet.species];
@@ -184,6 +218,6 @@ export function petSVG(pet, size = 96, accessories = []) {
   </defs>
   ${draw(pet, uid)}
   ${collarTag(accessories)}
-  ${accessoryOverlays(accessories)}
+  ${accessoryOverlays(accessories, { initial: pet?.name ?? '', fit: PET_FIT[pet.species] })}
 </svg>`;
 }

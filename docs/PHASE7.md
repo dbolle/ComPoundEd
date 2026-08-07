@@ -415,17 +415,35 @@ polish ≤ 5¢/day.
 - The most expensive item in the store is **`crown` at 1200¢ = 🐾$12.00**
   (then `tiara` 800¢, `sunglasses` 200¢, `scarf` 160¢). The money track
   alone (1370¢) buys the crown outright with 170¢ over.
-- But the **whole 22-item catalog totals 3400¢ = 🐾$34.00**, and the
-  existing ceiling is already **1.6× the entire catalog**. Money moves
-  that to **2.0×**. So money does not create a new problem; it widens an
-  existing one, and the pre-existing fact is the more important one: a
-  child who finishes ×, ÷, + and − can already buy everything twice.
+- **CORRECTED 2026-08-07.** This section previously said the catalogue
+  "totals 3400¢" and that the earning ceiling was 1.6× all of it — that
+  a child could buy everything twice. That was wrong, because it summed
+  each item ONCE. **Gifts are bought per friend**: `isOwned` keys a gift
+  by its wearer, so the same scarf can be bought for every dog and every
+  pet. With 25 dogs and 26 pets, the reachable spend is:
+
+  | | items | reachable |
+  |---|---|---|
+  | toys (once ever) | 14 | 545¢ |
+  | treasures (once ever) | 5 | 4,600¢ |
+  | gifts (once **per friend**, ×51) | 10 | 120,105¢ |
+  | **total** | 29 | **125,250¢ = 🐾$1,252.50** |
+
+  So the truth is the opposite of what was written: against a lifetime
+  ceiling near 6,900¢, a child can afford roughly **5%** of what the shop
+  sells, and 96% of the shop is gifts. There was never a shortage of
+  things to want, and "add store content to absorb income" was reasoning
+  from a wrong number. Scarcity is the actual state, which is fine — it
+  makes choosing matter, and nothing expires or pressures a child — but it
+  should be believed on purpose rather than by accident.
 - The per-wave rate is **not** the loose knob it looks like. Wave 1 pays
   125¢ for 5 identities (25¢/identity) against wave 3's 250¢ for 30
   (8.3¢/identity) — but addition's Make Ten wave pays 100¢ for **2**
   facts (50¢/fact), so wave 1 is stricter than shipped precedent. Flat
   per-wave pay is the mechanically uniform rule and this plan keeps it.
-- **Recommendation**: ship the amounts above, and if scarcity is wanted,
+- **Recommendation (unchanged, better founded)**: ship the amounts above.
+  Money adds ~20% to a lifetime ceiling that already buys only a small
+  fraction of the shop, so it does not threaten scarcity. If scarcity is wanted,
   reach for **store content** rather than payout rates. Adding items is
   free (prices are fixed only once *listed*); lowering a rate requires a
   version bump, cannot apply retroactively, and hands a child two amounts

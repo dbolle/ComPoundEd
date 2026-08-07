@@ -57,8 +57,10 @@ test('Counting paths joins the frontier rotation (the tables gate depends on it)
     new Set(['paths', 'count'])
   );
 
-  // and once every stride is known it drops out of the rotation again
-  for (const t of [2, 5, 10]) known(p, `path:${t}`);
+  // and once every stride is known it drops out of the rotation again.
+  // v1.51.0 added 3s and 4s, so "every stride" is five, not three — the
+  // game teaches what the tables gate now asks for.
+  for (const t of [2, 3, 4, 5, 10]) known(p, `path:${t}`);
   expect(rotation(p, tiles), 'strides known ⇒ only count is left').toEqual(new Set(['count']));
 });
 
