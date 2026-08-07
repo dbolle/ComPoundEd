@@ -4,7 +4,7 @@
 // sidecar mounted by the test server.
 import { test, expect } from '@playwright/test';
 import { newProfile, migrateProfile } from '../src/data/schema.js';
-import { seedProfile, selectProfile, uniqueName, norm, stat, holdGrownupsGate, seedRemote } from './helpers.mjs';
+import { seedProfile, selectProfile, uniqueName, norm, stat, holdGrownupsGate, seedRemote, openServerSection } from './helpers.mjs';
 
 const freshCtx = (browser, baseURL) =>
   browser.newContext({ baseURL, viewport: { width: 390, height: 664 }, hasTouch: true, isMobile: true });
@@ -12,6 +12,7 @@ const freshCtx = (browser, baseURL) =>
 async function enableSync(page) {
   await page.evaluate(() => { location.hash = '#/grownups'; });
   await holdGrownupsGate(page);
+  await openServerSection(page);
   await page.tap('[data-sync-toggle]');
   await page.waitForTimeout(1200);
 }
@@ -170,6 +171,7 @@ test('e2e: restore brings the player back; purge is forever; zero-profile device
   await B.waitForSelector('.hero');
   await B.evaluate(() => { location.hash = '#/grownups'; });
   await holdGrownupsGate(B);
+  await openServerSection(B);
   await B.tap('[data-deleted-players]');
   await B.waitForSelector('[data-purge-id="res-kid"]');
   await B.tap('[data-purge-id="res-kid"]');
@@ -234,6 +236,7 @@ test('e2e: delete → restore elsewhere → stale offline delete becomes a CONFL
   await page.waitForSelector('.hero');
   await page.evaluate(() => { location.hash = '#/grownups'; });
   await holdGrownupsGate(page);
+  await openServerSection(page);
   await page.tap('[data-deleted-players]');
   await page.waitForSelector('[data-resolve-keep="conf-kid"]'); // conflict IS surfaced
   await page.tap('[data-resolve-keep="conf-kid"]');

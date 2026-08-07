@@ -6,7 +6,7 @@ Two registers. Every new string picks one and sticks to its column.
 | Concept | Kid register (screens kids see) | Grown-up register (Grown-Ups card, docs) |
 |---|---|---|
 | fact fully learned | **strong** ⭐ ("Get the ×7s strong") | mastered |
-| fact decayed | **rusty** → **polish** (matches dirt/grooming) | needs review / rusty |
+| fact decayed | **dusty** 🧼 → give it a **bath** / **grooming** (never "rusty", never "polish") | needs review / rusty |
 | coin-earning learning moment | **new trick** (coin badges only) | fact mastered |
 | coverage (tried every fact) | **sniffed** 🐽 | attempted |
 | earning a dog/pet | **adopt** / **moved in** | unlocked |
@@ -32,6 +32,18 @@ Two registers. Every new string picks one and sticks to its column.
 Rules:
 - Kid strings are concrete dog-world words; never "master", "practice
   session", "review", "XP".
+- A dog cannot get rusty. The kid register for a decayed fact is the
+  grooming metaphor end to end — the fact goes **dusty**, and the fix is
+  the **bath** the child already taps (a dog's dirt is derived from its own
+  due facts, `dirtFor` in src/art/dogs.js). One activity, one word for it.
+  The grooming framing also keeps the child's attention on their own effort
+  at a hard thing, rather than on playing with the puppy. Grown-ups keep
+  **rusty**: on a progress screen that is simply the accurate word.
+  (Kid register changed 2026-08-07; the old kid words were "rusty →
+  polish".) Engine and ledger identifiers are NOT vocabulary — `polish`,
+  `earnPolish` and `POLISH_PAY` stay exactly as they are, because
+  `reason: 'polish'` is written into transactions on real children's
+  devices and renaming it would orphan their history.
 - "trick" is reserved for coin ceremonies, so the word keeps its sparkle.
 - Mechanics are shown, not explained: icon + meter + picture of the reward
   (reward chips), at the point of action. Tooltips don't exist on tablets.

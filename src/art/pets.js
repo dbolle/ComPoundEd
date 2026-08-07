@@ -188,14 +188,18 @@ export const PET_FIT = {
   hedgehog: { head: [8], eyes: [2], ear: [8] },
   // A turtle wants THREE different corrections, because a hat, a pair of
   // glasses and a headband each answer to a different feature:
-  //   head +10  Settled BY EYE, and deliberately between the two numbers
-  //             geometry offers. Matching the head circle (cy 72 r 32, top
-  //             y 40) says +18 and buries the hat; matching the shell dome
-  //             (peak y 24, level with a dog's head top at 22) says +2 and
-  //             leaves it balanced on the apex. A dome is not a flat head:
-  //             a hat rests DOWN in its curve, so the value that looks
-  //             right sits between the features rather than on either.
-  //             Owner's call after seeing the offsets side by side.
+  //   head +10  Settled BY EYE. The hat sits on the HEAD, as it does on
+  //             every other animal — what is wrong is assuming the offset
+  //             can be read off the head's top edge. Matching top edges
+  //             says +18 (dog head top y 22, turtle y 40) and that sits
+  //             far too low, because the turtle's head is also SMALLER
+  //             (r 32 against 40) and its upper arc is partly behind the
+  //             shell. A hat sits a proportion of the way down a head, not
+  //             a fixed number of pixels: the dog's crown band rests about
+  //             a sixth of a head-diameter below the crown of the skull,
+  //             and on a 64-wide head that is ~11px rather than 18. +10 is
+  //             where it actually looked right. Derivation gets you close
+  //             here; only looking gets you correct.
   //   eyes  +8  eyes(64) against a dog's eyes(56); a real feature, really moved.
   //   ear  +14  no ears to hang from, so both ear items rest on the head.
   // Both ear items take the SAME fit: an inboard shift for the single bloom

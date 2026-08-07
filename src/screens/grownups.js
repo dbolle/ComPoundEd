@@ -165,6 +165,14 @@ export function grownupsScreen(el, params, ctx) {
     const dogsEarned = p.unlocks.length;
     gate.hidden = true;
     panel.hidden = false;
+
+    // Does this family HAVE a server? Answered from stored evidence only —
+    // no probe — so a returning family sees the section already open without
+    // the app touching the network to find out. The async half (has this
+    // device ever reached a server?) is folded in just below, since the
+    // markup is built synchronously.
+    const serverKnown = isSyncEnabled();
+
     panel.innerHTML = `
       <div class="card">
         <h3>${escapeHtml(p.name)}'s progress</h3>
@@ -204,7 +212,7 @@ export function grownupsScreen(el, params, ctx) {
       <div class="card">
         <h3>Paw Bucks ledger</h3>
         <p class="muted" style="font-size:.85rem">Coins follow the learning: a paw nickel when a fact is first mastered, a
-        whole Paw Buck for a whole table, a penny for polishing a rusty fact (up to 5¢ a day), and a paw dime per
+        whole Paw Buck for a whole table, a penny for polishing a rusty fact (up to 25¢ a day), and a paw dime per
         pet-sitting visit (first two a day). Fully-mastered facts don't pay — practice there earns praise and awards
         instead. Game money only — never real currency.</p>
         <div data-ledger></div>
@@ -275,34 +283,103 @@ export function grownupsScreen(el, params, ctx) {
       </div>
       <div style="height:12px"></div>
       <div class="card">
-        <h3>Family backup</h3>
-        <p class="muted">Keeps every player's progress safe on your home server — this
-        network only, never the internet. Also works as a restore point for new devices.</p>
-        <div class="nav-row">
-          <button class="btn ghost small" data-sync-toggle></button>
-          <button class="btn ghost small" data-sync-now>💾 Back up now</button>
+        <h3>Keeping progress safe</h3>
+        <p class="muted">
+          <strong>Everything a child does is stored only on this device</strong>,
+          in this browser. Nothing is sent anywhere — and nothing can be
+          recovered from an account, because there isn't one.
+        </p>
+        <details class="explain">
+          <summary>What could erase it</summary>
+          <p class="muted small-note">
+            Browser storage is not permanent. Clearing site data, "free up
+            space" tools, some private-browsing modes, and a reinstalled or
+            reset device can all wipe it, and a browser may evict it on its own
+            if the device runs low on space. Keeping a copy is worth the minute
+            it takes.
+          </p>
+        </details>
+
+        <div class="backup-group">
+          <h4>💾 Save a file — works everywhere</h4>
+          <p class="muted small-note">
+            Downloads a file with the players you choose. Keep it somewhere you
+            already back up.
+          </p>
+          <details class="explain">
+            <summary>How to restore from a file</summary>
+            <p class="muted small-note">
+              On this device or a new one, open Grown-Ups and choose
+              <em>Restore from a file</em>, then pick the file. Restoring adds
+              those players back. It merges rather than overwrites — a player
+              who is further ahead here keeps their progress — so restoring an
+              old file can never undo newer work.
+            </p>
+          </details>
+          <div class="nav-row">
+            <button class="btn ghost small" data-export>⬇️ Save all players</button>
+            <button class="btn ghost small" data-export-one>⬇️ Save just ${escapeHtml(p.name)}</button>
+          </div>
+          <div class="nav-row" style="margin-top:6px">
+            <button class="btn ghost small" data-import>⬆️ Restore from a file</button>
+          </div>
         </div>
-        <p class="muted" style="font-size:.8rem;margin:6px 0 0" data-sync-status></p>
-        <div class="nav-row" style="margin-top:6px">
-          <input class="name-input" data-sync-key type="password" placeholder="Family key (if your server uses one)"
-            autocomplete="off" style="flex:1" />
-          <button class="btn ghost small" data-sync-key-save>🔑 Save</button>
-        </div>
-        <p class="muted" style="font-size:.75rem;margin:4px 0 0" data-key-note></p>
-        <div class="nav-row" style="margin-top:6px">
-          <button class="btn ghost small" data-deleted-players>🗂 Deleted players</button>
-        </div>
-        <div data-deleted-list></div>
-        <div data-meta-conflicts></div>
-        <div style="height:8px"></div>
-        <div class="nav-row">
-          <button class="btn ghost small" data-export>⬇️ Export all players</button>
-          <button class="btn ghost small" data-export-one>⬇️ Just ${escapeHtml(p.name)}</button>
-        </div>
-        <div style="height:8px"></div>
-        <div class="nav-row">
-          <button class="btn ghost small" data-import>⬆️ Import from file</button>
-        </div>
+
+        ${
+          // The public build has no home server to talk to — a same-origin
+          // /sync/ cannot exist on a public host — so the controls are not
+          // rendered at all rather than shown as dead ends. The define is
+          // read INLINE, not through a const: as a const the minifier kept
+          // both branches in the bundle, and the point is for the unused
+          // one to be gone. Guarded so a direct module import (tests) sees
+          // the real app's behaviour.
+          typeof __PUBLIC_DEMO__ !== 'undefined' && __PUBLIC_DEMO__
+            ? `<div class="backup-group">
+                 <h4>🏡 Home server — optional</h4>
+                 <p class="muted small-note">
+                   If you run Compounded on your own machine at home, every
+                   device can back itself up and stay in sync automatically, on
+                   your network only. That isn't available on this public
+                   version — saving a file is.
+                   <a href="https://github.com/dbolle/ComPoundEd/blob/main/deploy/README.md"
+                      target="_blank" rel="noopener">How to set one up</a>.
+                 </p>
+               </div>`
+            : `<details class="backup-group" data-server-group${serverKnown ? ' open' : ''}>
+          <summary>🏡 Home server — automatic, needs your own server</summary>
+          <p class="muted small-note">
+            <strong>Needs a server you run yourself, on this same home
+            network.</strong> There is nothing to sign up for and nothing goes
+            to the internet. With one running, every device backs itself up and
+            picks up what the others did, so a child can move between them. No
+            server? Ignore this and save files instead.
+          </p>
+          <div class="nav-row">
+            <button class="btn ghost small" data-sync-toggle></button>
+            <button class="btn ghost small" data-sync-now>💾 Back up now</button>
+          </div>
+          <p class="muted" style="font-size:.8rem;margin:6px 0 0" data-sync-status></p>
+          <!-- The key field sits on its own row: sharing one with the Save
+               button truncated the placeholder to "Family k" on a phone. -->
+          <div style="margin-top:8px">
+            <input class="name-input" data-sync-key type="password"
+              placeholder="Family key"
+              autocomplete="off" style="width:100%" />
+          </div>
+          <p class="muted small-note" style="margin:4px 0 0">
+            Only needed if your server asks for one.
+          </p>
+          <div class="nav-row" style="margin-top:6px">
+            <button class="btn ghost small" data-sync-key-save>🔑 Save key</button>
+          </div>
+          <p class="muted" style="font-size:.75rem;margin:4px 0 0" data-key-note></p>
+          <div class="nav-row" style="margin-top:6px">
+            <button class="btn ghost small" data-deleted-players>🗂 Deleted players</button>
+          </div>
+          <div data-deleted-list></div>
+          <div data-meta-conflicts></div>
+        </details>`
+        }
         <input type="file" accept=".json,application/json" hidden />
       </div>
       <div style="height:12px"></div>
@@ -427,8 +504,14 @@ export function grownupsScreen(el, params, ctx) {
     };
     renderLimit();
 
+    // The home-server controls are not rendered at all on the public build,
+    // so every lookup below must tolerate their absence. An unguarded
+    // querySelector().addEventListener on a missing element is precisely the
+    // v1.47.3 store defect — a null dereference that took the whole screen
+    // down after some listeners were already attached.
     const toggleBtn = panel.querySelector('[data-sync-toggle]');
     const renderToggle = () => {
+      if (!toggleBtn) return;
       toggleBtn.textContent = isSyncEnabled() ? '🟢 Backup: on' : '⚪ Backup: off';
     };
     renderToggle();
@@ -444,8 +527,9 @@ export function grownupsScreen(el, params, ctx) {
       return h < 48 ? `${h} h ago` : `${Math.round(h / 24)} days ago`;
     };
     const renderStatus = async (lastResult = null) => {
-      const s = await getSyncStatus();
       const statusEl = panel.querySelector('[data-sync-status]');
+      if (!statusEl) return;
+      const s = await getSyncStatus();
       const stale = syncStaleness(s);
       if (lastResult?.status === 'denied') {
         statusEl.textContent = '🔑 Backup is locked — the server needs the family key (below).';
@@ -465,22 +549,41 @@ export function grownupsScreen(el, params, ctx) {
           ? `${warn ? `⚠️ ${warn} ` : ''}This device — last backup: ${ago(s.lastPushAt)} · last check-in: ${ago(s.lastPullAt)}`
           : 'This device is not backing up. Each device (and each address it uses) has its own switch.';
         statusEl.dataset.level = warn ? stale.level : 'ok';
+        if (warn) openServerGroup(); // a device gone quiet must not be hidden
       }
     };
+    // Collapsing this section must never bury something a grown-up has to
+    // ACT on. Meta conflicts and deleted players live inside it, and a
+    // closed <details> hides its contents outright — which is how a
+    // conflict card the app promises to "surface, never auto-resolve"
+    // ended up invisible. Anything that puts business inside the group
+    // opens it.
+    const openServerGroup = () => {
+      const group = panel.querySelector('[data-server-group]');
+      if (group) group.open = true;
+    };
+
     renderStatus();
+    // The other half of "does this family have a server?": has this device
+    // ever actually reached one? That is stored state (lastPushAt /
+    // lastPullAt), so it still costs no network call — it just isn't
+    // available synchronously when the markup is built.
+    getSyncStatus().then((s) => {
+      if (s.lastPushAt || s.lastPullAt) openServerGroup();
+    });
     // Family key entry: stored only on this device; on plain http the
     // first send requires an explicit acknowledgement (LAN-observable).
     {
       const keyInput = panel.querySelector('[data-sync-key]');
       const note = panel.querySelector('[data-key-note]');
       getSyncKey().then((k) => {
-        if (k) keyInput.placeholder = 'Family key: set on this device';
+        if (k && keyInput) keyInput.placeholder = 'Family key: set on this device';
       });
-      if (location.protocol === 'http:') {
+      if (note && location.protocol === 'http:') {
         note.textContent =
           'Note: on this http address the key travels unencrypted on your own network — https://compounded.lan is safer.';
       }
-      panel.querySelector('[data-sync-key-save]').addEventListener('click', async () => {
+      panel.querySelector('[data-sync-key-save]')?.addEventListener('click', async () => {
         const val = keyInput.value.trim();
         if (!val) {
           toast('Type the family key first');
@@ -502,7 +605,7 @@ export function grownupsScreen(el, params, ctx) {
         }
       });
     }
-    toggleBtn.addEventListener('click', async () => {
+    toggleBtn?.addEventListener('click', async () => {
       await setSyncEnabled(!isSyncEnabled());
       renderToggle();
       renderStatus();
@@ -530,6 +633,8 @@ export function grownupsScreen(el, params, ctx) {
         activeProfileId: 'last player',
       };
       const wrap = panel.querySelector('[data-meta-conflicts]');
+      if (!wrap) return;
+      openServerGroup(); // a conflict is a decision waiting on a grown-up
       const show = (v) =>
         v === null || v === undefined
           ? '(not set)'
@@ -561,8 +666,10 @@ export function grownupsScreen(el, params, ctx) {
 
     // Deleted players: restore (back to every device) or purge forever.
     // Both are parental decisions; purge is irreversible by design.
-    panel.querySelector('[data-deleted-players]').addEventListener('click', async () => {
+    panel.querySelector('[data-deleted-players]')?.addEventListener('click', async () => {
       const listEl = panel.querySelector('[data-deleted-list]');
+      if (!listEl) return;
+      openServerGroup();
       listEl.innerHTML = '<p class="muted">Looking…</p>';
       const [remote, conflicts] = await Promise.all([listDeletedPlayers(), getLifecycleConflicts()]);
       const rows = [];
@@ -620,7 +727,7 @@ export function grownupsScreen(el, params, ctx) {
       }
     });
 
-    panel.querySelector('[data-sync-now]').addEventListener('click', async () => {
+    panel.querySelector('[data-sync-now]')?.addEventListener('click', async () => {
       if (!isSyncEnabled()) {
         toast('Turn backup on first');
         return;

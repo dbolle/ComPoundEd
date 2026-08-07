@@ -1,4 +1,5 @@
 import { navigate } from '../router.js';
+import { plural } from '../ui.js';
 import {
   getStat,
   getDivStat,
@@ -37,6 +38,9 @@ export function heatmapScreen(el, params, ctx) {
           <span class="hm-chip" style="background:${UNSEEN}"></span><span>New</span>
           ${RAMP.map((c) => `<span class="hm-chip" style="background:${c}"></span>`).join('')}
           <span>Pro</span>
+          <!-- Faded squares had no legend at all: the only explanation was a
+               hover tooltip, which tablets don't have. Same faded chip, named. -->
+          <span class="hm-chip hm-due" style="background:${RAMP[3]}"></span><span>Dusty 🧼</span>
         </div>
       </div>
     </div>`;
@@ -49,12 +53,19 @@ export function heatmapScreen(el, params, ctx) {
     const stat = mode === 'div' ? getDivStat : getStat;
     // Coverage framing: untried facts are unsniffed spots to collect.
     let sniffed = 0;
+    let dusty = 0;
     for (let a = FACTOR_MIN; a <= FACTOR_MAX; a++) {
       for (let b = FACTOR_MIN; b <= FACTOR_MAX; b++) {
-        if (stat(p, a, b).attempts > 0) sniffed += 1;
+        const s = stat(p, a, b);
+        if (s.attempts > 0) sniffed += 1;
+        if (s.attempts > 0 && s.box > 0 && isDue(s)) dusty += 1;
       }
     }
-    caption.textContent = `🐽 ${sniffed}/169 spots sniffed — tap a square to peek`;
+    // Counted in SPOTS, like "spots sniffed" above: a×b and b×a are two
+    // squares on the map, and the child sees two faded squares. Number–noun
+    // agreement via the house helper: "1 dusty spot", "6 dusty spots".
+    const dustyBit = dusty > 0 ? ` · 🧼 ${dusty} dusty ${plural(dusty, 'spot')}` : '';
+    caption.textContent = `🐽 ${sniffed}/169 spots sniffed${dustyBit} — tap a square to peek`;
 
     const corner = document.createElement('span');
     corner.className = 'hm-head';
@@ -75,9 +86,12 @@ export function heatmapScreen(el, params, ctx) {
       for (let b = FACTOR_MIN; b <= FACTOR_MAX; b++) {
         const s = stat(p, a, b);
         const seen = s.attempts > 0;
-        const rusty = seen && s.box > 0 && isDue(s);
+        // Kid word for a decayed fact is "dusty" (docs/VOCABULARY.md): a
+        // dog gets dirty, not corroded, and the fix is the bath the child
+        // already taps. `hm-due` is styling, not vocabulary; it stays.
+        const dusty = seen && s.box > 0 && isDue(s);
         const cell = document.createElement('button');
-        cell.className = `hm-cell${rusty ? ' hm-due' : ''}`;
+        cell.className = `hm-cell${dusty ? ' hm-due' : ''}`;
         cell.style.background = seen ? RAMP[s.box] : UNSEEN;
         // Division reading: product ÷ divisor = quotient (never divide by 0).
         const divisor = a === 0 ? b : a;
@@ -88,13 +102,14 @@ export function heatmapScreen(el, params, ctx) {
               : `${a * b} ÷ ${divisor} = ${(a * b) / divisor}`
             : `${a} × ${b} = ${a * b}`;
         const label = seen
-          ? `${mode === 'div' ? `${a * b} ÷ ${divisor}` : `${a} × ${b}`}: ${LEVEL_NAMES[s.box]}${s.box >= MASTERY_BOX ? ' (mastered)' : ''}${rusty ? ', rusty — time for a polish!' : ''}`
+          ? `${mode === 'div' ? `${a * b} ÷ ${divisor}` : `${a} × ${b}`}: ${LEVEL_NAMES[s.box]}${s.box >= MASTERY_BOX ? ' (mastered)' : ''}${dusty ? ', dusty — bath time!' : ''}`
           : `${mode === 'div' ? `${a * b} ÷ ${divisor || b}` : `${a} × ${b}`}: not tried yet`;
         cell.setAttribute('aria-label', label);
-        cell.title = label;
+        // no title=: tooltips don't exist on a tablet, and the aria-label
+    // below already carries exactly this text for a screen reader
         cell.addEventListener('click', () => {
           caption.textContent = seen
-            ? `${factText} · ${LEVEL_NAMES[s.box]} ${'🐾'.repeat(s.box + 1)}${rusty ? ' · time for a refresh!' : ''}`
+            ? `${factText} · ${LEVEL_NAMES[s.box]} ${'🐾'.repeat(s.box + 1)}${dusty ? ' · dusty — bath time! 🧼' : ''}`
             : mode === 'div' && divisor === 0
               ? factText
               : `${factText.split('=')[0].trim()} — not sniffed out yet!`;

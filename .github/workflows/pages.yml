@@ -70,6 +70,9 @@ jobs:
       - run: npm run build
         env:
           VITE_BASE: /ComPoundEd/
+          # Public host: a same-origin /sync/ home server cannot exist here,
+          # so the backup controls are hidden and never probed for.
+          VITE_PUBLIC_DEMO: '1'
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

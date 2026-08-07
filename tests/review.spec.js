@@ -69,7 +69,7 @@ test('heatmap fades due facts and grown-ups counts them', async ({ page }) => {
   // 2×9 appears at both (2,9) and (9,2) in the grid
   await expect(dueCells).toHaveCount(2);
   await dueCells.first().tap();
-  await expect(page.locator('.hm-caption')).toContainText('time for a refresh');
+  await expect(page.locator('.hm-caption')).toContainText('bath time');
 
   await page.tap('[data-back]');
   await page.tap('[data-nav="/grownups"]');

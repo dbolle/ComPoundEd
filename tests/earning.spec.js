@@ -31,11 +31,11 @@ test('one-time payouts: deterministic ids pay once ever and merge without double
   expect(balanceCents(m)).toBe(205);
 });
 
-test('polish pennies cap at 5¢ per day', () => {
+test('grooming pennies stop at the daily cap', () => {
   const p = newProfile('Polisher');
   for (let i = 0; i < POLISH_CAP_CENTS_PER_DAY; i++) expect(earnPolish(p)).not.toBeNull();
   expect(earnPolish(p)).toBeNull();
-  expect(balanceCents(p)).toBe(5);
+  expect(balanceCents(p)).toBe(POLISH_CAP_CENTS_PER_DAY);
 });
 
 test('earnFromAnswer: pays the mastery crossing + the table completion, never fresh mastered facts', () => {

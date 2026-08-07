@@ -2282,3 +2282,52 @@ button.pressed {
     min-height: 124px;
   }
 }
+
+/* Grown-Ups backup: two routes to a safe copy, told apart on sight. Saving a
+   file works on any device; the home-server row needs a server the family
+   runs themselves — a parent should never tap into that discovering it. */
+.backup-group {
+  border: 1px solid #e6d9c2;
+  border-radius: 12px;
+  padding: 10px 10px 12px;
+  margin-top: 12px;
+  background: rgba(255, 255, 255, 0.45);
+}
+.backup-group h4 {
+  margin: 0 0 4px;
+  font-size: 0.95rem;
+}
+.backup-group .small-note {
+  font-size: 0.78rem;
+  margin: 0 0 8px;
+  line-height: 1.45;
+}
+
+/* Collapsible explanations in Grown-Ups. Native <details> so it works with
+   no JS and reads correctly to a screen reader; the long "why" text stays
+   available without making a parent scroll past it every visit. */
+.explain {
+  margin: 4px 0 8px;
+}
+.explain > summary {
+  cursor: pointer;
+  font-size: 0.82rem;
+  color: #8a7863;
+  padding: 3px 0;
+  list-style-position: inside;
+}
+.explain > summary::marker {
+  color: #c9bda9;
+}
+.explain[open] > summary {
+  margin-bottom: 2px;
+}
+/* the home-server group is itself collapsible, so its summary carries the
+   heading weight the other group's <h4> has */
+details.backup-group > summary {
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin: 0 0 4px;
+  list-style-position: inside;
+}
