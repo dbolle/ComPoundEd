@@ -242,6 +242,27 @@ item.
   never dirty, grooms board-wide rustiest).
 - "Squeaky Clean" achievement family (deferred).
 - Printable/exportable progress reports for grown-ups.
+- **Colouring book (side project, off the app's critical path).**
+  `scripts/coloringbook.mjs` renders every dog, friend and wearable as
+  black line art and lays them out as a print-ready PDF, using the
+  chromium Playwright already installs — no new dependency, nothing
+  shipped to the PWA. Two treatments exist for marks that carry no
+  outline in the source art (blush cheeks, the turtle's shell plates,
+  the sloth's brow tuft): `--drop` removes them, the default gives them
+  a grey edge so they read as a suggestion rather than a boundary.
+  Owner reviewed both, 2026-08-08. Notes for whoever touches it next:
+  fills go white (never removed) so drawing order keeps occlusion;
+  stroke width is derived from the target millimetres on paper, because
+  SVG user units make line weight scale with drawing size; and three
+  cases are NOT colour-only marks despite looking like it — a cat's
+  whiskers (a stroked `<g opacity>`), a rabbit's teeth (white fill with
+  its own brown stroke) and a dog's tongue (a straight top edge that
+  only the mouth's *stroke* covered, so the book clips it to the mouth
+  curve). The 120×120 viewBox is widened to `-4 -11 128 128` for the
+  book because rabbit ears reach y = -7 and would print sliced flat.
+  The script is intentionally uncommitted for now — it should ride
+  along with a future commit that carries real code changes (user,
+  2026-08-08).
 
 ## Done (chronological highlights)
 
