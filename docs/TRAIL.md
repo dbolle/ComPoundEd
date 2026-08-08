@@ -41,6 +41,7 @@ cannot be wrong at birth; the test is what keeps them right.
 | 🐾 Counting paths | skip-count chains (tables connector) | `2.NBT.2` | `paths` | `path:` {2,5,10} | `paths` | 5 | shipped |
 | ✏️ Trace it! | digit formation 1–9 | `K.CC.3` | `trace` | `trace:` 1–9 | `trace` | 4 | shipped |
 | 🔢 Count on! | number sequence to 120, decade crossings | `1.NBT.1` `2.NBT.2` | `counton` | `seq:` 2–12<br>`ten:` 1–9<br>`place:` 1–5 (streak 4) *enrichment* | `counton` | 5 | shipped |
+| 🧺 Groups! | equal groups and arrays | `2.OA.4` | `groups` | `groups:` the 10 factor pairs 2x2…5x5 | `groups` | 4 | shipped |
 | 🎁 Surprise! | interleaved practice over revealed games | — | `surprise` | — | — | 5 | shipped |
 
 ## The bridge — within 20 (ages ~4½–7)
@@ -69,13 +70,15 @@ away waves 1–2, and skip-counting by 2s, 5s and 10s.
 
 ## Phase 7 — money math and the counting gaps
 
-Rows appear in the registry as they ship. `counton` shipped in v1.50.0 and
-now lives in the Little Pup table above, with its three namespaces spelled
-out there.
+Rows appear in the registry as they ship. `counton` (v1.50.0) and `groups`
+(v1.53.0) now live in the Little Pup table above, with their namespaces
+spelled out there. `groups` is keyed by FACTOR PAIR rather than by total,
+and one item asks three things about the same picture — how many groups,
+how many in each, how many altogether — so a fast total can never stand in
+for seeing the groups (docs/PEDAGOGY.md §3).
 
 | Kid-facing | Grown-up | Standards | id | Notes | Status |
 |---|---|---|---|---|---|
-| Groups! 🧺 | equal groups and arrays | `2.OA.4` | `groups` | keyed by factor pair, not total; assesses groups, size, and total | R4 |
 | Money Math 🪙 | money math: recognition → counting → equivalence → change → notation | `2.MD.8` | `money` | 7 waves, 134 identities, untimed mastery; appears on BOTH the little shelf and the pack home | R5 |
 
 ## Phase 8 — planned, not built

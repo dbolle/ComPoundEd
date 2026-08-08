@@ -8,6 +8,7 @@
 import { test, expect } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { newProfile, migrateProfile, mergeProfiles, SCHEMA_VERSION } from '../src/data/schema.js';
+import { readProfile, seedProfile, selectProfile, uniqueName } from './helpers.mjs';
 import {
   GROUP_IDENTITIES,
   GROUP_PAIRS,
@@ -390,4 +391,122 @@ test('group progress lives in little.skills: migration-neutral and merge-safe', 
   expect(Object.keys(w.division)).toHaveLength(0);
   expect(w.little.xp).toBe(0); // xp is the screen's business, not the engine's
   expect(w.pawBucks.txns).toHaveLength(0); // and coins are earned elsewhere
+});
+
+// --- v1.53.0: the wiring -------------------------------------------------
+// The engine shipped in v1.50.0 and sat unreachable for three releases: no
+// tile, no registry promotion, no milestone, so no child could ever play it.
+// These tests defend the wiring, which is the part that was missing — an
+// engine nobody can reach is the same as no engine.
+
+test('the registry lists Groups as SHIPPED, not planned', async () => {
+  const T = await import('../src/engine/trail.js');
+  expect(T.PLANNED.map((r) => r.id), 'still parked in PLANNED').not.toContain('groups');
+  expect(T.byId('groups').status).toBe('shipped');
+  expect(T.SKILL_GAMES.has('groups'), 'must record skills').toBe(true);
+  expect(T.QUESTIONS_BY_GAME.groups, 'three-part items run long — 4 per round').toBe(4);
+  // the registry must not restate the catalogue; it must USE it
+  expect(T.SKILL_DOMAIN.groups).toEqual({ set: [...GROUP_PAIRS] });
+  expect(T.skillKeys('groups')).toEqual([...GROUP_SKILL_KEYS]);
+});
+
+test('Groups joins the frontier rotation and leaves it once every pair is known', async () => {
+  const T = await import('../src/engine/trail.js');
+  const p = newProfile('Grouper');
+  expect(T.gameHasFrontier(p, 'groups'), 'nothing known yet').toBe(true);
+  for (const k of GROUP_SKILL_KEYS) p.little.skills[k] = { attempts: 9, streak: KNOWN_STREAK };
+  expect(T.gameHasFrontier(p, 'groups'), 'all ten known').toBe(false);
+  expect(T.gameKnown(p, 'groups')).toBe(true);
+});
+
+test('the groups milestone adopts the LAST orphan pet, and the lists now match', async () => {
+  const { MILESTONES, petForMilestone } = await import('../src/engine/cozy.js');
+  const { PETS } = await import('../src/art/pets.js');
+
+  // The invariant this release earns the right to assert. A milestone and
+  // the pet that earns it must ship together from here on: append one
+  // without the other and petForMilestone wraps, re-adopting Whiskers.
+  expect(MILESTONES.length, 'a pet for every milestone').toBe(PETS.length);
+
+  const m = MILESTONES.find((x) => x.id === 'groups');
+  expect(m, 'no groups milestone').toBeTruthy();
+  const pets = MILESTONES.map((x) => petForMilestone(x.id).id);
+  expect(new Set(pets).size, 'two milestones share a pet').toBe(pets.length);
+
+  const p = newProfile('Adopter');
+  expect(m.earned(p)).toBe(false);
+  expect(m.prog(p)).toEqual({ have: 0, need: GROUP_SKILL_KEYS.length });
+  for (const k of GROUP_SKILL_KEYS) p.little.skills[k] = { attempts: 9, streak: KNOWN_STREAK };
+  expect(m.earned(p), 'all ten pairs known').toBe(true);
+});
+
+test('playing Groups shows the friend IT earns — and Count on! finally does too', async () => {
+  // Both games were registered without a GOALS_BY_GAME entry, so the meter
+  // fell through to the generic next-pet goal and pointed somewhere else.
+  const { gameGoal } = await import('../src/engine/cozy.js');
+  const p = newProfile('Goaler');
+  p.subjects.little = true;
+  expect(gameGoal(p, 'groups')?.id).toBe('groups');
+  expect(gameGoal(p, 'counton')?.id).toBe('counton');
+});
+
+test('an EXPERIENCED profile can reach Groups without any little history', () => {
+  // The regression that has bitten this app three times: a child onboarded
+  // mid-trail sits behind counting gates they already proved past.
+  const veteran = newProfile('Veteran');
+  veteran.facts['3x4'] = { box: 3, attempts: 8, correct: 8 };
+  expect(groupsReady(veteran), 'real multiplication history').toBe(true);
+
+  const beginner = newProfile('Beginner');
+  expect(groupsReady(beginner)).toBe(false);
+  beginner.little.skills = { ...beginner.little.skills, ...skilled('path', [2, 5]) };
+  expect(groupsReady(beginner), 'counting by 2s and 5s is the warm-up').toBe(true);
+});
+
+test('e2e: a child can open Groups from the shelf and finish a round', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(String(e)));
+  await page.goto('/', { waitUntil: 'networkidle' });
+
+  const doc = newProfile(uniqueName('Basket'));
+  doc.id = 'groups-wiring-kid';
+  doc.subjects = { ...doc.subjects, little: true };
+  // knows its prerequisite, so the tile is open
+  doc.little.skills = { ...doc.little.skills, ...skilled('path', [2, 5]) };
+  await seedProfile(page, doc);
+  await selectProfile(page, doc.name);
+
+  // it must be REACHABLE from the shelf, not only by deep link — selecting
+  // a little profile lands on the shelf, so this is the child's own path in
+  await page.waitForSelector('.little-tile');
+  const tile = page.locator('.little-tile[data-game="groups"]');
+  await expect(tile, 'no Groups tile on the little shelf').toHaveCount(1);
+  await tile.first().click();
+
+  await page.waitForSelector('.little-card');
+  await expect(page.locator('.group-array'), 'the picture the question is about').toBeVisible();
+
+  // 4 items x 3 parts, but the gaps differ: 420ms between parts, ~1.6s
+  // between items (the celebrate delay plus the settle window that stops a
+  // still-tapping hand from answering the next question). So drive it on
+  // the DOM rather than a fixed interval — tap, wait for the row to be
+  // replaced, tap again — until the round-end card appears.
+  const done = page.locator('.little-done');
+  for (let i = 0; i < 20 && !(await done.count()); i++) {
+    const good = page.locator('.little-card[data-good="1"]').first();
+    await good.waitFor({ state: 'visible', timeout: 5000 }).catch(() => {});
+    if (!(await good.count())) break;
+    await good.click({ trial: false });
+    await page.waitForTimeout(500);
+  }
+  await expect(done, 'the round never reached its finish card').toHaveCount(1);
+
+  expect(errors, 'the round threw').toEqual([]);
+
+  // The round must have RECORDED something, under the factor-pair key —
+  // never under a total, which is the shortcut this game exists to refuse.
+  const saved = await readProfile(page, doc.id);
+  const keys = Object.keys(saved?.little?.skills ?? {}).filter((k) => k.startsWith('groups:'));
+  expect(keys.length, 'a finished round recorded no groups skill').toBeGreaterThan(0);
+  for (const k of keys) expect(k).toMatch(/^groups:[2-5]x[2-5]$/);
 });

@@ -106,18 +106,29 @@ export function buildSittingRound(profile, count = ROUND_SIZE) {
   shuffle(wins);
   const out = wins.slice(0, 2); // always open with wins
   const rest = wins.slice(2);
+
+  // Place the weak facts in DISTINCT gaps between the remaining wins.
+  // Two weak facts in different gaps are always separated by the win that
+  // sits between them, so "never back-to-back" holds by construction.
+  //
+  // The previous version decided slot by slot and guarded adjacency only on
+  // its first branch; its final fallback pushed a weak fact with no check at
+  // all. Once `rest` ran dry the leftover weak facts stacked up, so a round
+  // whose whole purpose is confidence could end on two hard facts in a row.
+  // Rare — it needs the weak facts to survive to the tail — but it is the
+  // one arrangement this function exists to prevent, and a child hits it by
+  // luck rather than by anything they did.
+  const gaps = rest.length + 1; // before the first win, between each, after the last
+  const chosen = new Set();
+  while (chosen.size < Math.min(weaks.length, gaps)) chosen.add(Math.floor(Math.random() * gaps));
   let wi = 0;
-  const slots = rest.length + weaks.length;
-  for (let i = 0; i < slots; i++) {
-    const weakOk = wi < weaks.length && out[out.length - 1].tag !== 'weak';
-    if (weakOk && (rest.length === 0 || Math.random() < (weaks.length - wi) / (slots - i))) {
-      out.push(weaks[wi++]);
-    } else if (rest.length) {
-      out.push(rest.shift());
-    } else if (wi < weaks.length) {
-      out.push(weaks[wi++]);
-    }
+  for (let g = 0; g < gaps; g++) {
+    if (chosen.has(g) && wi < weaks.length) out.push(weaks[wi++]);
+    if (g < rest.length) out.push(rest[g]);
   }
+  // Degenerate only: more weak facts than there are gaps to separate them,
+  // which `sittingReady`'s 6-mastered floor makes unreachable in practice.
+  while (wi < weaks.length) out.push(weaks[wi++]);
   return out.map(({ a, b }) => {
     const [l, r] = Math.random() < 0.5 ? [a, b] : [b, a];
     return multQuestion(l, r);

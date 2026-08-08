@@ -4,7 +4,7 @@
 
 import { mergeTxns } from '../engine/ledger.js';
 
-export const SCHEMA_VERSION = 18;
+export const SCHEMA_VERSION = 19;
 
 // bridge/tables are TRI-STATE since v16: 'auto' (readiness engine decides,
 // with any started track always visible) | true (parent forces) | false
@@ -13,6 +13,9 @@ export const SUBJECT_DEFAULTS = {
   little: false,
   bridge: 'auto',
   tables: 'auto',
+  // Money Math (v19): tri-state like bridge/tables — 'auto' lets the
+  // readiness engine decide, and keeps the track visible once started.
+  money: 'auto',
   childCanSwitch: false,
   hideSitting: false,
   limitTables: [],
@@ -127,6 +130,10 @@ export function newProfile(name) {
     // Subtraction-track stats: one entry per fact family, keyed by the
     // addition fact it inverts ("4+8" covers 12−8 and 12−4).
     subtraction: {},
+    // Money-track stats, keyed by the frozen skill ids in
+    // engine/moneywaves.js ("coin:dime", "chg:75-100"). Same stat shape as
+    // facts, but UNTIMED (see recordMoneyAnswer in engine/leitner.js).
+    money: {},
     // Cozy Corner companions earned along the bridge: { petId, milestone, at }
     petUnlocks: [],
     // Little-pup progression. xp fuels the tile trail; skills tracks real
@@ -261,12 +268,22 @@ export function migrateProfile(doc) {
     doc.pawBucks = { ...(doc.pawBucks ?? {}), epoch: doc.pawBucks?.epoch ?? 1 };
     doc.schemaVersion = 18;
   }
+  if (doc.schemaVersion === 18) {
+    // Money Math (v19): its own Leitner stat map beside addition/
+    // subtraction, keyed by the frozen skill ids in engine/moneywaves.js.
+    // Purely additive — an existing doc gains an empty map and the same
+    // 'auto' subject default every other track has, so no child sees less
+    // than they did yesterday.
+    doc.money = doc.money ?? {};
+    doc.subjects = { ...(doc.subjects ?? {}), money: doc.subjects?.money ?? 'auto' };
+    doc.schemaVersion = 19;
+  }
   // Defensive normalization (every version): known collections exist with
   // the right types whatever the input claimed; unknown fields pass
   // through untouched (no loss of known or unknown user data).
   const asMap = (x) => (x && typeof x === 'object' && !Array.isArray(x) ? x : {});
   const asArr = (x) => (Array.isArray(x) ? x : []);
-  for (const k of ['facts', 'division', 'addition', 'subtraction', 'play', 'wear', 'achievements']) {
+  for (const k of ['facts', 'division', 'addition', 'subtraction', 'money', 'play', 'wear', 'achievements']) {
     doc[k] = asMap(doc[k]);
   }
   doc.unlocks = asArr(doc.unlocks);
@@ -321,7 +338,7 @@ export function validProfileDoc(doc) {
   if (typeof v !== 'number' || !Number.isFinite(v) || v > SCHEMA_VERSION) return false;
   const isMap = (x) => x === undefined || x === null || (typeof x === 'object' && !Array.isArray(x));
   const isArr = (x) => x === undefined || x === null || Array.isArray(x);
-  for (const k of ['facts', 'division', 'addition', 'subtraction', 'play', 'wear', 'achievements', 'little']) {
+  for (const k of ['facts', 'division', 'addition', 'subtraction', 'money', 'play', 'wear', 'achievements', 'little']) {
     if (!isMap(doc[k])) return false;
   }
   for (const k of ['unlocks', 'petUnlocks']) {
@@ -376,6 +393,10 @@ export function mergeProfiles(a, b) {
   const division = mergeStatMap(a.division, b.division);
   const addition = mergeStatMap(a.addition, b.addition);
   const subtraction = mergeStatMap(a.subtraction, b.subtraction);
+  // Money (v19). Merging it is only half the job — every merged map MUST
+  // also appear in the returned object below, or `...newer` overwrites it
+  // wholesale and the other device's progress vanishes with nothing to see.
+  const money = mergeStatMap(a.money, b.money);
   // Cozy Corner: union by petId, keeping the earliest adoption.
   const petUnlocks = [...(a.petUnlocks ?? [])];
   for (const u of b.petUnlocks ?? []) {
@@ -496,6 +517,7 @@ export function mergeProfiles(a, b) {
     division,
     addition,
     subtraction,
+    money,
     petUnlocks,
     unlocks,
     play,

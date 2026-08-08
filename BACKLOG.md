@@ -7,7 +7,7 @@ reconsider after calibration.
 
 ## Where we are
 
-- **v1.47.x**, schema v18 (saves v18), 295-test suite green on both CI
+- **v1.53.0**, schema v19 (saves v19), full suite green on both CI
   lanes, deployed
   on LAN (https://compounded.lan + :8091) + GitHub Pages (CI-gated);
   versions in Grown-Ups footer, releases in CHANGELOG.md.
@@ -21,8 +21,9 @@ reconsider after calibration.
   piggy bank, cross-track suggest.
 - Store **gear assets shipped** (8 wearables incl. crown/tiara, 8 toys) and
   the **"opening soon" teaser** is live on pack + wallet. No store yet.
-- Little Pup: 17 games (see docs/TRAIL.md — the count was wrong in two
-  places until the registry made it derivable), ten-frame quantity
+- Little Pup: 18 games (see docs/TRAIL.md — the count was wrong in two
+  places until the registry made it derivable, and is now read off it),
+  ten-frame quantity
   layouts, staged patterns
   (one dimension at a time), CVD-safe palette, **real mastery tracking**
   (little.skills first-try streaks; known = 3 in a row), adaptive 5→7→10
@@ -81,21 +82,47 @@ reconsider after calibration.
      review behind the 🧪 chip), per-species accessory fitting,
      one-item-per-slot wearing, `tablesReady` raised to 2/3/4/5/10 with
      `paths` teaching all five
-   - R4b `groups` (equal groups, composite units) — the engine
-     (`src/engine/groups.js`) landed in v1.50.0; the game still needs
-     wiring into the little-pup shelf and a milestone
+   - ✅ R4b (v1.53.0) `groups` wired into the little-pup shelf: tile,
+     registry promotion, three-part item, and the `groups` milestone
+     adopting Sprout — the last pet with no earning path. MILESTONES and
+     PETS are both 26 now and the suite pins them equal, so a milestone
+     and its pet must ship together from here. Also fixed: `counton`
+     shipped in v1.50.0 with no `GOALS_BY_GAME` entry, so its own
+     next-friend meter never appeared.
    - Still open from the art review: on the **bird**, tall headwear
      overlaps the head tuft (pre-existing, visible now that every item is
      rendered side by side).
-   - **R5 must also fix the CSS coin sizes.** `.coin.penny` inherits 34px
-     while `.coin.nickel` is 30px, so the app draws the penny LARGER than
-     the nickel — the reverse of reality (19.05mm vs 21.21mm). The money
-     track's central fact is "the dime is the smallest coin yet worth more
-     than the nickel", so this has to be right before that wave ships.
-     Real ratios (quarter = 38px): dime 28, penny 30, nickel 33. Deferred
-     from v1.50.0 only so the visual change lands with the coin art it
-     belongs to, under one test run.
-   - R5 the money track proper (schema v19, coin art, 7 waves, new pets)
+   - ✅ (v1.53.0) coin sizes corrected — the penny no longer draws larger
+     than the nickel. Derived from `COIN_SCALE` in `src/art/coins.js` so
+     the CSS and the art cannot disagree.
+   - ✅ (v1.53.0) R5 groundwork, all behind no UI: `recordMoneyAnswer`
+     (untimed mastery — a finite speed bar makes money mastery literally
+     unreachable, since correct-but-slow stops at box 2 and mastery is 3);
+     `src/engine/moneywaves.js` with the 134 identities frozen and pinned
+     by `tests/fixtures-money-skills.json`; schema **v19** (`subjects.money`,
+     `money` stat map) additive and read by nothing yet.
+   - R5 the money track proper: `src/screens/money.js`, the seven waves
+     wired, THREE appended pets shipped in the SAME commit as their
+     three grouped milestones, Grown-Ups `data-subj="money"` toggle + `SUBJ_LABELS`
+     (adding the schema key alone creates no control), and adoption of
+     `src/art/coins.js` — written and tested in v1.50.0 and STILL wired
+     into nothing; store/wallet/cointray all still draw CSS discs.
+   - **When money ships, its `trail.js` record needs `timed: false`** — the
+     shipped-track factory defaults `timed: true`, which would contradict
+     the untimed mastery the engine enforces.
+   - ✅ **Money rewards halved and pets capped (owner, 2026-08-08).** The
+     draft paid 5¢ for all 134 identities plus 7 × 100¢ = 1370¢, which
+     out-earned the 1200¢ crown — one track buying the most aspirational
+     thing in the store. Revised to **674¢** (49.2%) and **3 pets**:
+     waves 1–4 (recognition and counting) pay a 1¢ `skill` penny, waves
+     5–7 (make an amount, count change, notation — the genuinely new
+     fluencies) pay a 5¢ `mastery` nickel, and 3 grouped milestones pay
+     100¢ each instead of 7. Wave 1 falls 25¢ → 5¢, the deepest cut,
+     because recognising a dime is the app's smallest unit of learning.
+     Payouts are made in real COINS, so 1¢/5¢/100¢ were the only levers —
+     and all three already exist at those amounts, so this still needs no
+     `RATE_VERSION` bump and no `fixtures-rates.json` change. Full table
+     in docs/PHASE7.md.
 
    Also open from the economy audits: stale placements can pre-place a
    re-bought item (partly scoped by store epoch); `profileSignature`

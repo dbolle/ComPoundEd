@@ -183,6 +183,40 @@ export function recordSubtractionAnswer(profile, a, b, correct, ms) {
   return applyAnswer(s, correct, ms, fastThresholdMs(profile));
 }
 
+// --- Money track (Phase 7 R5), same Leitner rules on profile.money, keyed
+// by the frozen skill ids in engine/moneywaves.js ("coin:dime", "chg:75-100").
+//
+// UNTIMED, and that is a correctness requirement rather than a kindness:
+// a correct-but-slow answer stops climbing at SLOW_CAP (2), one box BELOW
+// MASTERY_BOX (3). Counting three coins, swapping two nickels for a dime
+// and reading the total is several deliberate steps — with ANY finite bar
+// a child answering it perfectly every time would be capped at box 2 and
+// could never master a single money skill. So the bar is Infinity: every
+// correct answer climbs, a wrong one still drops a box.
+//
+// Money never feeds the speed baseline either (like ÷, + and −): only
+// recordAnswer's gimme facts calibrate profile.speed, so a long coin count
+// can't drag a child's personal "fast" bar out on the ×/÷ tracks.
+
+export function getMoneyStat(profile, skillId) {
+  return (profile.money ?? {})[skillId] ?? emptyStat();
+}
+
+export function recordMoneyAnswer(profile, skillId, correct, ms) {
+  if (!profile.money) profile.money = {};
+  const s = profile.money[skillId] ?? (profile.money[skillId] = emptyStat());
+  const res = applyAnswer(s, correct, ms, Infinity);
+  // An infinite bar makes `fast` true for EVERY correct answer, and that
+  // flag is not decoration: it feeds stats.fastAnswers and the ⚡ Quick
+  // Paws ladder (engine/achievements.js). A track with no speed bar has
+  // not earned a lightning badge, so it reports none.
+  return { ...res, fast: false };
+}
+
+export function moneyMasteredCount(profile) {
+  return Object.values(profile.money ?? {}).filter((s) => s.box >= MASTERY_BOX).length;
+}
+
 // The ÷t table opens once the ×t table is mastered.
 export function divisionTableUnlocked(profile, table) {
   return isTableMastered(profile, table);
