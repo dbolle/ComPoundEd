@@ -142,3 +142,95 @@ test('e2e: a group walk with a training partner earns train credit; two mastered
   );
   expect(saved2.play['dog-2'].train ?? 0).toBe(0);
 });
+
+// --- v1.53.1: placements vanished after a store reset -------------------
+// Reported from a live profile: wearables looked right, then were gone on
+// the next visit, and came back only after the child placed something
+// again. Nothing was ever lost — `mergeProfiles` rebuilt `gear` with only
+// `placements`, dropping `placementEpoch`, and `placementsFor()` HIDES
+// every placement whose stamp is older than the store epoch. So a profile
+// whose parent had used "fresh start" (epoch ≥ 2) showed nothing, because
+// the missing stamp reads as epoch 1. saveProfile() merges with disk on
+// EVERY write, so the stamp was stripped on every save.
+
+const reset = (p, epoch = 2) => {
+  p.pawBucks.epoch = epoch;
+  p.pawBucks.txns.push({
+    id: `buy-scarf@${epoch}`,
+    at: Date.now(),
+    cents: -160,
+    reason: 'buy',
+    item: 'scarf',
+  });
+  p.gear = { placements: { scarf: 'dog-2' }, placementEpoch: epoch };
+  return p;
+};
+
+test('a merge keeps the placement epoch, so worn gear survives a store reset', () => {
+  const p = reset(newProfile('Dressed'));
+  expect(placedOn(p, 'dog-2'), 'worn before any merge').toEqual(['scarf']);
+
+  // every save folds in the on-disk copy — this is that merge
+  const saved = mergeProfiles(migrateProfile(structuredClone(p)), p);
+  expect(saved.gear.placements, 'the placement data itself was never lost').toEqual({
+    scarf: 'dog-2',
+  });
+  expect(saved.gear.placementEpoch, 'the stamp must survive the merge').toBe(2);
+  expect(placedOn(saved, 'dog-2'), 'still worn after the merge').toEqual(['scarf']);
+});
+
+test('an already-damaged profile heals itself on load', () => {
+  // What is on disk right now for a child who hit this: placements intact,
+  // stamp gone. Loading must restore them without her re-dressing anyone.
+  const damaged = reset(newProfile('Damaged'));
+  delete damaged.gear.placementEpoch;
+  expect(placedOn(damaged, 'dog-2'), 'the bug, reproduced').toEqual([]);
+
+  const healed = migrateProfile(structuredClone(damaged));
+  expect(healed.gear.placementEpoch, 'stamped from the doc it belongs to').toBe(2);
+  expect(placedOn(healed, 'dog-2'), 'her scarf is back').toEqual(['scarf']);
+});
+
+test('healing does NOT resurrect placements a fresh start cleared', () => {
+  // The guard this stamp exists for (audit M5): a stale device still
+  // holding pre-reset placements must not undo a parent's fresh start.
+  const stale = newProfile('StaleDevice'); // never saw the reset: epoch 1
+  stale.gear = { placements: { crown: 'dog-4' } }; // unstamped, genuinely old
+  stale.metaAt = 2000; // and it claims the newer cosmetic change
+
+  const fresh = reset(newProfile('FreshStart')); // parent reset: epoch 2
+  fresh.metaAt = 1000;
+
+  const merged = mergeProfiles(migrateProfile(stale), migrateProfile(fresh));
+  expect(merged.gear.placementEpoch, 'the higher epoch wins').toBe(2);
+  expect(placedOn(merged, 'dog-4'), 'the pre-reset crown stays off').toEqual([]);
+});
+
+test('e2e: a damaged profile shows her worn gear again on the very next load', async ({ page }) => {
+  // The real path, not the merge in isolation: a doc in exactly the state
+  // this bug leaves on disk, loaded by the app, rendered on the dog page.
+  await page.goto('/', { waitUntil: 'networkidle' });
+  const doc = newProfile(uniqueName('Dressed'));
+  doc.id = 'placement-heal-kid';
+  doc.unlocks.push({ dogId: 'dog-2', table: 2, at: Date.now() });
+  doc.pawBucks.epoch = 2; // a parent used "fresh start"
+  doc.pawBucks.txns.push({
+    id: 'buy-scarf@2',
+    at: Date.now(),
+    cents: -160,
+    reason: 'buy',
+    item: 'scarf',
+  });
+  doc.gear = { placements: { scarf: 'dog-2' } }; // placements kept, stamp eaten
+  await seedProfile(page, doc);
+  await selectProfile(page, doc.name);
+
+  await page.evaluate(() => {
+    location.hash = '#/dog?id=dog-2';
+  });
+  await page.waitForSelector('.dog-hero svg');
+  const worn = await page.$$eval('.dog-hero svg [data-acc]', (els) =>
+    els.map((e) => e.getAttribute('data-acc'))
+  );
+  expect(worn, 'the scarf must be back on the dog, with no re-dressing').toContain('scarf');
+});

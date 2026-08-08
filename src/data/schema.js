@@ -2,7 +2,7 @@
 // migrateProfile() whenever the shape of stored data changes — this is the
 // contract a future sync backend will rely on.
 
-import { mergeTxns } from '../engine/ledger.js';
+import { epochOfId, mergeTxns } from '../engine/ledger.js';
 
 export const SCHEMA_VERSION = 19;
 
@@ -297,6 +297,22 @@ export function migrateProfile(doc) {
   doc.little.skills = asMap(doc.little.skills);
   doc.little.revealed = asArr(doc.little.revealed);
   doc.gear = { ...(doc.gear ?? {}), placements: asMap(doc.gear?.placements) };
+  // Self-heal the v1.53.0-and-earlier merge bug: docs already on disk have
+  // placements with no epoch stamp, which reads as epoch 1 and hides every
+  // one of them. Stamp from THIS doc's own ledger, never from a merge
+  // partner — a stale device then still resolves to its true epoch 1 and
+  // its pre-reset placements are dropped by the merge, as they should be.
+  // Only docs that actually have something placed are touched, so an empty
+  // closet is never given a stamp it did not earn.
+  if (doc.gear.placementEpoch == null && Object.values(doc.gear.placements).some((w) => w != null)) {
+    let e = doc.pawBucks?.epoch ?? 1;
+    for (const t of doc.pawBucks?.txns ?? []) {
+      if (t?.reason !== 'buy') continue;
+      const k = epochOfId(t.id ?? '');
+      if (k > e) e = k;
+    }
+    doc.gear.placementEpoch = e;
+  }
   doc.subjects = { ...SUBJECT_DEFAULTS, ...asMap(doc.subjects) };
   doc.speed = doc.speed && typeof doc.speed === 'object' ? doc.speed : { avgMs: 0, samples: 0 };
   doc.stats = asMap(doc.stats);
@@ -477,8 +493,23 @@ export function mergeProfiles(a, b) {
   const subjects = { ...SUBJECT_DEFAULTS, ...(metaNewer.subjects ?? {}) };
   // Gear placements are a preference (like wear): the doc with the newer
   // settings-change wins per item (null = closet, so removals propagate).
+  //
+  // The EPOCH has to travel with them. Dropping it here (through v1.53.0)
+  // meant every merge produced a doc with placements but no stamp, and
+  // `placementsFor()` reads a missing stamp as epoch 1 — so on any profile
+  // whose parent had used "fresh start", every worn item silently vanished
+  // on the next load. saveProfile() merges with disk on EVERY write, so it
+  // was stripped constantly; the child saw her wearables return only after
+  // placing something, because placeGear re-stamps.
+  //
+  // Only the placements made in the winning epoch are kept: a stale device
+  // still holding pre-reset choices must not undo the fresh start (M5).
+  const placementEpochOf = (d) => d.gear?.placementEpoch ?? 1;
+  const gearEpoch = Math.max(placementEpochOf(a), placementEpochOf(b));
+  const atEpoch = (d) => (placementEpochOf(d) === gearEpoch ? (d.gear?.placements ?? {}) : {});
   const gear = {
-    placements: { ...(metaOlder.gear?.placements ?? {}), ...(metaNewer.gear?.placements ?? {}) },
+    placements: { ...atEpoch(metaOlder), ...atEpoch(metaNewer) },
+    placementEpoch: gearEpoch,
   };
   const little = {
     xp: Math.max(a.little?.xp ?? 0, b.little?.xp ?? 0),

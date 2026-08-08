@@ -3,6 +3,32 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.53.1 — 2026-08-08
+
+**Fixed: worn gear disappeared on profiles where a parent had used "fresh
+start".** Reported from a live profile — wearables looked right, were gone
+on the next visit, and came back only after the child placed something
+again.
+
+Nothing was ever lost. `mergeProfiles` rebuilt the `gear` object with only
+`placements`, dropping `placementEpoch` — and a placement whose stamp is
+older than the current store epoch is deliberately HIDDEN, so that a stale
+device cannot undo a fresh start. A missing stamp reads as epoch 1, so on
+any profile whose epoch had moved past 1, every worn item vanished.
+
+Two things made it look stranger than it was. Saving merges with the copy
+on disk on *every* write, so the stamp was stripped constantly rather than
+only when switching players. And because the stamp is a single field
+covering all placements, putting *one* item on re-stamped it and everything
+reappeared at once — which is why grooming a pup (which opens the wardrobe)
+seemed to restore toys, gifts and treasures together.
+
+- The merge now carries the epoch, keeping only the placements made in the
+  winning one, so the fresh-start guard still holds.
+- Profiles already damaged **heal themselves on the next load**, stamped
+  from their own ledger — no re-dressing, and a stale device still resolves
+  to its true epoch so its pre-reset choices stay cleared.
+
 ## v1.53.0 — 2026-08-08
 
 **Groups! — the game that was built but unreachable.** The engine for equal
