@@ -10,7 +10,7 @@ import {
   checkAchievements,
   ensureStats,
 } from '../engine/achievements.js';
-import { escapeHtml } from '../ui.js';
+import { escapeHtml, plural } from '../ui.js';
 
 export function awardsScreen(el, params, ctx) {
   const p = ctx.profile;
@@ -27,7 +27,7 @@ export function awardsScreen(el, params, ctx) {
         <span class="spacer"></span>
         <h2 style="margin:0">Awards 🏆</h2>
       </div>
-      <p class="muted center" style="margin:0">${totalTiers(p)} tiers earned</p>
+      <p class="muted center" style="margin:0">${totalTiers(p)} ${plural(totalTiers(p), 'tier')} earned</p>
       ${
         upcoming.length
           ? `<h3 style="margin-bottom:0">Next up!</h3>

@@ -16,7 +16,7 @@ import { checkPetUnlocks, nextPetGoal, gameGoal } from '../engine/cozy.js';
 import { digitGuideSVG, tracePasses, traceCoverage } from '../art/digits.js';
 import { isRevealed, ratchetReveals, addingReady, takingAwayReady } from '../engine/readiness.js';
 import { WAVES, waveUnlocked, isWaveMastered, subWaveUnlocked, isSubWaveMastered } from '../engine/waves.js';
-import { confetti, escapeHtml, buildNumpad, plural } from '../ui.js';
+import { confetti, escapeHtml, buildNumpad, plural, verb } from '../ui.js';
 import { toysOn } from '../engine/gearshop.js';
 import {
   GROUP_SKILL_KEYS,
@@ -39,9 +39,11 @@ const THEMES = [
 export const THEME_ITEMS = THEMES[Math.floor(Date.now() / 86400000) % THEMES.length];
 const ITEMS = THEME_ITEMS;
 
-// What things are called when spoken — number–noun agreement everywhere,
-// irregular plurals included ([one, many]; a bare string takes +s).
-const ITEM_WORDS = {
+// What things are called when spoken — number–noun agreement everywhere.
+// A bare string goes through plural(), which handles the regular -s/-es/-ies
+// spellings; only genuine irregulars need the explicit [one, many] pair.
+// Exported so tests/plurals.spec.js can sweep every word at every count.
+export const ITEM_WORDS = {
   '🦴': 'bone', '🎾': 'ball', '🍖': 'treat', '🍎': 'apple', '🥪': 'sandwich',
   '🍇': 'grape', '🐚': 'shell', '🦀': 'crab', '⭐': 'star', '❄️': 'snowflake',
   '⛄': ['snowman', 'snowmen'], '🧤': 'mitten', '🌼': 'flower',
@@ -483,11 +485,13 @@ export function littleHomeScreen(el, params, ctx) {
     const cents = balanceCents(p);
     const bucks = Math.floor(cents / 100);
     const rest = cents % 100;
-    say(
-      cents
-        ? `You saved ${bucks ? `${bucks} paw buck${bucks > 1 ? 's' : ''} and ` : ''}${rest} paw cents!`
-        : 'Your piggy bank is ready for coins!'
-    );
+    // Spoken, so both halves have to agree with their own number AND a zero
+    // half has to disappear: "1 paw cent", "1 paw buck" (not "…and 0 paw
+    // cents"), "2 paw bucks and 11 paw cents".
+    const parts = [];
+    if (bucks) parts.push(`${bucks} paw ${plural(bucks, 'buck')}`);
+    if (rest) parts.push(`${rest} paw ${plural(rest, 'cent')}`);
+    say(cents ? `You saved ${parts.join(' and ')}!` : 'Your piggy bank is ready for coins!');
   });
   el.querySelector('[data-corner]')?.addEventListener('click', () => navigate('/corner'));
   el.querySelector('[data-big-view]')?.addEventListener('click', () => {
@@ -901,7 +905,7 @@ export function littleGameScreen(el, params, ctx) {
       promptEl.innerHTML = story ? '🏞️ ➕' : `${hostArt(p, host)} ➕`;
       speak(
         story
-          ? `${WORDS[a]} ${plural(a, 'pup')} were playing at the park... ${WORDS[b]} more came! How many now?`
+          ? `${WORDS[a]} ${plural(a, 'pup')} ${verb(a, 'was', 'were')} playing at the park... ${WORDS[b]} more came! How many now?`
           : `${WORDS[a]} plus ${WORDS[b]}!`
       );
       stageEl.dataset.answer = a + b;
@@ -1167,7 +1171,11 @@ export function littleGameScreen(el, params, ctx) {
         // HIDING under the bowl. (Doesn't show the answer as empty cells,
         // so it verifies rather than teaches: no teach-only flag.)
         delete stageEl.dataset.teachOnly;
-        speak(`${WORDS[whole]} bones... but some are hiding under the bowl! How many are hiding?`);
+        // Name what is actually on screen: the counting item rotates daily
+        // (bones → apples → shells → snowflakes), so a hard-coded "bones"
+        // disagreed with the picture — and with its own plural for a theme
+        // like 🍓 berries.
+        speak(`${WORDS[whole]} ${wordFor(item, whole)}... but some are hiding under the bowl! How many are hiding?`);
         stageEl.innerHTML = `<div class="pattern-row"><span class="little-numeral">${whole}</span><span class="pattern-q">${item}</span></div>
           <div class="little-items">${itemRow(item, have)}<span class="li cup cup-w${Math.min(missing, 3)}">🥣</span></div>`;
       } else {

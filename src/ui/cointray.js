@@ -8,7 +8,7 @@
 // child past the target is DISABLED, not accepted-then-scolded. The child
 // can always undo, and nothing is recorded until they say they're done.
 import { DENOMS, formatPaw } from '../engine/money.js';
-import { escapeHtml } from '../ui.js';
+import { escapeHtml, plural } from '../ui.js';
 
 const label = (cents) => (cents >= 100 ? formatPaw(cents) : `${cents}¢`);
 
@@ -74,7 +74,7 @@ export function coinTray(host, opts) {
             <span class="wr-label">${escapeHtml(d.label)}</span>
             ${left === null ? '' : `<span class="wallet-count">×${left}</span>`}
             <button class="btn ghost small" data-add="${d.id}"
-              aria-label="Take a ${escapeHtml(d.label)}, ${d.cents} cents"
+              aria-label="Take a ${escapeHtml(d.label)}, ${d.cents} ${plural(d.cents, 'cent')}"
               ${gone || tooBig ? 'disabled' : ''}>➕ ${escapeHtml(d.label)}</button>
           </div>`;
         }).join('')}

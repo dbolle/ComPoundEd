@@ -49,7 +49,7 @@ import { groupOf } from '../engine/ledger.js';
 import { ownedGear, resetStoreEpoch } from '../engine/gearshop.js';
 import { DOGS } from '../art/dogs.js';
 import { PETS } from '../art/pets.js';
-import { toast, escapeHtml, stalenessLine, offlineHint } from '../ui.js';
+import { toast, escapeHtml, stalenessLine, offlineHint, plural } from '../ui.js';
 import { SCHEMA_VERSION, touchMeta } from '../data/schema.js';
 import { bridgeVisible, tablesVisible, trackState, addingReady } from '../engine/readiness.js';
 
@@ -781,7 +781,7 @@ export function grownupsScreen(el, params, ctx) {
         const data = JSON.parse(await file.text());
         const docs = Array.isArray(data.profiles) ? data.profiles : [];
         const n = await importProfiles(docs);
-        toast(n ? `Imported ${n} player${n > 1 ? 's' : ''} 🐾` : 'No players found in that file');
+        toast(n ? `Imported ${n} ${plural(n, 'player')} 🐾` : 'No players found in that file');
       } catch {
         toast("That file doesn't look like a Compounded backup");
       }
@@ -823,7 +823,7 @@ export function grownupsScreen(el, params, ctx) {
         host.innerHTML = `<div class="card" style="border:2px solid #dc2626;margin-top:8px">
           <h3 style="margin:0 0 6px">Last check — this is the one that does it</h3>
           <p class="muted" style="margin:0 0 8px">Type <strong>RESET</strong> to confirm a fresh start for
-          ${escapeHtml(p.name)}. Their ${owned} purchased item${owned === 1 ? '' : 's'} will come off
+          ${escapeHtml(p.name)}. Their ${owned} purchased ${plural(owned, 'item')} will come off
           their pups and pets right away, and they will be able to buy anything again.</p>
           <input class="name-input" data-reset-word placeholder="RESET" autocomplete="off" />
           <div class="nav-row" style="margin-top:8px">
@@ -850,7 +850,7 @@ export function grownupsScreen(el, params, ctx) {
           <p class="muted" style="margin:0 0 4px">For ${escapeHtml(p.name)} this would:</p>
           <ul class="muted" style="margin:0 0 8px;padding-left:18px;font-size:.85rem">
             <li>give back every Paw Buck they have ever earned — ${formatPaw(earned)}</li>
-            <li>undo all ${owned} of their purchases, so their pups and pets lose those items</li>
+            <li>undo ${owned === 1 ? 'their one purchase' : `all ${owned} of their purchases`}, so their pups and pets lose those items</li>
             <li>let them buy anything again, as if the store opened today</li>
             <li>keep their whole history for you here — nothing is deleted, and their
                 learning progress, pets and awards are untouched</li>

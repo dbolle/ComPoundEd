@@ -19,7 +19,7 @@ import {
 } from '../data/store.js';
 import { navigate } from '../router.js';
 import { getDog, dogSVG, wornFor } from '../art/dogs.js';
-import { toast, escapeHtml, stalenessLine } from '../ui.js';
+import { toast, escapeHtml, stalenessLine, plural } from '../ui.js';
 
 export async function profilesScreen(el, params, ctx) {
   const profiles = await listProfiles();
@@ -91,7 +91,7 @@ export async function profilesScreen(el, params, ctx) {
         toast('That key was not accepted — check it in Grown-Ups');
         return;
       }
-      toast(r.found ? `Backup on — ${r.found} player${r.found > 1 ? 's' : ''} synced 🏡` : 'Backup on 🏡');
+      toast(r.found ? `Backup on — ${r.found} ${plural(r.found, 'player')} synced 🏡` : 'Backup on 🏡');
       profilesScreen(el, params, ctx);
     });
     card.querySelector('[data-offer-no]').addEventListener('click', async () => {
@@ -213,7 +213,7 @@ export async function profilesScreen(el, params, ctx) {
       if (ok) r = await syncNow();
     }
     if (r.found > 0) {
-      toast(`Restored ${r.found} player${r.found > 1 ? 's' : ''} 🏡`);
+      toast(`Restored ${r.found} ${plural(r.found, 'player')} 🏡`);
       profilesScreen(el, params, ctx);
     } else {
       await setSyncEnabled(false);

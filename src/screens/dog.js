@@ -5,7 +5,18 @@ import { isUnlocked } from '../engine/unlocks.js';
 import { trainingPartnersFor } from '../engine/suggest.js';
 import { toysOn, boxedToys, placeGear, itemOf } from '../engine/gearshop.js';
 import { toySVG } from '../art/gear.js';
-import { toast, escapeHtml, plural } from '../ui.js';
+import { toast, escapeHtml, plural, article } from '../ui.js';
+
+// What each accessory's counter is called, singular and plural. One map,
+// because "1 more walks" is what a bare plural string produces the moment a
+// child is one play away from the reward — which is exactly when they read it.
+export const KIND_WORDS = {
+  walk: ['walk', 'walks'],
+  feed: ['meal', 'meals'],
+  fetch: ['fetch', 'fetches'],
+  total: ['play', 'plays'],
+};
+export const kindWord = (kind, n = 2) => plural(n, ...(KIND_WORDS[kind] ?? KIND_WORDS.total));
 
 // Progress toward the accessory's next color, shown as a picture: a tiny
 // meter filling toward the actual swatch. Pre-readers see the "why".
@@ -44,7 +55,6 @@ export function dogScreen(el, params, ctx) {
   const next = ACCESSORIES.filter((a) => !earned.includes(a.id))
     .map((a) => ({ ...a, left: a.need - (a.kind === 'total' ? total : (play[a.kind] ?? 0)) }))
     .sort((x, y) => x.left - y.left)[0];
-  const kindWord = { walk: 'walks', feed: 'meals', fetch: 'fetches', total: 'plays' };
   const knows =
     dog.divTable != null
       ? `Knows all about sharing by ${dog.divTable}.`
@@ -71,7 +81,7 @@ export function dogScreen(el, params, ctx) {
         </p>
         ${
           next
-            ? `<p class="muted acc-hint">${next.emoji} ${escapeHtml(dog.name)} gets a ${next.name} after ${next.left} more ${kindWord[next.kind]}!</p>`
+            ? `<p class="muted acc-hint">${next.emoji} ${escapeHtml(dog.name)} gets ${article(next.name)} ${next.name} after ${next.left} more ${kindWord(next.kind, next.left)}!</p>`
             : `<p class="muted acc-hint">👑 ${escapeHtml(dog.name)} has every accessory!</p>`
         }
       </div>

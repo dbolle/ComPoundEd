@@ -3,6 +3,54 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.53.2 — 2026-08-08
+
+**Singular and plural now agree everywhere a child reads or hears a
+count.** An audit of every counted string in the app found mismatches in
+both registers — and the spoken ones matter most, because a pre-reader
+gets nothing but the audio.
+
+What children were actually hearing, before this:
+
+- `10 Paw Pennys make 1 Paw Dime!` and `1 Paw Bucks make 4 Paw Quarters!`
+  — **7 of the 11 coin-swap lines** were wrong.
+- `five sandwichs... two hop away!` in Take away!, on picnic-theme days.
+- `one pup were playing at the park... four more came!`
+- `You saved 1 paw cents!` in the piggy bank, and `1 paw buck and 0 paw
+  cents` when the cents were zero.
+- `five bones...` spoken while the picture showed apples, shells or
+  berries — the theme rotates daily, the spoken word did not.
+- `10 walks unlocks the red bandana!` and `10 play dates … unlocks the
+  blue collar!`
+
+And reading: `Biscuit gets a bandana after 1 more walks!`, `Biscuit caught
+the ball — good dogs!` for a single dog, `1 tiers earned`, and screen-reader
+labels saying `1 cents`.
+
+**The root cause was one helper.** `plural()` defaulted to a bare `+s`,
+which is a trap in an app whose own activity counter is "fetch" and whose
+currency is "Paw Penny". It now applies the two regular English spelling
+rules (`-es` after s/x/z/ch/sh, `-ies` after consonant + y); an explicit
+plural still wins, and every existing call produces byte-identical output.
+Two companions join it: `verb()`, because a verb inverts the noun's rule
+("1 walk unlocks", "3 walks unlock"), and `article()` for a/an in front of
+a word that comes from data.
+
+`tests/plurals.spec.js` pins the spelling rules, sweeps every themed item
+word, every species' sound word, all 11 swap lines and every unlock
+threshold, and bans hand-rolled `? 's' : ''` in kid-facing screens. One
+existing assertion in `tests/vocab.spec.js` was pinning the bug — it
+expected `unlocks the` — and now expects the grammatical form.
+
+Deliberately unchanged: `Waffles's tricks` is correct US style and the only
+form a screen reader pronounces as a possessive.
+
+**Also: pig art, drawn but not yet wired.** Money Math gets its own habitat
+(docs/PHASE7.md). `pig()` joins the species renderers — same skeleton as the
+cat and rabbit, so every accessory already fits — but no pig is in `PETS`
+yet: a pet may only be appended alongside the milestone that earns it, or
+the positional mapping wraps. Nothing in the app can reach it today.
+
 ## v1.53.1 — 2026-08-08
 
 **Fixed: worn gear disappeared on profiles where a parent had used "fresh

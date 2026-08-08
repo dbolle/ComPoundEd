@@ -13,7 +13,8 @@ import {
   ACCESSORIES,
 } from '../art/dogs.js';
 import { isUnlocked } from '../engine/unlocks.js';
-import { escapeHtml, toast } from '../ui.js';
+import { escapeHtml, toast, plural, verb } from '../ui.js';
+import { kindWord } from './dog.js';
 import { touchMeta } from '../data/schema.js';
 import { say } from '../sound.js';
 import { COLLAR_COLORS, collarColorsFor } from '../art/dogs.js';
@@ -74,9 +75,12 @@ export function wardrobeScreen(el, params, ctx) {
             `<button class="swatch${current === c.id ? ' sel' : ''}" style="background:${c.fill}" data-acc="collar" data-val="${c.id}" aria-label="${c.id} collar"></button>`
           );
         } else {
+          // Spoken on tap (and read aloud by screen readers): the subject is
+          // the COUNT of play dates, so the verb follows the count, not the
+          // collar — "10 play dates unlock", "1 play date unlocks".
           swatches.push(
-            `<button class="swatch locked" style="background:${c.fill}" data-say="${c.need} play dates with a friend who's still learning unlocks the ${c.id} collar!"
-               aria-label="${c.id} collar unlocks at ${c.need} play dates">
+            `<button class="swatch locked" style="background:${c.fill}" data-say="${c.need} play ${plural(c.need, 'date')} with a friend who's still learning ${verb(c.need, 'unlocks', 'unlock')} the ${c.id} collar!"
+               aria-label="${c.id} collar unlocks at ${c.need} play ${plural(c.need, 'date')}">
                <span class="swatch-need">🐕🐕${c.need}</span></button>`
           );
         }
@@ -91,9 +95,9 @@ export function wardrobeScreen(el, params, ctx) {
       const owned = earned.includes(acc.id);
       const current = p.wear?.[dog.id]?.[acc.id];
       if (!owned) {
-        const kindWord = { walk: 'walks', feed: 'meals', fetch: 'fetches', total: 'plays' }[acc.kind];
+        const need = acc.colors?.[0]?.need ?? acc.need;
         row.innerHTML = `<span class="wr-label">${acc.emoji} ${escapeHtml(acc.name)}</span>
-          <span class="muted wr-hint">🔒 ${acc.colors?.[0]?.need ?? acc.need} ${kindWord}</span>`;
+          <span class="muted wr-hint">🔒 ${need} ${kindWord(acc.kind, need)}</span>`;
         rows.appendChild(row);
         continue;
       }
@@ -111,14 +115,17 @@ export function wardrobeScreen(el, params, ctx) {
               `<button class="swatch${sel ? ' sel' : ''}" style="background:${c.fill}" data-acc="${acc.id}" data-val="${c.id}" aria-label="${c.id} ${acc.name}"></button>`
             );
           } else {
-            const kindWord = { walk: 'walks', feed: 'meals', fetch: 'fetches' }[acc.kind];
             const kindEmoji = { walk: '🦮', feed: '🍖', fetch: '🎾' }[acc.kind];
+            const counter = kindWord(acc.kind, c.need);
             // the real color, dimmed, with a visible count — tooltips don't
-            // exist on a tablet, and this is where kids actually look
+            // exist on a tablet, and this is where kids actually look.
+            // The spoken line's subject is the COUNT ("10 walks unlock"),
+            // while the aria-label's subject is the accessory ("the red
+            // bandana unlocks at 10 walks") — two subjects, two verb forms.
             swatches.push(
               `<button class="swatch locked" style="background:${c.fill}" data-need="${c.need}"
-                 data-say="${c.need} ${kindWord} unlocks the ${c.id} ${acc.name}!"
-                 aria-label="${c.id} ${acc.name} unlocks at ${c.need} ${kindWord}">
+                 data-say="${c.need} ${counter} ${verb(c.need, 'unlocks', 'unlock')} the ${c.id} ${acc.name}!"
+                 aria-label="${c.id} ${acc.name} unlocks at ${c.need} ${counter}">
                  <span class="swatch-need">${kindEmoji}${c.need}</span></button>`
             );
           }
