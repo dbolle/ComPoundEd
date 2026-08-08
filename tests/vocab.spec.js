@@ -74,5 +74,8 @@ test('e2e: dog page shows reward chips; wardrobe locked swatch speaks on tap', a
   await page.waitForSelector('.wr-swatches');
   await expect(page.locator('.swatch.locked .swatch-need').first()).toBeVisible();
   await page.tap('.swatch.locked[data-say]');
-  await expect(page.locator('.toast')).toContainText('unlocks the');
+  // The subject of the spoken/toasted line is the COUNT of walks, so the verb
+  // agrees with it: "10 walks unlock the red bandana!" (this assertion used to
+  // pin the ungrammatical "unlocks the" — see tests/plurals.spec.js).
+  await expect(page.locator('.toast')).toContainText('unlock the');
 });

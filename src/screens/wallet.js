@@ -5,7 +5,7 @@
 import { navigate } from '../router.js';
 import { DENOMS, balanceCents, coinCounts, formatPaw, SWAPS, canSwap, swapCoins } from '../engine/money.js';
 import { say } from '../sound.js';
-import { escapeHtml } from '../ui.js';
+import { escapeHtml, plural, verb } from '../ui.js';
 
 export function walletScreen(el, params, ctx) {
   const p = ctx.profile;
@@ -73,7 +73,15 @@ export function walletScreen(el, params, ctx) {
           const rule = available[Number(b.dataset.swap)];
           if (!swapCoins(p, rule)) return;
           await ctx.save();
-          say(`${rule.give.n} ${label(rule.give.denom)}s make ${rule.get.n} ${label(rule.get.denom)}${rule.get.n > 1 ? 's' : ''}!`);
+          // Spoken, so agreement is the whole sentence for a pre-reader:
+          // both counts run 1..10 and half the swaps are one-of-a-big-coin,
+          // so the noun AND the verb have to follow the number ("1 Paw Buck
+          // makes 4 Paw Quarters", "10 Paw Pennies make 1 Paw Dime").
+          say(
+            `${rule.give.n} ${plural(rule.give.n, label(rule.give.denom))} ` +
+              `${verb(rule.give.n, 'makes', 'make')} ` +
+              `${rule.get.n} ${plural(rule.get.n, label(rule.get.denom))}!`
+          );
           walletScreen(el, params, ctx); // re-render rows + swaps
         });
       }

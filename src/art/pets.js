@@ -172,7 +172,32 @@ function turtle(p, uid) {
   ${collar(p.collar)}`;
 }
 
-const SPECIES = { cat, rabbit, guinea, bird, sloth, hedgehog, turtle };
+// Pigs — the Money Math track's habitat (docs/PHASE7.md). Same skeleton as
+// the cat and rabbit (head circle cx 60 cy 62 r 40, eyes at 56, the shared
+// collar), so every accessory already fits without a PET_FIT entry. The one
+// departure is the face: a pig has a SNOUT rather than a muzzle and nose, so
+// the disc carries two nostrils and the mouth line sits on it — which is
+// also what makes a pig instantly readable to a child at tile size.
+function pig(p, uid) {
+  return `
+  <path d="M26 42 L36 12 L58 33 Z" fill="${p.ear}"/>
+  <path d="M94 42 L84 12 L62 33 Z" fill="${p.ear}"/>
+  <path d="M33 39 L39 21 L52 34 Z" fill="${p.inner}"/>
+  <path d="M87 39 L81 21 L68 34 Z" fill="${p.inner}"/>
+  <circle cx="60" cy="62" r="40" fill="${p.base}"/>
+  <g clip-path="url(#${uid})">
+    ${p.patch ? `<ellipse cx="82" cy="48" rx="16" ry="13" fill="${p.patch}"/>` : ''}
+  </g>
+  ${blush('#f2a0ac', 70)}
+  <ellipse cx="60" cy="77" rx="20" ry="11" fill="${p.snout}"/>
+  <ellipse cx="53" cy="75" rx="3.2" ry="4.2" fill="${INK}"/>
+  <ellipse cx="67" cy="75" rx="3.2" ry="4.2" fill="${INK}"/>
+  <path d="M50 84 q10 5 20 0" stroke="${INK}" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+  ${eyes()}
+  ${collar(p.collar)}`;
+}
+
+const SPECIES = { cat, rabbit, guinea, bird, sloth, hedgehog, turtle, pig };
 
 // How each species differs from the dog geometry the accessories were drawn
 // for: [dy, scale, dx] per slot. Derived from each drawing's own numbers —

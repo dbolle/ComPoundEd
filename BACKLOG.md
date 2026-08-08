@@ -264,6 +264,13 @@ item.
   streaks (still never build them) — awaiting observation of the v1.18
   ratchet's effect first (user, 2026-07-21).
 
+- **Kid-facing wording, still open** (from the v1.53.2 agreement audit):
+  the piggy bank says "paw cents", which is not in docs/VOCABULARY.md's
+  currency row (penny/nickel/dime/quarter) — agreement was fixed, the WORD
+  was left alone because changing it is a register decision. Also
+  `home.js` at n=1 reads "1 more unlocks as you master their × tables!":
+  grammatical, but "their" is loose for a single item, and rewording it
+  touches the master/strong register.
 - Back-pay grant for pre-earning mastery (after calibration).
 - Biscuit dirt/groom interplay rethink (user is mulling; Biscuit currently
   never dirty, grooms board-wide rustiest).

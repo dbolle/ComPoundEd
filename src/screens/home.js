@@ -16,7 +16,7 @@ import { WAVES, waveProgress, waveUnlocked, isWaveMastered, subWaveProgress, sub
 import { getUiPrefs, setUiPrefs } from '../data/store.js';
 import { getDog, dogSVG, wornFor, dirtFor, GUESTS } from '../art/dogs.js';
 import { littleHomeScreen } from './little.js';
-import { escapeHtml } from '../ui.js';
+import { escapeHtml, verb } from '../ui.js';
 
 const tables = (p) => {
   const all = Array.from({ length: TABLE_MAX - TABLE_MIN + 1 }, (_, i) => TABLE_MIN + i);
@@ -210,7 +210,7 @@ export async function homeScreen(el, params, ctx) {
     if (lockedRemaining > 0) {
       const note = document.createElement('p');
       note.className = 'muted div-note';
-      note.textContent = `${lockedRemaining} more unlock as you master their × tables!`;
+      note.textContent = `${lockedRemaining} more ${verb(lockedRemaining, 'unlocks', 'unlock')} as you master their × tables!`;
       if (!prefs.divisionOpen) note.hidden = true;
       dgrid.after(note);
     }

@@ -45,11 +45,34 @@ export function confetti(count = 26) {
   setTimeout(() => box.remove(), 5000);
 }
 
-// One line of celebration for a correct answer, picking the most exciting
-// thing that just happened. `r` is the flags object from recordAnswer.
 // Number–noun agreement, everywhere kids read or hear counts:
 // plural(1, 'bone') → 'bone'; plural(3, 'bone') → 'bones'.
-export const plural = (n, one, many = `${one}s`) => (n === 1 ? one : many);
+//
+// The default plural used to be a bare `+s`, which is a trap: the app's own
+// activity counters include "fetch" (→ fetches) and its currency includes
+// "Paw Penny" (→ Paw Pennies), and a caller that forgets the third argument
+// says "2 fetchs" out loud to a six-year-old. So the default now applies the
+// two regular English spelling rules — sibilant endings take -es, and a
+// consonant + y becomes -ies. Anything genuinely irregular (leaf/leaves,
+// fish/fish, snowman/snowmen) still passes its plural explicitly.
+function regularPlural(one) {
+  if (/(?:s|x|z|ch|sh)$/i.test(one)) return `${one}es`;
+  if (/[^aeiou]y$/i.test(one)) return `${one.slice(0, -1)}ies`;
+  return `${one}s`;
+}
+export const plural = (n, one, many = regularPlural(one)) => (n === 1 ? one : many);
+
+// Verb agreement with a counted subject. English verbs invert the noun's
+// rule ("1 walk unlocks", "3 walks unlock"), which is exactly the mistake
+// hand-written strings make — so the two forms are always spelled out:
+// verb(n, 'unlocks', 'unlock'), verb(n, 'is', 'are'), verb(n, 'was', 'were').
+export const verb = (n, one, many) => (n === 1 ? one : many);
+
+// "a bandana" but "an apple": the indefinite article in front of a word that
+// comes from data (accessory names, store items) can't be baked into the
+// template. Vowel LETTER is the right test here because every word it meets
+// is a plain kid-facing noun; there is no "an hour"/"a unicorn" in the data.
+export const article = (word) => (/^[aeiou]/i.test(String(word)) ? 'an' : 'a');
 
 // Grown-up copy about backup health, in one place so Grown-Ups and the
 // profiles screen can never disagree about what a device's state means.
@@ -70,6 +93,8 @@ export function offlineHint(origin = location.origin) {
   return `If this device has never been given your home server's certificate, backup fails silently. Open ${origin} in the browser — a certificate warning there is the problem.`;
 }
 
+// One line of celebration for a correct answer, picking the most exciting
+// thing that just happened. `r` is the flags object from recordAnswer.
 export function celebrationLine(r, streak, fallback) {
   let msg;
   if ([3, 5, 8, 10].includes(streak)) msg = `🔥 ${streak} in a row!`;

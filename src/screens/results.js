@@ -11,7 +11,7 @@ import {
 } from '../engine/leitner.js';
 import { dogSVG, dogForTable, dogForDivTable } from '../art/dogs.js';
 import { isUnlocked } from '../engine/unlocks.js';
-import { confetti, escapeHtml } from '../ui.js';
+import { confetti, escapeHtml, plural } from '../ui.js';
 import { sfx, buzz } from '../sound.js';
 
 function headline(score, total) {
@@ -56,13 +56,13 @@ export function resultsScreen(el, params, ctx) {
   const badges = [];
   if (score === total) badges.push('🏆 Perfect round!');
   const speedy = count('fast');
-  if (speedy >= 3) badges.push(`⚡ ${speedy} speedy answers`);
+  if (speedy >= 3) badges.push(`⚡ ${speedy} speedy ${plural(speedy, 'answer')}`);
   const firsts = count('firstCorrect');
-  if (firsts) badges.push(`🌟 ${firsts} new fact${firsts > 1 ? 's' : ''} learned`);
+  if (firsts) badges.push(`🌟 ${firsts} new ${plural(firsts, 'fact')} learned`);
   const ups = count('leveledUp');
-  if (ups) badges.push(`🐾 ${ups} level up${ups > 1 ? 's' : ''}`);
+  if (ups) badges.push(`🐾 ${ups} level ${plural(ups, 'up')}`);
   const backs = count('comeback');
-  if (backs) badges.push(`💪 ${backs} comeback${backs > 1 ? 's' : ''}`);
+  if (backs) badges.push(`💪 ${backs} ${plural(backs, 'comeback')}`);
   for (const t of round.sniffedRows ?? []) {
     badges.push(`🐽 Sniffed every ×${t} fact!`);
   }
@@ -90,7 +90,7 @@ export function resultsScreen(el, params, ctx) {
       ${
         round.newAwards?.length
           ? `<div class="card center award-reveal">
-              <h3>🏆 New award${round.newAwards.length > 1 ? 's' : ''}!</h3>
+              <h3>🏆 New ${plural(round.newAwards.length, 'award')}!</h3>
               <div class="badge-row">${round.newAwards
                 .map((aw) => `<span class="badge">${aw.emoji} ${escapeHtml(aw.name)}</span>`)
                 .join('')}</div>

@@ -12,7 +12,7 @@ import { DOGS, dogSVG, wornFor, gearSVG } from '../art/dogs.js';
 import { PETS, petSVG } from '../art/pets.js';
 import { isUnlocked } from '../engine/unlocks.js';
 import { isBeta } from '../engine/beta.js';
-import { confetti, escapeHtml, toast } from '../ui.js';
+import { confetti, escapeHtml, toast, plural } from '../ui.js';
 import { sfx, buzz, cheer, say } from '../sound.js';
 import { coinTray } from '../ui/cointray.js';
 
@@ -325,7 +325,7 @@ export function storeScreen(el, params, ctx) {
             <span class="wr-label">${escapeHtml(d.label)}</span>
             <span class="wallet-count">×${have}</span>
             <button class="btn ghost small" data-give="${d.id}"
-              aria-label="Hand over a ${escapeHtml(d.label)}, ${d.cents} cents"
+              aria-label="Hand over a ${escapeHtml(d.label)}, ${d.cents} ${plural(d.cents, 'cent')}"
               ${have === 0 || covered ? 'disabled' : ''}>➕ Pay one</button>
           </div>`;
         }).join('');

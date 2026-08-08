@@ -14,9 +14,12 @@ import { toysOn } from '../engine/gearshop.js';
 import { toySVG } from '../art/gear.js';
 import { hintFor, divisionHint } from '../engine/hints.js';
 import { getDog, isGuest, GUESTS, dogSVG, accessoriesFor, wornFor, ACCESSORIES, dirtFor , nextColorGoal } from '../art/dogs.js';
-import { buildNumpad, bindKeyboard, celebrationLine, confetti, escapeHtml } from '../ui.js';
+import { buildNumpad, bindKeyboard, celebrationLine, confetti, escapeHtml, plural, verb, article } from '../ui.js';
 import { sfx, buzz } from '../sound.js';
 
+// `done` takes the number of dogs on the outing: the finish headline is
+// "<names> <done>", and a play date can be 1, 2 or 3 pups. A fixed string
+// told a solo pup "good dogs!" and told a pair "is squeaky clean!".
 const KINDS = {
   groom: {
     title: 'Bath time!',
@@ -24,7 +27,7 @@ const KINDS = {
     deco: ['🫧', '🧼', '🫧', '🫧'],
     cheer: 'gets sudsier!',
     cheerGroup: 'So many bubbles!',
-    done: 'is squeaky clean! ✨',
+    done: (n) => `${verb(n, 'is', 'are')} squeaky clean! ✨`,
   },
   walk: {
     title: 'Walkies!',
@@ -32,7 +35,7 @@ const KINDS = {
     deco: ['🌳', '🌷', '🌼', '🌳'],
     cheer: 'trots ahead!',
     cheerGroup: 'The pack trots ahead!',
-    done: 'had a lovely walk with you! 🦮',
+    done: () => 'had a lovely walk with you! 🦮',
   },
   feed: {
     title: 'Dinner time!',
@@ -40,7 +43,7 @@ const KINDS = {
     deco: ['🦴', '🦴', '🦴', '🦴'],
     cheer: 'gets closer to the bowl!',
     cheerGroup: 'Everyone gets closer to dinner!',
-    done: 'ate a yummy dinner! 🍖',
+    done: () => 'ate a yummy dinner! 🍖',
   },
   fetch: {
     title: 'Fetch!',
@@ -48,7 +51,7 @@ const KINDS = {
     deco: ['🌿', '🌿', '🌿', '🌿'],
     cheer: 'races after the ball!',
     cheerGroup: 'The whole pack races after the ball!',
-    done: 'caught the ball — good dogs! 🎾',
+    done: (n) => `caught the ball — good ${plural(n, 'dog')}! 🎾`,
   },
 };
 
@@ -318,7 +321,7 @@ export function activityScreen(el, params, ctx) {
     fbEl.textContent = '';
     const headline = sitting
       ? `${escapeHtml(dogs[0].name)} had the best day — thanks for pet sitting! 🏡`
-      : `${escapeHtml(listNames(dogs))} ${theme.done}`;
+      : `${escapeHtml(listNames(dogs))} ${theme.done(dogs.length)}`;
     // So-close nudge: the next accessory color within 3 plays gets named
     // on the finish card — the reward stays visible right where it's earned.
     const ACC_BY_KIND = { walk: 'bandana', feed: 'bow', fetch: 'cap' };
@@ -362,7 +365,7 @@ export function activityScreen(el, params, ctx) {
           ? `<div class="badge-row" style="margin-top:8px">${newWear
               .map(
                 (w) =>
-                  `<span class="badge">${w.acc.emoji} ${escapeHtml(w.dog.name)} earned a ${w.acc.name}!</span>`
+                  `<span class="badge">${w.acc.emoji} ${escapeHtml(w.dog.name)} earned ${article(w.acc.name)} ${w.acc.name}!</span>`
               )
               .join('')}</div>`
           : ''

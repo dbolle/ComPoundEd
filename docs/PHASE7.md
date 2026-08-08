@@ -441,6 +441,83 @@ This also shrinks the art and the append risk: **3 new pets, not 7 (or the
 9 recommended below)**. `PETS` and `MILESTONES` are both 26 after v1.53.0,
 so R5 appends 3 of each and lands at 29 = 29.
 
+### The three pigs (owner-approved 2026-08-08)
+
+One habitat for the whole track: pigs, drawn on the cat/rabbit skeleton
+(head circle cx 60 cy 62 r 40, eyes at 56, the shared collar) so every
+accessory already fits with **no `PET_FIT` entry**. The one departure is
+the face — a snout with two nostrils instead of a muzzle and nose, which
+is what makes a pig readable at tile size. `pig()` and its `SPECIES` entry
+landed with the art; the RECORDS below append in R5, with the milestones,
+because `PETS.length === MILESTONES.length` is now asserted.
+
+| Milestone | Pet | base | ear | inner | snout | patch | collar |
+|---|---|---|---|---|---|---|---|
+| know your coins | Truffle | `#f2a5b0` | `#dd8b99` | `#f9ccd4` | `#e88fa0` | — | `#f59e0b` |
+| count any pile | Barley | `#f6c9a8` | `#e0aa85` | `#fbe3d0` | `#e79d8c` | — | `#2563eb` |
+| shopkeeper | Hazel | `#e8b48f` | `#cf9873` | `#f6d9c3` | `#dc9c7f` | `#f6e6d5` | `#8b5cf6` |
+
+Names deliberately avoid every term the content uses — no penny, nickel,
+dime, quarter, buck, cent or coin. Food-and-nature register, matching
+Peanut, Butterscotch, Pistachio and Sprout; the money tie stays loose (a
+truffle is what a pig hunts for). Checked free against every existing dog
+and pet name — **Clover and Maple are already taken**, which is why they
+are not here.
+
+**A pig needs a voice.** `sound.js` synthesises a call per species and
+`soundWord()` names it, and the counting game asks "How many woofs?" using
+that word. A pig buddy with no entry would **bark**, and be asked about
+barks. So R5 adds the `pig` voice and `pig: ['oink', 'oinks']` to the sound
+words **in the same commit as the pet records** — `tests/plurals.spec.js`
+fails if a voice is added without its word, which is the tripwire, but
+nothing fails if both are simply missing. Today no pig exists in `PETS`, so
+there is no live gap.
+
+**Rejected, kept for a later wave.** A grey piglet was tried first and read
+as "not a pig": the snout is what sells the species, so any future pig
+keeps it warm and pink. Two unused palettes, held for if the track grows:
+
+| reserve | base | ear | inner | snout |
+|---|---|---|---|---|
+| oatmeal | `#f0dfc4` | `#d8c19f` | `#faf0de` | `#e8a79e` |
+| dusty rose | `#dd9095` | `#c47579` | `#f2bfc2` | `#cf8088` |
+
+### R5 ships BEHIND THE BETA FLAG (owner, 2026-08-08)
+
+The track goes out as a preview so it can be driven with a real child
+before anything about it is locked. The flag already exists and is unused:
+`isBeta(profile)` reads `subjects.beta`, a parent sets it in Grown-Ups
+(🧪 chip), and `BETA_ROUTES` in `src/engine/beta.js` is an empty list
+waiting for exactly this.
+
+Gating it takes more than the route, because a redirect leaves a dead
+entry point — the defect class that has bitten this app three times:
+
+- `BETA_ROUTES` gains `/money`, so a non-beta profile that deep-links is
+  redirected rather than shown a half-built screen.
+- **`moneyVisible(p)` must itself require `isBeta(p)`.** Otherwise the
+  track card, the home slot and the suggest branch all still advertise a
+  route that bounces.
+- The Grown-Ups `data-subj="money"` toggle appears only for beta profiles,
+  carrying the 🧪 chip like the store's beta items.
+- The three pigs stay hidden in the Cozy Corner for free: money
+  milestones are `kind: 'money'`, and `milestoneReachable` resolves them
+  through `moneyVisible`.
+
+**What being in beta buys, and what it costs.** Beta surfaces are exempt
+from the preservation guarantee (CLAUDE.md), so while the track is in
+preview: the 134 ids may still move, and the reward amounts are NOT locked
+— the same freedom the store's prices had before an art review locked them.
+The cost is the other side of that coin: **money progress made during the
+preview may not survive to launch**, including the owner's own testing.
+`profile.money` is a normal v19 field, so purging it at launch is a
+deliberate act, not an accident — decide it explicitly rather than
+discovering it.
+
+Leaving beta is therefore its own step: lock the ids against the fixture,
+lock the amounts, drop `/money` from `BETA_ROUTES`, drop `isBeta` from
+`moneyVisible`, and decide whether preview progress is kept or cleared.
+
 Context, recomputed from the code rather than quoted: one-time frontier
 payouts today are × (91 keys × 5¢ + 12 × 100¢ = 1655¢) + ÷ (90 × 5¢ +
 12 × 100¢ = 1650¢) + adding (66 × 5¢ + 7 × 100¢ = 1030¢) + taking away
