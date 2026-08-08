@@ -4,6 +4,7 @@
 // warm without adding workload. One pet per milestone, in catalog order.
 
 import { PETS } from '../art/pets.js';
+import { GROUP_SKILL_KEYS } from './groups.js';
 import { isWaveMastered, isSubWaveMastered, WAVES, waveProgress, subWaveProgress } from './waves.js';
 import { bridgeVisible } from './readiness.js';
 
@@ -75,6 +76,24 @@ export const MILESTONES = [
       return { have: a.have + b.have, need: a.need + b.need };
     },
   },
+  // v1.53.0 — appended (never inserted): Groups adopts PETS[25], the LAST
+  // pet that had no earning path. MILESTONES and PETS are both 26 from
+  // here, which is what lets the suite assert they stay equal — a milestone
+  // and the pet that earns it must ship in the same commit from now on, or
+  // `petForMilestone` wraps and re-adopts Whiskers.
+  //
+  // Keys are factor PAIRS, not a numeric range, so this counts the engine's
+  // catalogue directly instead of using rangeKnown().
+  {
+    id: 'groups',
+    kind: 'little',
+    label: 'Equal groups and arrays',
+    earned: (p) => GROUP_SKILL_KEYS.every((k) => known(p, k)),
+    prog: (p) => ({
+      have: GROUP_SKILL_KEYS.filter((k) => known(p, k)).length,
+      need: GROUP_SKILL_KEYS.length,
+    }),
+  },
 ];
 
 // Can this profile ever earn this milestone? Little-skill milestones need
@@ -137,6 +156,11 @@ const GOALS_BY_GAME = {
   taway: ['taway'],
   paths: ['paths'],
   trace: ['trace'],
+  // `counton` shipped in v1.50.0 WITHOUT an entry here, so playing Count on!
+  // never showed its own next-friend goal — it fell through to the generic
+  // nextPetGoal(). Same omission would have hit `groups`; both fixed here.
+  counton: ['counton'],
+  groups: ['groups'],
 };
 export function gameGoal(profile, game) {
   const owned = new Set((profile.petUnlocks ?? []).map((u) => u.milestone));

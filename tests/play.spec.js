@@ -1,6 +1,7 @@
 // Pet play: solo activities, group rotation, pet sitting mix, and the
 // learner-friendly progression rules.
 import { test, expect } from '@playwright/test';
+import { buildSittingRound, bucketizeFacts } from '../src/engine/selector.js';
 import {
   seedProfile,
   readProfile,
@@ -175,4 +176,32 @@ test('slow-correct answers climb early boxes but not past the cap', async ({ pag
   const after = await readProfile(page, 'play-slow');
   expect(after.facts[slowFresh].box).toBe(1);
   expect(after.facts['5x5'].box).toBe(2);
+});
+
+// The e2e above caught this once in a full-suite run and passed on every
+// isolated retry, because it depends on where the shuffle happens to put
+// the weak facts. Ten thousand rounds at the unit level turns a coin-flip
+// into a proof.
+test('a sitting round never places two weak facts back to back', () => {
+  const doc = richDoc('sit-stress', 'SitStress');
+  const { weak, firm, mastered } = bucketizeFacts(doc);
+  expect(mastered.length, 'the fixture must actually be sitting-ready').toBeGreaterThanOrEqual(6);
+
+  const tagOf = new Map();
+  for (const f of weak) tagOf.set(norm(f.a, f.b), 'weak');
+  for (const f of firm) tagOf.set(norm(f.a, f.b), 'firm');
+  for (const f of mastered) tagOf.set(norm(f.a, f.b), 'mastered');
+
+  const offences = [];
+  for (let run = 0; run < 10000; run++) {
+    const tags = buildSittingRound(doc).map((q) => tagOf.get(norm(q.a, q.b)));
+    if (tags[0] === 'weak' || tags[1] === 'weak') offences.push(`run ${run}: opened weak`);
+    for (let i = 1; i < tags.length; i++) {
+      if (tags[i] === 'weak' && tags[i - 1] === 'weak') {
+        offences.push(`run ${run}: weak at ${i - 1} and ${i} — ${tags.join(',')}`);
+        break;
+      }
+    }
+  }
+  expect(offences.slice(0, 3), `${offences.length} of 10000 rounds stacked hard facts`).toEqual([]);
 });

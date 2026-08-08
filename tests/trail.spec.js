@@ -37,6 +37,7 @@ import { PETS } from '../src/art/pets.js';
 import * as readiness from '../src/engine/readiness.js';
 import { newProfile, mergeProfiles } from '../src/data/schema.js';
 import { waveFacts } from '../src/engine/waves.js';
+import { GROUP_PAIRS } from '../src/engine/groups.js';
 import { normAddKey } from '../src/engine/leitner.js';
 import { stat } from './helpers.mjs';
 
@@ -47,13 +48,13 @@ const FIX = JSON.parse(readFileSync('tests/fixtures-little-registry.json', 'utf8
 // existed in data but were missing from the map entirely — which is
 // precisely the drift that hid two games from the frontier picker.
 const RENAMED = { taway: 'takeaway' };
-const INTENTIONAL_ADDITIONS = ['bond5', 'bond10', 'teen', 'path', 'seq', 'ten', 'place'];
+const INTENTIONAL_ADDITIONS = ['bond5', 'bond10', 'teen', 'path', 'seq', 'ten', 'place', 'groups'];
 
 // The fixture is a HISTORICAL snapshot of the literals the registry
 // replaced, so it pins the extraction. Games added afterwards must be
 // declared here — the test then still catches an accidental change to
 // anything that shipped before, while an intended new game is one line.
-const ADDED_SINCE_FIXTURE = ['counton'];
+const ADDED_SINCE_FIXTURE = ['counton', 'groups']; // groups wired in v1.53.0
 
 test('derived maps still equal the literals they replaced', () => {
   // every pre-existing entry unchanged...
@@ -161,7 +162,10 @@ const OLD_KEY = { taway: 'takeaway' };
 // The stride LIST is data that has intentionally changed (v1.51.0 added 3s
 // and 4s); what this comparison is for is the set-valued frontier LOGIC, so
 // it tracks the current strides rather than pinning the historical ones.
-const OLD_SET = { paths: [2, 3, 4, 5, 10] };
+// `groups` is set-valued too — its keys are factor PAIRS, not a numeric
+// range — so the old-logic model needs it here or it would fall through to
+// the range branch, find no domain, and report "no frontier, ever".
+const OLD_SET = { paths: [2, 3, 4, 5, 10], groups: [...GROUP_PAIRS] };
 const oldKnows = (little, g, n) =>
   (little.skills?.[`${g}:${n}`]?.streak ?? 0) >= (OLD_STREAK[g] ?? 3);
 function oldHasFrontier(profile, game) {

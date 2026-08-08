@@ -53,8 +53,8 @@ licensing.
   firm facts to reinforce, and 1–2 weak facts tucked in the middle.
 - **Multiple players** — sibling-friendly profiles on one device.
 - **Little Pup mode (ages 3–5)** — a per-profile preschool experience:
-  seventeen tap-only games (counting, numerals, comparison, shapes,
-  patterns, bonds, teens, tracing, skip-counting…) with spoken prompts,
+  eighteen tap-only games (counting, numerals, comparison, shapes,
+  patterns, bonds, teens, tracing, skip-counting, equal groups…) with spoken prompts,
   guided recounts on misses, per-number mastery tracking, a Play-next hero
   tile, and a goal preview for the next unlock. Numbers grow 1–5 → 1–10 as
   they're genuinely known.

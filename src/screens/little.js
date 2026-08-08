@@ -18,6 +18,13 @@ import { isRevealed, ratchetReveals, addingReady, takingAwayReady } from '../eng
 import { WAVES, waveUnlocked, isWaveMastered, subWaveUnlocked, isSubWaveMastered } from '../engine/waves.js';
 import { confetti, escapeHtml, buildNumpad, plural } from '../ui.js';
 import { toysOn } from '../engine/gearshop.js';
+import {
+  GROUP_SKILL_KEYS,
+  buildGroupQuestion,
+  groupStage,
+  groupsReady,
+  nextGroupIdentity,
+} from '../engine/groups.js';
 import { toySVG } from '../art/gear.js';
 
 // Daily item themes: the counting objects change with the day — picnic
@@ -337,6 +344,23 @@ function tiles(p, buddy) {
       art: `<span class="tile-num">99</span><span class="tile-mark">🔢</span>`,
     },
     {
+      game: 'groups',
+      minXp: 0,
+      // groupsReady() lives in the engine and already carries the mid-trail
+      // inference (a child with real ×/÷ history is never held behind the
+      // counting gates). Calling it rather than restating it is what keeps
+      // the tile and the engine from drifting apart — the exact drift that
+      // produced two of the four R0 defects.
+      ready: (p2) => groupsReady(p2),
+      gate: (p2) => ({
+        icon: '🧺',
+        have: GROUP_SKILL_KEYS.filter((k) => (p2.little?.skills?.[k]?.streak ?? 0) >= 3).length,
+        need: GROUP_SKILL_KEYS.length,
+      }),
+      caption: 'Groups!',
+      art: `<span class="tile-art">🧺</span><span class="tile-mark">3×4</span>`,
+    },
+    {
       game: 'teen',
       minXp: 0,
       ready: (p) => knowsRange(p.little ?? {}, 'bond10', 0, 10),
@@ -420,6 +444,8 @@ const GOALS_GAME_BY_MILESTONE = {
   taway: 'taway',
   paths: 'paths',
   trace: 'trace',
+  counton: 'counton',
+  groups: 'groups',
 };
 
 export function littleHomeScreen(el, params, ctx) {
@@ -624,12 +650,15 @@ export function littleGameScreen(el, params, ctx) {
   const fbEl = el.querySelector('.little-fb');
   el.querySelector('[data-say]').addEventListener('click', () => say(lastSpoken));
 
-  function choiceButton(html, correct, cls = '') {
+  // `onPick` lets a game handle its own taps: `groups` asks three parts
+  // inside ONE item, so its first two parts must advance to the next part
+  // instead of finishing the question.
+  function choiceButton(html, correct, cls = '', onPick = null) {
     const btn = document.createElement('button');
     btn.className = `little-card ${cls}`;
     btn.dataset.good = correct ? '1' : '0';
     btn.innerHTML = html;
-    btn.addEventListener('click', () => onChoice(btn, correct));
+    btn.addEventListener('click', () => (onPick ?? onChoice)(btn, correct));
     choicesEl.appendChild(btn);
   }
 
@@ -1305,6 +1334,64 @@ export function littleGameScreen(el, params, ctx) {
       for (const v of [...opts].sort(() => Math.random() - 0.5)) {
         choiceButton(`<span class="little-numeral">${v}</span>`, v === 10 + n);
       }
+    } else if (g === 'groups') {
+      // Groups! Equal groups and arrays (2.OA.4). The point is UNITIZING,
+      // so one item asks three things about the same picture — how many
+      // groups, how many in each, how many altogether — and the identity is
+      // the factor pair, not the total. A child who reads "12" off the
+      // screen without seeing three fours has not learned this, which is
+      // why the total alone can never master an identity.
+      //
+      // All three parts live inside ONE question so `firstTry` spans them:
+      // recordSkill() advances a streak only when firstTry survived, which
+      // IS the engine's rule (all three right on the first try). No extra
+      // bookkeeping, and the two can't disagree.
+      const identity = nextGroupIdentity(p) ?? null;
+      const stage = identity ? groupStage(p, identity) : 1;
+      const q = buildGroupQuestion(p, identity, stage);
+      stageEl.dataset.skill = q.skill;
+      stageEl.dataset.answer = q.total;
+      // Stage 1 shows the answer sentence, so it can only ever teach —
+      // the same dataset flag every errorless stage in this file uses.
+      if (q.teachOnly) stageEl.dataset.teachOnly = '1';
+
+      const bowls = Array.from(
+        { length: q.groups },
+        () => `<span class="group-bowl">${`<span class="li">${q.item}</span>`.repeat(q.size)}</span>`
+      ).join('');
+      stageEl.innerHTML =
+        `<div class="group-array" data-groups="${q.groups}">${bowls}</div>` +
+        (q.showSentence ? `<div class="group-sentence">${q.sentence} = ${q.total}</div>` : '');
+
+      let part = 0;
+      const askPart = () => {
+        const pt = q.parts[part];
+        choicesEl.innerHTML = '';
+        promptEl.textContent = pt.ask;
+        speak(pt.say);
+        const last = part === q.parts.length - 1;
+        for (const v of pt.choices) {
+          choiceButton(
+            `<span class="little-numeral">${v}</span>`,
+            v === pt.answer,
+            '',
+            // the LAST part finishes the item through the normal path, so
+            // celebrate/recordSkill/next stay exactly as every other game
+            last
+              ? null
+              : (btn, correct) => {
+                  if (busy || performance.now() < inputReadyAt) return;
+                  if (!correct) return rejectTap(btn);
+                  btn.classList.add('win');
+                  sfx.correct();
+                  buzz(10);
+                  part += 1;
+                  setTimeout(askPart, 420);
+                }
+          );
+        }
+      };
+      askPart();
     } else {
       // more: two dogs with bone piles — tap the one with more
       const others = [...DOGS, ...GUESTS].filter((d) => d.id !== buddy.id);
@@ -1404,24 +1491,28 @@ export function littleGameScreen(el, params, ctx) {
     });
   }
 
+  // Error-less and wordless: the wrong card dims + wobbles, a paw of
+  // sympathy appears, and the question waits. Shared, because `groups` asks
+  // three parts inside one item and must reject a wrong tap identically —
+  // restating these five lines is exactly how two games drift apart.
+  function rejectTap(btn, { retry = 'Try again!' } = {}) {
+    firstTry = false;
+    btn.classList.add('dim');
+    btn.classList.add('shake');
+    sfx.wrong();
+    fbEl.textContent = '🐾';
+    if (retry) say(retry);
+  }
+
   function onChoice(btn, correct) {
     if (busy || performance.now() < inputReadyAt) return;
     if (correct) {
       celebrate(btn);
     } else {
-      // Error-less and wordless: the wrong card dims + wobbles, a paw of
-      // sympathy appears, and the question waits.
-      firstTry = false;
-      btn.classList.add('dim');
-      btn.classList.add('shake');
-      sfx.wrong();
-      fbEl.textContent = '🐾';
       const g2 = stageEl.dataset.game ?? game;
-      if (GUIDED_RECOUNT && (g2 === 'count' || g2 === 'find')) {
-        guidedRecount(btn);
-      } else {
-        say('Try again!');
-      }
+      const recount = GUIDED_RECOUNT && (g2 === 'count' || g2 === 'find');
+      rejectTap(btn, { retry: recount ? null : 'Try again!' });
+      if (recount) guidedRecount(btn);
     }
   }
 

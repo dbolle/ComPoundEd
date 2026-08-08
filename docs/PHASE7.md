@@ -394,27 +394,72 @@ Parser safety, checked against the two id parsers in
 
 ### The ceiling this adds
 
-| | count | each | total |
-|---|---|---|---|
-| paid mastery units | 134 | 5¢ | 670¢ |
-| wave payouts | 7 | 100¢ | 700¢ |
-| **money track, lifetime** | | | **1370¢ = 🐾$13.70** |
+**REVISED 2026-08-08 (owner decision).** The first draft paid a 5¢ mastery
+nickel for all 134 identities and a 100¢ Paw Buck for each of 7 waves —
+1370¢, which *out-earned the 1200¢ crown*, meaning money math alone bought
+the most aspirational thing in the store. The owner cut the track to about
+half its earnings and capped it at **three** new pets. Wave 1 takes the
+deepest cut: recognising a dime is the smallest unit of learning in the
+app, and five easy identities should not be the easiest 25¢ in it.
+
+The lever is WHICH COIN pays, not a new rate. Payouts are made in real
+coins, so the only choices are 1¢, 5¢, 10¢, 25¢ and 100¢ — and both 1¢
+(`skill`) and 5¢ (`mastery`) already exist at those amounts. So this
+still needs **no `RATE_VERSION` bump and no `fixtures-rates.json`
+change**.
+
+| Wave | ids | each | subtotal | why |
+|---|---|---|---|---|
+| 1 Know the Coins | 5 | 1¢ | 5¢ | recognition — a little-pup skill penny |
+| 2 Count One Kind | 27 | 1¢ | 27¢ | skip counting the child already has |
+| 3 Mixed Collections | 30 | 1¢ | 30¢ | counting, with a harder pile |
+| 4 Equal Value | 12 | 1¢ | 12¢ | recognition of a swap |
+| 5 Make an Amount | 20 | 5¢ | 100¢ | **composition** — genuinely new |
+| 6 Count the Change | 24 | 5¢ | 120¢ | **the cashier's method** |
+| 7 Notation | 16 | 5¢ | 80¢ | **¢/$ transcription** |
+| per-identity | 134 | | **374¢** | |
+| milestone Paw Bucks | **3** | 100¢ | **300¢** | one per pet, not one per wave |
+| **money track, lifetime** | | | **674¢ = 🐾$6.74** | 49.2% of the draft |
+
+The split is pedagogical, not arithmetic: **waves 1–4 are recognition and
+counting**, which the trail has already taught and already pays a penny
+for elsewhere; **waves 5–7 are the new fluencies** — building an amount,
+counting change up from a price, and reading ¢/$ notation — and those earn
+the nickel. Wave 1 falls 25¢ → 5¢.
+
+### Three pets, not seven
+
+Seven waves now group into **three milestones**, each adopting one pet:
+
+| Milestone | Waves | What the child can do |
+|---|---|---|
+| `m1` know your coins | 1–2 | name every coin and count a pile of one kind |
+| `m2` count any pile | 3–4 | total a mixed handful, and swap equal values |
+| `m3` shopkeeper | 5–7 | make an amount, count change, read ¢ and $ |
+
+This also shrinks the art and the append risk: **3 new pets, not 7 (or the
+9 recommended below)**. `PETS` and `MILESTONES` are both 26 after v1.53.0,
+so R5 appends 3 of each and lands at 29 = 29.
 
 Context, recomputed from the code rather than quoted: one-time frontier
 payouts today are × (91 keys × 5¢ + 12 × 100¢ = 1655¢) + ÷ (90 × 5¢ +
 12 × 100¢ = 1650¢) + adding (66 × 5¢ + 7 × 100¢ = 1030¢) + taking away
-(1030¢) + little-pup skill pennies (`littleSkillTotal()` = 132 → 132¢) =
-**5497¢ = 🐾$54.97**. (That model reproduces PHASE6's "≈ $54.41" exactly
-at the little-skill total of the time, 76 — which is the check that the
-arithmetic is right.) Money takes it to **6867¢ = 🐾$68.67, +24.9%**.
+(1030¢) + little-pup skill pennies (`littleSkillTotal()` → 1¢ each) =
+**5534¢ = 🐾$55.34** at the current total of 169. (That model reproduces
+PHASE6's "≈ $54.41" exactly at the little-skill total of the time, 76 —
+which is the check that the arithmetic is right; the figure moves as
+little-pup games are added, and 132 was its value when this was written.)
+Money now takes it to **6208¢ = 🐾$62.08, +12.2%** — the revised table
+above, not the 1370¢ draft.
 On top of that sit the two uncapped daily faucets: sitting ≤ 20¢/day and
 polish ≤ 25¢/day.
 
 ### Is that a calibration problem? Flagged, with the actual numbers
 
 - The most expensive item in the store is **`crown` at 1200¢ = 🐾$12.00**
-  (then `tiara` 800¢, `sunglasses` 200¢, `scarf` 160¢). The money track
-  alone (1370¢) buys the crown outright with 170¢ over.
+  (then `tiara` 800¢, `sunglasses` 200¢, `scarf` 160¢). The 1370¢ draft
+  bought the crown outright with 170¢ to spare, from one track. **At 674¢
+  it no longer does** — which was the point of the cut.
 - **CORRECTED 2026-08-07.** This section previously said the catalogue
   "totals 3400¢" and that the earning ceiling was 1.6× all of it — that
   a child could buy everything twice. That was wrong, because it summed
@@ -489,11 +534,11 @@ failures follow, in order:
 
 ### The requirement, precisely
 
-- **R5 must append at least 7 new pets to `PETS`**, so that
-  `PETS.length ≥ 33` once R3's and R4's two milestones and R5's seven are
-  all in. Exactly 7 gives 33 = 33, i.e. no slack; **9 is recommended**,
-  since the two spare pets that exist today are the only reason R3 and R4
-  need no art at all.
+- **R5 appends 3 new pets to `PETS`** (revised 2026-08-08 — was 7). R3's
+  and R4's milestones have both shipped, so `PETS` and `MILESTONES` are
+  both **26**; three of each lands at 29 = 29. The two spare pets that
+  used to absorb this are gone — v1.50.0 took one and v1.53.0 the last —
+  so from here every milestone ships with its own new pet, no slack.
 - **The invariant to enforce by test** is the property, not its cause:
   `new Set(MILESTONES.map((m) => petForMilestone(m.id).id)).size ===
   MILESTONES.length` — no two milestones map to the same pet. Add

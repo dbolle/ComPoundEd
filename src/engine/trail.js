@@ -24,6 +24,8 @@
 //   domain   [lo, hi] range, or { set: [...] } for a finite set of keys
 //   streak   first-try corrects in a row that count as knowing it
 //   required true if it gates "this game is finished" and the milestone
+import { GROUP_PAIRS } from './groups.js';
+
 const R = (rec) => ({ type: 'little-game', status: 'shipped', timed: false, ...rec });
 
 export const TRAIL = [
@@ -257,6 +259,25 @@ export const TRAIL = [
     revealId: 'tile:counton',
   }),
   R({
+    id: 'groups',
+    labels: { kid: 'Groups!', icon: '🧺', grownup: 'equal groups and arrays' },
+    standards: ['2.OA.4'],
+    // Three parts per item (how many groups / how many in each / how many
+    // altogether) run longer than the single-tap games, so a round is 4.
+    questions: 4,
+    playKind: 'feed',
+    tracked: true,
+    // Keyed by FACTOR PAIR, not by total: the point is unitizing, so 3
+    // groups of 4 and 4 groups of 3 are one thing to know. A set domain
+    // (as `paths` uses) because the keys are pairs, not a numeric range.
+    // The engine owns the catalogue — 2.OA.4's "up to 5 rows and up to 5
+    // columns" — so the two can never disagree about what exists.
+    skills: [{ ns: 'groups', domain: { set: GROUP_PAIRS }, streak: 3, required: true }],
+    praise: ['Group counter!', 'You saw the groups!'],
+    milestones: ['groups'],
+    revealId: 'tile:groups',
+  }),
+  R({
     id: 'surprise',
     labels: { kid: 'Surprise!', icon: '🎁', grownup: 'interleaved practice over revealed games' },
     standards: [],
@@ -325,15 +346,6 @@ export const TRACKS = [
 const P = (rec) => ({ status: 'planned', tracked: false, skills: [], milestones: [], ...rec });
 
 export const PLANNED = [
-  P({
-    id: 'groups',
-    type: 'little-game',
-    labels: { kid: 'Groups!', icon: '🧺', grownup: 'equal groups and arrays' },
-    standards: ['2.OA.4'],
-    questions: 4,
-    revealId: 'tile:groups',
-    plannedIn: 'R4',
-  }),
   P({
     id: 'money',
     type: 'track',

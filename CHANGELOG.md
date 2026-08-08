@@ -3,6 +3,62 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.53.0 — 2026-08-08
+
+**Groups! — the game that was built but unreachable.** The engine for equal
+groups and arrays (2.OA.4) shipped in v1.50.0 with a full test suite, and
+then sat there for three releases: no tile, no registry promotion, no
+milestone. No child could open it. This wires it up.
+
+- **Groups! 🧺 on the little shelf.** One item asks three things about the
+  same picture — how many bowls, how many in each, how many altogether —
+  because the point is seeing equal groups, not producing a total. A child
+  who reads "12" off the screen without seeing three fours has not learned
+  this, so a right total with a wrong group count masters nothing.
+- Identities are keyed by FACTOR PAIR, so 3 groups of 4 and 4 groups of 3
+  are one thing to know — but the picture shows both orientations, and the
+  prompt names which is which.
+- An errorless rung first: the repeated-addition sentence is visible while
+  the child is still learning what the question means, and that rung can
+  only ever teach — it counts attempts and never builds a streak.
+- **Sprout the hedgehog** is adopted for all ten pairs — the last pet in the
+  collection that had no way to be earned. MILESTONES and PETS are now both
+  26, and the suite asserts they stay equal: from here a milestone and the
+  pet that earns it must ship in the same commit, or the positional mapping
+  wraps and re-adopts a pet the child already has.
+- **Count on! finally shows its own goal.** It shipped in v1.50.0 without a
+  `GOALS_BY_GAME` entry, so playing it pointed the next-friend meter at
+  some other activity. Fixed alongside the same omission for Groups.
+
+**A sitting round can no longer stack two hard facts.** `buildSittingRound`
+spreads the weak facts out — the whole point of pet sitting is that it opens
+with wins and never feels like a wall — but it decided slot by slot and
+checked adjacency on only one of its three branches. Once the supply of
+mastered and firm facts ran out, the leftover weak facts were appended with
+no check at all, so a round could end on two hard facts in a row. Weak facts
+are now placed in distinct gaps between the wins, which makes "never
+back-to-back" true by construction rather than by luck. Found by the full
+suite, which failed once and then passed on every isolated retry; a 10,000-round
+unit test now stands in for that coin flip.
+
+**Groundwork for the money track** (no kid-facing change yet):
+
+- **The penny is no longer bigger than the nickel.** `.coin.penny` had no
+  size rule at all and inherited the 34px base against the nickel's 30px —
+  the exact inversion of the one fact money math has to teach, that the
+  dime is the smallest coin while being worth more. Sizes now follow the
+  real mint diameters already recorded in `src/art/coins.js`.
+- Untimed mastery for money (`recordMoneyAnswer`). With a finite speed bar
+  a multi-step coin question could never reach mastery at all, since a
+  correct-but-slow answer stops at box 2 and mastery is box 3. Caught while
+  building it: an infinite bar marks every correct answer "fast", which
+  feeds the ⚡ Quick Paws ladder — a track with no speed bar now reports
+  none, so it cannot hand out a lightning badge per coin question.
+- The 134 wave identities are frozen and pinned by a fixture, so ids can
+  never shift under a child's saved progress.
+- **Schema v19** (additive): `subjects.money` and a `money` stat map.
+  Nothing reads them yet.
+
 ## v1.52.0 — 2026-08-07
 
 Bath time is a thing you can choose to do.
