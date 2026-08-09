@@ -5,7 +5,7 @@ import { test, expect } from '@playwright/test';
 import { newProfile } from '../src/data/schema.js';
 import { seedProfile, selectProfile, uniqueName } from './helpers.mjs';
 
-const SPECIES = ['dog', 'cat', 'rabbit', 'guinea', 'bird', 'sloth', 'hedgehog', 'turtle'];
+const SPECIES = ['dog', 'cat', 'rabbit', 'guinea', 'bird', 'sloth', 'hedgehog', 'turtle', 'pig'];
 
 // sound.js is self-contained (no imports), so the REAL shipped source can
 // be loaded as a module in the page with AudioContext pointed at an
@@ -87,6 +87,30 @@ test('every species has a voice, no two sound alike, and all stay gentle', async
   expect(stats.bird.brightness).toBeGreaterThan(stats.rabbit.brightness * 1.6);
   expect(stats.sloth.seconds).toBeGreaterThan(stats.dog.seconds);
   expect(stats.guinea.brightness).toBeGreaterThan(stats.turtle.brightness);
+
+  // --- the pig (Money Math's three pigs) ---------------------------------
+  // A pig buddy that barks is the bug this file exists to stop, and an oink
+  // built from the same growl() as a bark is one bad parameter away from
+  // being one. All three bounds below were set from 20 renders of every
+  // species, deliberately WIDE of the measurement (the bird/rabbit note
+  // above is what a 2.00-vs-2.27 threshold costs).
+  //
+  // 1. Darker than a bark. An oink is a NASAL grunt: a low damped first
+  //    formant and almost nothing above 2kHz, which shows up as far fewer
+  //    zero crossings. Measured over 20 renders the dog/pig ratio never fell
+  //    below 3.07× (dog 1806–2008, pig 512–589) — the 2.2× bound keeps ~40%
+  //    headroom and still means "obviously not the same animal".
+  expect(stats.dog.brightness, 'the oink is nasal, not a bark').toBeGreaterThan(stats.pig.brightness * 2.2);
+  // 2. Never louder than the loudest existing call. A fixed ceiling, not a
+  //    live `< dog.peak` comparison: both numbers are randomised, and the
+  //    dog's own renders span 0.0785–0.0918, so comparing them would be the
+  //    same coin-flip that made the rabbit flaky. 0.075 sits UNDER the
+  //    quietest bark ever measured, so passing it really does mean "quieter
+  //    than a bark"; the pig itself measured 0.0455–0.0556, i.e. 35% clear.
+  expect(stats.pig.peak, 'the oink stays under the loudest existing call').toBeLessThan(0.075);
+  // 3. A grunt is a short sound. Measured dog 0.274–0.284s vs pig
+  //    0.116–0.123s — a 2.23× worst case against a 1.5× bound.
+  expect(stats.dog.seconds, 'a grunt is shorter than a bark').toBeGreaterThan(stats.pig.seconds * 1.5);
 });
 
 test('e2e: tapping a Cozy Corner pet plays without errors, and the bark game speaks the buddy sound', async ({ page }) => {
@@ -135,10 +159,11 @@ test('every option is ONE event where it claims to be (counting integrity)', asy
     async ({ src }) => {
       const url = URL.createObjectURL(new Blob([src], { type: 'text/javascript' }));
       const out = {};
-      const banks = { dog: 2, rabbit: 2, bird: 3 };
+      // `null` = no option bank; play the species' actual voice instead.
+      const banks = { dog: 2, rabbit: 2, bird: 3, pig: null };
       for (const [species, n] of Object.entries(banks)) {
         out[species] = [];
-        for (let i = 0; i < n; i++) {
+        for (let i = 0; i < (n ?? 1); i++) {
           const off = new OfflineAudioContext(1, 44100 * 2, 44100);
           const realAC = window.AudioContext;
           const realWk = window.webkitAudioContext;
@@ -147,7 +172,8 @@ test('every option is ONE event where it claims to be (counting integrity)', asy
           };
           window.webkitAudioContext = undefined;
           const mod = await import(/* @vite-ignore */ `${url}#${species}${i}`);
-          mod.playVoiceOption(species, i);
+          if (n === null) mod.critterSound(species);
+          else mod.playVoiceOption(species, i);
           window.AudioContext = realAC;
           window.webkitAudioContext = realWk;
           const data = (await off.startRendering()).getChannelData(0);
@@ -186,4 +212,11 @@ test('every option is ONE event where it claims to be (counting integrity)', asy
   // bird 2–3 single; 1 is the three-chirp original
   for (const i of [1, 2]) expect(bursts.bird[i], `bird option ${i + 1}`).toBe(1);
   expect(bursts.bird[0]).toBeGreaterThan(1);
+  // The oink is a DOUBLE grunt — the one thing that makes it a pig and not a
+  // small dog — but "how many oinks?" must still have one answer per call.
+  // The two grunts are scheduled to overlap rather than merely sit close: the
+  // first one's tail is still above the detector's floor when the second
+  // starts, so the longest interior quiet stretch measures 0ms against this
+  // detector's 60ms window (checked over 20 renders). One gesture, one count.
+  expect(bursts.pig[0], 'the doubled oink is still ONE countable event').toBe(1);
 });

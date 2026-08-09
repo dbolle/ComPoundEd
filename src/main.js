@@ -27,6 +27,7 @@ import { dogScreen } from './screens/dog.js';
 import { groupScreen } from './screens/group.js';
 import { awardsScreen } from './screens/awards.js';
 import { littleGameScreen } from './screens/little.js';
+import { moneyScreen } from './screens/money.js';
 import { wardrobeScreen } from './screens/wardrobe.js';
 import { walletScreen } from './screens/wallet.js';
 import { cornerScreen } from './screens/corner.js';
@@ -136,6 +137,7 @@ register('/dog', dogScreen);
 register('/group', groupScreen);
 register('/awards', awardsScreen);
 register('/little', littleGameScreen);
+register('/money', moneyScreen); // gated by BETA_ROUTES while in preview
 register('/wardrobe', wardrobeScreen);
 register('/wallet', walletScreen);
 register('/corner', cornerScreen);

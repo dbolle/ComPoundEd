@@ -326,6 +326,28 @@ export const TRACKS = [
     revealId: 'track:tables',
   }),
   T({
+    id: 'money',
+    // Named "Money Math" by the owner (2026-08-06). The placeholder was
+    // "Paw Bucks", which is the CURRENCY's name and the piggy bank's — one
+    // phrase meaning two things is exactly what docs/VOCABULARY.md exists
+    // to prevent. Lives on BOTH homes: the first track that genuinely
+    // belongs to the little shelf and the pack, since coin counting spans
+    // the ages either side.
+    labels: { kid: 'Money Math', icon: '🪙', grownup: 'money math: recognition → counting → equivalence → change → notation' },
+    homes: ['little', 'pack'],
+    standards: ['2.MD.8'],
+    statMap: 'money',
+    readiness: 'moneyReady',
+    visibility: 'moneyVisible',
+    revealId: 'track:money',
+    // UNTIMED, and this is not a preference. applyAnswer only promotes a
+    // correct answer past SLOW_CAP (2) when it beat the speed bar, and
+    // mastery is box 3 — so with any finite bar a multi-step coin question
+    // could never be mastered and the track would stall at wave 1 forever.
+    // The T() factory defaults `timed: true`, so this must say otherwise.
+    timed: false,
+  }),
+  T({
     id: 'division',
     labels: { kid: 'Sharing', icon: '➗', grownup: 'division facts ÷1–12, missing-factor bridge' },
     standards: ['3.OA.7'],
@@ -346,22 +368,6 @@ export const TRACKS = [
 const P = (rec) => ({ status: 'planned', tracked: false, skills: [], milestones: [], ...rec });
 
 export const PLANNED = [
-  P({
-    id: 'money',
-    type: 'track',
-    // Named "Money Math" by the owner (2026-08-06). The placeholder was
-    // "Paw Bucks", which is the CURRENCY's name and the piggy bank's — one
-    // phrase meaning two things is exactly what docs/VOCABULARY.md exists
-    // to prevent. Lives on BOTH homes: the first track that genuinely
-    // belongs to the little shelf and the pack, since coin counting spans
-    // the ages either side.
-    labels: { kid: 'Money Math', icon: '🪙', grownup: 'money math: recognition → counting → equivalence → change → notation' },
-    homes: ['little', 'pack'],
-    standards: ['2.MD.8'],
-    statMap: 'money',
-    revealId: 'track:money',
-    plannedIn: 'R5',
-  }),
 ];
 
 // --- lookups ---------------------------------------------------------------

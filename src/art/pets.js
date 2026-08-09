@@ -45,6 +45,15 @@ export const PETS = [
   { id: 'bird-4', species: 'bird', name: 'Pesto', base: '#7fae5c', cheek: '#f2a33c', beak: '#e88a2a', tuft: '#5d8f41', collar: '#ef4444' },
   { id: 'guinea-4', species: 'guinea', name: 'Pistachio', base: '#b9c98a', ear: '#93a35f', muzzle: '#eef2d9', patch: '#8fa35a', collar: '#8b5cf6' },
   { id: 'hedgehog-4', species: 'hedgehog', name: 'Sprout', base: '#ead9c0', spikes: '#6b7a3f', muzzle: '#f6ecd9', collar: '#0ea5e9' },
+  // Money Math's habitat (v1.54.0, docs/PHASE7.md). Appended WITH their
+  // three milestones in the same commit — the mapping is positional, so a
+  // pet without its milestone makes every later index re-assign. Names
+  // deliberately avoid every term the content uses (no penny, nickel,
+  // dime, quarter, buck, cent, coin): a truffle is what a pig hunts for,
+  // barley and hazelnuts are what you store up.
+  { id: 'pig-1', species: 'pig', name: 'Truffle', base: '#f2a5b0', ear: '#dd8b99', inner: '#f9ccd4', snout: '#e88fa0', collar: '#f59e0b' },
+  { id: 'pig-2', species: 'pig', name: 'Barley', base: '#f6c9a8', ear: '#e0aa85', inner: '#fbe3d0', snout: '#e79d8c', collar: '#2563eb' },
+  { id: 'pig-3', species: 'pig', name: 'Hazel', base: '#e8b48f', ear: '#cf9873', inner: '#f6d9c3', snout: '#dc9c7f', patch: '#f6e6d5', collar: '#8b5cf6' },
 ];
 
 export function getPet(id) {

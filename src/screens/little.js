@@ -14,7 +14,8 @@ import { earnSkillKnown, balanceCents, formatPaw } from '../engine/money.js';
 import { avatarFor } from '../art/avatar.js';
 import { checkPetUnlocks, nextPetGoal, gameGoal } from '../engine/cozy.js';
 import { digitGuideSVG, tracePasses, traceCoverage } from '../art/digits.js';
-import { isRevealed, ratchetReveals, addingReady, takingAwayReady } from '../engine/readiness.js';
+import { isRevealed, ratchetReveals, addingReady, takingAwayReady, moneyVisible } from '../engine/readiness.js';
+import { moneyCard } from './money.js';
 import { WAVES, waveUnlocked, isWaveMastered, subWaveUnlocked, isSubWaveMastered } from '../engine/waves.js';
 import { confetti, escapeHtml, buildNumpad, plural, verb } from '../ui.js';
 import { toysOn } from '../engine/gearshop.js';
@@ -471,6 +472,7 @@ export function littleHomeScreen(el, params, ctx) {
         </div>
       </div>
       <div class="little-tiles"></div>
+      <div data-money-slot></div>
       <div class="nav-row little-nav" style="margin-top:auto">
         <button class="btn ghost small" data-piggy aria-label="Piggy bank">🐷 ${formatPaw(balanceCents(p))}</button>
         ${p.petUnlocks?.length ? '<button class="btn ghost small" data-corner aria-label="Cozy Corner">🏡</button>' : ''}
@@ -541,6 +543,14 @@ export function littleHomeScreen(el, params, ctx) {
       navigate(t.href ? t.href(p) : `/little?game=${t.game}`)
     );
     grid.appendChild(btn);
+  }
+  // Money Math (preview) sits on BOTH homes — coin counting spans the ages
+  // either side of the shelf. moneyVisible() carries the beta test, so this
+  // card and the route agree by construction.
+  if (moneyVisible(p)) {
+    const mslot = el.querySelector('[data-money-slot]');
+    mslot.innerHTML = moneyCard(p);
+    mslot.querySelector('[data-money]').addEventListener('click', () => navigate('/money'));
   }
   // Next friend: the pet the child is closest to, with a meter that only
   // correct answers move — the home-screen anchor for "why answers matter".

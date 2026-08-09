@@ -980,6 +980,112 @@ button.pressed {
   opacity: 0.15;
 }
 
+/* Money Math (2.MD.8). Coins are drawn art now, not CSS discs, so these
+   rules only lay them out — the sizes come from src/art/coins.js, where the
+   real mint diameters live. Wrapping matters: a mixed handful can be four
+   coins and a "count one kind" row can be ten, on a 390px phone. */
+.coin-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  max-width: 340px;
+  margin: 0 auto;
+}
+.money-ask {
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+.money-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.money-choices {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+/* Big targets, little reading: a choice is a whole button, never a word in
+   a line of text. 44px is the floor a fingertip needs. */
+.money-choice {
+  min-width: 104px;
+  min-height: 52px;
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+/* The pile the child compares against, set apart from the options so
+   "which is the same?" has an obvious subject. */
+.money-target {
+  border: 2.5px dashed var(--line, #cbb89c);
+  border-radius: 16px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.55);
+}
+.money-piles {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+.money-pile {
+  min-height: 62px;
+  padding: 8px 10px;
+}
+.money-pile .coin-row {
+  max-width: 150px;
+  gap: 3px;
+}
+.money-typed {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.new-pet {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin: 8px 0;
+}
+
+/* The track card both homes show for Money Math. */
+.track-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+}
+.track-icon {
+  font-size: 1.6rem;
+  flex: none;
+}
+.track-body {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+  flex: 1;
+}
+.track-meter {
+  flex: none;
+  width: 64px;
+  height: 8px;
+  border-radius: 99px;
+  background: #e7dcc9;
+  overflow: hidden;
+}
+.track-meter > span {
+  display: block;
+  height: 100%;
+  background: var(--brand, #f59e0b);
+}
+
 /* Groups! (2.OA.4). The whole game is seeing EQUAL GROUPS rather than a
    heap, so the grouping has to be visible before it is countable: each
    bowl is a bordered box, and the gap between bowls is deliberately wider

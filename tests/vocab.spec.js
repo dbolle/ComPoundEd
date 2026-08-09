@@ -8,7 +8,7 @@ import { seedProfile, selectProfile } from './helpers.mjs';
 const src = (f) => readFileSync(`src/screens/${f}`, 'utf8');
 
 test('kid screens never say "Master …" — the kid word is "strong"', () => {
-  for (const f of ['home.js', 'pack.js', 'results.js']) {
+  for (const f of ['home.js', 'pack.js', 'results.js', 'money.js']) {
     expect(src(f)).not.toMatch(/Master (the|\$\{)/);
   }
   expect(src('pack.js')).toContain('strong ⭐');

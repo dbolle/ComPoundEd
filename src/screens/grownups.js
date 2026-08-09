@@ -264,6 +264,10 @@ export function grownupsScreen(el, params, ctx) {
           <button class="btn ghost small" data-subj="hideSitting"></button>
           <button class="btn ghost small" data-subj="beta"></button>
         </div>
+        <div style="height:8px"></div>
+        <div class="nav-row" data-money-subj hidden>
+          <button class="btn ghost small" data-subj="money"></button>
+        </div>
         <p class="muted" style="font-size:.8rem;margin:8px 0 0">⚠️ Beta features are previews — they may be unstable, change, or lose their data as they develop.</p>
         <p class="muted" style="font-size:.85rem;margin:12px 0 6px">Times tables shown (none picked = all):</p>
         <div class="limit-grid" data-limit></div>
@@ -455,10 +459,21 @@ export function grownupsScreen(el, params, ctx) {
       childCanSwitch: (v) => (v ? '🔀 Child can switch: yes' : '🔀 Child can switch: no'),
       hideSitting: (v) => (v ? '🏡 Pet sitting: hidden' : '🏡 Pet sitting: shown'),
       beta: (v) => (v ? '🧪 Beta preview: on' : '🧪 Beta preview: off'),
+      money: (v) => `🪙 ${triLabel('Money Math 🧪', v)}`,
     };
+    // Money Math is a PREVIEW: its control only exists once a parent has
+    // turned the beta chip on, so nobody meets a track that is still moving
+    // without opting in first. `moneyVisible()` carries the same isBeta
+    // test, so hiding the control here can never leave the track reachable.
+    const moneyRow = panel.querySelector('[data-money-subj]');
+    const syncMoneyRow = () => {
+      if (moneyRow) moneyRow.hidden = p.subjects?.beta !== true;
+    };
+    syncMoneyRow();
+
     for (const btn of panel.querySelectorAll('[data-subj]')) {
       const key = btn.dataset.subj;
-      const tri = key === 'bridge' || key === 'tables';
+      const tri = key === 'bridge' || key === 'tables' || key === 'money';
       const render = () => {
         btn.textContent = SUBJ_LABELS[key](tri ? p.subjects?.[key] : !!p.subjects?.[key]);
       };
@@ -471,6 +486,7 @@ export function grownupsScreen(el, params, ctx) {
         touchMeta(p); // parent setting — must survive a stale device saving later
         await ctx.save();
         render();
+        syncMoneyRow();
         if (key === 'little') {
           toast(
             p.subjects.little

@@ -419,6 +419,27 @@ export function earnSetMastery(profile, table, track, now = Date.now()) {
   return txn;
 }
 
+// A nickel the first time a money identity is mastered. A sibling of
+// earnFactMastery rather than a generalisation of it: that one builds its
+// key from the numerals (a, b), and every shipped track depends on it.
+// Money ids are already strings ("chg:75-100"), and they contain no `@`,
+// so `epochOfId` resolves them to epoch 1 — correct, because earnings are
+// never voided by a store reset.
+export function earnMoneyMastery(profile, skillId, now = Date.now()) {
+  const id = `mastery-money-${skillId}${rateTag('mastery')}`;
+  if (hasTxn(profile, id)) return null;
+  const txn = {
+    id,
+    at: now,
+    cents: FACT_MASTERY_PAY.cents,
+    denom: FACT_MASTERY_PAY.denom,
+    count: 1,
+    reason: 'mastery',
+  };
+  ensureBucks(profile).txns.push(txn);
+  return txn;
+}
+
 // A paw penny the first time a little-pup number becomes "known" (streak
 // of 3). Deterministic id: re-derives and cross-device merges pay once.
 export function earnSkillKnown(profile, skillKey, now = Date.now()) {

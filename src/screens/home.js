@@ -11,7 +11,8 @@ import {
 import { sittingReady } from '../engine/selector.js';
 import { suggestNext } from '../engine/suggest.js';
 import { avatarFor } from '../art/avatar.js';
-import { bridgeVisible, tablesVisible, stampReveals } from '../engine/readiness.js';
+import { bridgeVisible, tablesVisible, moneyVisible, stampReveals } from '../engine/readiness.js';
+import { moneyCard } from './money.js';
 import { WAVES, waveProgress, waveUnlocked, isWaveMastered, subWaveProgress, subWaveUnlocked, isSubWaveMastered } from '../engine/waves.js';
 import { getUiPrefs, setUiPrefs } from '../data/store.js';
 import { getDog, dogSVG, wornFor, dirtFor, GUESTS } from '../art/dogs.js';
@@ -58,6 +59,7 @@ export async function homeScreen(el, params, ctx) {
       }
       ${showTables ? `<button class="btn${next ? ' accent' : ''}" data-mixed>🎲 Mixed round!</button>` : ''}
       <div data-sitting-slot></div>
+      <div data-money-slot></div>
       <div data-adding-slot></div>
       <div data-sub-slot></div>
       ${
@@ -96,6 +98,16 @@ export async function homeScreen(el, params, ctx) {
       <span class="meter"><span style="width:${Math.round((points / maxPoints) * 100)}%"></span></span>`;
     btn.addEventListener('click', () => navigate(`/quiz?table=${t}`));
     grid.appendChild(btn);
+  }
+
+  // Money Math (preview). moneyVisible() carries the beta test itself, so
+  // this card and the /money route can never disagree about whether the
+  // track exists — a card that leads to a redirect is the dead entry point
+  // this app has shipped three times.
+  if (moneyVisible(p)) {
+    const slot = el.querySelector('[data-money-slot]');
+    slot.innerHTML = moneyCard(p);
+    slot.querySelector('[data-money]').addEventListener('click', () => navigate('/money'));
   }
 
   // Adding waves (the bridge): shown when the parent turns on `bridge`.

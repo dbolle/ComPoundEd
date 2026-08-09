@@ -101,7 +101,14 @@ reconsider after calibration.
      `src/engine/moneywaves.js` with the 134 identities frozen and pinned
      by `tests/fixtures-money-skills.json`; schema **v19** (`subjects.money`,
      `money` stat map) additive and read by nothing yet.
-   - R5 the money track proper: `src/screens/money.js`, the seven waves
+   - ✅ **R5 (v1.54.0) the money track SHIPPED, in preview.** Screen, seven
+     waves, coin art adopted, three pigs + three grouped milestones, 674¢,
+     untimed mastery, beta-gated in both `moneyVisible()` and
+     `BETA_ROUTES`. **Phase 7 is complete.** Leaving preview is its own
+     step: lock the 134 ids against the fixture, lock the payouts, drop
+     `/money` from `BETA_ROUTES`, drop `isBeta` from `moneyVisible`, and
+     decide explicitly whether preview progress is kept or cleared.
+   - Superseded plan for R5: `src/screens/money.js`, the seven waves
      wired, THREE appended pets shipped in the SAME commit as their
      three grouped milestones, Grown-Ups `data-subj="money"` toggle + `SUBJ_LABELS`
      (adding the schema key alone creates no control), and adoption of

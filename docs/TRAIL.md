@@ -65,6 +65,39 @@ Doubles → Tens & Teens → Ten Bridgers → Grand Finale.
 | The tables ×  | multiplication facts ×1–12 | `3.OA.7` | `tables` | `profile.facts` | `tablesReady` | shipped |
 | Sharing ÷ | division facts ÷1–12, missing-factor bridge | `3.OA.7` | `division` | `profile.division` | per-table (×t mastered) | shipped |
 
+## Money Math — the track that spans both homes (ages ~6–10)
+
+| Kid-facing | Grown-up | Standards | Track | Progress field | Readiness | Status |
+|---|---|---|---|---|---|---|
+| Money Math 🪙 | money math: recognition → counting → equivalence → change → notation | `2.MD.8` | `money` | `profile.money` | `moneyReady` | shipped (🧪 preview) |
+
+Seven waves, **134 frozen identities** (`src/engine/moneywaves.js`, pinned by
+`tests/fixtures-money-skills.json` so an id can never shift under saved
+progress). The only **untimed** track in the app: `recordMoneyAnswer` passes
+an infinite speed bar, because a correct-but-slow answer stops at box 2 and
+mastery is box 3 — with any finite bar the track could never be mastered at
+all.
+
+| # | Kid-facing | What it asks | ids | pays each |
+|---|---|---|---|---|
+| 1 | Meet the coins | coin → its name, and coin → its value | 5 | 1¢ |
+| 2 | Count one kind | a row of one denomination → the total | 27 | 1¢ |
+| 3 | Count a handful | 2–4 coins, ≥2 denominations → the total | 30 | 1¢ |
+| 4 | Same as? | tap the pile worth the same | 12 | 1¢ |
+| 5 | Make it | build an amount in the coin tray | 20 | 5¢ |
+| 6 | Count the change | count up from the price to what was paid | 24 | 5¢ |
+| 7 | Two ways to write it | ¢ form ↔ $ form | 16 | 5¢ |
+
+Waves 1–4 are recognition and counting, which the trail already teaches and
+already pays a penny for; waves 5–7 are the new fluencies. Three grouped
+milestones (100¢ each) adopt the three pigs — **Truffle, Barley, Hazel**.
+Lifetime total **674¢**, deliberately under the 1200¢ crown.
+
+**In preview.** `moneyVisible()` requires `isBeta()` as well as the usual
+readiness, and `/money` is in `BETA_ROUTES` — both, so a card can never
+advertise a route that bounces. While in preview the ids and the payouts
+are not locked, and beta data is exempt from the preservation guarantee.
+
 `tablesReady` is the counting→tables connector: adding waves 1–5, taking
 away waves 1–2, and skip-counting by 2s, 5s and 10s.
 
@@ -79,7 +112,6 @@ for seeing the groups (docs/PEDAGOGY.md §3).
 
 | Kid-facing | Grown-up | Standards | id | Notes | Status |
 |---|---|---|---|---|---|
-| Money Math 🪙 | money math: recognition → counting → equivalence → change → notation | `2.MD.8` | `money` | 7 waves, 134 identities, untimed mastery; appears on BOTH the little shelf and the pack home | R5 |
 
 ## Phase 8 — planned, not built
 

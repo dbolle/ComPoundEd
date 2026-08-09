@@ -3,6 +3,41 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.54.0 — 2026-08-09
+
+**Money Math 🪙 — Phase 7's last piece, shipping as a preview.** The Paw
+Bucks a child has been earning since v1.10 become the thing they study
+(2.MD.8): meet the coins, count one kind, count a handful, spot equal
+value, make an amount, count change up from the price, and read ¢ and $ as
+two ways of writing the same amount. Seven waves, 134 identities.
+
+- **Untimed, and that is structural rather than a preference.** A
+  correct-but-slow answer stops at box 2 and mastery is box 3, so with any
+  finite speed bar a multi-step coin question could never be mastered —
+  the track would stall on wave 1 forever, unpaid. Money records through
+  `recordMoneyAnswer`, which passes an infinite bar. No ⚡, no countdown.
+- **Real coin art at last.** `src/art/coins.js` was written in v1.50.0 and
+  imported by nothing; the track adopts it, so a child now sees a dime that
+  is visibly smaller than a nickel *and* visibly says 10¢ — which is the
+  single most confusing thing about US money and the reason wave 1 exists.
+- **Three pigs.** Truffle, Barley and Hazel join the Cozy Corner at three
+  grouped milestones, so a friend arrives for a real capability rather than
+  for each of seven waves. They have their own voice — a soft oink — and
+  their names deliberately avoid every term the content uses.
+- **What it pays: 674¢.** Waves 1–4 (recognition and counting, which the
+  trail already teaches) pay a penny; waves 5–7 (the new fluencies) pay a
+  nickel; the three milestones pay a Paw Buck each. Half the first draft,
+  which at 1370¢ out-earned the 1200¢ crown — money math alone would have
+  bought the most aspirational thing in the store.
+- **In preview.** Turn it on per child with the 🧪 beta chip in Grown-Ups.
+  The gate is in TWO places on purpose — `moneyVisible()` carries the beta
+  test as well as `/money` being a beta route — because gating the route
+  alone leaves cards and tiles advertising a destination that bounces, the
+  dead entry point this app has shipped three times. The pigs stay hidden
+  in the Corner until the track is on. While in preview the ids and the
+  payouts are not locked, and beta data is exempt from the preservation
+  guarantee: **progress made during the preview may not survive to launch.**
+
 ## v1.53.2 — 2026-08-08
 
 **Singular and plural now agree everywhere a child reads or hears a

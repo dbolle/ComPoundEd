@@ -15,6 +15,7 @@
 // ratchet, deliberately.
 
 import { isWaveMastered, isSubWaveMastered } from './waves.js';
+import { isBeta } from './beta.js';
 
 const KNOWN_STREAK = 3;
 const STREAK_NEEDED = { more: 4 };
@@ -82,10 +83,25 @@ const bridgeEarned = (p) =>
 const tablesEarned = (p) => tablesReady(p) || hasHistory(p.facts) || hasHistory(p.division);
 
 // The reveal ids are the ones the home screen has always stamped.
+// Money Math (v1.54.0). Counting by 5s and 10s is what makes coin values
+// countable at all, and the first two adding waves are the arithmetic the
+// totals need. Mid-trail inference first, exactly as addingReady does it: a
+// child with real ×/÷ history has proven all of that already and must not
+// sit behind counting gates to reach money.
+export function moneyReady(p) {
+  if (hasHistory(p.facts) || hasHistory(p.division)) return true;
+  return knows(p, 'path', 5) && knows(p, 'path', 10) && isWaveMastered(p, 0);
+}
+
+const moneyEarned = (p) => moneyReady(p) || hasHistory(p.money);
+
 const TRACK_REVEALS = [
   ['track:adding', bridgeEarned],
   ['track:takingaway', (p) => bridgeEarned(p) && takingAwayReady(p)],
   ['track:tables', tablesEarned],
+  // Stamped even while the track is in preview, so a child who reached it
+  // in beta keeps it when the flag comes off — the door is one-way.
+  ['track:money', moneyEarned],
 ];
 
 // The one-way door: already revealed OR earned now.
@@ -97,6 +113,20 @@ export function bridgeVisible(p) {
 
 export function tablesVisible(p) {
   return visible(p.subjects?.tables, autoVisible(p, 'track:tables', tablesEarned(p)));
+}
+
+// Money Math ships as a PREVIEW (owner, 2026-08-08): a parent turns it on
+// per profile with the 🧪 beta chip, drives it with a real child, and only
+// then are the ids and payouts locked.
+//
+// The beta test lives HERE and not only on the route. Gating the route
+// alone leaves the track card, the home slot and the suggest branch all
+// still advertising a destination that bounces you back — the dead-entry
+// defect this app has shipped three times. One predicate, so every surface
+// agrees. Removing beta at launch is deleting one `&&`.
+export function moneyVisible(p) {
+  if (!isBeta(p)) return false;
+  return visible(p.subjects?.money, autoVisible(p, 'track:money', moneyEarned(p)));
 }
 
 // Record every track this profile has earned, so a later gate change cannot

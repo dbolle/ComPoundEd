@@ -5,8 +5,9 @@
 
 import { PETS } from '../art/pets.js';
 import { GROUP_SKILL_KEYS } from './groups.js';
+import { MONEY_MILESTONES, milestoneEarned, milestoneProgress } from './moneytrack.js';
 import { isWaveMastered, isSubWaveMastered, WAVES, waveProgress, subWaveProgress } from './waves.js';
-import { bridgeVisible } from './readiness.js';
+import { bridgeVisible, moneyVisible } from './readiness.js';
 
 const KNOWN_STREAK = 3;
 const known = (p, key) => (p.little?.skills?.[key]?.streak ?? 0) >= KNOWN_STREAK;
@@ -94,6 +95,16 @@ export const MILESTONES = [
       need: GROUP_SKILL_KEYS.length,
     }),
   },
+  // v1.54.0 — the three money pigs, appended WITH the pets that earn them
+  // (PETS 27,28,29). Grouped: a friend arrives for a real capability, not
+  // for every one of the seven waves.
+  ...MONEY_MILESTONES.map((m, i) => ({
+    id: `money-${m.id}`,
+    kind: 'money',
+    label: m.label,
+    earned: (p) => milestoneEarned(p, i),
+    prog: (p) => milestoneProgress(p, i),
+  })),
 ];
 
 // Can this profile ever earn this milestone? Little-skill milestones need
@@ -101,6 +112,10 @@ export const MILESTONES = [
 // Locked-pet cards, goal cards, and meters all agree through this.
 export function milestoneReachable(p, m) {
   if (m.kind === 'little') return p.subjects?.little === true;
+  // Money pets stay locked — and invisible in the Corner — until the track
+  // itself is visible, which while it is in preview means a parent has
+  // turned the beta chip on. So the pigs cannot leak out ahead of launch.
+  if (m.kind === 'money') return moneyVisible(p);
   return bridgeVisible(p);
 }
 

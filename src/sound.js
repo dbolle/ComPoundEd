@@ -428,6 +428,42 @@ const VOICES = {
       noise({ at, dur: 0.08, vol: 0.14 - i * 0.013, freq: 1500 + i * 180, slide: 900, q: 1.5 })
     );
   },
+  // pig "oink": a nasal double grunt. Three things make it a pig rather
+  // than a small dog: (1) NASAL resonance — a low first formant near
+  // 500Hz with broad, heavily damped peaks (nasals are damped, so Q is
+  // low) and almost nothing above ~2kHz, which is why it measures much
+  // darker than the bark; (2) a buzzy, rough source — a pig grunt is a
+  // slow, pressed vocal fold, so jitter and amplitude flutter are high
+  // and the drive pushes it past "a note"; (3) the DOUBLE — an oink is
+  // rarely one grunt.
+  //
+  // The double must NOT become two countable events: the little-pup game
+  // plays this n times and asks "how many oinks?". So the second grunt is
+  // scheduled to start before the first has faded — measured interior
+  // silence is 0ms across 20 renders, against the 60ms the counting spec's
+  // detector needs to call something a new event. Widening the 0.105
+  // offset is what would break that.
+  pig: () => {
+    const grunt = (at, dur, vol, f0) =>
+      growl({
+        at, dur, vol, f0,
+        jitter: 0.14, // a grunt is rough, not a hum
+        noiseMix: 0.3, // mostly voice; snout breath is the seasoning
+        formants: [
+          [520, 1.8, 1], // nasal murmur — broad and damped, not a whistle
+          [1180, 2.2, 0.5],
+          [2200, 3, 0.08], // barely there: the reason it reads dark
+        ],
+        open: 1.3, // snout opens then closes — the "oi→nk"
+        sweep: 0.5,
+        attack: 0.008,
+        drive: 2.2, // pressed phonation
+        rough: 0.6,
+        roughHz: 52,
+      });
+    grunt(0, 0.085, 0.095, [250, 165]);
+    grunt(0.105, 0.075, 0.072, [225, 150]);
+  },
   // turtle: a soft "hup" and a little water blip
   turtle: () => {
     noise({ dur: 0.12, vol: 0.24, freq: 420, slide: 240, q: 2 });
@@ -458,6 +494,7 @@ const SOUND_WORDS = {
   sloth: ['sigh', 'sighs'],
   hedgehog: ['snuffle', 'snuffles'],
   turtle: ['hum', 'hums'],
+  pig: ['oink', 'oinks'],
 };
 
 export function soundWord(species, n = 2) {
