@@ -74,6 +74,13 @@ retired at its old hash rather than edited or deleted, so any number ever
 published can still be reproduced. A process that silently improves its own
 past is indistinguishable from one that was right all along.
 
+**A retired instrument must be impossible to import.** Retirement is not
+inertness: `_jq8contain.mjs` runs its report at module top level, so merely
+importing it prints retracted `PASS` rows that a reader could attribute to the
+live tool. Retired instruments move to `judge/retired/` — **moved and never
+edited**, because the content hash is the reproducibility anchor — and nothing
+outside that directory may import from it.
+
 ---
 
 ## 2. Absent evidence is a FAIL
@@ -112,6 +119,15 @@ reference we hold supports a segmentation, and the contours from three
 thresholds agree with each other at only IoU 0.47–0.69. **A target that
 disagrees with itself by 0.3 IoU cannot measure art to 0.05.** Dispatching a
 specialist at that wastes a whole round; what it needs is a photograph.
+
+**But try the overlay before you block.** `BLOCKED` has already been
+over-applied once: the lettering band was ruled unmeasurable because the
+plateau detector could not find it, and was then measured in minutes by
+drawing a radius ladder on the reference and reading it off by hand — ours
+36.40 against a reference 38.0–38.5, 1.9 units too far inboard. **"My detector
+cannot find it" is not "no artefact can measure it."** Before writing
+`BLOCKED`, draw what you have on the source and look at it; a hand annotation
+is a legitimate frozen target.
 
 `N/A` is not a waiver. A waiver is about a measurement that cannot be *made*;
 `N/A` is about a metric with nothing to measure — structural rhythm on a
@@ -261,6 +277,18 @@ enough to draw it — and the judge overlays that on the source and looks
 the source for silhouettes, and the same reasoning applies to every located
 feature, not just masks.
 
+**This is the highest-yield rule in this document.** The wrong-feature failure
+has now happened four times: a band finder on the bust edge (twice), a
+detector locked onto E PLURIBUS UNUM and the wreath, and the judge itself
+seeing letters merge into a ring they do not touch. **Every one passed its
+response test.** Every one was caught only by drawing the located feature on
+the source and looking at it.
+
+**An image's reproducible artefact is its GENERATOR.** Overlays and contact
+sheets are excluded from git for size, so a PNG alone is unreproducible
+evidence — commit the script that draws it, and name that script beside the
+finding.
+
 ---
 
 ## 5. The loop
@@ -311,7 +339,11 @@ The loop **must** stop. It ends on any of:
 - **no net progress**: two consecutive rounds where no failing dimension
   improved by more than its noise floor;
 - **thrash**: the same dimension fails three times, or two dimensions
-  alternate between passing and failing across three rounds.
+  alternate between passing and failing across three rounds. **Count
+  DISPATCHES, not failures.** As first written this counted failures and would
+  have fired on six dimensions after round 2, when only two had ever been
+  dispatched and both were fixed first try. A dimension that keeps failing
+  because nobody has been sent at it is not thrash; it is a queue.
 
 Every ending except the first is an **escalation**, and an escalation writes
 down what it could not fix and what it would need. A loop that quietly runs
@@ -357,6 +389,26 @@ is the half that decides the verdict.
 So every dimension carries a mandatory `locus` field — the region, radius
 band, patch set or path list the metric is evaluated over — and **the locus
 is frozen with the target**, not chosen at measuring time.
+
+> **A locus may never be a function of the artefact under test.** Freeze it as
+> a literal, derived from the TARGET or stated outright — never computed from
+> our own drawing.
+
+Round 2 found the lettering eval deriving its evaluation radius from our own
+parsed glyph geometry and then sampling *both* our art and the reference
+there, so the reference's score moved when our drawing moved. The published
+obverse **1.51× was really 2.0089×**. The tell had been sitting in the
+scorecard for a round: a single `locus` field reading *"r 38.9 (icon/mid) and
+37.5 (84px), 36.0 (190px)"* — three radii, one per tier of our own art.
+
+**Enforcement — the reference-invariance test.** Score one target against two
+different revisions of our art. Every target-side number must be
+bit-identical. If the reference's score moves when only our drawing moved, the
+locus is circular and the instrument is `UNTRUSTED`.
+
+**Corollary: beware a gate defined as a ratio to a quantity the drawing
+controls** — such a gate can be met by making the drawing *worse*. State which
+side of a ratio is the fixed reference, and verify it cannot move.
 
 ### 6.2 D11 carries two numbers, always
 
@@ -818,3 +870,199 @@ that was claimed.)
 - **§8's refusal to relax a gate**, tested a third time here on D8's depth
   problem, and again recorded as a miss with a proposal attached rather than a
   rewritten verdict.
+
+---
+
+## Appendix R — round 2's critique, ADOPTED
+
+> **Nothing in this appendix is in force.** It is the judge's report on the
+> third run (quarter, round 2, 2026-08-13, `coloringbook/judge/quarter-r2.md`),
+> written to the same standard as Appendices P and Q: what happened, then the
+> concrete edit. Round 2 continues round 1's pattern — **five of these six items
+> exist because the process caught the JUDGE.**
+
+### R1. A locus may not be a function of the artefact under test
+
+§6.1 says a gate needs a locus and that the locus is frozen with the target. It
+does not say what a locus may be *made of*, and that turned out to be the half
+that mattered.
+
+`_jq5letter.mjs:193`:
+
+```js
+const rMid = ob ? (ob.baseMin + ob.baseMax) / 2 + 0.36 * (ob.outer - ob.inner) / 2 : 38.9;
+const ho = hf(o.fn, rMid, …), hr = hf(refAtTier, rMid, …);
+```
+
+`ob` is our own parsed glyph geometry. Both our art **and the reference
+photograph** are sampled at `rMid`, so **when our drawing changes, the radius
+moves and the reference's own score changes with it.** Enlarging `QUARTER
+DOLLAR` — at the bottom of the coin, entirely outside the 250–290° sector the
+metric samples — moved the *photograph's* HF from 0.4004 to 0.3637.
+
+The literal `38.9` was only the fallback for "we drew no glyphs", which is
+exactly the state round 1 measured on the reverse. That is why it survived two
+rounds: the one number nobody could contaminate was the one everybody was
+watching.
+
+This is strictly worse than §6.1's complaint. The locus was **believed frozen**
+— round 1's §7 brief says *"HF evaluated at r = 38.9 viewBox units … Do not
+evaluate anywhere else"* — and the instrument overrode it silently. And the
+evidence was in the judge's own published scorecard: `D5.obverse.locus` reads
+`"…r 38.9 (icon/mid) and 37.5 (84px), 36.0 (190px)"` — **three radii in one
+`locus` field, one per tier of our own drawing**, written by the judge in the
+same session it wrote §6.1.
+
+Cost: a retracted published number on art that never changed. D5-obverse at
+84px was published twice as **1.51× against a 1.50× gate** — the near-miss §8
+was twice praised for refusing to round away. At the frozen locus it is
+**2.0089×**. The obverse is byte-identical across all three rounds.
+
+**Proposed addition to §6.1:**
+
+> **A locus is either a frozen literal or computed from the TARGET. It may
+> never be computed from the artefact under test.** Where a metric compares
+> ours against a target, sampling both at a place our drawing chose means the
+> target's own score moves when our drawing moves, and the ratio measures
+> nothing.
+>
+> **The reference-invariance test.** Every instrument that scores ours against
+> a target runs it: score the same target against **two different revisions of
+> the art** and require every target-side number to be **bit-identical**. If a
+> target-side number moves, the instrument is `UNTRUSTED` and every ratio it
+> has ever published is void. It is one extra run and it is mechanical.
+
+### R2. A gate that is a RATIO to something the drawing controls can be gamed by making the drawing worse
+
+D10's gate is *boundary jump ≤ 4× the 90th-percentile within-tier jump*. Round 2
+moved the reverse from 5.80×/5.92× to 5.63×/5.74% and **the boundary values are
+bit-identical** — 0.0904 and 0.0922, unchanged. All of the movement is the
+denominator: the new legend switch is itself a within-tier pop, so it raised the
+within-tier p90 from 0.0156 to 0.0161 and made the boundary gate read better.
+
+The specialist saw this and disclaimed it. It should not have had to rely on a
+specialist's honesty: the instrument printed only the ratio.
+
+The same dimension carries a second instance of §6.1: the sweep window `26..120`
+is a locus that was never derived. The reverse legend used to switch on at 135,
+so a real within-tier discontinuity sat permanently outside the instrument's
+view. Swept 26–200, the *same untouched boundaries* read **9.04×/9.22×**.
+
+**Proposed edit to §3's D10 row:**
+
+> A gate stated as a ratio prints its **numerator in absolute units** beside the
+> ratio, always, and a round may not record an improvement in the ratio unless
+> the numerator moved. Where the denominator is a property of the drawing, say
+> so in the gate.
+>
+> D10 additionally reports the **within-tier** jump distribution and every
+> within-tier pop, not only the tier boundaries. A drawing that changes
+> discontinuously *inside* a tier is exactly the defect the dimension is named
+> for, and the gate as written cannot see it in either direction.
+
+### R3. `BLOCKED` has been over-applied — try the overlay before you block
+
+§2.1 earns `BLOCKED` its place, and it is the right verdict for D2, D4-reverse
+and D3-reverse: those are physics (a circulation strike has no reflectance
+difference between device and field) and statistics (a noise floor above the
+flat-drawing floor).
+
+D5-band-reverse was blocked for a different reason and it was wrong. The finding
+was *"the σ-plateau method cannot find the band, in any of 48 sector × reference
+combinations, because the eagle's wings occupy every radius inboard of the
+legend"* — which is true, and which is a statement about **one detector**, not
+about the artefacts. The band is directly locatable: the judge drew a radius
+ladder on `quarter-rev-3.jpg` at 2000px and read it off. Our top legend sits
+about **1.9 viewBox units too far inboard** against a ±1.5-unit gate, and its
+letters are about 20% too tall — a measurable miss, with the references we
+already hold, that had been recorded as unmeasurable for two rounds.
+
+**Proposed addition to §2.1:**
+
+> `BLOCKED` means *no artefact we have can measure it*. It does not mean *the
+> instrument I built cannot measure it*. Before a `BLOCKED` is recorded, the
+> judge must try the **overlay**: draw the feature's candidate location on the
+> source at full resolution and look (§4.3). An overlay reading is evidence, not
+> a frozen value — but if the overlay can see the feature, the verdict is
+> `UNMEASURED` and the work is the judge's, not an acquisition.
+
+### R4. A retired instrument must not be importable by a live one
+
+`_jq5letter.mjs:150` does `await import('./_jq8contain.mjs')` — the v1 retired as
+unsound in round 1 — to destructure a `textMarks` it never uses. The import has
+side effects: v1 runs its full sweep and prints a containment table at the head
+of D5's output, in which the nickel obverse reads **`0.0000%`** because v1
+measures it against the r-47 blank. **A retired instrument is printing retracted
+verdicts into a live instrument's console.**
+
+**Proposed addition to §1.1:** retiring an instrument means it stops running.
+Retire it by moving it to a `retired/` path and leaving a stub that throws on
+import, so the hash is preserved for audit and no live instrument can execute it
+by accident.
+
+### R5. §5's thrash rule counts failures; it should count DISPATCHES
+
+§5: *"thrash: the same dimension fails three times."* Applied literally to round
+2, **six** dimensions trip it — D5, D6, D7, D10-reverse, D13, and D2/D4 as
+blocked — because they have failed in rounds 0, 1 and 2. Meanwhile only **two**
+dimensions have ever been dispatched (D8 in round 1, D5-reverse in round 2) and
+both were fixed on the first attempt.
+
+A dimension that fails three times **without ever being worked on** is a
+backlog, not thrash. As written the rule would terminate a loop that is working.
+
+**Proposed edit to §5's Termination block:**
+
+> - **thrash**: the same dimension is **dispatched** three times and still
+>   fails, or two dimensions alternate between passing and failing across three
+>   rounds. Failures that have never been dispatched are backlog and are
+>   reported as a count, not as a termination condition.
+
+### R6. §4.3 is the highest-yield rule in the document and it is a paragraph
+
+Q4's failure mode — an in-bounds, response-tested, bound-checked detector
+returning a confident answer to the **wrong question** — has now occurred four
+times, three of them on the same dimension:
+
+1. round 0 — the band finder locks onto the **bust edge**;
+2. round 1 — the same detector, the same bust edge;
+3. round 2 — a new band finder locks onto **E PLURIBUS UNUM** and the **wreath**;
+4. round 2 — **the judge** locks onto a field-ring collision that is not there.
+   Geometry said 0.55 device pixels of clearance; the eye duly found the
+   consequence; the device-resolution ring walk says **1 of 720** angles
+   darkened, by 5 grey levels, and the byte-identical obverse control says 0 of
+   720.
+
+The fourth is the interesting one, because no specialist was involved. Q5 said
+the judge cannot un-read a claim. Round 2 adds the mirror case: **the judge
+cannot un-read its own arithmetic.** A number you computed yourself is as strong
+a prior as a sentence somebody told you.
+
+All four were caught by the same thing — drawing what was found on the source
+and looking at it.
+
+**Proposed edit to §4.3:** promote it from a paragraph to a numbered obligation
+with a deliverable. Every located feature publishes an **overlay artefact by
+filename** in the scorecard, and a dimension whose instrument locates a feature
+without a published overlay is `UNTRUSTED`. And extend §3's D12 control rule:
+the control is rendered first whenever the judge holds *any* prior about what it
+will see — **including a prior of its own manufacture**.
+
+### What round 2 says should NOT change
+
+- **§1's hashing**, a third time. 37 of 37 byte-identical, `git status` showing
+  one edited file, and 4 of 180 renders changed with path data byte-identical in
+  all 180 — that partition alone settles nine dimensions without measuring
+  anything, and it is what made this round attributable to one flag.
+- **§1.1's "retract beside, never rewrite."** It has now been used three times
+  (`_jq8contain` v1, `_jq8depth`'s arithmetic, `_jq5letter` v1) and each time
+  the retained old hash is what let the retraction be checked. Note that the
+  promise was *unkeepable* until `2a656a3` made `coloringbook/judge/` tracked —
+  a spec that requires reproducibility must also require the evidence to be
+  under version control, and that should be stated.
+- **§8's refusal to relax a gate**, tested a fourth time. D5-obverse went from a
+  1.51× miss to a 2.01× miss when the instrument was fixed, and the honest move
+  was to publish the worse number against the unchanged gate.
+- **§3's D12 control.** It has now corrected the judge in two consecutive rounds,
+  once against a specialist's claim and once against the judge's own arithmetic.
+  It is the only check in this process that is not running on a prior.
