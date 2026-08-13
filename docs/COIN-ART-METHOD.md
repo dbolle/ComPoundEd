@@ -6,9 +6,15 @@ the head/bust silhouette from IoU 0.867 to 0.981 against a traced photograph.
 
 This is for an agent who has not seen that work. It assumes nothing.
 
-> **The tools live in `coloringbook/`, which is gitignored — they do not
-> survive.** That is why the method is written out here in full, with the
-> numbers. Expect to rebuild the scripts; do not expect to find them.
+> **The tools live in `coloringbook/`, which is gitignored.** They were long
+> assumed not to survive, and this document was written out in full, with the
+> numbers, so that they could be rebuilt from prose. **As of 2026-08-13 they
+> have survived — the complete dime and nickel toolchains are on disk, ~227
+> files — and `coloringbook/TOOLS.md` is an inventory of what each one does,
+> its inputs and outputs, and how to invoke it. Read that before rebuilding
+> anything.** The prose here is still the specification; TOOLS.md says which
+> parts of it are already executable. If a future agent finds the directory
+> genuinely empty, this document remains sufficient to rebuild from.
 
 ---
 
@@ -634,8 +640,12 @@ from 0.1422 to 0.0807 and strand-direction error from 15.8° to 3.8° **without
 moving the silhouette by a single pixel**. §§1–11 above are phase 1: they get the
 outline right. This section is phase 2: everything inside it.
 
-> As always, the scripts lived in gitignored `coloringbook/` and are gone.
-> Rebuild them from this text; it carries the numbers.
+> ~~As always, the scripts lived in gitignored `coloringbook/` and are gone.
+> Rebuild them from this text; it carries the numbers.~~
+> **They did not go.** `_p2lib.mjs`, `_p2score.mjs`, `_p2flat.mjs`,
+> `_p2bfloor.mjs`, `_p2bband.mjs`, `_p2bzoom.mjs`, `_p2iou.mjs` and
+> `_p2contain.mjs` are all on disk and are the executable form of this
+> section — see `coloringbook/TOOLS.md`. The text still carries the numbers.
 
 > **Phase 2b (§13) revisits this section.** Three of its conclusions did not
 > survive a proper inventory of the interior — see the correction in **12.8**,
@@ -1368,3 +1378,238 @@ every iteration reported including the ones that got worse, and a rendered
 image looked at by a human being. **A subject with good numbers that nobody
 has looked at is not finished** — §0 has said so since the first pass, and
 §7 lists what it cost to learn.
+
+---
+
+## 20. What the cent added — copper on copper, and a rasteriser that lied
+
+Written after the penny obverse pass (phase 1: head-region IoU 0.668 → 0.952;
+phase 2: 0.2607 → 0.1596 against a flat-drawing floor of 0.2193 and a palette
+floor of 0.0684). Run document: `coloringbook/penny-obv.md`. Every tool named
+below is inventoried in `coloringbook/TOOLS.md`.
+
+### 20.1 `sharp.composite()` is not tone-preserving — this invalidates numbers
+
+The dime's `_p2lib.ourRaster` places our render on the photograph's frame with
+`sharp.composite()`. Run the identical PNG through the two paths:
+
+```
+                                          field #c98a3c   motif #96521c
+sharp(png).greyscale()                          151             99
+sharp({create}).composite([png]).greyscale()    201            150
+```
+
+The map is **monotone**, so §4's silhouette IoU is unaffected. It is
+**non-linear**, and it is applied to OUR raster and not to the photograph's, so
+every §12 patch **ratio** measured through it is distorted — by different
+amounts in different parts of the range. On the cent's first measurement it
+reported the beard at 1.30 of the cheek where the drawing renders it at 0.66.
+
+Use `flatten` + `extract` + `extend` instead: `extend` pads with a colour and
+does not blend, and the result reproduces the palette's own greys exactly
+(`_pylib.ourRaster`). **The dime's phase-2 and phase-2b ratio vectors were
+measured through the compositing version and should be re-measured before they
+are quoted again.**
+
+The general rule is worth more than the bug: **before trusting any tone
+pipeline, feed it a flat patch of a known palette colour and check the number
+that comes back is the colour's own grey.** It costs one line.
+
+#### 20.1a How wrong the dime actually is — measured, not feared
+
+The finding above was verified independently against the exact old code path
+(`channels: 3`, black canvas) and then quantified on the dime's real palette
+from `src/art/coins.js`. The distortion is **chroma-dependent, not a constant
+offset and not simply "non-linear"** — that distinction is the whole story:
+
+```
+                      direct   composited   delta
+  copper #c98a3c        151        201       +50     saturated
+  copper #96521c         99        150       +51     saturated
+  dime   field #cfd5da   212        207       -5      near-neutral
+  dime   ink   #242c33    43         36       -7      near-neutral
+```
+
+Saturated colours move **up ~50**; near-neutral greys move **down 5–7**. That
+is why the cent — copper on copper — was corrupted badly enough to invert a
+finding, while the dime, whose entire palette is near-neutral, was not.
+
+Ratio error on the dime's actual marks, normalised against `field`:
+
+| mark | direct | composited | error |
+|---|---|---|---|
+| `cloth` | 0.8066 | 0.7923 | **−1.8%** |
+| `motif` | 0.7028 | 0.6860 | **−2.4%** |
+| `hair`  | 0.5943 | 0.5749 | **−3.3%** |
+| `deep`  | 0.5377 | 0.5169 | **−3.9%** |
+| `ink`   | 0.2028 | 0.1739 | **−14.3%** |
+
+**The error grows as the mark gets darker**, because a near-constant negative
+shift on a near-neutral colour is a large *fractional* change to a small
+denominator. So the dime's phase-2 conclusions about mid-tone regions stand to
+within a few percent, and any conclusion that leaned on an `ink`-level patch
+does not. §12.8's ceiling and §13's inventory rows should be re-derived before
+being quoted as measurements rather than as directions.
+
+`_p2lib.ourRaster` was fixed on 2026-08-13 to the `flatten`/`extract`/`extend`
+form, so a later run reusing the dime tooling does not reinherit this. The
+comment at the fix records the numbers above.
+
+### 20.2 Copper on copper: a BAND, not a level — and the physics that gives it
+
+§2.2 thresholds a level and §11 says look for the sculptor's model when that
+fails. The cent gives a third case. All four of its references drift
+monotonically with no plateau (`_pyseg.mjs`), because the portrait and the field
+are the same metal at the same brightness. Three edge-based segmenters were
+built and all three failed, and the failures are the transferable part:
+
+- **flood the field through "not dark" pixels.** The die's edge shadow really
+  is a continuous dark line and the flood really does stop on it — but the
+  field's own lighting ramp dips below the same threshold in broad patches, so
+  the flood leaks. A morphological opening does not rescue it: the leaks are
+  blobs, not thin bridges.
+- **grey top-hat** (darkness relative to the local maximum) kills the field's
+  ramp, but interior hair grooves are locally stronger than the outline, so the
+  flood leaks the other way, into the portrait.
+- **local gradient energy as the barrier** is the right idea at the wrong
+  scale: at 2000px the bare field's gradient is 40–85 from die polish and grain,
+  comparable with the boundary's. Blurring to the width of the boundary shadow
+  first is necessary and still not sufficient.
+
+What works is a physical difference, not a photometric one:
+
+> **A frosted (cameo-proof) portrait is DIFFUSE and always mid-grey. A mirror
+> field is SPECULAR and always at one extreme or the other. So the portrait is
+> a BAND in the histogram, not a level — and a band threshold segments it
+> cleanly even when the field reflects black on one side of the coin and white
+> on the other.**
+
+`penny-obv-2.jpg` at `50 ≤ v ≤ 220` gives the whole bust. Apply §2.2's plateau
+test to **both** edges of the band separately: the upper edge had a true
+plateau (210→240 unchanged to four decimals), the lower one drifted 14% on the
+whole bust but only **1.4% linear on the head region**, which is the part being
+scored. Sweep the region you are actually going to measure, not the whole mask.
+
+### 20.3 Report the ellipse's ORIENTATION, not just its ratio
+
+§2.1 says fit an ellipse and reject a tilted photograph. That test alone would
+have condemned the best reference in the cent's directory.
+
+Every one of these photographs shows the coin's **edge thickness** along the
+bottom of the frame. That extends the segmented blob downward by ~9px and fits
+an ellipse whose major axis is near **vertical**. A genuine out-of-plane tilt
+does the opposite: it *shortens* one diameter, so the major axis comes out
+**horizontal**.
+
+```
+                    ratio    theta     verdict
+penny-obv-3.jpg     1.0047   -81.5°    edge thickness. Circle fitted on the
+                                       top 240 deg: p95 residual 0.26% of R
+penny-obv-2.jpg     1.0109   -65.8°    edge thickness (plus real 1.4% out-of-round)
+penny-obv-4.png     1.0238    -8.1°    GENUINELY TILTED ~12 deg. Rejected
+```
+
+So: fit the circle on the arc **away from the edge-thickness sector**, and
+publish the per-sector mean residual — the bottom sector's +5.5 to +9.0px *is*
+the measurement of the artefact.
+
+### 20.4 A cameo proof is the best SHAPE reference and the WORST TONE reference
+
+Frosting replaces a relief's own shading with a uniform matte. On the 2002-S
+proof almost every feature reads ~1.0 of the cheek — beard 1.015, lips 1.029,
+coat 1.044 — where two struck coins say 0.55/0.63, 0.94/0.97 and 0.77/0.61. The
+proof is not lit differently; it is **surfaced** differently.
+
+This matters because §3 ranks a frosted proof *first* for choosing a reference,
+and it is right — for the silhouette. **Split the ranking**: use the proof for
+shape, and run §12.7's sign test over the STRUCK coins only. A proof in the tone
+vector will quietly flatten every relationship toward 1.0 and make a wrong
+drawing look right.
+
+### 20.5 The dime's hair finding does not generalise — check the sign per coin
+
+§5, §11.6 and §12.10 all record that the hair is **brighter** than the cheek
+(1.34× on the dime, 1.36× on the nickel) and that drawing it dark is "not a
+stylisation of the object, it is the opposite of it". On the cent, both struck
+references say the hair is **0.54–0.88** and the beard **0.55–0.63** — the
+darkest things on the coin. Lincoln's hair and beard are dense, deeply-cut
+relief that reads as shadow; Roosevelt's and Jefferson's are broad combed masses
+that catch light.
+
+Applying the dime's fix here would have been exactly the failure §7 lists, with
+the added irony that it would have been justified by this document. **The
+patch-ratio METHOD generalises; no measured ratio does. Re-measure the sign on
+every coin before touching a tone.**
+
+### 20.6 A flat region can HIT the metric and still be a lie — band-map first
+
+Both usable references agree the cent's temple is darker than the cheek (0.829,
+0.661). The tone ladder said `ink` filled at 0.28 over the face renders at
+0.827. Drawn, it took that patch from 0.171 to **0.001** and the mean from
+0.1596 to 0.1442 — the best number of the pass.
+
+It looked like a **blindfold**: a flat bar across the eye with one free edge
+floating on the face. It was removed, giving 0.0154 back.
+
+§13.2 already says band-map the region and mark it **step** or **ramp** — this
+pass drew first and mapped afterwards. The map is unambiguous: on the dime the
+throat holds 0.80 flat across fourteen local units and then jumps 0.3 in two;
+the cent's face is a ramp with fine local relief and no plateau anywhere, and
+the two references do not even agree on where the dark parts are.
+
+> **A patch median is one number, and a flat fill can always be sized to hit it.
+> The band map is what says whether the region has an EDGE to hang that fill
+> on. Run it BEFORE drawing, every time.**
+
+### 20.7 De-spiking is a mechanical answer to a mechanical gate
+
+§4's reversal gate is mechanical, so make the fix mechanical: while any knot
+turns more than 75°, **drop the worst one and re-measure**. A spike in a
+resampled contour is a knot straddling a 2-unit wiggle in the pixel trace (hair
+crests, the sideburn notch); removing it leaves the Catmull-Rom running through
+the knots either side, which is the shape.
+
+On the cent, twenty (smoothing × spacing) builds produced **zero**
+configurations with no reversals, and the best raw score came from a path with
+seven of them (worst 155°). De-spiking took every build to zero and cost
+**0.0051** of IoU against the oscillating best — the same order as the dime's
+0.0094. Report the cost; it is the honest price of a drawable curve.
+
+Also: **do not protect the junction between a traced arc and an invented
+closure.** Protecting the cent's nape junction left a 100° turn — a corner the
+coin does not have, invented by the closure's own waypoints. Letting the
+smoothing round it is what took the count to zero, and the rounded part is under
+the neck and the coat anyway.
+
+### 20.8 Two masses that meet need ONE junction, decided from the photograph
+
+The cent has three masses in one head — hair, face and beard — and the first cut
+got both boundaries wrong in ways no metric could see:
+
+- the **hairline** was read as a single diagonal running to the jaw, which
+  buried the ear (measured helix: local x −16.0..−9.0, y −10.0..+3.0) entirely
+  inside the hair mass. The cent read as a man in a hood. The hair comes down
+  the temple, turns **back over the top of the ear**, and drops behind it.
+- the **beard's outer run** was taken all the way round the head's own
+  underside, which made a dark band eleven units deep across the whole width — a
+  neck brace. On the coin the beard tapers to a **point at the sideburn**, and
+  its top edge starts level with the bottom of the ear, not eight units lower.
+
+Both fixes were **metric-neutral to four decimals**. Three of the cent's last
+four iterations moved the number by zero or backwards and all four were right.
+§12.6 says iterations the metric cannot see are where the eye earns its place;
+on a three-mass head that is half the pass.
+
+### 20.9 When two references disagree by more than the error you are chasing
+
+The cent's two struck references disagree with each other by **0.1817** mean
+|Δratio| on the same eleven patches — larger than the whole remaining error of
+the finished drawing (0.1596). Publish three numbers, not one: against the
+frame reference, against the cross-check, and against their midpoint (0.1596 /
+0.1282 / 0.1107).
+
+And test the *decision*, not just the score. Our hair sits at 0.818 where the
+two references say 0.543 and 0.879. Moving it to the palette floor's best rung
+(0.636) gives mean |Δ| across the two of 0.168 — **identical** to what 0.818
+gives. That relationship is genuinely indeterminate at this magnitude, and
+saying so is worth more than picking the reference that flatters the change.

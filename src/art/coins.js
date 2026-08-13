@@ -572,34 +572,70 @@ function flatText(text, x, y, size, fill, opacity) {
 // and Roosevelt, whose hair sweeps furthest back). Crown at y ≈ −33, chin at
 // y ≈ +30.
 const HEAD = {
-  // LINCOLN. Two things carry him: the beard, and the fact that he is the
-  // only man in the set looking the other way. The hair is a wavy mass with
-  // two crests over a forehead left completely bare — the opposite
-  // arrangement to the three wigs and crops — and the beard follows the JAW
-  // rather than hanging as a bib, which is the correction the photograph
-  // forced: a round beard made him a woodcutter, not a president.
+  // LINCOLN, AND THIS ONE IS MEASURED. The outline below is a curve fitted to
+  // the portrait's own silhouette, taken off coloringbook/ref/penny-obv-2.jpg
+  // (a 2002-S cameo proof, whose FROSTED bust sits between a mirror field that
+  // reflects pure black on the profile side and pure white behind the head, so
+  // a band threshold separates them where no level threshold can — copper on
+  // copper has no level step at all) and registered by similarity ICP onto
+  // ref/penny-obv-3.jpg, a 2000px photograph whose disc is circular to 0.26%.
+  // The same contour fits a 1909-S and a 2025 cent with no bias at 0.56% and
+  // 0.64% of diameter, which is the evidence that it is the DESIGN and not one
+  // strike. Frozen target and score in coloringbook/ (gitignored):
+  // head-region silhouette IoU 0.667 -> 0.952.
+  //
+  // What the measuring found, against the version before it:
+  //
+  //   · THE HEAD WAS 20% TOO SMALL. `s` went 0.65 -> 0.78, and placement
+  //     alone — path untouched — was 56% of the whole error.
+  //   · Lincoln really is the NARROW one: 45.0 wide by 58.3 tall, 0.77 as
+  //     wide as tall, where the dime's Roosevelt is wider than he is tall.
+  //     That much the old comment had right.
+  //   · THE FACE PROJECTED TOO FAR. The old nose reached local x = +23.9 on a
+  //     head 51 wide; the coin's profile turns over at +18.0 on a head 45
+  //     wide, and the brow above it stands FURTHER forward than we drew it.
+  //     A long thin nose on a shallow face is the loudest error the
+  //     difference map showed.
+  //   · THE BEARD WAS ENORMOUS. It hung to local y = +35 where the coin's
+  //     underside is a silhouette edge only down to y = +21, and its front
+  //     reached +18.7 where the coin's chin tuft turns at +15.2.
+  //   · The crown is HIGH — 0.788 of the disc radius above centre, four units
+  //     inside the field circle — and it is hair, not skull.
+  //
+  // Below local y = +21 the beard stops overhanging and the boundary becomes
+  // the throat, so the last stretch of this path (the underside, from
+  // (5.9, 20.9) back to (-20.4, 18.0)) is NOT from the frozen mask: it is read
+  // off the photograph's own shadow line, and it is the least-measured part of
+  // this outline. It also has to overlap the top of bareNeck(), or a sliver of
+  // bare field shows between the head and the neck.
   Lincoln: [
-    'M 11.0 -26.2', // the hairline, high and far back at the temple
-    'C 12.9 -22.4 14.9 -17.6 15.4 -12.4', // a tall bare forehead
-    'C 15.6 -10.4 15.1 -8.7 14.1 -7.4', // the brow, rolling over
-    'C 13.3 -6.5 12.9 -5.8 13.0 -4.8', // the nose root, a curve not a notch
-    'L 23.9 5.7', // a long straight nose — his longest feature
-    'C 24.9 6.9 24.1 8.1 22.1 8.3', // rounded over at the tip
-    'L 18.7 8.8',
-    'L 17.9 10.8', // philtrum. NO moustache: the cent has none either
-    'C 18.4 11.2 18.3 12.9 16.8 13.6', // a thin upper lip, held FLAT: two
-    'C 17.6 14.4 17.4 16.0 15.9 16.8', // protruding lumps read as a beak
-    'C 17.7 17.8 18.7 19.2 18.7 20.6', // the chin, and then the BEARD
-    'C 19.6 22.4 20.0 25.6 18.6 28.8', // narrow, tracking the JAW down
-    'C 16.6 33.2 10.2 35.6 2.8 35.0', // to a soft point below the chin
-    'C -4.6 34.4 -11.4 30.0 -15.4 23.2', // and back up to the sideburn
-    'C -17.8 18.6 -19.6 12.4 -20.8 6.2',
-    'C -24.6 2.6 -27.2 -3.0 -27.4 -10.0', // the back of the head. Lincoln is
-    'C -27.6 -17.6 -24.4 -24.4 -19.0 -28.4', // NARROW: on the real cent his
-    'C -15.0 -31.4 -11.4 -34.4 -7.4 -34.6', // head is 0.73 as wide as tall,
-    'C -4.0 -34.8 -2.6 -31.8 -0.8 -32.2', // where the other three are near 1
-    'C 1.8 -33.0 4.4 -32.2 5.6 -30.2', // hair crest two
-    'C 7.2 -29.2 10.0 -27.8 11.0 -26.2 Z',
+    'M -20.39 18 C -20.53 16.24 -18.85 13.84 -19.03 11.99',
+    'C -19.19 10.32 -20.16 8.13 -21.07 7.36',
+    'C -21.66 6.86 -22.72 7.26 -23.12 6.84 C -23.51 6.43 -23.24 5.7 -23.5 4.89',
+    'C -23.96 3.41 -25.59 0.85 -26.18 -1.16',
+    'C -26.72 -3.01 -27.25 -5.15 -27.05 -6.68',
+    'C -26.89 -7.84 -25.98 -8.41 -25.72 -9.64',
+    'C -25.33 -11.41 -26.18 -14.33 -25.67 -16.47',
+    'C -25.17 -18.57 -23.88 -20.45 -22.76 -22.36',
+    'C -21.61 -24.33 -20.34 -26.7 -18.84 -28.1',
+    'C -17.6 -29.27 -16.05 -29.65 -14.72 -30.55',
+    'C -13.37 -31.46 -11.93 -32.97 -10.78 -33.53',
+    'C -10.04 -33.88 -9.65 -33.93 -8.77 -34.04',
+    'C -7.18 -34.24 -4.15 -34.36 -1.93 -34.01',
+    'C 0.26 -33.68 2.55 -32.61 4.46 -32.03',
+    'C 6.01 -31.55 7.3 -31.45 8.69 -30.74',
+    'C 10.32 -29.9 12.99 -28.59 13.5 -27.05',
+    'C 13.98 -25.6 12.67 -22.92 12.03 -21.87',
+    'C 11.68 -21.29 10.96 -21.33 10.82 -20.74',
+    'C 10.57 -19.64 12.31 -17.14 12.96 -15.21',
+    'C 13.66 -13.16 14.03 -10.84 14.87 -8.78',
+    'C 15.71 -6.73 18.19 -4.58 17.99 -2.89 C 17.82 -1.4 15.28 -0.54 14.63 0.95',
+    'C 13.98 2.46 14.08 4.31 14.14 6.15 C 14.19 8.22 15.54 10.81 15.15 12.77',
+    'C 14.8 14.56 13.67 16.33 12.3 17.51 C 10.84 18.76 8.36 18.92 6.51 19.89',
+    'C 4.62 20.89 3.04 22.71 1.07 23.44 C -0.86 24.16 -3.02 24.2 -5.16 24.28',
+    'C -7.41 24.37 -9.84 24.28 -12.12 23.88',
+    'C -14.4 23.48 -17.47 23.14 -18.83 21.9',
+    'C -19.88 20.95 -20.28 19.46 -20.39 18 Z',
   ].join(' '),
 
   // JEFFERSON. One big smooth hair mass — no crests, unlike Lincoln, and no
@@ -778,18 +814,40 @@ const HEAD = {
 // It is drawn at `full` AND `mid`, not just `full` — mid is the 54px coin
 // row, and a tone block survives 54px where a stroked hairline does not.
 const HAIR = {
+  // The hairline is the boundary between the textured hair mass and the smooth
+  // forehead and temple, read off ref/penny-obv-3.jpg in this local frame. It
+  // runs from the outline at (12.6, -27.6) diagonally back and down to a
+  // SIDEBURN that comes forward of the ear and drops to (-16.0, 12.4), where
+  // the beard takes over. Outer edge shared with the head outline exactly —
+  // the head's OWN knots, run backwards, not a second smoothing of the same
+  // contour (that put the nickel's hair 1.2 units outside its own head).
   Lincoln: [
-    'M 11.0 -26.2',
-    'C 10.0 -27.8 7.2 -29.2 5.6 -30.2', // ← head outline, run backwards
-    'C 4.4 -32.2 1.8 -33.0 -0.8 -32.2',
-    'C -2.6 -31.8 -4.0 -34.8 -7.4 -34.6',
-    'C -11.4 -34.4 -15.0 -31.4 -19.0 -28.4',
-    'C -24.4 -24.4 -27.6 -17.6 -27.4 -10.0',
-    'C -27.3 -6.4 -26.6 -3.0 -25.2 0.0',
-    'C -20.0 -3.4 -17.2 -8.6 -16.4 -13.8', // the hairline, coming forward
-    'C -15.6 -19.2 -12.6 -22.8 -8.0 -25.0', // and climbing to a very tall
-    'C -4.2 -27.0 -0.4 -27.8 4.2 -27.4', // forehead — his most-noted feature
-    'C 7.2 -27.4 9.8 -26.8 11.0 -26.2 Z',
+    'M 13.5 -27.05 C 13.58 -28.17 10.32 -29.9 8.69 -30.74',
+    'C 7.3 -31.45 6.01 -31.55 4.46 -32.03',
+    'C 2.55 -32.61 0.26 -33.68 -1.93 -34.01',
+    'C -4.15 -34.36 -7.18 -34.24 -8.77 -34.04',
+    'C -9.65 -33.93 -10.04 -33.88 -10.78 -33.53',
+    'C -11.93 -32.97 -13.37 -31.46 -14.72 -30.55',
+    'C -16.05 -29.65 -17.6 -29.27 -18.84 -28.1',
+    'C -20.34 -26.7 -21.61 -24.33 -22.76 -22.36',
+    'C -23.88 -20.45 -25.17 -18.57 -25.67 -16.47',
+    'C -26.18 -14.33 -25.33 -11.41 -25.72 -9.64',
+    'C -25.98 -8.41 -26.89 -7.84 -27.05 -6.68',
+    'C -27.25 -5.15 -26.72 -3.01 -26.18 -1.16',
+    'C -25.59 0.85 -23.96 3.41 -23.5 4.89 C -23.24 5.7 -23.51 6.43 -23.12 6.84',
+    'C -22.72 7.26 -21.66 6.86 -21.07 7.36',
+    'C -20.16 8.13 -19.54 12.05 -19.03 11.99',
+    'C -18.53 11.94 -18.05 8.82 -18.02 7.12',
+    'C -17.99 5.27 -18.95 2.83 -19.05 1.3',
+    'C -19.11 0.32 -19.12 -0.33 -18.94 -1.14',
+    'C -18.75 -1.98 -18.56 -2.87 -17.91 -3.63',
+    'C -16.98 -4.7 -14.82 -5.77 -13.28 -6.38',
+    'C -11.92 -6.92 -10.52 -6.62 -9.23 -7.28',
+    'C -7.71 -8.08 -6.28 -9.81 -4.91 -11.21',
+    'C -3.53 -12.64 -2.34 -14.3 -0.97 -15.77',
+    'C 0.39 -17.25 1.78 -18.72 3.27 -20.08',
+    'C 4.76 -21.44 6.29 -22.78 7.97 -23.93',
+    'C 9.69 -25.11 13.41 -25.9 13.5 -27.05 Z',
   ].join(' '),
   Jefferson: [
     'M 9.32 -25.96 C 9.39 -26.03 6.47 -29.34 4.68 -30.66',
@@ -886,16 +944,17 @@ const HAIR = {
 // Lincoln's beard gets the same treatment for the same reason: on the real
 // cent it is a separate, deeply cut mass, and drawing it in the skin tone
 // left his chin looking swollen rather than bearded.
-const BEARD =
-  'M 16.6 17.2 C 17.7 17.8 18.7 19.2 18.7 20.6' +
-  ' C 19.6 22.4 20.0 25.6 18.6 28.8' +
-  ' C 16.6 33.2 10.2 35.6 2.8 35.0' +
-  ' C -4.6 34.4 -11.4 30.0 -15.4 23.2' +
-  ' C -17.8 18.6 -19.6 12.4 -20.8 6.2' +
-  ' C -22.4 4.6 -23.9 2.4 -25.2 0.0' + // meets the hair exactly at the sideburn
-  ' C -23.6 5.0 -21.0 9.8 -17.6 13.6' +
-  ' C -12.0 19.0 -4.4 21.4 2.6 20.6' +
-  ' C 8.0 20.0 13.2 19.0 16.6 17.2 Z';
+const BEARD = [
+  'M 15.15 12.77 C 15.64 13.62 13.67 16.33 12.3 17.51',
+  'C 10.84 18.76 8.36 18.92 6.51 19.89 C 4.62 20.89 3.04 22.71 1.07 23.44',
+  'C -0.86 24.16 -3.1 24.78 -5.16 24.28',
+  'C -7.57 23.7 -10.53 21.19 -12.31 19.33',
+  'C -13.79 17.79 -14.7 16.08 -15.53 14.3',
+  'C -16.35 12.52 -17.71 9.36 -17.28 8.63 C -17.08 8.28 -16.56 8.31 -16 8.37',
+  'C -14.81 8.49 -12.5 9.97 -10.67 10.64',
+  'C -8.8 11.33 -6.84 11.99 -4.88 12.43 C -2.93 12.87 -0.93 13.22 1.06 13.3',
+  'C 3.05 13.39 4.91 13.03 7.06 12.94 C 9.55 12.84 14.56 11.75 15.15 12.77 Z',
+].join(' ');
 
 // What hangs off the back of the head, in the same dark tone as the hair —
 // separate shapes rather than part of the outline because both of these
@@ -952,25 +1011,58 @@ const TAIL = {
 // struck portrait catches light — and it appears only above 130px, where a
 // 1.4-unit line is a real line and not a fleck of dirt.
 const RELIEF = {
+  // LINCOLN'S HAIR RISES OFF A BARE FOREHEAD AND BREAKS BACKWARDS over the
+  // crown — the opposite arrangement to the three wigs and crops, and the
+  // reason his hairline is the longest diagonal on any of the four obverses.
+  // Every stroke below was re-sited when the outline was measured (the head
+  // grew 20% and changed shape); the containment check in coloringbook/
+  // reports the clearance of each one inside the HAIR mass rather than merely
+  // inside the head, because a hair stroke inside the head but outside the
+  // hair draws on the cheek.
+  //
+  // THE BEARD'S STROKES USED TO BE LIT AND THEY ARE NOW CUT. Measured against
+  // the cheek, the beard on ref/penny-obv-3.jpg reads 0.548 and on the 1909-S
+  // 0.626 — it is the DARKEST thing on the cent. Two pale ridges through it
+  // put our own beard at 1.303, i.e. brighter than the cheek and 0.755 away
+  // from the coin: the single worst number in the whole tone vector, and the
+  // same sign error the dime's hair carried in reverse. The mass is now
+  // filled `deep` and carried on five cut grooves, which is what the die does.
   Lincoln: {
+    // Dark line work, drawn in `ink` at 0.33 BEFORE the lit ridges — the cut
+    // comes first and the light sits on what is left standing. Spacing is 3.0
+    // local units against a groove width of 1.9, which satisfies §7's
+    // arithmetic rule (gap >= (w1+w2)/2 + 0.4) at every cut across the mass.
+    groove:
+      '<path d="M -13.4 11.2 q 1.8 4.4 1.0 7.8" fill="none" stroke-width="1.9"/>' +
+      '<path d="M -10.4 12.0 q 1.8 4.6 1.0 8.2" fill="none" stroke-width="1.9"/>' +
+      '<path d="M -7.4 12.8 q 1.8 4.8 1.0 8.4" fill="none" stroke-width="1.9"/>' +
+      '<path d="M -4.4 13.4 q 1.8 4.8 1.0 8.4" fill="none" stroke-width="1.9"/>' +
+      '<path d="M -1.4 13.8 q 1.8 4.6 1.0 8.0" fill="none" stroke-width="1.9"/>',
+    // NO `shade` REGION ON THE TEMPLE, and the reason is worth keeping. Both
+    // usable references agree the temple is darker than the cheek (0.829 and
+    // 0.661), and an `ink`-at-0.28 region there scored 0.828 against 0.829 —
+    // a hit on the frozen metric. It was drawn, and it read as a BLINDFOLD:
+    // a flat bar across the eye with one free edge floating on the face. The
+    // band map is why. On the dime the throat and forehead are STEPS (0.80
+    // flat across fourteen units, then a 0.3 jump in two); the cent's face is
+    // a RAMP with fine local relief — the scan line down x = 2 goes
+    // 0.92 0.83 0.86 0.85 1.11 1.11 0.72 0.94 1.07 on one reference and
+    // 1.01 0.86 0.74 0.66 0.75 0.93 0.87 0.64 0.61 on the other, with no
+    // plateau anywhere. A flat fill can name a step; it cannot name a ramp.
+    // Removing it cost 0.170 on that patch and 0.015 on the mean, and it is
+    // the right trade.
     base:
-      '<path d="M -14.6 -28.0 q 6.4 -4.2 11.0 -5.0" fill="none" stroke-width="1.8"/>' +
-      '<path d="M -20.0 -20.6 q 6.8 -4.4 11.4 -5.2" fill="none" stroke-width="1.8"/>' +
-      '<path d="M -23.4 -12.0 q 5.0 -3.6 8.4 -4.6" fill="none" stroke-width="1.7"/>' +
-      '<path d="M -15.0 -29.2 q 4.6 -2.0 8.2 -3.0" fill="none" stroke-width="1.6"/>' +
-      '<path d="M -24.2 -18.6 q 5.6 -3.6 9.4 -4.6" fill="none" stroke-width="1.6"/>' +
-      '<path d="M 12.0 20.6 q 3.6 5.4 2.2 11.2" fill="none" stroke-width="1.7"/>' + // beard flow
-      '<path d="M -0.6 21.8 q 2.4 6.0 1.0 11.4" fill="none" stroke-width="1.7"/>',
+      '<path d="M -14.0 -27.0 q 5.6 -3.2 9.6 -3.8" fill="none" stroke-width="1.8"/>' +
+      '<path d="M -19.4 -21.0 q 5.8 -3.4 9.4 -4.0" fill="none" stroke-width="1.8"/>' +
+      '<path d="M -22.6 -14.0 q 4.6 -3.0 7.4 -3.6" fill="none" stroke-width="1.7"/>' +
+      '<path d="M -6.0 -30.6 q 5.0 -0.8 8.6 0.2" fill="none" stroke-width="1.6"/>' +
+      '<path d="M -23.4 -6.6 q 4.0 -2.6 6.6 -3.2" fill="none" stroke-width="1.6"/>',
     fine:
-      '<path d="M -6.0 -31.6 q 5.4 -0.6 9.6 0.2" fill="none" stroke-width="1.4"/>' +
-      '<path d="M -26.2 -8.0 q 4.4 -2.6 7.2 -3.4" fill="none" stroke-width="1.4"/>' +
-      '<path d="M -18.4 -24.6 q 5.2 -3.0 8.8 -3.8" fill="none" stroke-width="1.3"/>' +
-      // ONE more beard line, and it curves. Four near-vertical strokes down
-      // a beard read as the ribs of a scarf, which is what the first render
-      // of this showed.
-      '<path d="M -8.4 24.6 q 4.6 4.2 8.6 4.8" fill="none" stroke-width="1.3"/>' +
-      '<path d="M 14.0 -5.4 L 22.4 4.4" fill="none" stroke-width="1.2"/>' + // nose ridge, lit
-      '<path d="M 6.6 4.6 q 3.8 3.6 4.6 7.4" fill="none" stroke-width="1.2"/>', // cheek, lit
+      '<path d="M -17.0 -24.4 q 5.0 -2.6 8.2 -3.2" fill="none" stroke-width="1.4"/>' +
+      '<path d="M -21.6 -17.6 q 4.4 -2.8 7.0 -3.4" fill="none" stroke-width="1.4"/>' +
+      '<path d="M -24.0 -10.4 q 3.8 -2.4 6.0 -2.8" fill="none" stroke-width="1.3"/>' +
+      '<path d="M 12.2 -11.4 L 16.1 -4.4" fill="none" stroke-width="1.2"/>' + // nose ridge, lit
+      '<path d="M 4.0 -2.0 q 3.0 2.8 3.6 5.6" fill="none" stroke-width="1.2"/>', // cheek, lit
   },
   Jefferson: {
     // The busiest head of the four, because on the coin it is. Long parallel
@@ -1307,6 +1399,16 @@ const EAR_ROOSEVELT =
   '<path d="M -12.4 1.6 C -15.2 2.2 -16.6 4.4 -15.8 6.6 C -15.2 8.1 -13.8 8.9 -12.6 8.7" fill="none" stroke-width="1.2"/>' +
   '<ellipse cx="-14.3" cy="4.4" rx="1.4" ry="2" transform="rotate(18 -14.3 4.4)" stroke="none"/>';
 
+// LINCOLN'S OWN EYE, measured off ref/penny-obv-3.jpg in his local frame: the
+// socket is a dark almond 2.4 units long and 1.6 deep centred at (11.5, −10.5),
+// under a brow whose shadow runs back from the profile at (13.4, −13.2) to
+// (9.0, −11.2). The shared EYE_MARK is 6.8 units of lid over a round pupil —
+// nearly three times too long here, and on a cent that reads as a startled
+// cartoon rather than as the deep-set eye the die actually carries.
+const EYE_LINCOLN =
+  '<path d="M 12.3 -12.4 C 11.2 -12.0 10.0 -11.6 8.8 -11.0" fill="none" stroke-width="1.2"/>' +
+  '<ellipse cx="11.5" cy="-10.5" rx="1.5" ry="0.95" transform="rotate(-18 11.5 -10.5)" stroke="none"/>';
+
 // Which obverse each coin carries, and which way it looks. Post-2004 nickel
 // and post-1998 quarter designs are deliberately NOT referenced: those came
 // through the Mint's Artistic Infusion Program and are not reliably public
@@ -1348,19 +1450,32 @@ export const OBVERSE = {
 // that actually transfers to a real coin — and it turned out to be the thing
 // this file had most wrong. Head height as a fraction of the disc:
 //
-//     cent     ~51%   a small head, high in the field, over a big coat
-//     nickel   ~49%   likewise — and the two of them look alike here, which
-//                     is fine, because copper against silver already
-//                     separates them and nothing else has to
+//     cent     ~49%   MEASURED: crown to the bottom of the beard is 0.99 of
+//                     the disc radius, i.e. 49.5% of the diameter — a small
+//                     head, high in the field, over a big coat
+//     nickel   ~58%   measured off Schlag's model (see HEAD.Jefferson)
 //     dime     ~66%   Roosevelt's head very nearly fills the coin
 //     quarter  ~64%   so does Washington's
 //
-// The previous version drew all four at about 60–66%, which made a cent look
-// like a quarter struck in copper. Lincoln lost a third of his size here and
-// the coin looks far more like itself for it.
+// An early version drew all four at about 60–66%, which made a cent look like
+// a quarter struck in copper. The correction after that OVERSHOT: at s = 0.65
+// the cent's head was 20% too small, and the silhouette IoU against the frozen
+// target was 0.668 — placement alone, path untouched, took it to 0.855.
   penny: {
-    who: 'Lincoln', dir: 1, bare: false, neck: 38, ear: [0.95, -12, 0],
-    s: 0.65, cy: 39.3, cx: 6.0, iconS: 1.06, iconCy: 49.6, iconCx: 3.2,
+    // `neck` 38 -> 25: on the coin the collar crosses at v = 0.20 of the disc
+    // (local y 25) and the bow tie sits on it at y ≈ 28, which is what the
+    // frozen contour's own bump at (7..10, 26..31) is. At 38 the collar was
+    // half a coin too low and, at the corrected scale, the lapel ran off the
+    // field. `ear` was measured off ref/penny-obv-3.jpg: the helix spans local
+    // x −14.5..−8.7 and y −7.5..+2.9, which is SMALLER and four units HIGHER
+    // than the shared glyph was placed. `eye` likewise: the coin's is at
+    // x 9.3..13.0, y −11.2..−9.2, where the shared mark sits at x 2.6..9.4,
+    // y −6.6..−2.6. iconS/iconCy/iconCx are recomputed from the new path's
+    // bounding box, to the same rule the old ones claimed — the head's mass
+    // centred in the icon field at 86% of its diameter.
+    who: 'Lincoln', dir: 1, bare: false, neck: 25, ear: [0.86, -11.7, -5.9],
+    eyeMark: EYE_LINCOLN,
+    s: 0.78, cy: 40.0, cx: 3.88, iconS: 1.253, iconCy: 56.11, iconCx: 5.68,
   },
   nickel: {
     who: 'Jefferson', dir: -1, bare: false, neck: 23, ear: [1.0, -16.6, -2.2],
@@ -1646,11 +1761,18 @@ function bust(id, tier, p, dim, boxW) {
   // At `mid` there is no line work at all, so it keeps the darker fill,
   // which is the only channel a 40px coin has left.
   const hairFill = o.hairLit && tier === 'full' ? p.cloth : p.hair;
+  // LINCOLN'S BEARD IS ITS OWN MASS AND ITS OWN TONE. It used to ride inside
+  // the hair group in `hair`, which put it at 0.818 of the cheek; on both
+  // usable photographs the real beard is 0.548 and 0.626, the darkest thing on
+  // the coin, because it is the deepest cut on the die. `deep` renders at
+  // 0.717 and the grooves take the jaw the rest of the way. The other three
+  // heads emit no beard at all, so their strings are unchanged byte for byte.
+  const beard = o.who === 'Lincoln' && !icon
+    ? `<g fill="${p.deep}" stroke="${p.deep}" stroke-width="${n2(sw(0.9, 0.7, boxW) / s)}" stroke-linejoin="round"><path d="${BEARD}"/></g>`
+    : '';
   const hair = icon
     ? ''
-    : `<g fill="${hairFill}" stroke="${p.deep}" stroke-width="${n2(sw(0.9, 0.7, boxW) / s)}" stroke-linejoin="round"><path d="${HAIR[o.who]}"/>${
-        o.who === 'Lincoln' ? `<path d="${BEARD}"/>` : ''
-      }${tail}</g>`;
+    : `<g fill="${hairFill}" stroke="${p.deep}" stroke-width="${n2(sw(0.9, 0.7, boxW) / s)}" stroke-linejoin="round"><path d="${HAIR[o.who]}"/>${tail}</g>${beard}`;
   return `<g${dim ? ' opacity="0.42"' : ''}>
       ${below}
       <g fill="${head}" stroke="${p.deep}" stroke-width="${edgeW}" stroke-linejoin="round"
@@ -2234,7 +2356,10 @@ function valueText(id, p, halo) {
 const YEAR = '1985';
 const INSCRIPTION = {
   penny: {
-    main: { kind: 'arc', text: 'IN GOD WE TRUST', size: 5.0, centre: 270 },
+    // `rOff` pushes this line OUT. The measured crown reaches r = 36.6 and the
+    // default baseline is 36.05, so two glyphs of WE sat on the hair. It is
+    // undefined on the other three coins, so their strings are byte-identical.
+    main: { kind: 'arc', text: 'IN GOD WE TRUST', size: 4.8, centre: 270, rOff: 1.15 },
     rest: [
       { kind: 'flat', text: 'LIBERTY', x: 20, y: 53, size: 5.2 },
       { kind: 'flat', text: YEAR, x: 78, y: 68, size: 5.4 },
@@ -2328,7 +2453,7 @@ function inscriptionOf(id, side, rField, p, boxW) {
   return lines
     .map((l) =>
       l.kind === 'arc'
-        ? arcText(l.text, rField - l.size * 0.85 - 0.7, l.size, p.ink, 0.62, l.centre, l.rev)
+        ? arcText(l.text, rField - l.size * 0.85 - 0.7 + (l.rOff || 0), l.size, p.ink, 0.62, l.centre, l.rev)
         : flatText(l.text, l.x, l.y, l.size, p.ink, 0.62)
     )
     .join('');
