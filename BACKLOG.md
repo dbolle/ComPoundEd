@@ -161,6 +161,30 @@ reconsider after calibration.
      of the thresholded motif mask, or a shape descriptor). If that separates
      the reverses where MAD did not, the metric was the problem and the art
      is closer to fine than v1.56.0 claims.
+   - 🔧 **Opportunistic depiction/mechanism separation (owner, 2026-08-13).**
+     Not a refactor of `src/art/coins.js` — 56% of that file is reasoning, and
+     five diverging copies of the reasoning would be worse than one shared
+     bug. Instead: **push a value down to the coin the moment it turns out to
+     be a claim about one coin**, keeping the shared default
+     (`t.min ?? REV_TEXT_MIN`, `o.eyeMark || eye(o.eye)`). That is already the
+     house idiom; it just had no name and no way to find the next candidate.
+     `scripts/coin-shared-claims.mjs` is that finder — run it when touching
+     coin art. Distinguish the two kinds of sharing:
+     - **mechanism** (`struck`, `reliefOff`, `spendOf`/`fitOff`, `onField`,
+       tiers, the emitter) — sharing is the *point*: one containment fix
+       repaired the quarter, dime and nickel in a single edit;
+     - **depiction** — sharing is a bug in a helper's clothes. `REV_TEXT_MIN`
+       was the nickel's floor governing three other coins for three releases;
+       `ear()` drew a helix on a coin whose wig covers the ear.
+     First candidate it found: **`EDGE` gives all four coins the identical
+     field radius** (full 41.0 / mid 40.5 / icon 42.5) — structurally
+     per-coin, actually one number nobody measured per coin. The shoulder-fix
+     run already found ours is smaller than the real coins' (cent reaches
+     r=0.913 of the disc, nickel 0.991, ours stops at 0.8723), and this value
+     also sets every legend baseline. Measure it per coin.
+     `PALETTE` is correctly flagged partially uniform (quarter = nickel =
+     dime) — that one is the deliberate one-alloy accuracy decision and
+     should stay, with the reason recorded rather than the flag silenced.
    - Owed on the art, in priority order:
      - **The note's roundels are 1.80× too wide and 26% too close together**,
        and should be ellipses (ry/rx 1.314). "Fill the container rather than
