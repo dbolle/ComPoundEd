@@ -2335,11 +2335,58 @@ function torch(tier, p, boxW) {
     ' C 54.66 31.84 52.41 33 50 33 C 47.59 33 45.34 31.84 44.21 29.96' +
     ' C 42.93 27.86 43.25 25.14 45.18 22.73 C 45.18 23.78 45.66 24.82 46.46 25.77' +
     ' C 46.78 24.3 47.91 22.52 50 20 Z"/>';
+  // Where the leaves sit on the stem. Shared by the icon tier and the two
+  // larger ones so there is exactly ONE description of this branch in the
+  // file: `i` of `n` leaves, from the foot of the stem upward.
+  const leafAt = (i, n) => {
+    const t = i / (n - 1);
+    return {
+      ay: 62 - 33 * t, // up the stem
+      ax: 15.4 + 3.4 * Math.sin(t * 2.4), // following its bow
+      rot: 30 + 28 * t, // rising as it climbs
+    };
+  };
   if (tier === 'icon') {
+    // THE BRANCHES ARE DRAWN AT ICON TIER, and until this pass they were not.
+    // The comment above this function said "at icon size the branches go
+    // entirely and the bar plus its flame is the whole drawing". Phase 6
+    // reduced the PHOTOGRAPH to the 19 device pixels the icon really gets
+    // (§22.7) and it is a dense dark cluster filling the field; the drawing
+    // was a pale disc with a thin vertical bar. Measured inside r < 33, ink
+    // coverage was 0.174 against the coin's 0.678, and the ink's bounding box
+    // was 5.0x taller than wide against the coin's 1.0. A bar is not what the
+    // dime looks like from across a table, and it is the only reverse in the
+    // set that was missing most of its own motif.
+    //
+    // The leaves are plain ellipses here, not the olive/oak pair the larger
+    // tiers draw: a leaf is 1.1 DEVICE PIXELS at this size, so a lobe cannot
+    // exist, and the five of them per side are not read as five leaves. They
+    // are read as the toned mass they add up to, which is exactly what §15.4
+    // says a repeated element becomes when it stops resolving.
+    //
+    // COST, stated because it is a real one (coloringbook/discriminability.md
+    // §4): this makes the dime reverse slightly MORE like the quarter reverse.
+    // The reverse-only discriminability minimum moves 0.0808 -> 0.0794, −1.7%,
+    // and the closest reverse pair changes from nickel/dime to dime/quarter.
+    // Two denser variants were measured and rejected: they bought less ink
+    // fidelity and cost 5–6%.
+    const iconBranch = (mirror) => {
+      const f = mirror ? -1 : 1;
+      const x = (v) => n2(50 + f * v);
+      let g = '';
+      for (let i = 0; i < 5; i++) {
+        const L = leafAt(i, 5);
+        g += `<g transform="translate(${x(L.ax + 6.2)} ${n2(L.ay - 1.6)}) rotate(${n1(-f * L.rot)})">` +
+          '<ellipse cx="0" cy="0" rx="5.93" ry="2.9"/></g>';
+      }
+      return `<path d="M ${x(13.0)} 65 C ${x(18.4)} 54 ${x(19.2)} 41 ${x(14.6)} 27.5
+        L ${x(17.2)} 27.2 C ${x(22.0)} 41 ${x(21.2)} 55 ${x(15.8)} 66 Z"/>${g}`;
+    };
     return {
       solid: `${flame}<rect x="44.5" y="32.6" width="11" height="6" rx="1.5"/>
         <rect x="45.6" y="38" width="8.8" height="32"/>
-        <rect x="46.6" y="69.4" width="6.8" height="9" rx="1.6"/>`,
+        <rect x="46.6" y="69.4" width="6.8" height="9" rx="1.6"/>
+        ${iconBranch(false)}${iconBranch(true)}`,
       detail: '',
     };
   }
@@ -2379,10 +2426,7 @@ function torch(tier, p, boxW) {
     const k = full ? 1.22 : 1.38;
     let g = '';
     for (let i = 0; i < leaves; i++) {
-      const t = i / (leaves - 1);
-      const ay = 62 - 33 * t; // up the stem
-      const ax = 15.4 + 3.4 * Math.sin(t * 2.4); // following its bow
-      const rot = 30 + 28 * t; // rising as it climbs
+      const { ay, ax, rot } = leafAt(i, leaves);
       g += mirror
         ? olive(x(ax + 6.2), ay - 1.6, rot, k)
         : oak(x(ax + 6.2), ay - 1.6, -rot, k);

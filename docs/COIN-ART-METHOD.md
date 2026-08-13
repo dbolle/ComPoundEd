@@ -1981,3 +1981,189 @@ Related, and cheap to check on any new subject: **three of the four reverses
 carry a legend we do not draw at all** — MONTICELLO under the nickel's
 building, E PLURIBUS UNUM across the dime's middle and in the quarter's upper
 arc. Enumerate every string on the coin before deciding which to draw.
+
+---
+
+## 23. What phase 6 and the note added — the first measurement of the product goal, and a fiducial that only exists on one side
+
+Written after the discriminability + note pass (2026-08-13). Run documents:
+`coloringbook/discriminability.md` and `coloringbook/bill.md`; the `_x6*` and
+`_bl*` tools are inventoried in `coloringbook/TOOLS.md`. Headline numbers:
+
+```
+  §17 cross-coin discriminability, icon tier, all coins at the SAME width
+    obverse-only minimum   0.0534   nickel / dime          (expected poor - it is)
+    reverse-only minimum   0.0808   nickel / dime          before the dime fix
+                           0.0794   dime / quarter         after
+    RATIO rev / obv         1.51x -> 1.49x                 GATE WAS 3.0x - FAIL
+    same, field interior only              1.74x           (the disc dilutes a little)
+
+  §18 the note
+    printed border ratio   2.5610 / 2.5827  two notes, 0.85% apart   PASS
+    paper edge ratio       2.4239 / 2.3313  same two notes, 4.0% apart
+    obverse border ratio   2.4607 / 2.4186  1.7% apart               FAIL
+    pyramid device  ink 0.493  mean/field 0.707   ours 0.241 / 0.894
+    eagle   device  ink 0.696  mean/field 0.633   ours 0.384 / 0.835
+```
+
+### 23.1 The reverses do not do the job they were drawn to do, and only §17 could say so
+
+§17 predicted the obverse minimum would be poor and asked for the reverse
+minimum to be "several times larger". It is **1.5×**, and 1.74× with the shared
+disc discounted. Both are far under the stated gate.
+
+Every one of the four reverses scores well against its own photograph (§22).
+That is the finding: **per-subject fidelity does not imply cross-subject
+separability, and nothing in §1–§16 can detect the difference.** A whole run
+can improve every number it measures and leave the product goal where it was.
+
+The mechanism the matrix makes obvious, and it was not obvious in advance:
+
+> **A difference metric rewards COVERED AREA.** Two large busts that mostly
+> overlap differ only around their fringe; two small sparse reverse motifs that
+> barely overlap still differ over only a small area. The reverses are more
+> different in kind and less different in pixels. Drawing a *better* small
+> motif cannot fix that; drawing a *bigger* one can.
+
+The second lever the matrix exposes costs one line of data: `PALETTE.nickel`,
+`PALETTE.dime` and `PALETTE.quarter` are **byte-identical**. The cent sits
+0.15–0.28 from everything purely because it is copper. Three of the four coins
+get nothing at all from colour, on a screen that has colour.
+
+### 23.2 Rasterise to the same width, or you are measuring a screen that does not exist
+
+§17.2 said this and it is worth restating with the numbers, because it is the
+single decision that makes the metric mean anything. `COIN_SCALE` gives the
+four coins 19, 20, 23 and 26 device pixels at the icon tier. Leaving that in
+would let diameter carry the separation — and **wave 1 draws ONE coin with
+nothing beside it**, so a child has no ruler.
+
+The honest construction, and it is worth copying: rasterise each coin **at its
+own real device pixel count** (so the real detail loss and the real aliasing
+are in the raster), *then* nearest-neighbour resample every one to a common
+grid (so the disc fills the same area everywhere and diameter contributes
+nothing). Nearest, so the resample invents nothing.
+
+### 23.3 A fidelity fix and a discriminability fix can be the same edit pulling opposite ways — measure both and say so
+
+The dime reverse at icon tier was a pale disc with a thin bar where the
+photograph is a dense dark cluster (§22.7 found it, did not fix it). Fixing it
+— drawing the two branches, which the icon tier dropped entirely — moves every
+fidelity number toward the coin:
+
+```
+                       ink     mean/field   spread   aspect
+  photograph          0.678      0.7006      24.12     1.00
+  before              0.174      0.9381      15.79     5.00
+  after               0.405      0.8637      21.17     1.00
+```
+
+and moves the **reverse-only minimum the wrong way**, 0.0808 → 0.0794, because
+a denser dime is a dime more like the quarter. Two denser variants were also
+measured: they bought *less* ink and cost 4.8% and 6.4%.
+
+The transferable parts:
+
+- **Run the trade as an experiment with several candidates, not as an
+  argument.** Three of the four candidates would have been defensible in prose;
+  only the table says which one costs least.
+- **Report both numbers and hand the choice up.** The pass shipped the cheapest
+  candidate and wrote down the exact revert, because "which do we value more"
+  is not a measurement.
+- **The interesting number was neither.** −1.7% on a figure that already fails
+  its gate by 2× is noise. What the matrix actually says is that the three
+  silver reverses sit at 0.081/0.079/0.098 whether the dime is fixed or not:
+  the reverse minimum is a property of **the set**, not of any coin in it, and
+  no amount of per-coin work will move it.
+
+A free result worth looking for on any tiered art: the icon→mid boundary used
+to **pop** — a bare bar at size 43 became a full branched torch at 54. Printing
+the whole size band as one strip (`_x6-dime-band.png`) shows tier discontinuities
+that no per-tier measurement can, because every per-tier measurement is taken
+inside one tier.
+
+### 23.4 The note: §18.1 is right, and its fiducial exists on ONE SIDE
+
+Fitting the **printed border** gave two independent notes 2.5610 and 2.5827 —
+0.85% apart. Fitting the **paper edge** on the same two photographs gave 2.4239
+and 2.3313 — 4.0% apart. §18.1's claim is confirmed at 4–5× repeatability.
+
+But the $1 **obverse has no such rectangle**. Its outer boundary is ornamental
+scrollwork and a lettered band with no continuous straight rule, and the fitted
+ratios come out 1.7% apart — a fail. **"The printed border" is a property of a
+particular face of a particular note, not of paper money.** §18.1 should be
+read as: find a fiducial that is *engraved rather than cut*, and check that the
+one you picked actually exists on the face you are registering.
+
+Two rules that made the border fit work, after two wrong fits:
+
+- **What distinguishes the border from every other dark thing near the edge is
+  that it is LONG.** A per-scanline "first ink" test fits the paper edge, the
+  image edge, or a speckle. Requiring ink over ≥90% of a window 0.9× the note's
+  length, with a few rows of tolerance for tilt, costs two prefix sums.
+- **Skip the outer 2% before looking.** A scan's own dark edge and the paper's
+  drop shadow are *also* long straight dark lines. This is the difference
+  between iteration 2 and the answer.
+
+And **N3: report the quad's rectangularity beside its ratio.** A homography can
+map any quadrilateral onto any rectangle, so the aspect ratio is only a
+measurement when the quad is near-rectangular — here every corner is within
+0.19° of 90° and opposite sides within 0.65%, and *that* is what licenses
+reading a ratio off it at all.
+
+### 23.5 Our own source comment was wrong again, and this time it was right by accident
+
+`noteSVG()` said "the aspect ratio is 1.79:1 against a real note's 2.61:1".
+**2.61 is the note's height in inches**, not a ratio: a $1 is 6.14 × 2.61 in,
+so its paper ratio is 2.3524, which is what all four photographs measure.
+
+It is close to the truth for the wrong reason — the printed border, which is
+what our frame is an analogue of, measures 2.572. §22.3 said do not trust a
+comment in your own source. Add: **a plausible number in a comment is more
+dangerous than an implausible one**, because nothing prompts the check.
+
+### 23.6 A density measure needs a background; an edge measure does not
+
+The extent finder for the note's two seal roundels failed **twice**, and both
+times returned **bit-identical values on two different photographs** — 0.0413
+scanning outward, 0.5546 scanning inward. Outward it locked onto the dip caused
+by the pyramid's own light face; inward it hit the search ceiling, because the
+scrollwork *outside* the roundel is as inky as the roundel and the density never
+falls. There is no bare field on that note to fall to.
+
+The replacement is a **curve-following** score: sweep (cx, cy, rx, ry) and take
+the ellipse with the lowest mean grey **around its own circumference**. The rim
+is the only closed dark curve in the neighbourhood even though the whole
+neighbourhood is dark.
+
+> When a motif sits on a bare field, measure density. When a motif is embedded
+> in ornament, only an edge or curve measure can find its boundary. This is the
+> same failure `_rvcontain.mjs` has on the coin reverses (§22 / TOOLS.md), and
+> it now has a name and a fix.
+
+Corollary, cheap and general: **two bit-identical answers from two different
+inputs is not agreement.** Both times the value equalled a search bound. Print
+your bounds, and treat a result that equals one as a failure report.
+
+### 23.7 §18.4 was right, with a number
+
+The note's reverse devices measure **ink 0.493 (pyramid) and 0.696 (eagle)** —
+the eagle half is 41% denser. Blended, the reverse scores 0.59 and that
+difference is invisible. Our art reproduces the ordering at about half the
+density and with *unequal* shortfalls (−0.252, −0.312). One number would have
+hidden both facts.
+
+And the placement error is §22.5 for the fourth time, on a subject that is not
+a coin: the two roundels are drawn **1.80× too wide** and **26% too close
+together**, r=16 circles that very nearly touch where the note leaves a wide
+bare panel between two much smaller seals. **Sizing a motif to fill its
+container rather than to fit its design is a house habit, not a coin habit.**
+They should also be **ellipses**, ry/rx = 1.314, because our box deliberately
+does not have the note's aspect ratio — the one consequence of §18.2 that
+cannot be avoided once the non-copy decision is made.
+
+That last was confirmed end to end by a quantity nothing was fitted to: the
+Great Seal is a circle on the note, and its rim fits in our frame at ry/rx =
+1.340 against the 1.3143 the two measured ratios predict — 2.0%, inside the
+fit's own quantisation. **A registration you can check against a shape you did
+not use to build it is a registration you can believe.**
