@@ -1,0 +1,349 @@
+{
+ "what": "D3 reverse tone target for the QUARTER — patch set, normaliser, and the reference ratio vector",
+ "built": "2026-08-13, judge round 2",
+ "method": "COIN-ART-METHOD.md 12.2 (cheek-normalised patch ratios), 13 (inventory first), 12.3 (flat floor)",
+ "references": [
+  {
+   "tag": "rev-3",
+   "file": "quarter-rev-3.jpg",
+   "disc": {
+    "cx": 999.5,
+    "cy": 999.45,
+    "R": 999.49
+   }
+  },
+  {
+   "tag": "rev-2",
+   "file": "quarter-rev-2.png",
+   "disc": {
+    "cx": 374.5,
+    "cy": 374.37,
+    "R": 374.98
+   }
+  }
+ ],
+ "independence": "quarter-rev-3.jpg vs quarter-rev-2.png: registered design-NCC 0.5091 against a 0.1977 control floor (_jq20indep.mjs). Two photographs, two coins, two photographers.",
+ "coords": "viewBox, X = 50 + 47u, Y = 50 + 47v, radius in viewBox units; disc r = 47",
+ "patches": [
+  {
+   "name": "head",
+   "X": 50,
+   "Y": 24.5,
+   "r": 1.4,
+   "uv": [
+    0,
+    -0.5425531914893617
+   ],
+   "scored": true
+  },
+  {
+   "name": "breast",
+   "X": 50.5,
+   "Y": 40,
+   "r": 3,
+   "uv": [
+    0.010638297872340425,
+    -0.2127659574468085
+   ],
+   "scored": true
+  },
+  {
+   "name": "bodyLow",
+   "X": 50,
+   "Y": 51,
+   "r": 2,
+   "uv": [
+    0,
+    0.02127659574468085
+   ],
+   "scored": true
+  },
+  {
+   "name": "wingInL",
+   "X": 40,
+   "Y": 30,
+   "r": 2.2,
+   "uv": [
+    -0.2127659574468085,
+    -0.425531914893617
+   ],
+   "scored": true
+  },
+  {
+   "name": "wingInR",
+   "X": 60.5,
+   "Y": 30,
+   "r": 2.2,
+   "uv": [
+    0.22340425531914893,
+    -0.425531914893617
+   ],
+   "scored": true
+  },
+  {
+   "name": "wingMidL",
+   "X": 33,
+   "Y": 38,
+   "r": 2.6,
+   "uv": [
+    -0.3617021276595745,
+    -0.2553191489361702
+   ],
+   "scored": true
+  },
+  {
+   "name": "wingMidR",
+   "X": 67.5,
+   "Y": 38,
+   "r": 2.6,
+   "uv": [
+    0.3723404255319149,
+    -0.2553191489361702
+   ],
+   "scored": true
+  },
+  {
+   "name": "wingOutL",
+   "X": 24,
+   "Y": 45,
+   "r": 2.6,
+   "uv": [
+    -0.5531914893617021,
+    -0.10638297872340426
+   ],
+   "scored": true
+  },
+  {
+   "name": "wingOutR",
+   "X": 76,
+   "Y": 45,
+   "r": 2.6,
+   "uv": [
+    0.5531914893617021,
+    -0.10638297872340426
+   ],
+   "scored": true
+  },
+  {
+   "name": "arrows",
+   "X": 40,
+   "Y": 62,
+   "r": 1,
+   "uv": [
+    -0.2127659574468085,
+    0.2553191489361702
+   ],
+   "scored": true
+  },
+  {
+   "name": "wreathL",
+   "X": 32,
+   "Y": 71,
+   "r": 2,
+   "uv": [
+    -0.3829787234042553,
+    0.44680851063829785
+   ],
+   "scored": true
+  },
+  {
+   "name": "wreathR",
+   "X": 67,
+   "Y": 71,
+   "r": 2,
+   "uv": [
+    0.3617021276595745,
+    0.44680851063829785
+   ],
+   "scored": true
+  },
+  {
+   "name": "wreathBot",
+   "X": 50,
+   "Y": 76,
+   "r": 2,
+   "uv": [
+    0,
+    0.5531914893617021
+   ],
+   "scored": true
+  },
+  {
+   "name": "fieldLo",
+   "X": 50,
+   "Y": 58,
+   "r": 2,
+   "uv": [
+    0,
+    0.1702127659574468
+   ],
+   "scored": false
+  },
+  {
+   "name": "fieldUL",
+   "X": 27,
+   "Y": 27,
+   "r": 2.2,
+   "uv": [
+    -0.48936170212765956,
+    -0.48936170212765956
+   ],
+   "scored": false
+  },
+  {
+   "name": "fieldUR",
+   "X": 73.5,
+   "Y": 27,
+   "r": 2.2,
+   "uv": [
+    0.5,
+    -0.48936170212765956
+   ],
+   "scored": false
+  }
+ ],
+ "normaliser": "wreathL",
+ "normaliser_selection": {
+  "criterion": "minimise mean |ratio(rev-3) - ratio(rev-2)| over the scored patches; field patches ineligible; tie-break larger patch; throw if still within 10%",
+  "stated_before_measuring": true,
+  "candidates": [
+   {
+    "patch": "wreathL",
+    "cross_ref_mean": 0.1937,
+    "flat_floor_rev3": 0.1732
+   },
+   {
+    "patch": "arrows",
+    "cross_ref_mean": 0.2111,
+    "flat_floor_rev3": 0.1686
+   },
+   {
+    "patch": "wreathBot",
+    "cross_ref_mean": 0.22,
+    "flat_floor_rev3": 0.1682
+   },
+   {
+    "patch": "wreathR",
+    "cross_ref_mean": 0.2425,
+    "flat_floor_rev3": 0.1778
+   },
+   {
+    "patch": "wingMidL",
+    "cross_ref_mean": 0.2477,
+    "flat_floor_rev3": 0.1384
+   },
+   {
+    "patch": "wingInR",
+    "cross_ref_mean": 0.2823,
+    "flat_floor_rev3": 0.2197
+   },
+   {
+    "patch": "wingMidR",
+    "cross_ref_mean": 0.3241,
+    "flat_floor_rev3": 0.2062
+   },
+   {
+    "patch": "wingOutL",
+    "cross_ref_mean": 0.3388,
+    "flat_floor_rev3": 0.2508
+   },
+   {
+    "patch": "head",
+    "cross_ref_mean": 0.3695,
+    "flat_floor_rev3": 0.1404
+   },
+   {
+    "patch": "wingInL",
+    "cross_ref_mean": 0.3858,
+    "flat_floor_rev3": 0.1493
+   },
+   {
+    "patch": "bodyLow",
+    "cross_ref_mean": 0.4126,
+    "flat_floor_rev3": 0.1986
+   },
+   {
+    "patch": "breast",
+    "cross_ref_mean": 0.5967,
+    "flat_floor_rev3": 0.1426
+   },
+   {
+    "patch": "wingOutR",
+    "cross_ref_mean": 0.6107,
+    "flat_floor_rev3": 0.1478
+   }
+  ]
+ },
+ "noise_floor": {
+  "cross_reference_mean_abs_dratio": 0.1937,
+  "worst": 0.3067,
+  "worst_at": "breast"
+ },
+ "flat_floor": {
+  "rev-3": 0.1732,
+  "rev-2": 0.2735
+ },
+ "target_ratio_vector": {
+  "head": {
+   "rev-3": 0.8014,
+   "rev-2": 1.1063,
+   "mean": 0.9538
+  },
+  "breast": {
+   "rev-3": 0.7935,
+   "rev-2": 0.4868,
+   "mean": 0.6401
+  },
+  "bodyLow": {
+   "rev-3": 0.7184,
+   "rev-2": 0.5293,
+   "mean": 0.6239
+  },
+  "wingInL": {
+   "rev-3": 0.9209,
+   "rev-2": 0.6314,
+   "mean": 0.7762
+  },
+  "wingInR": {
+   "rev-3": 0.7017,
+   "rev-2": 0.7487,
+   "mean": 0.7252
+  },
+  "wingMidL": {
+   "rev-3": 0.831,
+   "rev-2": 0.7392,
+   "mean": 0.7851
+  },
+  "wingMidR": {
+   "rev-3": 0.7115,
+   "rev-2": 0.8642,
+   "mean": 0.7879
+  },
+  "wingOutL": {
+   "rev-3": 0.683,
+   "rev-2": 0.8311,
+   "mean": 0.757
+  },
+  "wingOutR": {
+   "rev-3": 0.7832,
+   "rev-2": 0.4786,
+   "mean": 0.6309
+  },
+  "arrows": {
+   "rev-3": 0.9921,
+   "rev-2": 1.1289,
+   "mean": 1.0605
+  },
+  "wreathR": {
+   "rev-3": 1.0062,
+   "rev-2": 0.8039,
+   "mean": 0.9051
+  },
+  "wreathBot": {
+   "rev-3": 0.9912,
+   "rev-2": 0.8404,
+   "mean": 0.9158
+  }
+ },
+ "locus": "the 12 device patches above, evaluated on the reverse motif at the tier stated by the scorecard; the field patches are reported but excluded from the D3 score (they belong to D13)"
+}

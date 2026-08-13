@@ -16,5 +16,16 @@ compounded-backup-*.json
 deploy/.env
 !deploy/.env.example
 
-# generated colouring-book output (regenerate with scripts/coloringbook.mjs)
-coloringbook/
+# generated colouring-book output (regenerate with scripts/coloringbook.mjs).
+# Reference photographs and scratch tooling stay out; the JUDGE'S EVIDENCE does
+# not. docs/COIN-JUDGE.md 1.1 promises any number ever published can be
+# reproduced and a retired instrument kept at its old hash — unkeepable if the
+# scorecards, derivations and eval libraries only ever live on one disk.
+# Text and instruments are tracked (~0.4 MB); the 15 MB of PNGs are not.
+coloringbook/*
+!coloringbook/judge/
+coloringbook/judge/*
+!coloringbook/judge/*.md
+!coloringbook/judge/*.json
+!coloringbook/judge/*.jsonl
+!coloringbook/judge/*.mjs
