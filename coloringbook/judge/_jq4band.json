@@ -1,0 +1,68 @@
+{
+ "_what": "ROUND 4 FROZEN TARGET \u2014 the quarter REVERSE legend band and rim seat, in viewBox units (coin blank r = 47, centre 50,50). Hand annotation off the polar unwrap (COIN-JUDGE.md 2.1: 'a hand annotation is a legitimate frozen target'), on the two best-fitted reverse references.",
+ "_instrument": "_jq44unwrap.mjs (the picture) + the radial mean-grey profile in the run doc; _jq45band.mjs's automatic HF detector FAILED (50%-of-peak crossing lands on a window bound on 2 of 4 references) and is published as a failure, not used.",
+ "_overlay": "_jq44unwrap-quarter-rev-2.png, _jq44unwrap-quarter-rev-3.png, _jq44unwrap-qp1963-rev-pad.png, _jq44unwrap-qp1964-rev-pad.png",
+ "_references": {
+  "quarter-rev-2.png": "alpha-matte cutout, disc fit p95 0.15% of R \u2014 the best-fitted reverse we hold",
+  "quarter-rev-3.jpg": "flood fit p95 0.32% of R, square-on",
+  "_why_not_the_proofs": "band geometry is a SCALE question, not a reflectance question. The 1963/1964 plates fit to p95 4.8% and 11.1% of R because they are oblique shots on patterned grounds; at r 40 that is +-2 to +-4.5 viewBox units, three times the +-1.5 gate. The proofs are the right artefact for the DEVICE and the wrong one for the BAND."
+ },
+ "top_legend": {
+  "text": "UNITED STATES OF AMERICA",
+  "baseline_r": {
+   "quarter-rev-2.png": 36.9,
+   "quarter-rev-3.jpg": 36.1,
+   "frozen": 36.5,
+   "spread": 0.8
+  },
+  "cap_top_r": {
+   "quarter-rev-2.png": 43.5,
+   "quarter-rev-3.jpg": 43.3,
+   "frozen": 43.4,
+   "spread": 0.2
+  },
+  "cap_height": 6.9,
+  "angular_span_deg": 170,
+  "cross_check": "independent of the ladder: 24 characters = 23 advances over ~170 deg at r 40 = 118.7 units of arc / 23 = 5.16 units per advance; a bold caps face advances ~0.72 x cap height, giving cap 7.2 against the ladder's 6.9 \u2014 two methods sharing no step, agreeing to 0.3 units. At 160 deg of span the arc route gives 6.8 and at 180 deg it gives 7.6."
+ },
+ "bottom_legend": {
+  "text": "QUARTER DOLLAR",
+  "baseline_r": {
+   "quarter-rev-2.png": 37.0,
+   "frozen": 37.0
+  },
+  "cap_top_r": {
+   "quarter-rev-2.png": 43.7,
+   "frozen": 43.7
+  },
+  "cap_height": 6.7
+ },
+ "rim_seat_r": {
+  "frozen": 44.2,
+  "quarter-rev-2.png": 44.15,
+  "quarter-rev-3.jpg": 44.2,
+  "qp1963-rev-pad.png": 44.3,
+  "method": "mean grey along r in the two letter-free sectors -14..14 and 166..194 deg; the rim's inner bevel is a peak at 44.2-44.4 on all three, with bare field inboard and the flat rim outboard.",
+  "note": "three independent references, two of them the best-fitted discs in ref/. Our art draws the field circle at r 41.0 (EDGE.quarter.field.full), so our rim band is 6.0 units wide where the coin's is 2.8. The literal 41.0 is shared by all four coins in EDGE and has NOT been measured on the other three."
+ },
+ "ours_at_the_time_of_freezing": {
+  "commit": "b1b94e9",
+  "subject_sha256": "d8f57dbbba1835cd190e9c8d162a76f11bdc090281e518e0cff1339730758041",
+  "top_baseline_r": 36.4,
+  "top_font_size": 4.5,
+  "top_cap_height": 3.2,
+  "top_cap_top_r": 39.6,
+  "bottom_baseline_r": 35.63,
+  "bottom_font_size": 5.3,
+  "bottom_cap_height": 3.8,
+  "bottom_cap_top_r": 39.4,
+  "field_circle_r": 41.0,
+  "derivation": "arcText places the glyph BASELINE at rField - 4.6 (top) and rField - bs*0.9 - 0.6 (bottom) with rField = EDGE.quarter.field.full = 41.0; cap height taken as 0.71 x font-size for a bold sans. Angular span: arcText advance = 0.82 x font-size = 3.69 units, perGlyph = (3.69/36.4) rad = 5.81 deg, 23 advances = 133.6 deg.",
+  "top_angular_span_deg": 133.6
+ },
+ "verdicts_this_target_supports": {
+  "baseline_radius": "top 36.40 vs 36.5 frozen -> -0.10 units, INSIDE the +-1.5 gate. bottom 35.63 vs 37.0 -> -1.37, inside.",
+  "cap_height": "top 3.2 vs 6.9 -> 46% of the reference. bottom 3.8 vs 6.7 -> 57%.",
+  "retraction": "ROUND 2 PUBLISHED 'ours 36.40 against a reference 38.0-38.5, 1.9 units too far inboard' and 'letters about 20% too tall'. Both are retracted. The reference baseline is 36.1-37.0, so our baseline was right within 0.1; and our letters are not 20% too tall, they are 46-57% of the height they should be. Retracted beside, not rewritten: round 2's entry stands with this one next to it."
+ }
+}

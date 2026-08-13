@@ -1,0 +1,102 @@
+{
+ "_note": "ROUND 4 frozen disc fits. Seeds hand-read off a 50px ladder (_jq41grid); refined by outermost-radial-edge walk in _jq41hand.mjs. Controls: dime-obv-2 465.68 vs grey-flood 468.4 (0.58%), quarter-rev-3 1001.3 vs 999.5 (0.18%).",
+ "_instrument": "_jq41hand.mjs",
+ "_overlay": "_jq41hand-overlay.png",
+ "qp1963-obv-pad.png": {
+  "cx": 467.42,
+  "cy": 500.2,
+  "R": 290.24,
+  "p95pc": 4.58,
+  "seed": {
+   "cx": 469,
+   "cy": 499,
+   "R": 290
+  }
+ },
+ "qp1963-rev-pad.png": {
+  "cx": 458.86,
+  "cy": 497.21,
+  "R": 290.15,
+  "p95pc": 4.79,
+  "seed": {
+   "cx": 461,
+   "cy": 504,
+   "R": 288
+  }
+ },
+ "qp1964-obv-pad.png": {
+  "cx": 465.16,
+  "cy": 503.17,
+  "R": 292.72,
+  "p95pc": 9.89,
+  "seed": {
+   "cx": 461.5,
+   "cy": 501.5,
+   "R": 288.5
+  }
+ },
+ "qp1964-rev-pad.png": {
+  "cx": 461.08,
+  "cy": 503.77,
+  "R": 302.13,
+  "p95pc": 11.05,
+  "seed": {
+   "cx": 461.5,
+   "cy": 502.5,
+   "R": 295.5
+  }
+ },
+ "quarter-proof-ebay.jpg": {
+  "cx": 612.46,
+  "cy": 617.06,
+  "R": 539.82,
+  "p95pc": 4.85,
+  "seed": {
+   "cx": 595,
+   "cy": 617.5,
+   "R": 536
+  }
+ },
+ "dime-obv-2.jpg": {
+  "cx": 475.44,
+  "cy": 476.67,
+  "R": 465.68,
+  "p95pc": 0.58,
+  "seed": {
+   "cx": 475,
+   "cy": 475,
+   "R": 468
+  }
+ },
+ "q1995d-rev.png": {
+  "cx": 258.15,
+  "cy": 254.13,
+  "R": 254.7,
+  "p95pc": 1.29,
+  "seed": {
+   "cx": 258,
+   "cy": 254,
+   "R": 253
+  }
+ },
+ "quarter-rev-2.png": {
+  "cx": 374.5,
+  "cy": 374.37,
+  "R": 374.98,
+  "p95pc": 0.15,
+  "seed": {
+   "note": "ALPHA MATTE is ground truth for this cutout PNG; _rvdisc via alpha. The refine walk returns 371.46 (1.0% low) because the matte edge is soft."
+  }
+ },
+ "quarter-rev-3.jpg": {
+  "cx": 999.98,
+  "cy": 999.96,
+  "R": 1001.3,
+  "p95pc": 0.32,
+  "seed": {
+   "cx": 999.5,
+   "cy": 999.5,
+   "R": 999.5
+  }
+ }
+}

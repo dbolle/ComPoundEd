@@ -1,7 +1,7 @@
 {
  "coin": "quarter",
- "round": 2,
- "commit": "2a656a3 (working tree, uncommitted)",
+ "round": 4,
+ "commit": "b1b94e9",
  "date": "2026-08-13",
  "subject_sha256": "d8f57dbbba1835cd190e9c8d162a76f11bdc090281e518e0cff1339730758041",
  "subject_sha256_round_1": "0b9e5303f0b86360692d297b8d4fff61374f2ccb34f12c86f5aa7d8ae73e334d",
@@ -24,7 +24,12 @@
   "_qtreg.json": "sha256:d94711a2545d483e19b98dcd375967c99fe4e56a5128f5a1f3a3feb565e3b8e7",
   "ref/quarter-obv-2.jpg": "sha256:25bdfecefd243031fb5a09c2be6c1575952e232aadcf1fd8d89d0112f9f13fe0",
   "ref/quarter-rev-2.png": "sha256:b49b43bf3b0137c042de8cb94d347ec73f8963908380ac6735fe76d46b4abd13",
-  "ref/quarter-rev.jpg": "sha256:8493330fd5fd4fecadb4549a531f8a4018a1a55b1c41873ed6afa17fb25c0226"
+  "ref/quarter-rev.jpg": "sha256:8493330fd5fd4fecadb4549a531f8a4018a1a55b1c41873ed6afa17fb25c0226",
+  "judge/_jq4discs.json": "sha256:8b6084d6afcf29d2232a4e66f01bf1fd8268f09f1cf531926d640b2c7737a2e0",
+  "judge/_jq4band.json": "sha256:7e9c9b446577c0cc0d34263fbd34da37db0a3c0321d7fa3158e47dc05444177b",
+  "ref/qp1963-rev-pad.png": "sha256:db176d943abde67a49220d8a8f5fb03b579ae2189e991b2d16d1c21b213891ac",
+  "ref/qp1964-rev-pad.png": "sha256:4b379942a9f5a8d51a31adfb1c4ee1d6725e1ab5fd659b766e377b7491c61a73",
+  "ref/quarter-rev-3.jpg": "sha256:9bd1364ae940be98f433f66e62485a6d028a9caf113f0b011fbbdbe42b031e66"
  },
  "eval_libraries": {
   "judge/_jqgeom.mjs": "sha256:38e0eef4234129c540e1d8f81df9086e97dec2e88631b98891a10ff6596c6390",
@@ -36,7 +41,7 @@
   "judge/_jq3tone.mjs": "sha256:894894302caed367fa8cee3b736605ce336f430662a17510e18bac7f2a4ea5cb",
   "judge/_jq5letter.mjs": "sha256:a8eb8643b4c6e80f008da4e9967c913aad8aa6e790dfeca15e11436bbdef44b4",
   "judge/_jq67edge.mjs": "sha256:419c4666a2e6f44515bf79e84792631eb99607272e2739c32f6ef8da3d177408",
-  "judge/_jq8contain.mjs": "sha256:7986dc772e5c1e81803a8a6b30562e7dabb807af180429a2ec6b8d02ff560719  [RETIRED round 1 \u2014 UNSOUND, see instrument_correction]",
+  "judge/_jq8contain.mjs": "sha256:7986dc772e5c1e81803a8a6b30562e7dabb807af180429a2ec6b8d02ff560719  [RETIRED round 1 — UNSOUND, see instrument_correction]",
   "judge/_jq9well.mjs": "sha256:d07d61504aa150a713f2642e1e6bfaa7116da02841a7856fe829b03d4147244f",
   "judge/_jq10tier.mjs": "sha256:dcf2ebb44cd4ffc15331503ea75ad1cb6e45c9e4dcbc3a163cb20756dd1baa66",
   "judge/_jq12look.mjs": "sha256:0ebdcddf9a546bb6d01cc944f48be67bae9fa4843fc5502a15fdec0157fae678",
@@ -99,8 +104,8 @@
    "locus": "every tier; motif + inscription; blank/field pair/specular excluded by name",
    "gate": "0.00%, every tier",
    "value": {
-    "pct": 0.0,
-    "depth_units": 0.0
+    "pct": 0,
+    "depth_units": 0
    },
    "verdict": "PASS",
    "owner": "last toucher",
@@ -115,10 +120,10 @@
    "locus": "every tier",
    "gate": "0.00%, every tier",
    "value": {
-    "pct": 0.0,
-    "depth_units": 0.0,
+    "pct": 0,
+    "depth_units": 0,
     "max_r_at_84px": 40.949,
-    "field_circle_full": 41.0,
+    "field_circle_full": 41,
     "headroom_units": 0.051
    },
    "verdict": "PASS",
@@ -158,28 +163,67 @@
    "side": "reverse",
    "name": "reverse motif silhouette",
    "metric": "motif IoU vs a frozen reverse mask",
-   "locus": "NO TARGET CAN BE FROZEN",
-   "gate": ">= 0.95",
+   "locus": "r <= 0.862 R (viewBox 40.5, the field circle) on a 700x700 disc-normalised grid; motif = the connected component of {grey >= T} containing the disc centre; T swept Tv-15..Tv+15 step 5, Tv = the histogram valley floor of that photograph. Frozen in _jq43seg.mjs before any value existed.",
+   "gate": "FREEZE only if min pairwise device IoU across the sweep >= 0.97 AND cross-reference registered IoU >= 0.95. Round 2 gate, unchanged, not re-derived.",
    "value": {
-    "device_side_contour_self_IoU": [
-     0.277,
-     0.7786
-    ],
+    "acquisition_worked": "YES — the device now separates from the field. _jq43seg-qp1963-rev-pad.png shows the contour following the eagle, the arrows, the wreath and both legends.",
+    "min_pairwise_device_IoU": {
+     "qp1963-rev-pad.png": 0.8431,
+     "qp1964-rev-pad.png": 0.9072
+    },
+    "min_adjacent_5_level_IoU": {
+     "qp1963-rev-pad.png": 0.9578,
+     "qp1964-rev-pad.png": 0.9761
+    },
+    "best_over_five_loci": {
+     "locus": "r <= 0.65 R",
+     "value": 0.9518,
+     "ref": "qp1964-rev-pad.png"
+    },
+    "cross_reference_registered_IoU": 0.7372,
     "round_0": [
      0.4705,
      0.6869
     ],
-    "target_own_ambiguity": 0.723,
+    "round_2": [
+     0.277,
+     0.7786
+    ],
+    "target_own_ambiguity": 0.0928,
     "gate_must_resolve": 0.05,
-    "valley_depth_rev3": 0.0822,
-    "valley_depth_rev2": 0.0485,
-    "valley_depth_worked_example_dime_obv_2": 0.8276
+    "area_drift_over_plus_minus_30_levels": {
+     "qp1963-rev-pad.png": 0.375,
+     "qp1964-rev-pad.png": 0.216,
+     "dime-obv-2.jpg (worked example)": 0.066
+    }
    },
-   "verdict": "BLOCKED",
-   "owner": "THE JUDGE - names the acquisition",
+   "verdict": "UNMEASURED",
+   "owner": "THE JUDGE — no acquisition is named this round",
    "round_first_measured": 0,
    "acquisition": "a frosted/cameo-proof quarter reverse against a DARK field. Adoption test, stated before any candidate exists: in-disc grey histogram valley depth >= 0.5 AND level-sweep area drift <= 15% over +-30 grey levels.",
-   "note": "ROUND 1'S ACQUISITION SPEC WAS WRONG AND IS RETRACTED. quarter-rev-3.jpg is square-on to 0.05%% of R (the best disc fit in ref/) and evenly lit, and it still cannot be segmented. The missing property is a REFLECTANCE difference between device and field, which a struck circulation coin does not have: the flat tops of the relief are the same metal at the same reflectance as the field. Device-side self-agreement is WORSE than round 0. Also confirmed: the barrier map is not a second method (bit-identical to the flood at equal T, spec 4), and the 64.26%% 'plateau' was the guard region's own area (spec 4.1)."
+   "note": "NOT FROZEN, AND BLOCKED IS WITHDRAWN. Appendix R3: BLOCKED means no artefact we have can measure it; the overlay CAN see the feature, so the verdict is UNMEASURED and the work is the judge’s. Three things stand in the way and all three are judge work: (1) both proof reverses are oblique on patterned grounds and fit a CIRCLE to only p95 4.8%% and 11.1%% of R — a perspective/ellipse rectification is needed before the two can be registered to each other, which is most of the 0.7372; (2) at every threshold the eagle MERGES with E PLURIBUS UNUM and with UNITED STATES OF AMERICA, so the connected component is 65-72%% of the field and is not the motif alone; (3) round 2 stated TWO acceptance conditions and only the first was implemented — on the second (level-sweep area drift <= 15%% over +-30 grey levels) every quarter proof FAILS at 16.8-37.5%% against the dime worked example’s 6.6%%, and that is the condition that predicts contour stability. A radial-extent descriptor (_jq47profile.mjs) was derived as a coarser gate the ambiguous target could carry; it measures 34-39 units in almost every direction, i.e. it is measuring the LEGEND, and it is published as a failure and NOT adopted.",
+   "retracted_round_2": {
+    "verdict": "BLOCKED",
+    "value": {
+     "device_side_contour_self_IoU": [
+      0.277,
+      0.7786
+     ],
+     "round_0": [
+      0.4705,
+      0.6869
+     ],
+     "target_own_ambiguity": 0.723,
+     "gate_must_resolve": 0.05,
+     "valley_depth_rev3": 0.0822,
+     "valley_depth_rev2": 0.0485,
+     "valley_depth_worked_example_dime_obv_2": 0.8276
+    },
+    "locus": "NO TARGET CAN BE FROZEN",
+    "acquisition": "a frosted/cameo-proof quarter reverse against a DARK field. Adoption test, stated before any candidate exists: in-disc grey histogram valley depth >= 0.5 AND level-sweep area drift <= 15% over +-30 grey levels.",
+    "note": "ROUND 1'S ACQUISITION SPEC WAS WRONG AND IS RETRACTED. quarter-rev-3.jpg is square-on to 0.05%% of R (the best disc fit in ref/) and evenly lit, and it still cannot be segmented. The missing property is a REFLECTANCE difference between device and field, which a struck circulation coin does not have: the flat tops of the relief are the same metal at the same reflectance as the field. Device-side self-agreement is WORSE than round 0. Also confirmed: the barrier map is not a second method (bit-identical to the flood at equal T, spec 4), and the 64.26%% 'plateau' was the guard region's own area (spec 4.1)."
+   },
+   "overlay": "judge/_jq43seg-qp1963-rev-pad.png, judge/_jq43seg-qp1964-rev-pad.png, judge/_jq47profile-*.png"
   },
   {
    "id": "D3",
@@ -251,52 +295,124 @@
    "side": "reverse",
    "name": "structural rhythm",
    "metric": "element count vs _rvtarget.json; centre positions as fractions of the element's span",
-   "locus": "wing primaries, r/R 0.450..0.800, 15 radii, on two independent references",
+   "locus": "round 2's, unchanged: left wing primaries, sector 150..205 deg, r/R 0.450..0.800, 15 radii",
    "gate": "count error 0; mean <= 0.15 gaps; worst <= 0.30",
    "value": {
-    "radii_where_two_references_agree": "0 of 15",
-    "rev3_counts": [
-     12,
-     21,
-     17,
-     18,
-     20,
-     25,
-     20,
-     27,
-     26,
-     27,
-     28,
-     25,
-     25,
-     22,
-     19
-    ],
-    "rev2_counts": [
+    "counts_qp1963_rev": [
+     5,
+     6,
+     4,
      6,
      5,
-     7,
+     4,
+     5,
+     4,
+     5,
+     6,
+     6,
+     5,
+     9,
+     5,
+     6
+    ],
+    "counts_qp1964_rev": [
+     4,
+     4,
+     4,
+     4,
      8,
-     12,
+     5,
+     6,
+     5,
      9,
      7,
-     5,
-     8,
-     8,
-     7,
      10,
-     13,
-     11,
+     7,
+     8,
+     10,
      5
     ],
-    "modal_disagreement": "~5x"
+    "modal": {
+     "qp1963-rev-pad.png": "5 (6/15)",
+     "qp1964-rev-pad.png": "4 (4/15)"
+    },
+    "range": {
+     "qp1963-rev-pad.png": [
+      4,
+      9
+     ],
+     "qp1964-rev-pad.png": [
+      4,
+      10
+     ]
+    },
+    "radii_where_the_two_proofs_agree": "1 of 15",
+    "controls_recounted": {
+     "quarter-rev-3.jpg": {
+      "range": [
+       13,
+       31
+      ],
+      "modal": "20 (2/15)"
+     },
+     "quarter-rev-2.png": {
+      "range": [
+       5,
+       13
+      ],
+      "modal": "5 (3/15)"
+     }
+    }
    },
-   "verdict": "BLOCKED",
-   "owner": "THE JUDGE - names the acquisition",
+   "verdict": "UNMEASURED",
+   "owner": "THE JUDGE — no acquisition is named this round",
    "round_first_measured": 0,
    "acquisition": "the same cameo proof D2 needs, for the same physical reason: the primaries are relief, and on a circulation strike lit diffusely their contrast is toning-dependent.",
-   "response_test": "plateau-safe zero-crossing counter: synthetic combs of 9 and 13 flat-bottomed grooves return 9 and 13; a flat signal returns 0. PASS.",
-   "note": "N/A IS NOT AVAILABLE AND ROUND 1'S SUGGESTION THAT IT MIGHT BE IS REJECTED. The design has three repeated elements - wing primaries, wreath leaves in pairs, arrowheads - all visible at 2000px and all confirmed by the judge's own reading of quarter-rev-3.jpg. The metric has a subject; the COUNT is what is unresolvable. Offered and NOT applied: a zero-error count gate may be the wrong gate for a non-architectural reverse (spec 15 was written for the architectural ones). That is a re-derivation for a future round, written down first."
+   "response_test": "same detector as round 2 (_jq23count.mjs, imported unedited at its round-2 hash): synthetic combs of 9 and 13 return 9 and 13, flat returns 0. PASS.",
+   "note": "THE ACQUISITION HELPED AND IS NOT THE REMAINING OBSTACLE, so BLOCKED is withdrawn. Round 2 on the circulation references: rev-3 spanned 12-28 and rev-2 spanned 5-13, modal values 5x apart, agreement 0 of 15. On the proofs the two ranges overlap almost completely (4-9 and 4-10) and the modal counts differ by ONE (5 and 4). §15.1 wants a count error of zero and that is not met, so D4 still fails — but what is left is a METRIC fault the judge owns: the primaries run down-and-in across the wing, and a circular arc centred on the coin crosses them at a shallow, radius-dependent angle. The overlay shows the counted midpoints scattering off the groove lines for exactly that reason. A sampling path perpendicular to the groove direction is the fix, and it needs no photograph.",
+   "retracted_round_2": {
+    "verdict": "BLOCKED",
+    "value": {
+     "radii_where_two_references_agree": "0 of 15",
+     "rev3_counts": [
+      12,
+      21,
+      17,
+      18,
+      20,
+      25,
+      20,
+      27,
+      26,
+      27,
+      28,
+      25,
+      25,
+      22,
+      19
+     ],
+     "rev2_counts": [
+      6,
+      5,
+      7,
+      8,
+      12,
+      9,
+      7,
+      5,
+      8,
+      8,
+      7,
+      10,
+      13,
+      11,
+      5
+     ],
+     "modal_disagreement": "~5x"
+    },
+    "acquisition": "the same cameo proof D2 needs, for the same physical reason: the primaries are relief, and on a circulation strike lit diffusely their contrast is toning-dependent."
+   },
+   "overlay": "judge/_jq46count-qp1963-rev-pad.png, judge/_jq46count-qp1964-rev-pad.png"
   },
   {
    "id": "D5-HF",
@@ -339,7 +455,7 @@
     "our_HF_84px": 0.3181,
     "glyphs_84px": 34,
     "round_1": {
-     "84px": 0.0,
+     "84px": 0,
      "glyphs": 0
     }
    },
@@ -374,26 +490,96 @@
    "side": "reverse",
    "name": "lettering - legend band radius",
    "metric": "as D5-band obverse",
-   "locus": "the reference's legend band - NOT YET FROZEN",
-   "gate": "band inner radius within +-1.5 viewBox units",
+   "locus": "viewBox radius, read off the polar unwrap of the two BEST-FITTED reverse references (quarter-rev-2.png p95 0.15%% of R, quarter-rev-3.jpg p95 0.32%%). Frozen in judge/_jq4band.json.",
+   "gate": "band inner (baseline) radius within +-1.5 viewBox units of the frozen target",
    "value": {
-    "provisional_overlay_reading_NOT_A_FROZEN_VALUE": {
-     "reference_UNITED_STATES_OF_AMERICA_baseline_r": "~38.0-38.5",
-     "reference_cap_top_r": "~41.0",
-     "reference_cap_height_units": "~2.7",
-     "ours_baseline_r": 36.4,
-     "ours_cap_top_r": 39.64,
-     "ours_cap_height_units": 3.24,
-     "displacement_units": "~1.9 inboard",
-     "gate": 1.5
-    },
-    "sigma_plateau_method": "48 sector x reference combinations, NO sector meets both contrast >= 1.8x and inter-reference agreement <= 1.0 unit"
+    "reference_top_baseline": 36.5,
+    "reference_top_cap_top": 43.4,
+    "reference_cap_height": 6.9,
+    "reference_bottom_baseline": 37,
+    "reference_bottom_cap_top": 43.7,
+    "reference_rim_seat": 44.2,
+    "ours_top_baseline": 36.4,
+    "ours_top_cap_height": 3.2,
+    "ours_top_cap_top": 39.6,
+    "ours_bottom_baseline": 35.63,
+    "ours_bottom_cap_height": 3.8,
+    "ours_field_circle": 41,
+    "delta_top_baseline": -0.1,
+    "delta_bottom_baseline": -1.37,
+    "cap_height_ratio_top": 0.46,
+    "cap_height_ratio_bottom": 0.57
    },
-   "verdict": "UNMEASURED",
+   "verdict": "PASS",
    "owner": "THE JUDGE - owns targets",
    "round_first_measured": 0,
-   "note": "BLOCKED IS OVERTURNED. The sigma-plateau method genuinely cannot work here - the eagle's wings occupy every radius inboard of the legend, so there is no inner shoulder, and no photograph moves the wings. That reasoning is upheld. But 'this detector cannot find the band' is not 'no artefact we have can measure it'. The judge drew a radius ladder on quarter-rev-3.jpg at 2000px (_jq-r2-locus3.png) and on quarter-rev-2.png (_jq-r2-locus.png) and read the band off directly, which is exactly what spec 4.3 already tells the judge to do with a located feature. Our top legend sits about 1.9 units too far inboard against a +-1.5 gate, and its letters are about 20%% too tall. Recorded as EVIDENCE, not as a scorecard value: an overlay read by eye is not a frozen target. The work for round 3 is to do the annotation properly, on both references, with the agreement gate stated first. Same category as D3-reverse in round 1: judge work that has not been done.",
-   "also": "This is what verifies the D5-HF locus. r = 38.9 runs through the MIDDLE of the reference's legend, so the frozen locus is on the right feature on the target side - by luck rather than derivation. Round 3 should re-derive it from the annotation."
+   "note": "FROZEN, AND ROUND 2’S HAND READ IS RETRACTED BESIDE. Round 2 published “ours 36.40 against a reference 38.0-38.5, 1.9 units too far inboard” and “letters about 20%% too tall”. Measured off the polar unwrap on the two best-fitted references, the reference baseline is 36.1 and 36.9 (frozen 36.5), so our 36.40 is 0.10 units out and this dimension PASSES its stated gate. The letters are not 20%% too tall: at cap 3.2 against the reference’s 6.9 they are 46%% of the height they should be. The cap height is cross-checked independently of the radius ladder — 24 glyph advances over 170 deg at r 40 gives 4.95 units per advance, and a bold caps face advances ~0.72x cap height, giving 6.9. TWO NEW FAILURES fall out of the same measurement and are recorded as new rows: D5-cap (below) and the rim seat, where the coin seats its rim at r 44.2 on three references and we draw the field circle at 41.0, a rim band 2.1x too wide.",
+   "also": "This is what verifies the D5-HF locus. r = 38.9 runs through the MIDDLE of the reference's legend, so the frozen locus is on the right feature on the target side - by luck rather than derivation. Round 3 should re-derive it from the annotation.",
+   "retracted_round_2": {
+    "verdict": "UNMEASURED",
+    "value": {
+     "provisional_overlay_reading_NOT_A_FROZEN_VALUE": {
+      "reference_UNITED_STATES_OF_AMERICA_baseline_r": "~38.0-38.5",
+      "reference_cap_top_r": "~41.0",
+      "reference_cap_height_units": "~2.7",
+      "ours_baseline_r": 36.4,
+      "ours_cap_top_r": 39.64,
+      "ours_cap_height_units": 3.24,
+      "displacement_units": "~1.9 inboard",
+      "gate": 1.5
+     },
+     "sigma_plateau_method": "48 sector x reference combinations, NO sector meets both contrast >= 1.8x and inter-reference agreement <= 1.0 unit"
+    },
+    "locus": "the reference's legend band - NOT YET FROZEN",
+    "note": "BLOCKED IS OVERTURNED. The sigma-plateau method genuinely cannot work here - the eagle's wings occupy every radius inboard of the legend, so there is no inner shoulder, and no photograph moves the wings. That reasoning is upheld. But 'this detector cannot find the band' is not 'no artefact we have can measure it'. The judge drew a radius ladder on quarter-rev-3.jpg at 2000px (_jq-r2-locus3.png) and on quarter-rev-2.png (_jq-r2-locus.png) and read the band off directly, which is exactly what spec 4.3 already tells the judge to do with a located feature. Our top legend sits about 1.9 units too far inboard against a +-1.5 gate, and its letters are about 20%% too tall. Recorded as EVIDENCE, not as a scorecard value: an overlay read by eye is not a frozen target. The work for round 3 is to do the annotation properly, on both references, with the agreement gate stated first. Same category as D3-reverse in round 1: judge work that has not been done."
+   },
+   "overlay": "judge/_jq44unwrap-quarter-rev-2.png, judge/_jq44unwrap-quarter-rev-3.png"
+  },
+  {
+   "id": "D5-cap",
+   "side": "reverse",
+   "name": "lettering — cap height",
+   "metric": "legend cap height in viewBox units vs judge/_jq4band.json",
+   "locus": "top legend UNITED STATES OF AMERICA and bottom legend QUARTER DOLLAR, reverse, full tier",
+   "gate": "within +-15%% of the frozen reference cap height (6.9 top, 6.7 bottom) — DERIVED THIS ROUND, before the value was known, from the +-1.5-unit band gate: +-1.5 units on a 6.9-unit cap is +-21.7%%, and the tighter 15%% is taken because cap height is measured on two references agreeing to 0.2 units where the baseline agreed to only 0.8",
+   "value": {
+    "ours_top": 3.2,
+    "reference_top": 6.9,
+    "ratio_top": 0.46,
+    "ours_bottom": 3.8,
+    "reference_bottom": 6.7,
+    "ratio_bottom": 0.57
+   },
+   "verdict": "FAIL",
+   "owner": "lettering",
+   "round_first_measured": 4,
+   "overlay": "judge/_jq44unwrap-quarter-rev-2.png",
+   "note": "This is the largest measured error on the quarter reverse and it had never been scored: D5 carried a band radius and an HF ratio, and neither can see a legend that is in the right place at half the size. It is also the likely reason the reverse reads as empty at the recognition draw — the legend contributes about a quarter of the ink it should."
+  },
+  {
+   "id": "D5-rim",
+   "side": "both",
+   "name": "rim seat radius",
+   "metric": "radius at which the raised rim meets the field, viewBox units, vs judge/_jq4band.json",
+   "locus": "letter-free sectors -14..14 and 166..194 deg; the rim’s inner bevel is the peak of mean grey along r",
+   "gate": "within +-1.0 viewBox unit of the frozen 44.2 — DERIVED THIS ROUND before the value was known: the three references place it at 44.15, 44.2 and 44.3, a spread of 0.15, so a 1.0-unit gate is 6.7x the target’s own spread",
+   "value": {
+    "reference": 44.2,
+    "per_reference": {
+     "quarter-rev-2.png": 44.15,
+     "quarter-rev-3.jpg": 44.2,
+     "qp1963-rev-pad.png": 44.3
+    },
+    "ours": 41,
+    "delta": -3.2,
+    "ours_rim_band_width": 6,
+    "reference_rim_band_width": 2.8,
+    "ratio": 2.14
+   },
+   "verdict": "FAIL",
+   "owner": "silhouette",
+   "round_first_measured": 4,
+   "note": "EDGE in src/art/coins.js gives all four coins field.full = 41.0. Measured here on the QUARTER only. The other three have NOT been measured and this row does not claim anything about them — but the shared literal means the same question is open on all four, and that is a judge task, not this specialist’s."
   },
   {
    "id": "D6",
@@ -440,7 +626,7 @@
    "locus": "obv HEAD, HAIR",
    "gate": "0 knots turning > 75 deg",
    "value": {
-    "worst_deg": 102.0,
+    "worst_deg": 102,
     "knots_over_75": 5,
     "across_paths": 7
    },
@@ -649,7 +835,8 @@
    "owner": "tone",
    "round_first_measured": 1,
    "response_test": "spec 20.1: the recovered field level is the palette's own grey on every coin - 212 silver, 151 cent. PASS.",
-   "note": "IMPROVED AT THE ONLY TIER THAT CHANGED, AND STILL FAILS EVERYWHERE. 84px delta +0.1835 -> +0.1631 and ink 0.441 -> 0.503 against a reference at 0.764: 11.1%% of the gap closed, a real collateral benefit of the legend. 26/44/54 are byte-identical and unmoved. Fails at every tier by 1.3x to 3.3x the gate. THE HIGHEST-PRIORITY REPAIRABLE FAILURE ON THIS COIN and round 3's dispatch."
+   "note": "IMPROVED AT THE ONLY TIER THAT CHANGED, AND STILL FAILS EVERYWHERE. 84px delta +0.1835 -> +0.1631 and ink 0.441 -> 0.503 against a reference at 0.764: 11.1%% of the gap closed, a real collateral benefit of the legend. 26/44/54 are byte-identical and unmoved. Fails at every tier by 1.3x to 3.3x the gate. THE HIGHEST-PRIORITY REPAIRABLE FAILURE ON THIS COIN and round 3's dispatch. ROUND 3 CONTEXT: a D13 tone specialist moved the reverse into gate at every tier (+0.163 -> +0.048) and the eagle then read as A SAILBOAT at 26/44/54 px. The owner reverted. D13 is therefore known to be satisfiable while the coin gets worse, and it must never again be dispatched alone.",
+   "round_4": "NOT RE-DERIVED FROM PIXELS THIS ROUND, AND NOT ASSERTED EITHER. src/art/coins.js is byte-identical to the round-2 subject (sha256 d8f57dbb...), and the reference is unchanged, so the value cannot have moved; the hash is the evidence, as it was in round 1. The proofs are deliberately NOT adopted as D13 references: COIN-ART-METHOD 20.3 — a frosted proof is the best shape reference and the WORST tone reference, and a cameo proof’s device/field ratio is a property of the frosting, not of the design. Measured for the record on the proofs: device/field would read >5x where the circulation coin reads 0.689."
   },
   {
    "id": "D12",
@@ -665,7 +852,7 @@
    "note": "THE CONTROL WENT FIRST AND IT CORRECTED THE JUDGE AGAIN - this time with no specialist claim involved. See quarter-r2.md section 6."
   }
  ],
- "verdict": "FAIL (the coin), ACCEPT (the round)",
+ "verdict": "FAIL (the coin) — judge round, no specialist dispatched",
  "round_decision": {
   "decision": "ACCEPT - do not revert",
   "target": "D5 lettering, quarter reverse, the HF half",
@@ -677,11 +864,13 @@
   "specialist_hygiene": "clean, and better than required. One file edited; no target or eval library touched; four alternatives reported including the ones that got worse; a global floor of 62 rejected on blast radius; and BOTH of its own apparent wins disclaimed as artefacts rather than banked. Disclaiming your own win is the behaviour spec 1 is trying to buy."
  },
  "failing": [
-  "D2",
+  "D2(rev, UNMEASURED)",
   "D3(rev)",
-  "D4(rev)",
+  "D4(rev, UNMEASURED)",
   "D5-HF(obv)",
-  "D5-band(both)",
+  "D5-band(obv)",
+  "D5-cap(rev)",
+  "D5-rim",
   "D6",
   "D7",
   "D10(rev)",
@@ -738,20 +927,17 @@
   "D5 band reverse is BLOCKED by the DESIGN, not by the photograph": "PARTLY UPHELD AND PARTLY OVERTURNED. The sigma-plateau method genuinely cannot work - the wings occupy every radius inboard of the legend. But the band is directly locatable by overlay on the references we already hold, which is what spec 4.3 tells the judge to do. RECLASSIFIED BLOCKED -> UNMEASURED (judge work, no acquisition).",
   "the requested draw size is not the SVG box width for three of the four coins": "CONFIRMED and independently relevant: every judge instrument here reads boxW off the emitted SVG's own width attribute."
  },
- "looked_at": {
-  "artefacts": [
-   "coloringbook/judge/_jq-r2-control.png",
-   "coloringbook/judge/_jq-r2-subject.png",
-   "coloringbook/judge/_jq-r2-crop84.png",
-   "coloringbook/judge/_jq-r2-crop120.png",
-   "coloringbook/judge/_jq-r2-locus.png",
-   "coloringbook/judge/_jq-r2-locus3.png"
-  ],
-  "control_first": "YES, and written down before the subject was rendered. dime rev @84 and nickel rev @84 (byte-identical, both keep the 135 floor): motif only, no lettering. quarter rev @76 (below the new floor): eagle mass, no lettering. quarter OBVERSE @84 (byte-identical): LIBERTY IS drawn and at 84 device pixels it reads as a ROW OF SMALL DARK TICKS - the letters are not individually legible. That is the shipped, D5-passing precedent for a legend at this size.",
-  "subject": "at 84px the reverse now carries UNITED STATES OF AMERICA and QUARTER DOLLAR. At 20x nearest, near top-centre the letters are separated marks; toward both ends they run together. It is a serrated band of letter-sized marks, NOT words - the same character as the obverse control. The photograph at the same device pixel count is also a chain of separated marks (reference HF 0.5135, ours 0.3181), so it is faithful and it is not legible, and both are true.",
-  "tier_pop_seen": "the 82px tile confirms D10 by eye: scrub 82 -> 84 and a whole legend materialises.",
-  "the_control_caught_the_judge": "From the geometry I computed the field ring's inner stroke edge at 40.30 against our outermost glyph at 39.64 - 0.66 units, 0.55 device px - and looking at the crop with that number in my head I saw the letters merging into the ring at ten and two o'clock. THEY DO NOT. Ring band walked r 40.3..41.7 per 0.5 deg at device resolution: 1 of 720 angles darkened, by 5 grey levels, at 330.5 deg; band darkest 146 and lightest-min 183 in BOTH revisions; the byte-identical obverse control 0 of 720 and the below-floor 82px control 0 of 720. Q5 said the judge cannot un-read a claim. Round 2 adds the mirror case: THE JUDGE CANNOT UN-READ ITS OWN ARITHMETIC. No specialist was involved."
- },
+ "looked_at": [
+  "judge/_jq4-fits.png",
+  "judge/_jq4-discs.png",
+  "judge/_jq41hand-overlay.png",
+  "judge/_jq43seg-qp1963-rev-pad.png",
+  "judge/_jq43seg-qp1964-rev-pad.png",
+  "judge/_jq44unwrap-quarter-rev-2.png",
+  "judge/_jq44unwrap-quarter-rev-3.png",
+  "judge/_jq44unwrap-qp1964-rev-pad.png",
+  "judge/_jq46count-qp1963-rev-pad.png"
+ ],
  "tests": "npx playwright test tests/coins.spec.js tests/pawcoins.spec.js -> 18 passed, exit 0",
  "termination_check": {
   "budget": "4 rounds; this is round 2; two remain",
@@ -761,5 +947,24 @@
   "decision": "CONTINUE"
  },
  "next_dispatch": "D13 device against field, quarter, BOTH sides. Filled-in section 7 brief in quarter-r2.md section 10.2.",
- "notes": "Round 2 accepted. The coin still FAILS on 11 dimension-rows. The most important event of this round was again not the fix: it was that the D5 instrument's LOCUS was computed from the artefact under test, so the reference photograph's own score moved when our drawing changed - and the judge's own published `locus` field recorded three different radii for one dimension and nobody read it. That retracts a published obverse number (1.51x -> 2.0089x) on art that is byte-identical across all three rounds. Second in importance: BLOCKED was over-applied to D5-band-reverse, and the thing that overturned it was spec 4.3's own instruction to draw the feature on the source and look."
+ "notes": "Round 2 accepted. The coin still FAILS on 11 dimension-rows. The most important event of this round was again not the fix: it was that the D5 instrument's LOCUS was computed from the artefact under test, so the reference photograph's own score moved when our drawing changed - and the judge's own published `locus` field recorded three different radii for one dimension and nobody read it. That retracts a published obverse number (1.51x -> 2.0089x) on art that is byte-identical across all three rounds. Second in importance: BLOCKED was over-applied to D5-band-reverse, and the thing that overturned it was spec 4.3's own instruction to draw the feature on the source and look.",
+ "note_round4": "ROUND 4 is a JUDGE-ONLY round: no specialist ran, src/art/coins.js is byte-identical to the round-2 subject (sha256 d8f57dbb...), so every dimension not listed as re-scored below carries its round-2 value with the hash as the evidence (COIN-JUDGE.md Appendix Q, what round 1 says should not change). Round 3 was reverted by the owner and is preserved unshipped at judge/r3-d13-UNSHIPPED.patch.",
+ "instruments_round_4": {
+  "_jq40fit.mjs": "sha256:0c3171a5bb9e49329c43a67a5cac424c38143575765987ffd3190ef40ec9a3de",
+  "_jq40disc.mjs": "sha256:c10810eebd5cf7f55610446048468e4f2ab8e8d906139b1bdf3464e4f89e0801",
+  "_jq40look.mjs": "sha256:d5f773769b21b83fcbe43422ca67514e4d55d18b82b666f45c92e05b55364683",
+  "_jq41disc.mjs": "sha256:5c6a81d8620d70909859b86cc0cc11b274fa5e1510274817eed944517a2467f9",
+  "_jq41hand.mjs": "sha256:71b5b0a7d2f88ae956c3a14d105163d6a269f71974a6e4c210dc359868affa42",
+  "_jq42indep.mjs": "sha256:3ff088dc357b04d2b372acd3206167d11d79b3c986b20e759340995a46450287",
+  "_jq43seg.mjs": "sha256:98a6ad0c471a93e6eaa48a786e16b4f963fd9c1917ec217e6c021bd6c643f554",
+  "_jq44band.mjs": "sha256:8f297ad6dc29f24e112f0c50f14290ea399cf93571945f9d67014b174d1a3b72",
+  "_jq44unwrap.mjs": "sha256:0af96e9ebcbf4f14c687e577fe34c482a4511e76dfe97dfd7b4ddab3d8f5f38e",
+  "_jq45band.mjs": "sha256:e4228fbe02537bf2625d8b96232a476ed8e25f7647403335d371deeeba4be37a  (PUBLISHED AS A FAILURE: its 50%-of-peak crossing lands on a window bound on 2 of 4 references; not used for any value)",
+  "_jq46count.mjs": "sha256:446a9c061e094ede092946f151ba5d1b70142746065bf42e8d58162138e5f52d",
+  "_jq47profile.mjs": "sha256:851ce650f985f64a1001857cdd62943c230ac747ac744b19005e1cfe7580c31b  (PUBLISHED AS A FAILURE: the descriptor measures the legend, not the motif; not adopted)",
+  "_jq41grid.mjs": "sha256:cc3e68f7d34bc493b1b293e33bacad3a07999e858bc3937a6bff7904a1d39cd0"
+ },
+ "untrusted_round_4": {
+  "_jqvalley.mjs": "UNTRUSTED for qp1963-obv-pad.png, qp1964-obv-pad.png and qp1964-rev-pad.png: its fitDisc returned R = 318.3 at (460,497) for all three, which is the PADDING RECTANGLE of the 600x675 -> 920x995 pad, not the coin (((600-1)+(675-1))/4 = 318.25). Three different inputs, one bit-identical answer — the failure signature COIN-JUDGE.md 4 already names. Its disc-fit sanity gate passed all three because a 600x675 rectangle has bbox aspect 0.89 (window 0.85-1.18) and fill 1.09-1.27 (window 0.72-1.30). The valley DEPTHS it published for the two proof reverses survive by luck — 0.80 x 318.3 = 254.6 px happens to stay inside the true coin — but they are not the quantity the file claims to compute, and the four proof depths are re-derived in this round at the frozen discs."
+ }
 }
