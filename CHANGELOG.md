@@ -3,6 +3,52 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.56.0 — 2026-08-13
+
+**Every coin is now measured on both sides — and the most important number
+is a failure.** v1.55.0 shipped with two of ten faces scored against
+photographs. All ten have now been through the method in
+`docs/COIN-ART-METHOD.md`, and the run added four phases to it.
+
+- **The nickel's portico had two columns that do not exist.** `coins.js`
+  drew six and asserted in its own comment that six *"is the real count"*.
+  Three independent photographs say **four**; the phantom pair were the lit
+  frames of the openings either side of the centre door, which read as
+  shafts in a small image. It survived three releases behind a confident
+  comment, and silhouette IoU could never have caught it — a colonnade's
+  outline is a rectangle either way. This is the whole reason the new
+  count gate exists, and it found the bug on its first run.
+- **The reverses are not doing their job, and now we know by how much.**
+  The reverses exist because four presidential profiles are four ovals with
+  a nose at 19px. Measured for the first time: the reverse set is only
+  **1.5×** more separable than the obverse set (1.7% with the shared rim
+  discounted), against a 3× target. Two causes, both structural: a
+  difference metric rewards covered *area*, so two large overlapping busts
+  differ only at the fringe; and `PALETTE.nickel`, `.dime` and `.quarter`
+  are byte-identical, so three of four coins get nothing from colour. That
+  last one is the deliberate v1.55.0 accuracy decision — a real dime,
+  nickel and quarter are one alloy — and **this is the first measurement of
+  what that choice costs.** Nothing has been changed in response; the
+  trade-off is the owner's to make.
+- **Both never-measured obverses fixed.** Penny head-region IoU
+  0.668 → **0.952**; quarter bust IoU 0.698 → **0.965**. In both, placement
+  alone was about half the gap — the penny's head was drawn 20% too small.
+  Two things the photographs simply settled: **Washington has no ear** (the
+  wig covers it, and a shared glyph was drawing a helix on bare skin), and
+  his bust ends in a truncation clear of the rim, where the file asserted
+  the opposite in its own comment.
+- **The dime's icon-size reverse was a pale bar where the real coin is a
+  dense cluster** (ink coverage 0.174 against 0.678). Fixed at the cheapest
+  of four measured options, costing 1.7% of coin-to-coin separation. As a
+  side effect the icon→mid tier boundary no longer *pops* — it used to jump
+  from a bare bar at 43px to a full branched torch at 54px.
+- **The $1 note was measured but deliberately not redrawn.** Its roundels
+  are 1.80× too wide and 26% too close together, and should be ellipses.
+  That is "fill the container rather than fit the design" for the fourth
+  time in this work — a house habit rather than a coin habit.
+
+Nothing here changes a child's progress, prices, payouts or any saved data.
+
 ## v1.55.0 — 2026-08-13
 
 **The coins in Money Math are real US coins now, and two of them are

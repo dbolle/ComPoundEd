@@ -115,20 +115,63 @@ reconsider after calibration.
      **Measured: dime obverse** (silhouette IoU 0.867 → 0.981, plus a phase-2
      interior pass on a cheek-normalised patch-ratio vector) and **nickel
      obverse** (shape agreed to 0.14–0.37% of diameter, scale only ±1.1%).
-     **Still unmeasured — drawn but never scored against a photograph: the
-     penny, the quarter, and all five reverses.** Next passes, in order:
-     - close the nickel's ±1.1% scale gap (`OBVERSE.nickel.s`) against the
-       proof reference added 2026-08-12;
-     - nickel interior line work (phase 2, same loop as the dime);
-     - penny, quarter, then the reverses.
-     - **The jaw line on the dime is a `stroke-width="1.5"` stroke** while
-       every neighbouring mark became a filled region in phase 2b. The
-       metric scored it right on tone and position and cannot see edge
-       quality, so it passed. Redraw as a tapered region, and add an
-       edge-quality check to the method — a uniform stroke among filled
-       regions is a class of defect the current gates are blind to.
      - `src/art/pawcoins.js` is preserved but **imported by nothing**; the
        wallet and store still draw CSS discs, unchanged since v1.10.
+   - ✅ **(v1.56.0) all ten faces measured.** Penny obverse IoU
+     0.668 → 0.952, quarter obverse 0.698 → 0.965, all four reverses scored,
+     the note measured. Four phases added to the method: §14 edge quality,
+     §15 structural rhythm, §16 lettering as a tone band, §17 cross-coin
+     discriminability, §18 rectangle registration for the note.
+     **The nickel's portico had 6 columns drawn where the coin has 4**, and
+     the file asserted six in its own comment — found by the new count gate,
+     invisible to IoU.
+   - 🔴 **DECISION OWED: the reverses are not separating the coins.**
+     Measured for the first time (§17): the reverse set is only **1.5×** more
+     separable than the obverse set — 1.7× with the shared rim discounted —
+     against a 3× target. The reverses exist *solely* because four
+     presidential profiles are four ovals with a nose at 19px, so this is the
+     justification for half the art not holding up. Two structural causes:
+     - a difference metric rewards covered **area**, so two large overlapping
+       busts differ only at the fringe while two small sparse motifs barely
+       overlap;
+     - `PALETTE.nickel`, `.dime` and `.quarter` are **byte-identical**, so
+       three of four coins get nothing from colour. This is the deliberate
+       v1.55.0 accuracy decision (one real alloy, and the invented brightness
+       ladder was rejected as a false fact) — **v1.56.0 is the first
+       measurement of what that choice costs.**
+     Options, none taken, all reversible: accept it and lean on the size
+     channel wherever two coins are shown together; differentiate reverse
+     motifs by gross mass distribution rather than fine detail; or revisit
+     the one-silver decision. **Note the 3× gate was set by inspection, not
+     derived** — it may itself be miscalibrated for a mean-absolute-difference
+     metric where a large shared disc dominates. Worth re-deriving before
+     treating the failure as settled.
+   - Owed on the art, in priority order:
+     - **The note's roundels are 1.80× too wide and 26% too close together**,
+       and should be ellipses (ry/rx 1.314). "Fill the container rather than
+       fit the design" has now been found four times — it is a house habit,
+       not a coin habit, and worth a sweep of every motif.
+     - **The jaw line on the dime is a `stroke-width="1.5"` stroke** while
+       every neighbouring mark became a filled region in phase 2b. Tone and
+       position were right and the metric is blind to edge quality. §14 now
+       specifies the check; the redraw itself is still owed.
+     - Three reverses carry legends we do not draw at all (MONTICELLO, and
+       E PLURIBUS UNUM on dime and quarter); our legend cap height is
+       two-thirds of measured, blocked by the field circle radius rather
+       than the type size.
+     - Dime reverse leaf count is **low confidence** and the dime has only
+       **one** reference (its two files are the same photograph).
+     - The quarter's scale confidence is the weakest of the four at ±3%.
+     - Close the nickel's ±1.1% scale gap (`OBVERSE.nickel.s`).
+   - **Measurement hygiene learned the hard way: six tools produced
+     confident, plausible, wrong numbers** during this work — a path
+     rewriter that handled `M`/`L`/`q` but not `C`; a strand tensor that
+     did not change when the art changed; a tone tool that read a 3-channel
+     buffer as 1-channel; a peak finder that returned 0 for four rectangular
+     columns; two extent finders that returned a search bound. Standing rule
+     now in the method: **change the input and confirm the number moves
+     before trusting it**, and two bit-identical answers from two different
+     inputs is not agreement.
    - Superseded plan for R5: `src/screens/money.js`, the seven waves
      wired, THREE appended pets shipped in the SAME commit as their
      three grouped milestones, Grown-Ups `data-subj="money"` toggle + `SUBJ_LABELS`
