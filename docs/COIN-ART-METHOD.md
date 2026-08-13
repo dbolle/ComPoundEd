@@ -2167,3 +2167,153 @@ Great Seal is a circle on the note, and its rim fits in our frame at ry/rx =
 1.340 against the 1.3143 the two measured ratios predict — 2.0%, inside the
 fit's own quantisation. **A registration you can check against a shape you did
 not use to build it is a registration you can believe.**
+
+---
+
+## 24. What the shoulder blob added — a frozen target nobody had read
+
+The owner looked at the cent and the nickel at 84px and said the shoulder was
+a blob. It was: the garment was drawn at **1.43×** the cent's area and
+**1.21×** the nickel's, meeting the field circle over **120° of arc** where
+both coins use **78°**. Full record in `coloringbook/shoulder-fix.md`.
+
+### 24.1 §22.5, the fifth time — and the first time on an OBVERSE
+
+§22.5 named the habit on the four reverses and §23.7 caught it a fourth time
+on the note's seals. This is the fifth, on a subject nobody had checked:
+
+```
+                       drawn            measured         error
+  cent coat span      119.6 deg         79.4 deg         +51%
+  nickel coat span    119.9 deg         78.5 deg         +53%
+  cent coat area       1.43 x            1.00 x          +43%
+  nickel coat area     1.21 x            1.00 x          +21%
+```
+
+Five instances, three subject classes, both sides of the coin, and one
+non-coin. **Treat "fills its container" as the null hypothesis for any element
+in this file that has not been measured, and measure it before defending it.**
+
+### 24.2 A `vcut` that protects a score also HIDES the rest of the drawing
+
+`_pyeval.mjs` and `_nkeval.mjs` each clip the scored region at a frozen `vcut`
+(0.16, 0.33) so that the boundary being scored is a true outer silhouette edge.
+That is right, and §11.5 argues for it well.
+
+The consequence nobody wrote down: **every number ever published about those
+two coins was blind to everything below the cut.** The cent's coat sat at IoU
+0.689 and the nickel's at 0.823 for two passes, unmeasured, while the head
+above the cut was reported at 0.952 and 0.985.
+
+The masks themselves were never the problem. `_headmask-penny.json` says on its
+own first line that it is *"the complete bust silhouette (hair, face, beard,
+neck, coat)"* and `_headmask-nickel.json` says *"head, hair, queue, coat"*.
+The target for this fix had been on disk, correct, for two passes. Nothing had
+to be traced, photographed or judged — only read.
+
+> **When you freeze a target, freeze the WHOLE object and write down which part
+> of it your gate looks at. Then, before shipping, run one score over the part
+> it does not.** A `scoredRegion` field in the mask is a promise to come back.
+
+### 24.3 State a control point as "along the chord, and out from it"
+
+The old `coat()` gave each control point free `(x, y)` in coin units. Two of
+them were 8 and 5 units of pure sideways pull, and that is the whole mechanism
+by which a 78° garment came to be drawn as a 120° one: nothing in the notation
+said which way was *out of the shape*, so nothing resisted going further.
+
+Replaced by `bow(x0,y0,x1,y1,dir,t1,b1,t2,b2,s)` — each control point is a
+fraction `t` **along** the chord plus a bow `b` **perpendicular** to it, in
+units of `s`, with the normal multiplied by `dir` so "outward" is correct on a
+mirrored portrait with no second case. Three things follow:
+
+1. **The numbers are comparable between coins.** `back: 37.8` and `back: 43.5`
+   are degrees from six o'clock on two different portraits at two different
+   scales, and they can be put in the same table as the photographs' 38.8 and
+   43.7.
+2. **Containment stops being a search.** A cubic never leaves the convex hull
+   of its four points; all four are inside the field circle; a disc is convex.
+   A forty-round binary search that used to keep the lapel on the coin was
+   deleted, not tuned.
+3. **A sweep can be constrained in the notation.** `t1 ≤ t2 − 0.04` and
+   `|b| ≤ 10` are meaningful constraints. On free `(x, y)` they are not
+   expressible at all.
+
+### 24.4 Tie decoration to the edge it decorates, or it will be left behind
+
+The lapel seam and the lit shoulder edge were freehand curves that *happened*
+to sit near the silhouette. Narrowing the coat left the cent's lapel with
+**25.1% of its length drawn on bare field** — and IoU could not see it, because
+both are `fill="none"` and contribute no area to a silhouette.
+
+Each is now a **piece of a seam**: split the seam with de Casteljau, shift it
+along the seam's own inward normal. Shrink the coat and they shrink with it.
+
+Two things this cost, both worth knowing:
+
+* **The traversal sign.** A closed silhouette runs nape → back seam → arc →
+  front seam → throat, so the two seams share an inward normal sign — but a
+  seam you `flip()` in order to split it from the other end **reverses it**.
+  Getting that wrong took the failure from 25% outside to 50.8%.
+* **A highlight centred ON the outline is half painted over by it.** The lit
+  edge is the back seam "drawn once more in white"; drawn *exactly* on the seam
+  it lands under the dark contour. It needs its own small inward offset.
+
+> **Add a containment check for every `fill="none"` decoration, scored against
+> the shape it belongs to, not against the field.** §8/§9's existing check asks
+> only "did it leave the coin".
+
+### 24.5 "The arc containing straight-down" is not the footprint
+
+The cent's frozen mask has a real notch at 80–85°: the coat's hem lifts off the
+rim between the body of the garment and its front panel. Reading the footprint
+as *the arc that contains 90°* reported a front half-width of **3.9°** for a
+coat that reaches **40.6°**. A coat drawn to that number would have had no
+front at all.
+
+Report **first and last crossing, plus the number of gaps.** The gap count is
+itself a finding — the nickel has none and the cent has one.
+
+### 24.6 The prose in the file can be right about the FACT and wrong about the EDGE
+
+`coat()`'s own comment said the shoulder "runs across as a strong DIAGONAL —
+higher behind the head, dropping away in front", and warned that an earlier
+symmetrical version "read as a plinth". Both sentences are true. The art
+implemented them on the **rim footprint** — 150° at the back against 36° at the
+front — and the masks say the footprint is nearly symmetric on both coins
+(cent 38.8 vs 40.6, the *wrong sign*; nickel 43.7 vs 34.8).
+
+The diagonal lives in the coat's **upper boundary**: on the cent, `v = 0.292`
+behind the head and `v = 0.477` in front of it at the same `|u|`.
+
+§6.6 says do not trust a prose description of a coin including the brief's.
+Extend it: **a comment that is right about the phenomenon can still have put it
+on the wrong edge, and it will read as corroboration when you check it.** Name
+the edge the claim is about and measure that edge.
+
+### 24.7 A gate can fail upward, and it should be reported that way
+
+The head-region gate required movement under 0.002 and got +0.0022 and +0.0049
+— both improvements, because the coat's top crosses `vcut` and the gate was
+written as if `vcut` separated two disjoint drawings. Recorded as a failure
+against the stated threshold, with the direction, rather than quietly restated.
+A gate you rewrite after seeing the number is not a gate.
+
+### 24.8 Measure the cost in the tier the feature EXISTS in
+
+The coat is a 2–2 discriminability channel: cent and nickel have one, dime and
+quarter do not, and it is what separates the nickel from the quarter, which
+share a palette and very nearly a size. `_x6mat.mjs` measures the **icon**
+tier, where the coat is not drawn at all — so it reports a serene zero drift
+for a change that genuinely spends that channel.
+
+Run at `full` and `mid`, the honest answer: no gated minimum moves, and
+`nickel.o` vs `quarter.o` closes by **0.0031** (4.8%), narrowing its margin
+over the closest obverse pair from 0.0059 to 0.0028.
+
+> **A phase-6 matrix frozen at one tier does not measure a change made at
+> another. Re-run the metric at the tier the feature lives in, and report the
+> specific pair the feature exists to separate — not just the minimum.**
+
+Paying 0.8 grey levels on one pair to stop drawing a garment 43% too large is
+the right trade, and §17's own warning about optimising the proxy is why.

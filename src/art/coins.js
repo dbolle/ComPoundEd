@@ -1658,10 +1658,31 @@ export const OBVERSE = {
     who: 'Lincoln', dir: 1, bare: false, neck: 25, ear: [0.86, -11.7, -5.9],
     eyeMark: EYE_LINCOLN,
     s: 0.78, cy: 40.0, cx: 3.88, iconS: 1.253, iconCy: 56.11, iconCx: 5.68,
+    // The coat, measured off the frozen bust mask — see coat() below for what
+    // these are and coloringbook/shoulder-fix.md for the sweep that set them.
+    // `back`/`front` are the two rim crossings in degrees from straight down;
+    // the eight t/b numbers are chord fractions and outward bows (in units of
+    // `s`) for the two seams. The cent's back seam carries a real bow — the
+    // shoulder stands out from the nape before it plunges — while its front is
+    // very nearly a straight line, which is what the photograph shows.
+    coat: {
+      back: 39.3, front: 40.5, litT: 0.55, litOff: 1.6, lapF: 0.72, lapOff: 4.5,
+      bt1: 0.06, bb1: 8.9, bt2: 0.39, bb2: 9.2,
+      ft1: 0.65, fb1: -0.2, ft2: 0.77, fb2: -4.1,
+    },
   },
   nickel: {
     who: 'Jefferson', dir: -1, bare: false, neck: 23, ear: [1.0, -16.6, -2.2],
     s: 0.95, cy: 43.7, cx: -6.4, iconS: 0.95, iconCy: 43.7, iconCx: -6.4,
+    // Jefferson's back seam is almost entirely HIDDEN — the queue reaches
+    // screen x 78.6 and the rim crossing is at 78.2 — so its bow is doing one
+    // job only: keeping the sliver of cloth that shows below the hair out to
+    // where the coin has it. The front seam is the visible one.
+    coat: {
+      back: 43.5, front: 33.3, litT: 0.55, litOff: 1.6, lapF: 0.72, lapOff: 4.5,
+      bt1: 0.61, bb1: 9.9, bt2: 0.66, bb2: 5.0,
+      ft1: 0.49, fb1: -0.5, ft2: 0.71, fb2: 4.1,
+    },
   },
   // THE DIME IS THE ONE MEASURED RATHER THAN COMPOSED. `cut` says its
   // truncation is drawn INSIDE HEAD.Roosevelt — the neck ends in a straight
@@ -1750,6 +1771,52 @@ function bareNeck(rIn, dir, s, cx, cy) {
     C ${n2(bx)} ${n2((by + tBy) / 2)} ${n2(ox - dir * 18 * s)} ${n2(cy + 38 * s)} ${n2(tBx)} ${n2(tBy)} Z"/>`;
 }
 
+// A cubic whose two control points are given as a fraction ALONG the chord
+// plus a bow measured PERPENDICULAR to it, outward from the bust. That is the
+// whole point of the helper. The version of coat() below this one gave each
+// control point a free (x, y) in coin units, and the two that drew the back of
+// the shoulder were 8 and 5 units of pure sideways pull — which is how a
+// 78-degree garment came to be drawn as a 120-degree one. A bow is bounded by
+// its own number and cannot run away, and multiplying the normal by `dir` puts
+// "outward" on the correct side of a mirrored portrait without a second case.
+function bow(x0, y0, x1, y1, dir, t1, b1, t2, b2, s) {
+  const dx = x1 - x0;
+  const dy = y1 - y0;
+  const L = Math.hypot(dx, dy) || 1;
+  const nx = (dir * -dy) / L;
+  const ny = (dir * dx) / L;
+  const at = (t, b) => [x0 + dx * t + nx * b * s, y0 + dy * t + ny * b * s];
+  return [x0, y0, ...at(t1, b1), ...at(t2, b2), x1, y1];
+}
+const curveTo = (c) => `C ${n2(c[2])} ${n2(c[3])} ${n2(c[4])} ${n2(c[5])} ${n2(c[6])} ${n2(c[7])}`;
+const pathOf = (c) => `M ${n2(c[0])} ${n2(c[1])} ${curveTo(c)}`;
+// Traverse a cubic the other way, so a seam that is built rim-to-throat can be
+// split from the THROAT end.
+const flip = (c) => [c[6], c[7], c[4], c[5], c[2], c[3], c[0], c[1]];
+// Slide a whole cubic sideways along its chord's normal. `k` carries the sign.
+// The closed silhouette is traversed nape -> back seam -> arc -> front seam ->
+// throat, so `back` and `front` run the SAME way round the outline and share a
+// sign (-dir), while `flip(front)` reverses it and takes +dir. Getting that
+// backwards pushes a decoration straight out of the coat, which is how the
+// first attempt at this scored 51% outside instead of 25%.
+function shift(c, k, d) {
+  const dx = c[6] - c[0], dy = c[7] - c[1], L = Math.hypot(dx, dy) || 1;
+  const ox = (k * -dy * d) / L, oy = (k * dx * d) / L;
+  return c.map((v, i) => v + (i % 2 ? oy : ox));
+}
+// de Casteljau, first `t` of a cubic. The lit edge below is meant to be "the
+// same curve as the garment's back seam, drawn once more in white"; splitting
+// the seam is how that sentence becomes true rather than approximately true.
+function subCurve(c, t) {
+  const l = (a, b) => a + (b - a) * t;
+  const ax = l(c[0], c[2]), ay = l(c[1], c[3]);
+  const bx = l(c[2], c[4]), by = l(c[3], c[5]);
+  const cx2 = l(c[4], c[6]), cy2 = l(c[5], c[7]);
+  const dx = l(ax, bx), dy = l(ay, by);
+  const ex = l(bx, cx2), ey = l(by, cy2);
+  return [c[0], c[1], ax, ay, dx, dy, l(dx, ex), l(dy, ey)];
+}
+
 // THE COAT, and it is a bigger deal than it looks. On both the cent and the
 // nickel the bust occupies the bottom third of the coin and the shoulder
 // runs across it as a strong DIAGONAL — higher behind the head, dropping
@@ -1759,55 +1826,75 @@ function bareNeck(rIn, dir, s, cx, cy) {
 //
 // So: the neck is drawn first (same shape and same tone as a bare-necked
 // coin, so the throat is skin), then the garment is laid over it from the
-// collar down, in the lighter `cloth` tone, meeting the rim at two DIFFERENT
-// heights.
-function coat(rIn, dir, s, cx, cy, neck) {
+// collar down, in the lighter `cloth` tone.
+//
+// MEASURED, 2026-08-13, and the sentence above was the only part that was
+// right. Scored against the coat half of the two frozen bust masks — a region
+// no previous pass had ever looked at, because _pyeval/_nkeval both clip it
+// away — this garment was 1.43x the cent's area and 1.21x the nickel's, and it
+// met the field circle over 120 degrees of arc where BOTH coins use 78. It was
+// the fifth instance of §22.5: drawn to fill the disc rather than to fit the
+// object. The geometry now lives in `OBVERSE[id].coat`, seeded from the masks
+// and then finished by a constrained sweep on coat-band IoU (which moved
+// nothing by more than 1.5 degrees):
+//
+//                        cent                 nickel
+//                     mask  drawn  was     mask  drawn  was
+//   rim arc, back     37.8   39.3   60     43.5   43.5   60
+//   rim arc, front    40.5   40.5   54     34.8   33.3   54
+//   total span        78.3   79.8  114     78.3   76.8  114
+//
+// So the DIAGONAL is not in the footprint — the two coins meet the rim almost
+// symmetrically about six o'clock — it is in the coat's upper boundary, which
+// on the cent stands at v = 0.29 behind the head and v = 0.48 in front of it at
+// the same |u|. Higher behind, exactly as claimed; measured in the wrong place.
+// Coat-band IoU against the frozen masks: cent 0.689 -> 0.923, nickel
+// 0.823 -> 0.989. Full record in coloringbook/shoulder-fix.md.
+function coat(rIn, dir, s, cx, cy, neck, g) {
   const ox = 50 + cx;
   const yN = cy + neck * s; // the collar, below the beard / below the queue
-  // Back shoulder high, front shoulder low. `dir > 0` faces right, so the
-  // back of the shoulder is on the LEFT of the disc and the angles swap.
-  const backA = dir > 0 ? 150 : 30;
-  const frontA = dir > 0 ? 36 : 144;
+  // `dir > 0` faces right, so the back of the shoulder is on the LEFT of the
+  // disc; both angles are stated as degrees from straight down so the two
+  // coins' numbers can be compared with each other and with the photographs.
+  const backA = 90 + dir * g.back;
+  const frontA = 90 - dir * g.front;
   const [bx, by] = onField(rIn, backA);
   const [fx, fy] = onField(rIn, frontA);
   const nB = ox - dir * 14 * s; // where the collar crosses at the nape
   const nF = ox + dir * 9 * s; // and at the throat, a little lower
   const sweep = dir > 0 ? 0 : 1;
-  // A stroke that leaves the field draws ON THE RIM — §8: there is no clip
-  // path anywhere in this file, so nothing stops it. At the nickel's measured
-  // scale the lapel ran clear off the coin and read as a scratch, so it is
-  // shortened to stop inside the field. On the cent it already ends 5 units
-  // short, `lapT` is exactly 1, and that coin's string is unchanged byte for
-  // byte — which the containment sweep checks.
-  const lapT = (() => {
-    const lim = rIn - 1.5;
-    if (Math.hypot(nF + dir * 9 * s - 50, yN + 26 * s - 50) <= lim) return 1;
-    let lo = 0;
-    let hi = 1;
-    for (let i = 0; i < 40; i++) {
-      const m = (lo + hi) / 2;
-      if (Math.hypot(nF + dir * 9 * s * m - 50, yN + 26 * s * m - 50) > lim) hi = m;
-      else lo = m;
-    }
-    return lo;
-  })();
-  const lapel = `<path fill="none" d="M ${n2(nF)} ${n2(yN + 2 * s)}
-      C ${n2(nF + dir * 7 * s * lapT)} ${n2(yN + 9 * s * lapT)} ${n2(nF + dir * 10 * s * lapT)} ${n2(yN + 17 * s * lapT)} ${n2(nF + dir * 9 * s * lapT)} ${n2(yN + 26 * s * lapT)}"/>`;
-  // The shoulder catches the light along its top edge — the same curve as
-  // the garment's back seam, drawn once more in white. On a struck coin the
-  // cloth is the lowest relief on the whole face, and without this line it
-  // is the only thing that stays completely flat.
-  // …and it STOPS SHORT of the rim. Run all the way out to the field circle
-  // it read as a wire laid across the coat rather than as a lit edge.
-  const ex = nB + 0.55 * (bx - nB);
-  const ey = yN - 4 * s + 0.55 * (by - (yN - 4 * s));
+  // THE TWO SEAMS. `back` runs from the nape out to the rim behind the head,
+  // `front` comes back from the rim to the throat; between them the silhouette
+  // closes on the field circle with a real arc, which is what stands in for the
+  // clipPath this file refuses to use (§8).
+  //
+  // Both are drawn with `bow()`, and that buys containment for free: a cubic
+  // never leaves the convex hull of its four points, all four of those points
+  // are inside the field circle, and a disc is convex. The old form could not
+  // make that promise, which is why the lapel used to need a forty-round binary
+  // search to keep it on the coin.
+  const back = bow(nB, yN - 4 * s, bx, by, dir, g.bt1, g.bb1, g.bt2, g.bb2, s);
+  const front = bow(fx, fy, nF, yN + 2 * s, dir, g.ft1, g.fb1, g.ft2, g.fb2, s);
+  // …and the same trick keeps the two DECORATIONS inside the garment. Both used
+  // to be freehand curves that happened to sit near a seam; when the coat was
+  // measured and narrowed, the cent's lapel ended up with 25% of its length
+  // drawn on bare field, because nothing tied it to the edge it belonged to.
+  // Each is now a piece of a seam, split with de Casteljau and pushed straight
+  // in along the seam's own inward normal — so shrinking the coat moves them
+  // with it and neither can ever escape again.
+  const lapel = `<path fill="none" d="${pathOf(shift(subCurve(flip(front), g.lapF), dir, g.lapOff * s))}"/>`;
+  // The shoulder catches the light along its top edge — the same curve as the
+  // garment's back seam. On a struck coin the cloth is the lowest relief on the
+  // whole face, and without this line it is the only thing that stays completely
+  // flat. It STOPS SHORT of the rim: run out to the field circle it read as a
+  // wire laid across the coat rather than as a lit edge. `litOff` holds it just
+  // inside the dark contour, because a highlight centred ON the outline is half
+  // painted over by it.
   const lit = `<path fill="none" stroke="#ffffff" stroke-width="${n2(1.2 * s)}" opacity="0.26"
-      stroke-linecap="round" d="M ${n2(nB)} ${n2(yN - 4 * s)}
-      C ${n2(nB - dir * 8 * s)} ${n2(yN + 7 * s)} ${n2(ex - dir * 3)} ${n2(ey - 7)} ${n2(ex)} ${n2(ey)}"/>`;
-  return `<path d="M ${n2(nB)} ${n2(yN - 4 * s)}
-      C ${n2(nB - dir * 8 * s)} ${n2(yN + 7 * s)} ${n2(bx - dir * 5)} ${n2(by - 15)} ${n2(bx)} ${n2(by)}
+      stroke-linecap="round" d="${pathOf(shift(subCurve(back, g.litT), -dir, g.litOff * s))}"/>`;
+  return `<path d="M ${n2(nB)} ${n2(yN - 4 * s)} ${curveTo(back)}
       A ${rIn} ${rIn} 0 0 ${sweep} ${n2(fx)} ${n2(fy)}
-      C ${n2(fx + dir * 5)} ${n2(fy - 13)} ${n2(nF + dir * 8 * s)} ${n2(yN + 11 * s)} ${n2(nF)} ${n2(yN + 2 * s)}
+      ${curveTo(front)}
       Z"/>${lapel}${lit}`;
 }
 
@@ -1938,7 +2025,7 @@ function bust(id, tier, p, dim, boxW) {
       (o.bare
         ? ''
         : `<g fill="${cloth}" stroke="${p.deep}" stroke-width="${strokeW}" stroke-linejoin="round" stroke-linecap="round">
-             ${coat(rIn, o.dir, s, cx, cy, o.neck)}</g>` +
+             ${coat(rIn, o.dir, s, cx, cy, o.neck, o.coat)}</g>` +
           (id === 'penny'
             ? `<g fill="${p.deep}" stroke="none">${bowTie(50 + cx, cy + (o.neck + 3) * s, s)}</g>`
             : ''));
