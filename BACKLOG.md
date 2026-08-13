@@ -146,6 +146,21 @@ reconsider after calibration.
      derived** — it may itself be miscalibrated for a mean-absolute-difference
      metric where a large shared disc dominates. Worth re-deriving before
      treating the failure as settled.
+   - 🔬 **Cheapest next experiment: re-run §17 with a shape-aware distance.**
+     From looking at the render beside the numbers
+     (`coloringbook/_final-candidates.png`): at 26px the three silver
+     obverses really are interchangeable, exactly as the metric says — but at
+     84px and 54px an eagle, a torch, a colonnade and a portico are
+     *obviously* different shapes, far more so than 1.5× implies. So MAD
+     appears to understate the reverses specifically, and there are two
+     reasons it would: every pair shares an identical disc, rim and field,
+     which is most of the compared area, contributes zero difference, and
+     inflates the denominator; and MAD is **not shape-aware**, so it cannot
+     reward "different silhouette" the way recognition does. Re-measure on
+     the **motif only, disc excluded**, with a shape-sensitive distance (IoU
+     of the thresholded motif mask, or a shape descriptor). If that separates
+     the reverses where MAD did not, the metric was the problem and the art
+     is closer to fine than v1.56.0 claims.
    - Owed on the art, in priority order:
      - **The note's roundels are 1.80× too wide and 26% too close together**,
        and should be ellipses (ry/rx 1.314). "Fill the container rather than
