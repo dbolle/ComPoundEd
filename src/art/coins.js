@@ -3057,9 +3057,40 @@ const INS_REST_MIN = 110;
 // the bottom. The other three put the country on top and the denomination
 // underneath. That arrangement is one more true, checkable difference.
 //
-// One floor for all four (135px of coin), so a row drawn at one `size` never
-// shows the words on the quarter and not on the dime. Below it the words are
-// deleted rather than shrunk: a blurred word reads as damage to the coin.
+// The default floor is 135px of coin; below it the words are deleted rather
+// than shrunk, because a blurred word reads as damage to the coin.
+//
+// That floor used to be shared by all four "so a row drawn at one `size` never
+// shows the words on the quarter and not on the dime", and it is now a
+// DEFAULT with a per-coin override, because the shared number was not derived
+// from any coin's own legend — it was the worst case of the four (the nickel's
+// 15-character E PLURIBUS UNUM), applied to the other three by fiat.
+// COIN-ART-METHOD §16.1 says the floor is found empirically, per legend:
+// render it, and compare the band's along-band high-frequency energy with the
+// reference photograph reduced to the SAME device pixel count.
+//
+// Measured for the QUARTER's reverse legend, sector 250..290°, r 38.9, ours ÷
+// reference at the same device pixel count:
+//
+//     boxW    44     54     62     70     76     84     96    120    136    190
+//     ratio  0.66x  0.52x  0.56x  0.62x  0.74x  0.62x  1.04x  1.03x  0.99x  0.96x
+//
+// The reference at 84 device pixels is NOT a smooth grey band — the legend is
+// still a chain of separated marks there (0.5135 of HF energy against 0.0000
+// for a coin that draws no letters at all), so §16's "below the floor draw the
+// tone the letters make" does not yet apply at 84: the tone the letters make
+// at 84px IS a row of letter-sized marks. The quarter's floor therefore comes
+// down to 84 — the box the quarter gets when `money.js` draws a row at
+// `size` 84 and asks a child which coin this is. That is the same rule that
+// already sets the OBVERSE floor at 62 (the box the DIME gets at that same
+// draw): the main line is present at exactly the size the recognition
+// question is asked at, and absent below it.
+//
+// The other three keep 135 deliberately. This round measured the quarter, and
+// a floor is a per-legend empirical number: the nickel's E PLURIBUS UNUM is 15
+// characters at size 4.5 where QUARTER DOLLAR is 14 at 5.3 — 1.18x the cap
+// height over a shorter word — and nobody has rendered the nickel's legend
+// against its own photograph yet.
 const REV_TEXT = {
   penny: { top: 'UNITED STATES OF AMERICA', bottom: 'ONE CENT', bs: 6.6 },
   nickel: {
@@ -3069,14 +3100,14 @@ const REV_TEXT = {
     flat: { text: 'FIVE CENTS', x: 50, y: 74.5, size: 5.2 },
   },
   dime: { top: 'UNITED STATES OF AMERICA', bottom: 'ONE DIME', bs: 6.6 },
-  quarter: { top: 'UNITED STATES OF AMERICA', bottom: 'QUARTER DOLLAR', bs: 5.3 },
+  quarter: { top: 'UNITED STATES OF AMERICA', bottom: 'QUARTER DOLLAR', bs: 5.3, min: 84 },
 };
 const REV_TEXT_MIN = 135;
 
 function inscriptionOf(id, side, rField, p, boxW) {
   if (side === 'reverse') {
     const t = REV_TEXT[id];
-    if (!t || boxW < REV_TEXT_MIN) return '';
+    if (!t || boxW < (t.min ?? REV_TEXT_MIN)) return '';
     return (
       arcText(t.top, rField - 4.6, 4.5, p.ink, 0.6, 270) +
       arcText(t.bottom, rField - t.bs * 0.9 - 0.6, t.bs, p.ink, 0.66, 90, true) +
