@@ -302,7 +302,217 @@ const sw = (units, minPx, boxW) => n2(Math.max(units, (minPx * 100) / boxW));
 // The offset is held near 1.2 DEVICE pixels at every size and clamped at
 // both ends: below ~0.55 units it vanishes on a teaching card, above ~1.7 it
 // stops being a bevel and becomes a double image on a wallet chip.
+//
+// That is the offset the EYE wants. What the coin can afford is a second
+// question, answered by `fitOff` below, and for two years this file only
+// asked the first one.
 const reliefOff = (boxW) => n2(Math.min(1.7, Math.max(0.55, 118 / boxW)));
+
+// ── WHAT THE OFFSET COPY COSTS, and why a drawing file has to measure ────
+//
+// The lit copy is the one mark on a coin that is NOT authored against the
+// field circle. Every motif here is drawn to fit inside it; the copy is not
+// drawn at all — it is the same shape moved, and moving a shape up-left by
+// `o` carries its upper-left extremity `o·√2` further from the centre.
+//
+// Measured 2026-08-13: the eagle's left wing reaches 39.41 and the field
+// circle at `mid` is 40.5, so the 1.7-unit offset laid 1.10 units of white
+// out on the rim — 0.7505% of the quarter reverse's drawn length outside the
+// field at `mid`, 0.1629% at 76px and 0.1161% at 84px. The same mechanism put
+// the dime's topmost oak leaf 0.60 units out, 0.1343% at `mid`. Note the
+// shape of the bug: `118 / boxW` GROWS as the coin shrinks, so the offset
+// gets bigger in viewBox units exactly as the field circle gets smaller
+// (42.5 at `icon`, 40.5 at `mid`), and `mid` is where the two curves cross.
+//
+// §8 of docs/COIN-ART-METHOD.md forbids a clipPath, and rightly: a clip hides
+// a breach rather than fixing it, and the document then stops describing the
+// drawing. `coat()` answers the same question by keeping every control point
+// inside the circle and letting convexity finish the argument — but an offset
+// copy cannot be re-authored that way, because it is a copy. So it is BOUNDED
+// instead: ask the shape how far the light may be carried, and carry it no
+// further. No shape moves; only the light does.
+//
+// `spend()` walks the fragment the browser is actually handed and returns the
+// greatest distance the whole of it can be shifted UP-LEFT while every point
+// stays inside a circle of radius `r`. It is a closed form, not a search: for
+// one point p shifted by t·û, staying inside means
+//
+//     |p + t·û| ≤ r   ⟺   t² + 2(p·û)t + (|p|² − r²) ≤ 0
+//     ⟺   t ≤ −(p·û) + √( (p·û)² + r² − |p|² )
+//
+// and the shape's allowance is the smallest such t over its points. Whoever
+// is nearest the rim in the direction of travel pays; nobody else does. That
+// last clause is the reason this is not just `(r − reach)/√2`: a triangle
+// inequality charges every shape for its farthest point wherever it lies, and
+// on the Memorial — whose widest mark is its BOTTOM step, which the up-left
+// shift carries away from the rim, not towards it — that cost two thirds of a
+// bevel the coin could actually afford.
+//
+// Curves are FLATTENED, not hulled: a cubic's control points stand 0.51 units
+// outside their own curve on the eagle's wing, and half a unit is most of the
+// entire allowance at `mid`. Elliptical arcs are the one exception and are
+// bounded rather than flattened — an arc lies within max(rx, ry) of its
+// centre and that centre within max(rx, ry) of the chord's midpoint — which
+// is crude, but the only arcs any motif's massing draws are Monticello's two
+// shallow domes, 12 units from the centre of a 40.5-unit field.
+//
+// A path command this does not understand returns 0, which deletes the bevel:
+// a failure you can SEE, rather than a breach you cannot.
+const M_MUL = (A, B) => [
+  A[0] * B[0] + A[2] * B[1], A[1] * B[0] + A[3] * B[1],
+  A[0] * B[2] + A[2] * B[3], A[1] * B[2] + A[3] * B[3],
+  A[0] * B[4] + A[2] * B[5] + A[4], A[1] * B[4] + A[3] * B[5] + A[5],
+];
+const NUM_RE = /[-+]?(?:\d*\.\d+|\d+\.?)(?:[eE][-+]?\d+)?/g;
+// The subset of `transform` this file ever emits, in the order it writes it.
+function matrixOf(s) {
+  let M = [1, 0, 0, 1, 0, 0];
+  for (const m of s.matchAll(/(translate|scale|rotate)\(([^)]*)\)/g)) {
+    const a = (m[2].match(NUM_RE) || []).map(Number);
+    if (m[1] === 'translate') M = M_MUL(M, [1, 0, 0, 1, a[0] || 0, a[1] || 0]);
+    else if (m[1] === 'scale') M = M_MUL(M, [a[0], 0, 0, a.length > 1 ? a[1] : a[0], 0, 0]);
+    else {
+      const t = ((a[0] || 0) * Math.PI) / 180;
+      M = M_MUL(M, [Math.cos(t), Math.sin(t), -Math.sin(t), Math.cos(t), 0, 0]);
+    }
+  }
+  return M;
+}
+// The largest factor by which a matrix can stretch a length — its 2-norm, not
+// the Frobenius norm, which is √2 on the identity and would have deleted the
+// nickel's bevel for no reason.
+function stretchOf(M) {
+  const e = (M[0] * M[0] + M[1] * M[1] + M[2] * M[2] + M[3] * M[3]) / 2;
+  const f = (M[0] * M[0] + M[1] * M[1] - M[2] * M[2] - M[3] * M[3]) / 2;
+  return Math.sqrt(e + Math.hypot(f, M[0] * M[2] + M[1] * M[3]));
+}
+
+function spendOf(frag, rField) {
+  let T = Infinity;
+  let M = [1, 0, 0, 1, 0, 0];
+  const stack = [M];
+  // `pad` widens the point into a disc, for the one shape that is bounded
+  // rather than walked.
+  const at = (x, y, pad = 0) => {
+    const r = rField - pad;
+    const px = M[0] * x + M[2] * y + M[4] - 50, py = M[1] * x + M[3] * y + M[5] - 50;
+    const q = px * px + py * py;
+    if (r <= 0 || q >= r * r) { T = 0; return; }        // already over the line
+    const b = -(px + py) / Math.SQRT2;                   // p · û, û = (-1,-1)/√2
+    const t = -b + Math.sqrt(b * b + r * r - q);
+    if (t < T) T = t;
+  };
+  for (const t of frag.match(/<\/?[a-z]+[^>]*>/g) || []) {
+    if (t[1] === '/') {
+      // never pop the root: a stray </g> must not leave the walk without a
+      // matrix, because the failure would be a thrown TypeError in a drawing
+      // function rather than a wrong number
+      if (t === '</g>' && stack.length > 1) stack.pop();
+      M = stack[stack.length - 1];
+      continue;
+    }
+    const name = /^<([a-z]+)/.exec(t)[1];
+    const tr = /\stransform="([^"]*)"/.exec(t);
+    M = tr ? M_MUL(stack[stack.length - 1], matrixOf(tr[1])) : stack[stack.length - 1];
+    if (name === 'g') {
+      stack.push(M);
+      continue;
+    }
+    const nm = (k) => {
+      const m = new RegExp('\\s' + k + '="([-+0-9.eE]+)"').exec(t);
+      return m ? Number(m[1]) : 0;
+    };
+    if (name === 'circle' || name === 'ellipse') {
+      // walked, not bounded by max(rx, ry) about the centre: the dime's leaves
+      // are long ellipses lying nearly tangentially, and that bound over-read
+      // them by six units — a whole reverse's worth of allowance.
+      const rx = name === 'circle' ? nm('r') : nm('rx');
+      const ry = name === 'circle' ? nm('r') : nm('ry');
+      const cx = nm('cx'), cy = nm('cy');
+      for (let i = 0; i < 64; i++) {
+        const a = (i * Math.PI) / 32;
+        at(cx + rx * Math.cos(a), cy + ry * Math.sin(a));
+      }
+    } else if (name === 'rect') {
+      // corners, so a rounded rect reads a hair large — conservative, which
+      // is the safe direction
+      const x = nm('x'), y = nm('y'), w = nm('width'), h = nm('height');
+      at(x, y); at(x + w, y); at(x, y + h); at(x + w, y + h);
+    } else if (name === 'path') {
+      const d = /\sd="([^"]*)"/.exec(t);
+      if (d && !pathSpend(d[1], at, M)) return 0;
+    }
+    if (T <= 0) return 0;
+  }
+  return T;
+}
+
+function pathSpend(d, at, M) {
+  const toks = d.match(/[MmLlHhVvCcSsQqTtAaZz]|[-+]?(?:\d*\.\d+|\d+\.?)(?:[eE][-+]?\d+)?/g) || [];
+  let i = 0, x = 0, y = 0, sx = 0, sy = 0, cmd = '';
+  const num = () => Number(toks[i++]);
+  while (i < toks.length) {
+    if (/[A-Za-z]/.test(toks[i])) cmd = toks[i++];
+    const rel = cmd >= 'a';
+    const c = cmd.toUpperCase();
+    const ox = rel ? x : 0, oy = rel ? y : 0;
+    if (c === 'Z') {
+      x = sx; y = sy;
+    } else if (c === 'M' || c === 'L') {
+      x = ox + num(); y = oy + num(); at(x, y);
+      // a second coordinate pair after M continues as a line, per the spec
+      if (c === 'M') { sx = x; sy = y; cmd = rel ? 'l' : 'L'; }
+    } else if (c === 'H') {
+      x = ox + num(); at(x, y);
+    } else if (c === 'V') {
+      y = oy + num(); at(x, y);
+    } else if (c === 'C' || c === 'Q') {
+      const q = c === 'Q';
+      const ax = ox + num(), ay = oy + num();
+      const bx = q ? ax : ox + num(), by = q ? ay : oy + num();
+      const nx = ox + num(), ny = oy + num();
+      for (let k = 1; k <= 32; k++) {
+        const u = 1 - k / 32, v = k / 32;
+        at(
+          u * u * u * x + 3 * u * u * v * ax + 3 * u * v * v * bx + v * v * v * nx,
+          u * u * u * y + 3 * u * u * v * ay + 3 * u * v * v * by + v * v * v * ny
+        );
+      }
+      x = nx; y = ny;
+    } else if (c === 'A') {
+      const rr = Math.max(Math.abs(num()), Math.abs(num()));
+      num(); num(); num();
+      const nx = ox + num(), ny = oy + num();
+      at((x + nx) / 2, (y + ny) / 2, 2 * rr * stretchOf(M));
+      x = nx; y = ny; at(x, y);
+    } else return false;
+  }
+  return true;
+}
+
+// Thirteen distinct massing strings exist in this whole file and four field
+// radii, so the cache is a few dozen entries deep in practice; the guard is
+// there so a future motif that varies continuously with `boxW` cannot turn it
+// into a leak.
+const SPEND = new Map();
+// A tenth of the rim's own width, held back so the sliver lands INSIDE the
+// field circle rather than on it: it absorbs the flattening residual (~0.003
+// units at 32 steps), the corner a rounded rect does not really have, and the
+// two decimal places the offset is printed to.
+const RELIEF_CLEAR = 0.05;
+// `rField` of 0 means "not on a disc": the $1 note has no field circle, and
+// nothing on it is bounded by one.
+function fitOff(o, solid, rField) {
+  if (!rField) return o;
+  const key = rField + '|' + solid;
+  let t = SPEND.get(key);
+  if (t === undefined) {
+    if (SPEND.size > 64) SPEND.clear();
+    t = spendOf(solid, rField - RELIEF_CLEAR);
+    SPEND.set(key, t);
+  }
+  return n2(Math.max(0, Math.min(o, t / Math.SQRT2)));
+}
 
 // `solid` is the motif's outer massing — fills only, no per-shape colours,
 // so all three copies can be tinted by the parent <g>. `detail` is whatever
@@ -313,8 +523,12 @@ const reliefOff = (boxW) => n2(Math.min(1.7, Math.max(0.55, 118 / boxW)));
 // against the field, so a dark shadow under a dark shape would only fatten
 // it. It keeps the lit edge, which is the half of the effect that still
 // works at 20px, and drops the other.
-function struck(solid, p, tier, boxW, detail = '') {
-  const o = reliefOff(boxW);
+//
+// `rField` is the field circle this massing is being struck inside, and it is
+// what stops the offset copy from printing on the rim. Omitted where there is
+// no field circle to respect (the $1 note).
+function struck(solid, p, tier, boxW, detail = '', rField = 0) {
+  const o = fitOff(reliefOff(boxW), solid, rField);
   if (tier === 'icon') {
     return `<g fill="#ffffff" opacity="0.5" transform="translate(${-o} ${-o})">${solid}</g>
       <g fill="${p.deep}">${solid}</g>${detail}`;
@@ -2891,7 +3105,7 @@ function discSVG(id, box, attrs, tier, side, withValue, size) {
   // first thing read — the whole reason the scaffold exists.
   const rev = reverse ? REVERSE_MOTIF[id](tier, p, box.w) : null;
   const motif = reverse
-    ? `<g${withValue ? ' opacity="0.42"' : ''}>${struck(rev.solid, p, tier, box.w, rev.detail)}</g>`
+    ? `<g${withValue ? ' opacity="0.42"' : ''}>${struck(rev.solid, p, tier, box.w, rev.detail, rField)}</g>`
     : bust(id, tier, p, withValue, box.w);
   // The inscription sits just inside the field edge, the way a struck coin
   // sets it — but only where the glyphs are big enough to be WORDS.
@@ -2903,10 +3117,28 @@ function discSVG(id, box, attrs, tier, side, withValue, size) {
   // channel 3, one of the four things that actually transfers — was absent
   // from the only screen that asks the child to name a coin.
   const inscription = tier === 'icon' ? '' : inscriptionOf(id, side, rField, p, box.w);
-  // Filled AND stroked in one element. Nothing the coin draws reaches past
-  // the field circle, so the contour never needs redrawing on top — and on a
-  // reeded coin the toothed path is the single longest string in the file,
-  // so emitting it twice was doubling the cost of the dime and the quarter.
+  // Filled AND stroked in one element: the contour never needs redrawing on
+  // top, and on a reeded coin the toothed path is the single longest string in
+  // the file, so emitting it twice was doubling the cost of the dime and the
+  // quarter.
+  //
+  // This used to say "nothing the coin draws reaches past the field circle",
+  // and that was not true and had never been measured. What is true, and what
+  // is guaranteed, is narrower:
+  //
+  //   · every reverse MASSING is authored inside the field circle, and its
+  //     lit copy is held there by `fitOff` above — measured, not asserted;
+  //   · `coat()` closes on the field circle by construction (§ its own note);
+  //   · the blank, the two field circles and the specular arc are the coin's
+  //     own furniture and sit outside the field circle on purpose.
+  //
+  // Not guaranteed, and known false at the time of writing: the OBVERSE
+  // bevel. `bust()` offsets `HEAD` by the same `reliefOff` with no such
+  // bound, and the nickel's head reaches 40.64 with its lit copy at 41.97
+  // against a field circle of 40.5 at `mid` and 41.0 at `full`. The head
+  // itself is over the line there, so bounding the light would not fix it —
+  // it is a drawing to re-measure, not an offset to clamp, and it is written
+  // down here rather than quietly clipped.
   return `<svg viewBox="0 0 100 100" width="${box.w}" height="${box.h}" ${attrs} xmlns="http://www.w3.org/2000/svg">
     ${outline} fill="${p.body}" stroke="${p.rim}" stroke-width="${sw(2.6, 1.0, box.w)}" stroke-linejoin="round"/>
     <circle cx="50" cy="50" r="${rField}" fill="${p.field}"/>
