@@ -43,6 +43,37 @@ violation named. Freezing a target after the art moved proves nothing
 (`COIN-ART-METHOD.md` §2), and a specialist that can edit the target can
 score anything it likes.
 
+### 1.1 The specialist is a deliberate check on the judge
+
+Separation of powers was written to stop a specialist marking its own
+homework. It turns out to run in both directions, and that is now an
+intended feature rather than a side effect.
+
+Round 1 on the quarter: the specialist, working against the judge's
+containment eval, found that `fieldRadius()` took the *first* centred circle
+over r 35 — and on the penny and nickel the blank itself is `circle r="47"`,
+so those coins had been scored against a 47-unit circle instead of 40.5. The
+judge had published `PASS` for both. The challenge was upheld in full.
+
+> **A round is void only when a specialist EDITS an instrument, never when it
+> reports one as faulty.** Reporting a fault is the specialist's job; fixing
+> it is the judge's.
+
+The procedure when a specialist believes an instrument is wrong:
+
+1. **Do not edit it.** It is hashed; editing voids the round and the work.
+2. Demonstrate the fault with a measurement — enumerate the cases, show the
+   instrument's own output disagreeing with itself or with a hand check.
+3. Report it as an observation. **Do not restate the affected verdicts** —
+   verdicts are the judge's.
+4. The judge then rules, fixes, re-hashes, and **re-scores retrospectively**.
+
+**Retract beside; never rewrite.** A corrected history entry sits next to the
+published one with both values and the reason. The faulty instrument is
+retired at its old hash rather than edited or deleted, so any number ever
+published can still be reproduced. A process that silently improves its own
+past is indistinguishable from one that was right all along.
+
 ---
 
 ## 2. Absent evidence is a FAIL
@@ -103,7 +134,7 @@ the scorecard, not here — this table fixes the *dimensions*, not the numbers.
 | D5 | Lettering | band radius/extent; HF variance vs blurred ref | HF ≤ 1.5× | `lettering` |
 | D6 | Edge quality | **width-variation ratio** per mark; fraction of drawn length carried by ratio-1.000 marks | declared per coin | `edge` |
 | D7 | Curve quality | max knot turn, **fitted contours only** | ≤ 75° | `silhouette` |
-| D8 | Containment | % path length drawn outside the field circle | 0.00%, every tier | last toucher |
+| D8 | Containment | % path length outside the field circle **and max depth in units** | 0.00%, every tier | last toucher |
 | D9 | Well-formedness | `undefined`/`NaN` over every id × side × tier | 0 | **blocking** |
 | D10 | Tier behaviour | byte-identity where declared; no tier *pop* | as declared | `tier` |
 | D11 | Discriminability | pairwise minimum at icon, equal width | no regression vs round 0 | `cross-coin` |
@@ -134,10 +165,31 @@ way the dime is drawn). Its role here is as a **regression tripwire** — a
 specialist must not spend the set's separability to buy one coin's fidelity
 without that being visible and costed.
 
+**D8 carries a depth, not just a percentage.** One number cannot separate
+severities four hundred times apart. Round 1 measured the nickel at 8.09%
+outside and **1.4698 units** deep — a real breach — and the penny at 7.93%
+outside and **0.0038 units** deep, which is 0.0025 device pixels at 84px:
+arc endpoints authored to two decimal places. Both are `FAIL` against a
+0.00% gate and both should be, but a reader who sees only the percentages
+will fix the wrong one first.
+
 **D12 is not decoration.** `COIN-ART-METHOD.md` §0 has said since the first
 pass that a subject nobody has looked at is not finished, and the eagle
 proved it: the numbers said one thing, the tier render at 26px said another,
 and the render was right.
+
+**D12 needs a CONTROL whenever someone has said what you will see.** In
+round 1 the judge was told the field ring had been broken by a white sliver
+and was now healed — and looked, and saw exactly that. It was not true: the
+ring stroke is emitted *after* the entire motif, so a bevel underneath cannot
+break it at any offset. The ten-o'clock feature was the specular arc, proved
+by rendering the **byte-identical obverse** and finding the same patch at the
+same value.
+
+So: **render the control first**, before reading the description, and prefer
+a control the change cannot have touched — an unaffected side, an unaffected
+tier, an unaffected coin. A described expectation is a prior, and D12 exists
+precisely to be the one check that is not running on a prior.
 
 ---
 
@@ -180,6 +232,34 @@ could not read the real coin — plateau contrast 1.67 and 1.44, and it
 returned the search bound on both sides. Widening the window moved the
 answer, which is the tell. The correct verdict there is `BLOCKED`, not a
 number.
+
+### 4.2 The selection test — for instruments that CHOOSE rather than search
+
+The null test covers instruments that *search*. It does nothing for
+instruments that *select* one of several candidates, and that is how the
+containment eval was wrong for two full rounds: `fieldRadius()` chose the
+first qualifying circle from a set, and on two coins the first was the coin
+blank rather than the field.
+
+> **Any instrument that picks one item out of a candidate set prints the
+> WHOLE set, and throws when the choice is ambiguous.**
+
+Had that rule existed, `[47, 40.5]` would have been printed on the first run
+and the fault would have been visible immediately instead of producing two
+confident `PASS` verdicts.
+
+### 4.3 An in-bounds answer can still be the wrong feature
+
+A value inside its bounds, from a tool that responds to change, can still be
+measuring something else entirely. Round 0's lettering band finder locked
+onto the **bust edge** and returned a plausible in-range radius.
+
+So: whenever an instrument identifies a *feature* rather than computing a
+quantity, it must also emit **what it found** — the coordinates, the extent,
+enough to draw it — and the judge overlays that on the source and looks
+(§3 D12). `COIN-ART-METHOD.md` §6 already requires publishing the mask over
+the source for silhouettes, and the same reasoning applies to every located
+feature, not just masks.
 
 ---
 
@@ -534,7 +614,7 @@ draw". **Proposed edit to §3:** "every dimension is scored on **each side**
 unless its metric names one; a dimension scored on one side is a blank on the
 other, and §2 applies to blanks."
 
-### What worked, and should not be touched
+### What worked, and should not be touched (round 0)
 
 - **§2 (absent evidence is a FAIL)** is the best thing in the document. Four
   dimensions on this coin would have been silently blank under the old loop,
@@ -551,3 +631,190 @@ other, and §2 applies to blanks."
   misses with the reasoning, and P2/P6 propose fixing the *next* round's gates
   rather than this one's verdict. That is the right shape and the document
   should keep saying so.
+
+---
+
+## Appendix Q — round 1's critique, adopted
+
+Written by the judge after the first full repair cycle, and **adopted into
+the body above** (§1.1 the specialist as a check on the judge, §4.2 the
+selection test, §4.3 in-bounds-but-wrong-feature, §3 D8 depth and D12's
+control). Four of the five exist because the process caught the JUDGE, not
+the art — which is the outcome §1 was written to make possible and the
+clearest evidence so far that it works.
+
+---
+
+> **Nothing in this appendix is in force.** It is the judge's report on the
+> second run (quarter, round 1, 2026-08-13, `coloringbook/judge/quarter-r1.md`),
+> written to the same standard Appendix P was: what happened, then the concrete
+> edit. Round 1 differs from round 0 in one important way — **four of these
+> five items exist because the process caught the JUDGE**, not the art.
+
+### Q1. The specialist is a deliberate check on the judge, and §1 does not say so
+
+§1 reads as a one-way constraint: the judge measures, the specialist edits and
+is not trusted with a verdict. Round 1 ran the arrow backwards. The D8
+specialist found that `_jq8contain.mjs` identified the field circle as *the
+first centred circle over r 35*, which on the penny and the nickel is the
+**blank** (`<circle r="47">`) rather than the field circle — so two of the four
+coins had been scored against a circle 6.5 units too large, and two of round
+0's `PASS` verdicts were wrong.
+
+It reported the fault and **correctly did not fix it**, because §1 hashes the
+eval libraries and editing one voids the round. The spec gave it no procedure
+for that, so it improvised one, and it improvised well. It should not have had
+to.
+
+**Proposed addition to §1:**
+
+> **The check runs both ways.** A specialist is closer to the drawing than the
+> judge is, and it will sometimes see that an instrument is wrong. That is a
+> feature of the separation, not a violation of it.
+>
+> A specialist that finds a fault in a target or an eval library **must report
+> it and must not fix it.** The report names the file, the specific line or
+> rule at fault, a reproduction the judge can run without trusting the
+> specialist, and — where it can — the *evidence already in the judge's own
+> published output* that should have caught it. It then continues with the
+> brief it was given, measuring around the fault if it can.
+>
+> The judge settles the challenge **before anything else in the round depends
+> on it**, and if the instrument was unsound it fixes it, re-hashes it,
+> re-scores every affected coin, and **appends a retraction to the history
+> rather than editing the old entry.** A judge that quietly improves its own
+> past scores has destroyed the only thing its scores are worth.
+>
+> A round is **not** void when a specialist *reports* an instrument fault. It
+> is void only when a specialist *edits* one.
+
+### Q2. The null test covers searching. It does not cover SELECTING
+
+§4.1 is written for an instrument that searches a range and might return its
+own bound. `fieldRadius()` did not search anything — it *selected*, by a rule,
+from a set of candidates, and the rule was wrong. No amount of bound-printing
+would have caught it, and the response test passed, because moving the eagle
+20 units out still moved the number.
+
+What would have caught it was already on screen. v1 printed `% outside field`
+and `% outside disc` (the latter hardcoded at 47) in adjacent columns, and on
+exactly the two broken coins **those columns were bit-identical** — the failure
+signature §4 already names, printed in the judge's own console, unread.
+
+**Proposed addition to §4.1:**
+
+> **The selection test.** Where an instrument identifies a feature by a rule
+> ("the field circle is the first centred circle over r 35"), it prints **the
+> full candidate set it chose from**, and it **throws** rather than choosing
+> when the candidates it did not pick are inconsistent with the one it did.
+> A selection rule that has only ever been tried on the subjects where it
+> happens to work is not an instrument, it is a coincidence — so run it across
+> **every** subject in the set, including the ones the round is not about.
+>
+> And: **read your own output.** §4's bit-identity rule is stated as a
+> principle; make it a check. Any two columns of a table that are equal for
+> some subjects and unequal for others are a bug report until explained.
+
+### Q3. A containment gate needs a DEPTH, not just a fraction
+
+D8 is "% of path length outside the field circle", gate 0.00%. Applied to the
+whole set with the corrected instrument, it returns:
+
+| | fraction outside | deepest breach | fraction deeper than 0.01 units |
+|---|---|---|---|
+| nickel obverse @44px | 8.09% | **1.4698 units** | 2.80% |
+| penny obverse @76px | 7.93% | **0.0038 units** | **0.00%** |
+
+Two near-identical percentages, four hundred times apart in severity. The
+penny's entire figure is the shoulder drape's closing arc, whose endpoints are
+authored to two decimal places and land at r 41.00285 against a circle of 41 —
+**0.0025 device pixels** at the 84px draw. The metric is resolving its own
+coordinate representation and calling it a defect, and it cannot rank, so it
+cannot route. This is Appendix P1's complaint about D6, in a dimension P1
+passed as healthy.
+
+**Proposed edit to §3's D8 row:**
+
+> D8 carries **two** numbers: the fraction of drawn length outside the field
+> circle, and the **deepest breach in viewBox units**. The gate is stated on
+> both. A breach shallower than the file's own coordinate quantum (0.01 units,
+> the precision `n2()` writes) is reported at its depth and does **not** count
+> against the fraction — but the fraction is still printed, unrounded, so the
+> exemption is visible rather than folded in.
+
+Stated as a *proposal*, not applied: the round-1 verdicts for the penny and the
+nickel obverse are recorded as **FAIL against the gate as stated**, because the
+gate predates the values and §8 forbids re-writing a verdict to fit a result
+already seen. Gates may be re-derived — before re-measuring, in writing, which
+is what this is.
+
+### Q4. Passing the null test is not the same as finding the right feature
+
+§4.1 says an answer equal to a bound is a failure report. Round 1's band finder
+returned **interior** values on both sides — 25.00–35.00 on the obverse against
+bounds of 20 and 46.5 — and passed the null test cleanly. It is still wrong:
+our legend sits at 32.05–40.13, and the plateau it locked onto is the **bust
+edge**. Its degeneracy measure (plateau contrast 1.67) is what says so.
+
+A confident non-answer and a confident answer to the wrong question look
+identical from inside the instrument.
+
+**Proposed addition to §4.1:**
+
+> Beside its bounds and its result, a detector reports **what it locked onto**,
+> checked against something independent of the reference it is reading — our
+> own geometry, a second reference, or the feature's expected location. An
+> in-bounds answer that disagrees with the independent check by more than the
+> gate's own tolerance is `BLOCKED`, not a value, and the degeneracy measure is
+> recorded either way.
+
+### Q5. D12 needs a control, because the eye confirms what it is told
+
+The round-1 specialist reported that the field ring, "previously broken by a
+white sliver at about ten o'clock, now runs unbroken." I rendered both
+revisions at the real device pixel count, looked at a 14× crop of the
+upper-left, and **saw exactly that** — because I had been told it would be
+there.
+
+It is false. The field ring stroke is emitted *after* the entire motif, so a
+white bevel drawn underneath cannot break it, at any tier, ever. Measured at
+device resolution, the ring band's washed-out angles go from 31 of 720 to 30,
+and the lightest sample is identical (197 at 223.0°) in both revisions.
+
+The thing that corrected me was a **control**: rendering the quarter *obverse*,
+which is byte-identical between the two revisions and has no eagle on it, and
+finding the same pale patch at the same clock position with the same value.
+That reattributed it to the specular highlight arc, which is drawn last, on
+both sides, and which nobody had touched. (Something real *was* fixed — bevel
+spill on the reeded rim at ≈9.7 o'clock, grey 221 → 197 — just not the thing
+that was claimed.)
+
+**Proposed edit to §3's D12 row and §8:**
+
+> D12 renders a **control** beside the subject: something the round did *not*
+> change — the other side, another coin, or the previous revision — chosen so
+> that an artefact appearing in both cannot be attributed to the change. Where
+> a specialist has described what the judge will see, the judge renders the
+> control **first**.
+>
+> And to §8's list of what the judge cannot do: **the judge cannot un-read a
+> claim.** A described artefact is found by an eye that went looking for it.
+> This is why D12 is scored with a control and why "I looked and it is fixed"
+> is not a D12 result — "I looked, here is the control, here is what
+> distinguishes them" is.
+
+### What round 1 says should NOT change
+
+- **§1's hashing.** It is the reason this round could be trusted at all: 34 of
+  34 frozen artefacts byte-identical, so every difference is attributable to
+  one file. It also produced the round's best evidence almost free — 20 of 180
+  renders changed, path data byte-identical in all 90, which settles seven
+  dimensions without measuring anything.
+- **§6.1's frozen locus.** It decided D11. The mid-tier cost was real
+  (−1.54% on the worst pair) and the icon locus was frozen before any value
+  existed, so the honest answer was "outside the gate, costed, accepted" rather
+  than either "regression, revert" or a silent pass. Without a pre-frozen locus
+  I could have argued that either way after the fact.
+- **§8's refusal to relax a gate**, tested a third time here on D8's depth
+  problem, and again recorded as a miss with a proposal attached rather than a
+  rewritten verdict.
