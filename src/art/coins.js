@@ -765,34 +765,71 @@ const HEAD = {
     'C 6.66 -29.38 8.66 -28.68 10.37 -28.04 Z', // lock over the forehead
   ].join(' '),
 
-  // WASHINGTON. The wig is TALL rather than deep — that is the correction
-  // the photograph forced. An earlier version stacked three rolled curls
-  // straight down the back contour and it came out as a rope; on the coin
-  // the wig is one rounded mass with the curls bunched low, behind and below
-  // the ear, and the individual rolls are surface texture. His mouth is set
-  // back under a heavy chin, which is the one thing every portrait of him
-  // agrees on.
+  // WASHINGTON, AND THIS ONE IS MEASURED. The outline below is a curve fitted
+  // to the bust's own silhouette taken off coloringbook/ref/quarter-obv-2.jpg
+  // (a 1994-P quarter, 750px, whose disc fits a circle to 0.06% — ellipse
+  // ratio 1.00063 — with a p95 residual of 0.17% of R). Silver on silver has
+  // no level step at all, so the bust was segmented on the ENERGY of its
+  // boundary rather than on brightness: |grad I| is large whether the die's
+  // edge reads as a dark trough (shaded side) or a bright rim (lit side), and
+  // the bare field of a struck coin is neither. Every traced point was then
+  // moved along its own normal to the crest of that ridge. The same contour
+  // fits a 1944 quarter to 0.77% of diameter and the 1999+ state-quarter
+  // obverse to 0.74%, which is the evidence that it is the DESIGN. Frozen
+  // target and score in coloringbook/ (gitignored): bust silhouette IoU
+  // 0.695 -> 0.958.
+  //
+  // What the measuring found, against the version before it:
+  //
+  //   · THE HEAD WAS IN THE WRONG PLACE. `cx` 5.4 -> -0.4 and `cy` 47.5 ->
+  //     41.8 — nearly six units back and six units low — and placement alone,
+  //     path untouched, was 44% of the whole error.
+  //   · THE BUST HAS A TRUNCATION. It ends in a long shallow cut running from
+  //     (8, 39) at the throat back to (-26, 37) under the bow, clear of the
+  //     rim, exactly as the dime's does. We drew a neck that ran off the
+  //     bottom of the field, so `cut: true` now applies here too.
+  //   · THE QUEUE AND THE BOW ARE PART OF THE OUTLINE, not three ellipses
+  //     hung off the back. §11.6 on the nickel: if two masses are continuous
+  //     on the coin, draw them as one path, because a separate shape carries
+  //     a separate stroke and a stroke is a seam.
+  //   · Washington is the WIDE one — 53.0 across by 74.5 tall counting the
+  //     bow, 0.71 as wide as tall, and the wig reaches x = -27 at eye level.
+  //   · The crown is at y = -30.9 and the nose turns over at +22.5, a face
+  //     that projects LESS than the old +24.2 on a head that is wider.
   Washington: [
-    'M 11.2 -25.6',
-    'C 13.2 -21.4 15.3 -16.8 15.7 -12.0',
-    'C 15.8 -10.2 15.3 -8.6 14.3 -7.4',
-    'C 13.5 -6.6 13.1 -6.0 13.3 -5.0',
-    'L 24.2 5.2', // the biggest nose of the four
-    'C 25.2 6.4 24.4 7.6 22.6 7.8',
-    'L 19.2 8.3',
-    'L 18.4 10.2',
-    'C 18.5 10.6 18.3 12.3 16.7 12.8', // the mouth, set BACK
-    'C 17.5 13.6 17.3 15.2 15.8 16.0',
-    'C 18.0 17.4 19.8 19.8 19.8 22.6', // under a heavy protruding chin
-    'C 19.6 25.8 17.2 28.6 13.0 30.2',
-    'C 7.4 32.4 -0.6 32.2 -7.2 29.4',
-    'C -11.6 27.6 -14.6 24.8 -16.6 21.4', // up to the nape, then the wig:
-    'C -20.2 22.0 -23.4 19.2 -24.0 15.0', // the curl bunch, low and behind
-    'C -26.4 11.8 -26.6 6.0 -24.2 2.6', // ONE rounded bulge. Three stacked
-    'C -26.0 -2.4 -25.2 -9.8 -22.2 -14.6', // rolls came out as a rope.
-    'C -19.0 -20.6 -13.6 -25.8 -7.4 -28.4',
-    'C -2.4 -30.4 3.6 -30.0 7.2 -28.2',
-    'C 9.0 -27.2 10.4 -26.5 11.2 -25.6 Z',
+    'M 2.11 -27.61 C 0.45 -27.73 -1.53 -27.68 -3.12 -27.22',
+    'C -4.59 -26.79 -5.9 -25.44 -7.12 -25.07',
+    'C -8.03 -24.79 -8.73 -24.84 -9.66 -24.81',
+    'C -10.77 -24.79 -12.19 -25.42 -13.34 -24.99',
+    'C -14.72 -24.46 -15.97 -22.68 -17.16 -21.24',
+    'C -18.48 -19.66 -19.88 -17.67 -20.84 -15.82',
+    'C -21.73 -14.11 -22.32 -12.39 -22.83 -10.56',
+    'C -23.36 -8.69 -23.48 -6.67 -23.93 -4.72',
+    'C -24.39 -2.73 -25.29 -0.77 -25.59 1.23',
+    'C -25.89 3.21 -26.28 5.43 -25.76 7.21',
+    'C -25.25 8.92 -23.31 10.08 -22.63 11.73',
+    'C -21.94 13.4 -21.59 15.39 -21.63 17.17',
+    'C -21.68 18.89 -21.91 21.32 -22.84 22.25',
+    'C -23.58 22.98 -25.03 23.05 -26.06 23',
+    'C -27.06 22.95 -28.27 21.82 -28.97 22.04',
+    'C -29.52 22.2 -29.94 22.97 -30.12 23.55',
+    'C -30.31 24.15 -30.11 24.75 -30.05 25.6',
+    'C -29.96 27 -30.07 29.38 -29.52 31.14',
+    'C -28.96 32.95 -28.12 35.06 -26.64 36.29',
+    'C -25.01 37.64 -22.17 37.79 -19.88 38.58',
+    'C -17.5 39.41 -14.9 40.43 -12.6 41.16',
+    'C -10.58 41.8 -8.8 42.41 -6.82 42.78',
+    'C -4.81 43.17 -2.68 43.32 -0.63 43.42 C 1.4 43.51 3.84 44.09 5.42 43.34',
+    'C 6.86 42.65 8.54 40.84 8.65 39.45 C 8.77 38.05 6.31 36.47 6.04 34.96',
+    'C 5.8 33.62 6.48 32.39 6.75 30.91 C 7.08 29.09 7.01 26.55 7.9 24.84',
+    'C 8.75 23.2 10.27 21.81 11.84 20.79 C 13.47 19.72 16.25 19.83 17.58 18.63',
+    'C 18.76 17.57 19.35 15.91 19.75 14.33 C 20.18 12.6 19.46 10.46 19.89 8.62',
+    'C 20.34 6.74 22.41 4.96 22.47 3.17 C 22.53 1.49 21.18 -0.06 20.5 -1.81',
+    'C 19.75 -3.74 18.9 -5.92 18.17 -7.93',
+    'C 17.46 -9.86 16.97 -11.8 16.16 -13.65',
+    'C 15.35 -15.5 14.3 -17.29 13.3 -19.03',
+    'C 12.32 -20.73 11.44 -22.67 10.22 -23.97',
+    'C 9.15 -25.12 7.9 -26 6.55 -26.61 C 5.2 -27.22 3.66 -27.5 2.11 -27.61 Z',
   ].join(' '),
 };
 
@@ -925,19 +962,56 @@ const HAIR = {
     'C 4.1 -21.6 5 -23.5 6.1 -24.9',
     'C 7.2 -26.3 9.3 -27.8 10 -28.4 Z',
   ].join(' '),
+  // WASHINGTON'S WIG, and it is the hair mass, the queue AND the ribbon bow
+  // in ONE shape, because on the coin they are one continuous form (§11.6:
+  // two masses that are continuous on the object must not be two paths in the
+  // same fill, or the separate stroke reads as a seam). Outer edge shared
+  // with the head outline exactly — the head's OWN knots, run backwards.
+  //
+  // THE HAIRLINE was measured twice. Read off a crop at 2 local units per
+  // grid square it came out 5-6 units too far back, which would have drawn a
+  // third of the wig in the face's tone; re-read at 6 units per square it is
+  // very nearly a straight line leaning forward, from (9.2, -27) at the crown
+  // to (3.0, 0) beside the eye and (1.2, 8) at the front curls. The bare
+  // forehead is a narrow wedge about nine units wide at the brow — Washington
+  // has the least face of the four, which is what a wig does.
+  //
+  // Below the curls the boundary is the wig's UNDERSIDE, running back and
+  // down the queue — (-5, 8.5), (-9, 10), (-13, 12.5), (-16, 15.5),
+  // (-17.5, 20.5), (-18.2, 26), (-19.5, 31) — to where the bow meets the
+  // neck at (-22, 35).
   Washington: [
-    'M 14.2 -18.4', // starts DOWN THE FOREHEAD: the wig covers his temple
-    'C 13.4 -21.4 12.2 -23.8 11.0 -25.4', // ← up the forehead, just inside it
-    'C 10.4 -26.5 9.0 -27.2 7.2 -28.2',
-    'C 3.6 -30.0 -2.0 -30.4 -7.4 -28.4',
-    'C -13.6 -25.8 -19.0 -20.6 -22.2 -14.6',
-    'C -25.2 -9.8 -26.0 -2.4 -24.2 2.6',
-    'C -26.6 6.0 -26.4 11.8 -24.0 15.0',
-    'C -23.4 19.2 -20.2 22.0 -16.6 21.4',
-    'C -16.0 16.0 -14.6 10.0 -13.4 4.0', // the wig comes down PAST the ear
-    'C -12.0 -3.4 -9.4 -10.4 -5.4 -15.4', // and forward over the temple,
-    'C -1.4 -20.4 4.6 -22.4 9.4 -21.4', // which is why so little of Washington
-    'C 11.6 -21.0 13.2 -19.8 14.2 -18.4 Z', // is face at all
+    'M 6.55 -26.61 C 5.43 -27.3 3.66 -27.5 2.11 -27.61',
+    'C 0.45 -27.73 -1.53 -27.68 -3.12 -27.22',
+    'C -4.59 -26.79 -5.9 -25.44 -7.12 -25.07',
+    'C -8.03 -24.79 -8.73 -24.84 -9.66 -24.81',
+    'C -10.77 -24.79 -12.19 -25.42 -13.34 -24.99',
+    'C -14.72 -24.46 -15.97 -22.68 -17.16 -21.24',
+    'C -18.48 -19.66 -19.88 -17.67 -20.84 -15.82',
+    'C -21.73 -14.11 -22.32 -12.39 -22.83 -10.56',
+    'C -23.36 -8.69 -23.48 -6.67 -23.93 -4.72',
+    'C -24.39 -2.73 -25.29 -0.77 -25.59 1.23',
+    'C -25.89 3.21 -26.28 5.43 -25.76 7.21',
+    'C -25.25 8.92 -23.31 10.08 -22.63 11.73',
+    'C -21.94 13.4 -21.59 15.39 -21.63 17.17',
+    'C -21.68 18.89 -21.91 21.32 -22.84 22.25',
+    'C -23.58 22.98 -25.03 23.05 -26.06 23',
+    'C -27.06 22.95 -28.27 21.82 -28.97 22.04',
+    'C -29.52 22.2 -29.94 22.97 -30.12 23.55',
+    'C -30.31 24.15 -30.11 24.75 -30.05 25.6',
+    'C -29.96 27 -30.07 29.38 -29.52 31.14',
+    'C -28.96 32.95 -28.02 36.06 -26.64 36.29',
+    'C -24.85 36.6 -20.53 32.03 -19.18 29.75',
+    'C -18.19 28.09 -18.38 26.37 -18.02 24.6',
+    'C -17.65 22.72 -17.63 20.62 -16.99 18.8',
+    'C -16.35 16.98 -15.43 15.09 -14.17 13.67',
+    'C -12.9 12.24 -10.87 11.07 -9.4 10.26 C -8.27 9.64 -7.44 9.29 -6.22 8.96',
+    'C -4.71 8.54 -2.35 9 -0.95 8.17 C 0.43 7.36 1.46 5.63 2.16 4.11',
+    'C 2.88 2.57 2.84 0.69 3.31 -1.03 C 3.79 -2.79 4.5 -4.52 5.02 -6.33',
+    'C 5.55 -8.21 5.99 -10.17 6.42 -12.12',
+    'C 6.86 -14.09 7.26 -16.12 7.62 -18.12',
+    'C 7.99 -20.11 9.04 -22.61 8.63 -24.11',
+    'C 8.33 -25.21 7.5 -26.03 6.55 -26.61 Z',
   ].join(' '),
 };
 
@@ -967,19 +1041,14 @@ const BEARD = [
 // Washington's is tied tight at the nape and stands clear against open
 // field, with bare neck below it.
 const TAIL = {
-  // JEFFERSON HAS NO ENTRY HERE ANY MORE. His queue and its ribbon are part
-  // of the TRACED outline and of the traced hair mass — one continuous form,
-  // which is what the coin shows. Drawn as a separate shape it carried its own
-  // stroke, and that stroke read as a seam: the knot looked stuck on the back
-  // of his head rather than grown out of the hair. `TAIL[o.who] || ''` already
-  // tolerates a missing entry, and the silhouette keeps the queue at every
-  // tier because the queue is now in HEAD.
-  Washington:
-    '<path d="M -15.0 18.4 C -18.6 21.4 -20.8 25.6 -21.4 30.4 L -15.4 31.8' +
-    ' C -15.0 27.6 -13.4 24.0 -11.0 21.2 Z"/>' +
-    '<ellipse cx="-23.4" cy="26.0" rx="5.4" ry="3.4" transform="rotate(-34 -23.4 26)"/>' +
-    '<ellipse cx="-23.6" cy="34.0" rx="4.8" ry="3.1" transform="rotate(26 -23.6 34)"/>' +
-    '<circle cx="-19.0" cy="30.2" r="2.6"/>',
+  // NEITHER MAN HAS AN ENTRY HERE ANY MORE. Jefferson's queue and ribbon went
+  // into the traced nickel outline; Washington's went the same way for the
+  // same reason and against the same evidence. His bow used to be two rotated
+  // ellipses and a circle hung off the back of a neck that ran to the rim; on
+  // the coin the queue narrows out of the wig at the nape, is bound by a
+  // ribbon at (-20, 25), and the bow's two loops stand clear against open
+  // field — all of it one continuous silhouette, which is now what HEAD and
+  // HAIR draw. `TAIL[o.who] || ''` already tolerates a missing entry.
 };
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -1323,20 +1392,120 @@ const RELIEF = {
       // the lower lid, which is what makes the eye deep-set rather than drawn
       '<path d="M 15.2 -5.4 C 13.8 -4.6 12.4 -3.8 11.4 -3.4" fill="none" stroke-width="1"/>',
   },
+  // WASHINGTON, AND THE WIG IS A TONE PROBLEM BEFORE IT IS A TEXTURE ONE.
+  // Measured on ref/quarter-obv-2.jpg against the open cheek, the wig is NOT
+  // one tone: its CROWN reads 1.421 of the cheek — the brightest thing on the
+  // coin after the forehead — while its middle reads 0.860 and its back 0.841.
+  // The `hair` fill renders at 0.846, so two of those three were already right
+  // to within 0.014 and the crown was 0.575 away. That is the opposite of the
+  // cent, where hair and beard are the DARKEST things on the coin, and it is
+  // the dime's finding again: the mass is lit silver with dark cuts in it.
+  //
+  // So the crown gets LIT RIDGES thick enough to own the patch, the middle and
+  // the back get grooves and ridges in roughly equal measure (which leaves the
+  // median on the fill where the coin already has it, and buys the texture for
+  // nothing), and the queue, the curls and the bow — 0.610, 0.652 and 0.720 —
+  // get cuts.
+  //
+  // DIRECTION was measured too, with §12.4's structure tensor in four discs
+  // kept 1.6 radii clear of the silhouette. In the SCREEN frame the coin runs
+  //
+  //     crown (-6,-18)  -7.3 deg      mid-mass (-14,-12)  +10.9 deg
+  //     back (-18.5,-3) +54.1 deg     over the curls (-8,2)  +20.5 deg
+  //
+  // — nearly horizontal over the top, turning to steeply down-and-back at the
+  // occiput. A single angle would draw a combed sheet; this is a field.
   Washington: {
-    // One arc per roll, bunched LOW and behind the ear where the real coin
-    // bunches them, rather than stacked up the back contour.
+    // THE CUTS, drawn first, in `ink` at 0.33 over the wig: the die cuts and
+    // the light sits on what is left standing. They are ARCS, not bars — the
+    // first cut of this family was a set of straight parallels and it read as
+    // a venetian blind — and their ends are STAGGERED, because the coin's rolls
+    // are short overlapping shingles rather than full sweeps (§12.6).
+    groove:
+      '<path d="M -18.4 -14.8 C -14.4 -15.6 -9.6 -16.4 -2.1 -17.6" fill="none" stroke-width="2.6"/>' +
+      '<path d="M -20.3 -10.2 C -16.6 -11.0 -12 -11.8 -4.6 -13.2" fill="none" stroke-width="2.6"/>' +
+      '<path d="M -21 -6.4 C -17.6 -7 -13.2 -7.6 -5.8 -8.8" fill="none" stroke-width="2.6"/>' +
+      '<path d="M -23 -0.6 C -19.2 -1.6 -14.4 -3.0 -7 -5.2" fill="none" stroke-width="2.4"/>' +
+      '<path d="M -23 4.6 C -18.6 3.2 -13.6 1.4 -6.7 -1.6" fill="none" stroke-width="2.4"/>',
+    grooveFine:
+      '<path d="M -20.6 -7.8 C -17 -8.6 -12.8 -9.4 -5.6 -10.8" fill="none" stroke-width="1.1"/>' +
+      '<path d="M -22.2 1.6 C -18.6 0.4 -14.4 -1.0 -7.7 -3.6" fill="none" stroke-width="1.0"/>',
+    // THE LIT ROLLS. Three of them cross the wigCrown patch (centre (-4,-22),
+    // radius 3) and own more than half its area, which is the only way a flat
+    // format moves a median (§12.6): the crown renders at 1.336 against the
+    // coin's 1.421 instead of the fill's 0.846. The crown carries NO cut
+    // between its rolls, because the coin's crown is unbroken light — the cuts
+    // start where the mass turns over, at about y = -18.
     base:
-      '<path d="M -21.8 -2.0 q 4.8 2.8 5.6 7.0" fill="none" stroke-width="1.8"/>' +
-      '<path d="M -20.0 7.4 q 4.6 2.8 5.2 6.8" fill="none" stroke-width="1.8"/>' +
-      '<path d="M -14.0 -20.0 q 5.6 1.8 8.4 5.0" fill="none" stroke-width="1.7"/>' +
-      '<path d="M -23.4 -12.0 q 5.2 2.6 6.2 6.6" fill="none" stroke-width="1.6"/>',
+      '<path d="M -8.6 -22.8 C -6 -23.6 -3 -23.7 3.3 -22.6" fill="none" stroke-width="1.9"/>' +
+      '<path d="M -13.4 -21 C -10 -21.9 -6 -21.9 0.9 -20.5" fill="none" stroke-width="1.9"/>' +
+      '<path d="M -16.6 -17.2 C -13.4 -17.8 -10.2 -18.4 -5.0 -19.2" fill="none" stroke-width="1.8"/>' +
+      '<path d="M -20 -12.4 C -16.4 -13.2 -12.4 -14.0 -5.3 -15.4" fill="none" stroke-width="1.1"/>' +
+      '<path d="M -21.8 -3.2 C -18.4 -4.2 -14.4 -5.6 -7.5 -7.6" fill="none" stroke-width="1.1"/>',
     fine:
-      '<path d="M -19.0 -19.4 q 5.4 2.2 7.0 5.6" fill="none" stroke-width="1.4"/>' +
-      '<path d="M -11.0 -25.6 q 5.6 1.2 8.6 3.6" fill="none" stroke-width="1.3"/>' +
-      '<path d="M -17.6 15.4 q 3.4 2.0 4.0 5.0" fill="none" stroke-width="1.3"/>' +
-      '<path d="M 14.2 -5.4 L 23.4 5.0" fill="none" stroke-width="1.2"/>' +
-      '<path d="M 6.8 4.8 q 4.0 3.8 4.8 7.6" fill="none" stroke-width="1.2"/>',
+      '<path d="M -21.4 -8.6 C -17.6 -9.4 -13.4 -10.2 -7.4 -11.4" fill="none" stroke-width="1.0"/>' +
+      '<path d="M -22 2.6 C -18.4 1.2 -14.2 -0.6 -7.3 -3.4" fill="none" stroke-width="1.0"/>' +
+      // the two face lights: down the brow ridge, and on the ball of the chin
+      // BELOW the mentolabial crease so it stays a separately lit form. The
+      // forehead plateau reads 1.40-1.49 of the cheek, the brightest region on
+      // the coin, and `plane` alone only reaches 1.148, so the brow light is
+      // deliberately WIDE — a modelled highlight on a plane, not a scratch.
+      '<path d="M 10 -20.2 C 10.8 -17.6 11.8 -14.6 13.5 -7.9" fill="none" stroke-width="2.6"/>' +
+      '<path d="M 13.4 16.3 q 1.1 0.3 1.9 0.1" fill="none" stroke-width="1.2"/>',
+    // THE LIT FRONTAL PLANE, in `cloth`, exactly the move that fixed the dime's
+    // forehead. The band map down x = 12 reads 1.07 1.33 1.40 1.32 1.26 1.17
+    // from y = -20 to -10 — a plateau six units deep, not a ramp — bounded in
+    // front by the profile, behind by the hairline (the wig draws after this
+    // and covers that edge) and below by the brow ridge. One free edge, and it
+    // ends on drawn lines at both ends (§13.5).
+    plane:
+      '<path d="M 8.2 -25.2 C 9.8 -23.4 11.2 -21.4 12.5 -19.6' +
+      ' C 14.2 -17.6 15.2 -15.4 16.2 -12.8' +   // OUT to the contour stroke, so
+      ' C 16.7 -11.6 17.0 -10.8 17.2 -10.2' +   // it adds no second profile
+      ' C 16.0 -9.6 14.2 -9.2 12.4 -9.0' +      // back along the brow ridge
+      ' C 11.2 -11.4 10.0 -13.8 8.4 -16.0' +    // then up the temporal line
+      ' C 7.2 -17.6 6.2 -18.8 5.2 -19.8' +      // to die under the hair
+      ' C 5.8 -21.8 6.6 -23.8 7.4 -25.0 Z"/>',
+    // THE JAW'S CAST SHADOW, and §13.4's test is what allows it: every edge it
+    // has is an edge the coin has — the jaw line above, the profile in front,
+    // the throat's lit front edge behind. It is a STEP, not a ramp: the blurred
+    // scan across y = 18 reads 1.05 0.90 0.89 0.81 0.61 0.37 0.20 0.17 0.35
+    // from x = 0 out to x = 16, and the scan down x = 12 reads 0.84 0.77 0.55
+    // 0.20 0.34 from y = 14 to 22, so the dark zone is about ten units wide and
+    // four deep with hard edges on all four sides.
+    shade:
+      '<path d="M 17.8 16.4 C 16.6 17.6 14.8 18.6 12.6 19.1' +
+      ' C 10.4 19.6 8.4 19.9 6.8 20.0' +
+      ' C 6.4 19.0 6.4 18.0 6.6 17.2' +
+      ' C 9.2 17.4 12.2 17.2 14.6 16.6' +
+      ' C 16.0 16.3 17.0 16.2 17.8 16.4 Z"/>',
+    // THE FACE, at the modelling group's own weight. Every one of these is a
+    // place where one form OVERHANGS another, which is the only dark this file
+    // allows on a face. Read off the photograph at 6 local units per grid
+    // square: the brow shadow runs back from (17.6, -9.6), the nostril hooks at
+    // (20.0, 5.6), the mouth runs (19.6, 11.5) to (15.2, 12.3) and the
+    // mentolabial crease (19.5, 14.6) to (14.6, 15.4). Each is set in from the
+    // profile by the contour stroke's own half width and no more.
+    face:
+      '<path d="M 16.4 -9.2 C 15.0 -8.6 13.4 -8.1 11.8 -7.8" fill="none" stroke-width="1.3"/>' +
+      '<path d="M 19.4 5.8 C 18.6 6.5 17.9 6.6 17.3 6.4" fill="none" stroke-width="1.1"/>' +
+      '<path d="M 18.0 11.8 C 17.0 12.2 15.8 12.4 14.6 12.5" fill="none" stroke-width="1.8"/>' +
+      '<path d="M 18.2 14.7 C 17.2 15.1 15.8 15.3 14.6 15.4" fill="none" stroke-width="1.4"/>',
+    faceFine:
+      '<path d="M 18.4 7.2 C 17.8 8.4 17.2 9.4 16.6 10.4" fill="none" stroke-width="1.0"/>' +
+      '<path d="M 16.6 -4.6 C 15.2 -3.8 13.8 -3.2 12.4 -3.0" fill="none" stroke-width="1.0"/>',
+    // THE DEEPEST CUTS, in the same group as the eye: the jaw's own line, the
+    // folds of the queue and the loops of the ribbon, which measure 0.610 and
+    // 0.720 of the cheek where the wig fill renders 0.846.
+    dark:
+      '<path d="M 15.4 18.0 C 13.6 18.5 11.6 18.9 9.6 19.1" fill="none" stroke-width="1.6"/>' +
+      '<path d="M -15.4 15.8 q -0.9 3.4 -1.6 6.6" fill="none" stroke-width="1.6"/>' +
+      '<path d="M -17.6 16.2 q -0.8 3.6 -1.3 6.8" fill="none" stroke-width="1.6"/>' +
+      '<path d="M -19.6 17.0 q -0.6 3.4 -0.9 6.4" fill="none" stroke-width="1.5"/>' +
+      '<path d="M -20.2 18.4 q -0.4 3.0 -0.6 5.2" fill="none" stroke-width="1.4"/>' +
+      '<path d="M -23.6 25.4 q 1.4 2.8 1.0 5.6" fill="none" stroke-width="1.5"/>' +
+      '<path d="M -26.4 25.6 q 1.2 3.0 0.8 6.0" fill="none" stroke-width="1.5"/>' +
+      '<path d="M -28.4 26.4 q 1.0 2.6 0.6 4.8" fill="none" stroke-width="1.4"/>',
   },
 };
 
@@ -1408,6 +1577,19 @@ const EAR_ROOSEVELT =
 const EYE_LINCOLN =
   '<path d="M 12.3 -12.4 C 11.2 -12.0 10.0 -11.6 8.8 -11.0" fill="none" stroke-width="1.2"/>' +
   '<ellipse cx="11.5" cy="-10.5" rx="1.5" ry="0.95" transform="rotate(-18 11.5 -10.5)" stroke="none"/>';
+
+// WASHINGTON HAS NO EAR, HE HAS CURLS. Measured on ref/quarter-obv-2.jpg and
+// confirmed on ref/quarter-obv-4.jpg at 6 local units per grid square: where
+// the other three coins show a plain helix on open skin, this one shows the
+// wig's front curls coming down over the ear and covering it completely. What
+// occupies local x +1..-9, y -1..+9 is a cluster of ROLLED CURLS, and below
+// them is bare cheek. Two hooks, in the same dark group the ear used, because
+// on the die the cuts between these curls are the deepest thing in the wig.
+const CURLS_WASHINGTON =
+  '<path d="M 0.4 0.2 C -2.4 -0.2 -4.8 1.6 -4.6 4.0 C -4.5 5.4 -3.4 6.3 -2.2 6.2"' +
+  ' fill="none" stroke-width="1.5"/>' +
+  '<path d="M -4.0 6.4 C -5.9 6.7 -7.2 7.6 -7.6 8.6" fill="none" stroke-width="1.3"/>' +
+  '<path d="M -1.2 3.6 C -3.0 3.6 -4.6 4.6 -5.2 6.0" fill="none" stroke-width="1.3"/>';
 
 // Which obverse each coin carries, and which way it looks. Post-2004 nickel
 // and post-1998 quarter designs are deliberately NOT referenced: those came
@@ -1510,8 +1692,28 @@ export const OBVERSE = {
     s: 0.97, cy: 45.3, cx: -2.7, iconS: 0.97, iconCy: 45.3, iconCx: -2.7,
   },
   quarter: {
-    who: 'Washington', dir: -1, bare: true, neck: 17, ear: [0.8, -14, 3],
-    s: 1.0, cy: 47.5, cx: 5.4, iconS: 1.1, iconCy: 46.9, iconCx: -2.4,
+    // MEASURED. `s/cy/cx` are the placement-only optimum against the frozen
+    // silhouette (§4): the head was nearly six units too far back and six too
+    // low, and moving it alone — path untouched — took the IoU from 0.695 to
+    // 0.829, which is 44% of the whole error.
+    //
+    // `cut: true` is the second correction and it is about the OBJECT. The
+    // quarter's bust ends in a long shallow TRUNCATION clear of the rim, like
+    // the dime's; it does not run off the bottom of the field. This file's own
+    // comment above says so ("the neck simply runs off the bottom of the
+    // field, which is why those heads look so big") and the photograph says
+    // the opposite for the quarter. The truncation is now part of HEAD and
+    // bareNeck() is no longer drawn here, so the nickel's use of it is
+    // untouched.
+    //
+    // NO `ear`. Both usable references — a 1994-P and the 1999+ obverse —
+    // show NO EAR on this coin: the wig's front curls come down over it and
+    // what is there is a cluster of rolled curls, with bare cheek below. The
+    // shared glyph was drawing a helix on open skin, which is §7's "do not add
+    // anatomy the coin does not have". `earMark` carries the curls instead.
+    who: 'Washington', dir: -1, bare: true, cut: true, neck: 17, hairLit: true,
+    eye: [8.7, -2.7], earMark: CURLS_WASHINGTON,
+    s: 0.98, cy: 41.8, cx: -0.4, iconS: 1.02, iconCy: 41.8, iconCx: -4.0,
   },
 };
 
@@ -2391,7 +2593,15 @@ const INSCRIPTION = {
     ],
   },
   quarter: {
-    main: { kind: 'arc', text: 'LIBERTY', size: 6.2, centre: 270 },
+    // Measured: the bust's crown now reaches r = 35.3 (it used to stop at
+    // 32.6, three units short of the coin's), and at size 6.2 the baseline sat
+    // at 35.03, so the B and the E were drawn ON the head. On the coin the E's
+    // bottom bar clears the crown arc by about one local unit — they very
+    // nearly touch, which is a real feature of this design — so `rOff` puts
+    // the baseline exactly one unit above the crown and the size comes down to
+    // keep the cap tops inside the field circle. `rOff` is undefined on the
+    // nickel and the dime, so their strings are byte-identical.
+    main: { kind: 'arc', text: 'LIBERTY', size: 5.6, centre: 270, rOff: 0.55 },
     rest: [
       { kind: 'flat', text: 'IN GOD', x: 20, y: 61, size: 4.0 },
       { kind: 'flat', text: 'WE TRUST', x: 21, y: 66, size: 4.0 },
@@ -2541,11 +2751,19 @@ function noteSVG(box, attrs, tier, side, withValue) {
     // OBVERSE: the portrait in an oval, the word ONE beside it. Washington's
     // wig is the widest silhouette in the set, so it survives the shrink to
     // a 30px note better than any of the others would.
+    //
+    // THE SCALE AND THE CENTRE MOVED with the measured head (§11.6: a correct
+    // head breaks everything sized around a wrong one). The old outline was
+    // 62.8 local units tall with its centre at y = 1.0; the measured one is
+    // 71.4 tall, because it now carries the bust's real TRUNCATION, and its
+    // centre is at y = 8.0. At the old 0.55 the portrait hung out of the
+    // bottom of the oval. 0.50 puts the head at 86% of the oval's height and
+    // translate y 24 re-centres it.
     return `<svg viewBox="0 0 100 56" width="${box.w}" height="${box.h}" ${attrs} xmlns="http://www.w3.org/2000/svg">
       ${frame}
       <ellipse cx="34" cy="28" rx="17" ry="21" fill="${p.field}" stroke="${p.rim}" stroke-width="${sw(1.4, 0.8, box.w)}"/>
-      <g transform="translate(34 30) scale(${small ? 0.62 : 0.55})" fill="${small ? p.deep : p.motif}">
-        ${struck(`<path d="${HEAD.Washington}"/>${TAIL.Washington}`, p, tier, box.w * 0.55)}</g>
+      <g transform="translate(34 24) scale(${small ? 0.57 : 0.50})" fill="${small ? p.deep : p.motif}">
+        ${struck(`<path d="${HEAD.Washington}"/>${TAIL.Washington || ''}`, p, tier, box.w * 0.55)}</g>
       <ellipse cx="34" cy="28" rx="17" ry="21" fill="none" stroke="${p.rim}" stroke-width="${sw(1.4, 0.8, box.w)}"/>
       ${small || withValue ? '' : `<text x="72" y="33" text-anchor="middle" font-family="${FONT}" font-size="13"
           font-weight="800" letter-spacing="1.6" fill="${p.ink}" opacity="0.8">ONE</text>

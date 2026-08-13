@@ -1613,3 +1613,167 @@ two references say 0.543 and 0.879. Moving it to the palette floor's best rung
 (0.636) gives mean |Δ| across the two of 0.168 — **identical** to what 0.818
 gives. That relationship is genuinely indeterminate at this magnitude, and
 saying so is worth more than picking the reference that flatters the change.
+
+---
+
+## 21. What the quarter added — silver on silver, and a target that was wrong twice
+
+Written after the Washington quarter obverse pass (phase 1: bust IoU
+0.698 → 0.965; phase 2: 0.2968 → 0.1447 against a flat-drawing floor of 0.3582
+and a palette floor of 0.0757). Run document: `coloringbook/quarter-obv.md`.
+The `_qt*` tools are inventoried in `coloringbook/TOOLS.md`.
+
+### 21.1 On a LIT coin the boundary is not a dark ridge — segment its ENERGY
+
+§2.2 thresholds a level; §11 looks for the sculptor's model; §20.2 finds a band
+in a cameo proof's histogram. The quarter gives a fourth case and it is the one
+most likely to recur, because most coin photographs are of ordinary struck
+coins lit from one side.
+
+Every quarter reference fails §2.2's level test in **both** polarities. The
+obvious next move — remove the field's lighting ramp *multiplicatively*
+(`r = g / blur(g, 0.08R)`, which is what lighting is, where §20.2's failed
+top-hat subtracts) and flood the field through "not dark" — produces a map that
+looks perfect and a mask that is **the shadow side of the portrait**. A
+minimum-barrier (bottleneck) flood, which removes the dependence on the single
+weakest boundary pixel, returns exactly the same set. The model is wrong, not
+the threshold:
+
+> **A relief boundary on a lit coin is a dark trough on the shaded side and a
+> BRIGHT rim on the lit side. Nothing that floods through "not dark" can
+> enclose it. What IS closed all the way round is |grad I|, because a trough
+> and a rim are both large gradients and a struck coin's bare field is not.**
+
+Blur to 0.008R, Sobel, flood the field through `G <= T`, keep the largest
+component not reached, fill holes. §2.2's plateau test then applies to `G`
+instead of to grey — §11.1's point that "the plateau test decides it; the
+channel it applies to changes", one channel further on.
+
+### 21.2 A flood mask's boundary is the ridge's SKIRT. Refine to the crest.
+
+The energy flood still drifts — 4.5% linear on the quarter between T = 2.5 and
+T = 5 — and that drift is not a leak, it is the width of the gradient ridge:
+raising the threshold lets the flood climb further up the skirt. Fix it by
+moving every traced point along its own outward normal to the local maximum of
+`G`, iterated with light smoothing. That is §11.2's normal-direction search used
+to **refine a contour** rather than to register one, and it makes the result
+independent of the threshold that produced it: after refinement the quarter's
+contour moves 0.112% of diameter for T 3.5→4 and 0.31–0.37% for 3.5→3 and
+3.5→4.5.
+
+**Report that sweep, not the flood's.** It is §2.2's plateau test applied to the
+thing you actually freeze.
+
+### 21.3 Lettering that nearly touches the device will be welded to it
+
+Rule 3 — publish the mask over its own source at high zoom — earned its place
+twice on this coin. The quarter's crown passes about **one local unit** under
+the E of LIBERTY. Their gradient skirts overlap, so the traced mask rode the
+LETTER: r = 0.836R where the head's own arc is at 0.744R, i.e. **3.5 local units
+of invented crown**. Undetected it would have made our head three units too tall
+*and* pushed the drawn LIBERTY onto it.
+
+A morphological opening does not fix this. At k = 4, 6, 8, 10 and 12 px the
+crown stayed at 0.82–0.836R: the bridge is not a thin neck, the two skirts
+genuinely merge. What works is a **guard**: mark everything in the offending
+sector beyond a radius that lies BETWEEN the two measured features as field
+before the flood. On the quarter the head's arc is at 0.744R and the E's bottom
+bar at 0.7645R, and guards of 0.745 / 0.755 / 0.765 all put the crown at
+0.765R ± 0.0014 — so the guard is not what decides the answer, which is the
+thing to demonstrate.
+
+**Sweep the guard and publish the sweep**, or it is indistinguishable from
+trimming the target to fit.
+
+### 21.4 Freeze early, and expect to re-freeze — but keep every version
+
+§6 rule 1 says freeze before touching the art; rule 2 says a target that moves
+toward the art is not a target. The quarter needed **three** masks, and the way
+to have both rules is mechanical:
+
+- freeze v1, then immediately run rule 3 and rule 4's overlays;
+- when a defect is found, freeze a NEW file rather than editing the old one
+  (the writer's `existsSync -> exit 1` guard enforces it);
+- keep and publish all of them, and **score the art against all of them**.
+
+The quarter's finished art scores 0.96530 / 0.96072 / 0.95177 against v3 / v2 /
+v1. A reader can see that the correction was worth 0.014 and that the pass did
+not simply chase a target it had loosened.
+
+### 21.5 Check whether two "references" are the same photograph
+
+`quarter-obv.jpg` and `quarter-obv-2.jpg` are one photograph at 500px and
+750px. Disc-normalised they differ by mean 11.6 grey levels where two genuinely
+different coins differ by 90, and the contour registers onto the smaller one
+with a residual of 0.169% of diameter and a relative scale of 0.9974.
+
+That number is worth having for its own sake — **it is the pipeline's noise
+floor**, and it is what makes 0.63% and 0.73% on the other two references
+meaningful — but counting the pair as two references would have doubled the
+apparent evidence for nothing. **Cross-correlate the references before trusting
+the count.**
+
+### 21.6 §20.5 does not go far enough: re-measure the sign per REGION
+
+The dime and the nickel measured hair at 1.34–1.36× the cheek; the cent measured
+hair and beard at 0.54–0.63; §20.5 concluded "re-measure the sign on every
+coin". The quarter's wig is **both**: crown 1.421, middle 0.860, back 0.841,
+queue 0.610, curls 0.652 — a spread of 0.81 inside one mass.
+
+A single fill can only serve one of those. The structure that does serve them is
+the dime's: fill the mass in a LIGHT tone (`hairLit`) and carry it on cuts,
+with the cuts dense enough to own the patches where the coin is dark and absent
+where it is bright. On the quarter that is worth reporting as a **deliberate
+regression and recovery**: switching to `hairLit` cost 0.054 of the tone metric
+(the dark fill happened to match two patches exactly) and was made anyway,
+because the dark fill read as a HOOD; widening the cuts then bought the 0.054
+back.
+
+### 21.7 Two stroke families with different slopes CROSS, and crossing reads as scribble
+
+§12.4 gates the mean strand angle. Meeting it is not sufficient. On the quarter
+the grooves were tilted to the measured field and the lit ridges were not, which
+took the strand error from 23.1° to 11.9° — and made the wig read as a mess,
+because the two families crossed each other at every roll.
+
+Making the ridges parallel to the grooves within each band cost **3.4°** (11.9°
+→ 15.3°, which is a miss against the 15° gate) and is obviously right.
+
+> **Gate the mean angle, but constrain each pair of neighbouring families to be
+> PARALLEL. A groove and its own lit ridge are two sides of one roll; they
+> cannot have different directions.**
+
+### 21.8 Anything that shares a path with the subject moves when the subject does
+
+§11.6 recorded that a corrected nickel broke the legend, the coat and the stroke
+widths. The quarter adds a further hop: the **$1 note's obverse draws
+`HEAD.Washington`**, so 18 of the 180 tier-identity outputs changed there too,
+and the note's portrait — sized 0.55 against a head that was 62.8 local units
+tall — hung out of its oval once the measured head came in at 71.4.
+
+Worse, deleting `TAIL.Washington` printed the literal string `undefined` into
+those 18 outputs, because the note's template interpolated `${TAIL.Washington}`
+directly where `bust()` uses `TAIL[o.who] || ''`. **The 100-render
+well-formedness sweep in §9 is what caught it** — the IoU, the tone vector and
+the containment checker were all clean and all blind to it.
+
+> **Before changing a shared constant, grep for every use of it, and run the
+> well-formedness sweep as well as the identity sweep. `undefined` in an
+> attribute is not a rendering error; it is a silent one.**
+
+### 21.9 A tool that does not change its answer when the art changes is broken
+
+Two tools lied on this pass and both were caught by the same reflex.
+
+- The relief-puller rewrites `M`, `L` and `q` but **not `C`**, so translating a
+  cubic collapsed it onto its own control points and quietly destroyed four
+  face marks.
+- The strand tensor returned coherence **1.000 at 0.0°** in every disc for our
+  own render — §12.4 already names that as what a bug looks like — and, more
+  tellingly, returned the *identical* four numbers after the geometry changed.
+  Blurring our own raster through sharp's raw-input path produced a buffer whose
+  vertical gradients were 4800× its horizontal ones. Our render has no lustre to
+  blur away; only the photograph needs it.
+
+> **Change the art and re-run the measurement. A number that does not move is a
+> bug, not a stable result.**
