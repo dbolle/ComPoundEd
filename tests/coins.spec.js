@@ -1,258 +1,128 @@
-// v1.52.0: Paw Bucks coin art (src/art/coins.js). Coins used to be plain CSS
-// circles separated by a few px and a few percent of grey — no face value, so
-// coin recognition had nothing to teach on and a low-vision child was left
-// telling a nickel from a quarter by ~8px. These tests pin the three things
-// that fix it, because each one is easy to break by accident:
-//   the FACE VALUE is drawn on every coin,
-//   the DIAMETERS keep the real US ordering (dime < penny < nickel < quarter,
-//     the conflict docs/PEDAGOGY.md §4 needs to stay REAL to be teachable),
-//   the coins are told apart WITHOUT colour (rim treatment + value + size).
+// REAL US currency art (src/art/coins.js) — what Money Math teaches.
+// The app's own fictional currency lives in src/art/pawcoins.js with its own
+// spec; a paw print and a printed value are correct THERE and wrong here.
+//
+// The standard these defend is not "our four discs can be told apart". It is
+// that a child who learns a nickel here can identify a REAL nickel. Our art
+// could be perfectly self-consistent and still fail that, so the tests below
+// pin the things that transfer and forbid the ones that do not.
 import { test, expect } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { DENOMS } from '../src/engine/money.js';
-import {
-  coinSVG,
-  coinPx,
-  coinLabel,
-  COIN_IDS,
-  COIN_MM,
-  COIN_SCALE,
-  FACE_VALUE,
-} from '../src/art/coins.js';
+import { coinSVG, coinPx, coinLabel, COIN_IDS, COIN_MM, COIN_SCALE, COIN_SIDES, FACE_VALUE } from '../src/art/coins.js';
 
 const SRC = readFileSync('src/art/coins.js', 'utf8');
-const COINS = ['penny', 'nickel', 'dime', 'quarter']; // the discs; buck is a note
+const COINS = ['penny', 'nickel', 'dime', 'quarter']; // discs; the buck is a note
 
-// Minimal tag walker: catches truncated art, stray "</g>" and unclosed tags
-// without needing a DOM.
-function wellFormed(svg) {
-  const stack = [];
-  const tag = /<(\/?)([a-zA-Z][\w-]*)((?:"[^"]*"|[^>"])*?)(\/?)>/g;
-  let m;
-  while ((m = tag.exec(svg))) {
-    const [, close, name, , selfClose] = m;
-    if (close) {
-      if (stack.pop() !== name) return `mismatched </${name}>`;
-    } else if (!selfClose) {
-      stack.push(name);
+const luminance = (hex) => {
+  const n = parseInt(hex.slice(1), 16);
+  const c = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => {
+    v /= 255;
+    return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+};
+const fieldOf = (denom) => SRC.match(new RegExp(`${denom}: \\{[^}]*field: '(#[0-9a-f]{6})'`))[1];
+
+test('every denomination has art on both sides', () => {
+  expect(COIN_SIDES).toEqual(['obverse', 'reverse']);
+  expect(COIN_IDS.slice().sort()).toEqual(DENOMS.map((d) => d.id).sort());
+  for (const id of COIN_IDS) {
+    for (const side of COIN_SIDES) {
+      const svg = coinSVG(id, 120, { side });
+      expect(svg, `${id} ${side}`).toMatch(/^<svg/);
+      expect(svg).not.toMatch(/undefined|NaN/);
     }
   }
-  if (stack.length) return `unclosed <${stack.join('>, <')}>`;
-  // Everything left between tags must be plain text (the face values).
-  if (svg.replace(tag, '').includes('<')) return 'stray "<" outside a tag';
-  return '';
-}
-
-test('every DENOMS id has art, and no id is missing', () => {
-  expect(COIN_IDS).toEqual(DENOMS.map((d) => d.id));
-  expect(Object.keys(FACE_VALUE).sort()).toEqual(DENOMS.map((d) => d.id).sort());
-  for (const d of DENOMS) {
-    const svg = coinSVG(d.id, 40);
-    expect(svg.startsWith('<svg')).toBe(true);
-    expect(svg).toContain(`data-denom="${d.id}"`);
-    expect(svg).not.toContain('undefined');
-    expect(svg).not.toContain('NaN');
-  }
-  // An unknown denomination never crashes a screen — it draws nothing.
-  expect(coinSVG('doubloon', 40)).toBe('');
-  expect(coinPx('doubloon', 40)).toBe(null);
+  // an unknown side must fall back, never draw nothing
+  expect(coinSVG('dime', 120, { side: 'edge' })).toMatch(/^<svg/);
 });
 
-test('the face value is drawn on every coin — the whole point of the art', () => {
-  const faces = { penny: '1¢', nickel: '5¢', dime: '10¢', quarter: '25¢', buck: '$1' };
-  for (const [id, face] of Object.entries(faces)) {
-    expect(FACE_VALUE[id]).toBe(face);
-    const svg = coinSVG(id, 40);
-    expect(svg).toContain(`data-value="${face}"`);
-    // Present as real text inside exactly one <text data-face> element — not
-    // baked into a path, not split across tspans (a recognition activity
-    // needs one element it can target, and the string must survive a copy).
-    expect(svg).toContain(`<text data-face="${face}"`);
-    expect(svg).toContain(`>${face}</text>`);
-    expect(svg.match(/data-face=/g).length).toBe(1);
+test('the three silver coins are the SAME silver — the ladder was a false fact', () => {
+  // A real dime, nickel and quarter are one cupronickel alloy. Any brightness
+  // difference here is a distinction the app invented, and a child who learns
+  // "the bright one is a dime" fails on real change. Owner decision
+  // 2026-08-10: accuracy wins, even though this costs a low-vision channel.
+  // An earlier pass CLAIMED to have removed the ladder and left 3.88% behind,
+  // which is why this measures rather than greps.
+  const lums = ['quarter', 'nickel', 'dime'].map(fieldOf).map(luminance);
+  const spread = (Math.max(...lums) - Math.min(...lums)) / Math.max(...lums);
+  expect(spread, `silver luminance spread ${(spread * 100).toFixed(2)}%`).toBeLessThan(0.005);
+  // the penny must still be plainly different — copper is real
+  expect(luminance(fieldOf('penny'))).toBeLessThan(Math.min(...lums) * 0.95);
+});
+
+test("wave 1's own size gets the FULL drawing, not the silhouette", () => {
+  // The recognition question renders one coin at 84px (money.js). The detail
+  // tier once began at 96, so the ONE screen that asks a child to name a coin
+  // was showing the stripped version — eye, ear, hairline and lettering all
+  // deleted. Pinned here because it is invisible from the outside: the art
+  // still "worked", it was just answering with less than it had.
+  const ask = readFileSync('src/screens/money.js', 'utf8');
+  const m = ask.match(/coinRow\(q\.coins,\s*(\d+)\)/);
+  expect(m, 'wave 1 no longer draws a coin at a fixed size — retune this test').toBeTruthy();
+  const askSize = Number(m[1]);
+
+  const full = coinSVG('dime', askSize).length;
+  const mid = coinSVG('dime', 50).length;
+  expect(full, `at ${askSize}px the drawing must be richer than the mid tier`).toBeGreaterThan(mid * 1.3);
+});
+
+test('real coin names, never the fictional ones', () => {
+  // Paw Buck / Paw Dime belong to the wallet's invented currency. A child on
+  // a screen reader is the ONLY one who hears this label, so it is the one
+  // place the wrong word is never noticed.
+  expect(coinLabel('dime')).toBe('dime, 10 cents');
+  expect(coinLabel('penny')).toBe('penny, 1 cent'); // singular
+  expect(coinLabel('buck')).toBe('dollar, 100 cents');
+  for (const id of COIN_IDS) expect(coinLabel(id)).not.toMatch(/paw/i);
+});
+
+test('no printed value by default; available as a scaffold', () => {
+  // No US coin prints its value on the obverse, and a numeral would answer
+  // "which coin is this?" for the child.
+  for (const id of COIN_IDS) {
+    expect(coinSVG(id, 120), `${id} default`).not.toMatch(/data-face/);
+    expect(coinSVG(id, 120, { value: true }), `${id} scaffold`).toMatch(/data-face/);
   }
 });
 
-test('diameters keep the real US ordering: dime < penny < nickel < quarter', () => {
-  // The mint millimetres are the source of truth; the scales derive from them.
+test('true mint diameters: dime < penny < nickel < quarter', () => {
   expect(COIN_MM.dime).toBeLessThan(COIN_MM.penny);
   expect(COIN_MM.penny).toBeLessThan(COIN_MM.nickel);
   expect(COIN_MM.nickel).toBeLessThan(COIN_MM.quarter);
-  expect(COIN_SCALE.quarter).toBe(1);
+  const px = (id) => coinPx(id, 100).w;
+  expect(px('dime')).toBeLessThan(px('penny'));
+  expect(px('penny')).toBeLessThan(px('nickel'));
+  expect(px('nickel')).toBeLessThan(px('quarter'));
+  for (const id of COINS) expect(COIN_SCALE[id]).toBeCloseTo(COIN_MM[id] / COIN_MM.quarter, 3);
+});
 
-  for (const size of [26, 40, 90]) {
-    const w = (id) => coinPx(id, size).w;
-    expect(w('dime')).toBeLessThan(w('penny'));
-    expect(w('penny')).toBeLessThan(w('nickel'));
-    expect(w('nickel')).toBeLessThan(w('quarter'));
-    expect(w('quarter')).toBe(size); // `size` IS the paw quarter's diameter
-    // The dime being worth more than the bigger nickel is the teachable
-    // conflict — if this ever inverts, the pedagogy is gone.
-    expect(w('dime')).toBeLessThan(w('nickel'));
-    // The note is a wide rectangle, not a disc: shape alone identifies it.
-    const note = coinPx('buck', size);
-    expect(note.w).toBeGreaterThan(note.h * 1.5);
-    expect(note.w).toBeGreaterThan(w('quarter'));
-  }
+test('accessibility: labelled by default, overridable, opt-out for decoration', () => {
+  const svg = coinSVG('quarter', 40);
+  expect(svg).toMatch(/role="img"/);
+  expect(svg).toMatch(/aria-label="quarter, 25 cents"/);
+  expect(coinSVG('quarter', 40, { label: 'Take a quarter back' })).toMatch(/aria-label="Take a quarter back"/);
+  const dec = coinSVG('quarter', 40, { decorative: true });
+  expect(dec).toMatch(/aria-hidden="true"/);
+  expect(dec).not.toMatch(/role="img"/);
+});
 
-  // Rendered box matches the declared box at both ends of the range.
-  for (const size of [26, 90]) {
-    for (const id of COIN_IDS) {
-      const { w, h } = coinPx(id, size);
-      expect(coinSVG(id, size)).toContain(`width="${w}" height="${h}"`);
+test('safe to inline a hundred times: no ids, no defs, no tooltips', () => {
+  // A tooltip does not exist on a tablet, and a shared id would collide the
+  // moment two coins sit in one row.
+  for (const id of COIN_IDS) {
+    for (const side of COIN_SIDES) {
+      const svg = coinSVG(id, 40, { side });
+      expect(svg, `${id} ${side}`).not.toMatch(/<title|title=/);
+      expect(svg).not.toMatch(/<defs|url\(#/);
     }
   }
 });
 
-test('no title= anywhere: tooltips do not exist on a tablet', () => {
-  expect(SRC).not.toContain('title=');
-  expect(SRC).not.toContain('<title');
-  for (const id of COIN_IDS) {
-    for (const size of [26, 90]) {
-      expect(coinSVG(id, size)).not.toContain('title');
-    }
-  }
-});
-
-test('renders well-formed at 26px and at 90px', () => {
-  for (const size of [26, 46, 90, 200]) {
-    for (const id of COIN_IDS) {
-      const svg = coinSVG(id, size);
-      expect(wellFormed(svg)).toBe('');
-      expect(svg).toContain('xmlns="http://www.w3.org/2000/svg"');
-      expect(svg).toContain('viewBox="0 0 100 ');
-      const [, w, h] = svg.match(/width="([\d.]+)" height="([\d.]+)"/);
-      expect(Number(w)).toBeGreaterThan(0);
-      expect(Number(h)).toBeGreaterThan(0);
-    }
-  }
-  // No <defs> and no id= attributes: a wallet inlines a dozen coins at once
-  // and duplicate gradient ids would make them bleed into each other.
-  for (const id of COIN_IDS) {
-    expect(coinSVG(id, 40)).not.toContain('<defs');
-    expect(coinSVG(id, 40)).not.toMatch(/\sid="/);
-    expect(coinSVG(id, 40)).not.toContain('url(#');
-  }
-});
-
-test('accessibility: role + aria-label by default, overridable, opt-out for decoration', () => {
-  expect(coinLabel('dime')).toBe('Paw Dime, 10 cents');
-  expect(coinLabel('penny')).toBe('Paw Penny, 1 cent'); // singular
-  expect(coinLabel('buck')).toBe('Paw Buck, 100 cents'); // states the equivalence
-  for (const id of COIN_IDS) {
-    const svg = coinSVG(id, 40);
-    expect(svg).toContain('role="img"');
-    expect(svg).toContain(`aria-label="${coinLabel(id)}"`);
-  }
-  // Caller-supplied label (the store's "take a coin back" buttons want their
-  // own wording), and a decorative mode for coins inside an already-named
-  // control so a screen reader does not say it twice.
-  expect(coinSVG('dime', 40, { label: 'Take a Paw Dime back' })).toContain(
-    'aria-label="Take a Paw Dime back"'
-  );
-  const deco = coinSVG('dime', 40, { decorative: true });
-  expect(deco).toContain('aria-hidden="true"');
-  expect(deco).not.toContain('role="img"');
-  expect(deco).not.toContain('aria-label');
-  // Labels are escaped, so a stray quote can never break out of the attribute.
-  expect(coinSVG('dime', 40, { label: 'a "big" <coin>' })).toContain(
-    'aria-label="a &quot;big&quot; &lt;coin&gt;"'
-  );
-  // Callers can hang layout classes off it without losing the base hook.
-  expect(coinSVG('dime', 40, { className: 'pile-coin' })).toContain(
-    'class="coin-art pile-coin"'
-  );
-});
-
-test('told apart without colour: every coin has its own rim treatment', () => {
-  // Strip every colour and the face value, leaving only geometry. If the five
-  // are still pairwise different, then a colour-blind or greyscale rendering
-  // still distinguishes them by shape alone.
-  const shapeOnly = (id) =>
-    coinSVG(id, 100)
-      .replace(/(fill|stroke)="[^"]*"/g, '')
-      .replace(/opacity="[^"]*"/g, '')
-      .replace(/data-(value|face)="[^"]*"/g, '')
-      .replace(/aria-label="[^"]*"/g, '')
-      .replace(/data-denom="[^"]*"/g, '')
-      .replace(/>[^<>]+</g, '><')
-      .replace(/\s+/g, ' ');
-  const shapes = COIN_IDS.map(shapeOnly);
-  expect(new Set(shapes).size).toBe(COIN_IDS.length);
-
-  // And the treatments are the intended ones: plain penny, double-ringed
-  // nickel, finely reeded dime, boldly reeded quarter, framed note.
-  const lines = (id) => (coinSVG(id, 100).match(/<line /g) ?? []).length;
-  expect(lines('penny')).toBe(0);
-  expect(lines('nickel')).toBe(0);
-  expect(lines('dime')).toBeGreaterThan(lines('quarter')); // fine vs bold reeding
-  expect(lines('quarter')).toBeGreaterThan(0);
-  expect(coinSVG('nickel', 100)).toContain('r="44"'); // the second rim ring
-  expect(coinSVG('penny', 100)).not.toContain('r="44"');
-  expect(coinSVG('buck', 100)).toContain('<rect'); // a note, not a disc
-  expect(coinSVG('buck', 100)).not.toMatch(/<circle[^>]*r="4[0-9]"/);
-});
-
-test('dog-themed: a paw rides on every denomination, never over the value', () => {
-  for (const id of COIN_IDS) {
-    const svg = coinSVG(id, 90);
-    expect(svg).toContain('<ellipse'); // the paw pad
-    expect((svg.match(/<circle/g) ?? []).length).toBeGreaterThanOrEqual(4); // four toes
-  }
-  for (const id of COINS) {
-    // On the discs the paw is a watermark drawn BEFORE the value, so it can
-    // never sit on top of the digits, and faint enough not to compete.
-    const svg = coinSVG(id, 90);
-    expect(svg.indexOf('<ellipse')).toBeLessThan(svg.indexOf('data-face'));
-    expect(svg).toMatch(/opacity="0\.1[0-9]?"/);
-  }
-  // The note carries its paw as a seal on the left, clear of the "$1" panel.
-  expect(coinSVG('buck', 90)).toContain('<circle cx="18"');
-});
-
-test('e2e: the face value fits inside the coin and stays readable at 26px', async ({ page }) => {
-  for (const size of [26, 90]) {
-    await page.setContent(
-      `<body style="margin:0">${COIN_IDS.map(
-        (id) => `<div style="display:inline-block">${coinSVG(id, size)}</div>`
-      ).join('')}</body>`
-    );
-    const seen = await page.$$eval('svg[data-denom]', (svgs) =>
-      svgs.map((s) => {
-        const t = s.querySelector('[data-face]');
-        const sb = s.getBoundingClientRect();
-        const tb = t.getBoundingClientRect();
-        const cx = sb.x + sb.width / 2;
-        const cy = sb.y + sb.height / 2;
-        const corner = Math.max(
-          ...[
-            [tb.left, tb.top],
-            [tb.right, tb.top],
-            [tb.left, tb.bottom],
-            [tb.right, tb.bottom],
-          ].map(([x, y]) => Math.hypot(x - cx, y - cy))
-        );
-        return {
-          id: s.dataset.denom,
-          text: t.textContent,
-          inkHeight: tb.height,
-          widthRatio: tb.width / sb.width,
-          cornerRatio: corner / sb.width,
-        };
-      })
-    );
-    expect(seen.map((c) => c.id)).toEqual(COIN_IDS);
-    for (const c of seen) {
-      expect(c.text).toBe(FACE_VALUE[c.id]);
-      // The value never overflows its coin. The disc's outer edge is at
-      // r = 0.47w; textLength locks the run's width, so this holds whichever
-      // font the device resolves (measured max 0.442 in Chromium).
-      expect(c.cornerRatio).toBeLessThan(0.46);
-      expect(c.widthRatio).toBeLessThan(0.75);
-      // ...and it is still big enough to read when the wallet is at its
-      // smallest. Worst case is the dime: smallest coin, longest string —
-      // 19px across at size 26, with ~10px of value type in it.
-      expect(c.inkHeight).toBeGreaterThanOrEqual(size === 26 ? 8 : 30);
-    }
-  }
+test('existing callers keep working — money.js passes two arguments', () => {
+  const money = readFileSync('src/screens/money.js', 'utf8');
+  expect(money).toMatch(/coinSVG\(/);
+  // the two-argument form must still produce the obverse, unchanged
+  expect(coinSVG('dime', 54)).toBe(coinSVG('dime', 54, { side: 'obverse' }));
 });

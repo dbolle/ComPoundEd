@@ -3,6 +3,44 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.55.0 — 2026-08-13
+
+**The coins in Money Math are real US coins now, and two of them are
+measured rather than merely drawn.** v1.54.0 shipped the track using the
+Paw Bucks art, which is fictional currency with a paw print and a printed
+value. A child who learns a nickel there has learned a coin that exists
+nowhere. `src/art/coins.js` is now real currency — both sides, all five
+denominations — and the fictional art moves intact to
+`src/art/pawcoins.js`, where a paw print is correct.
+
+- **The dime obverse is fitted to a photograph, not to a memory.** A
+  traced silhouette is frozen *before* the art is touched, then scored by
+  intersection-over-union: 0.867 → **0.981**. A second pass measured the
+  interior line work against a cheek-normalised patch-ratio vector, since
+  IoU is blind to everything inside the outline. Both metrics, both
+  thresholds and every iteration are written down in
+  `docs/COIN-ART-METHOD.md`, along with the controls that make a score
+  mean something — a flat drawing scores 0.1134, a palette alone 0.0410.
+- **The nickel obverse got the same treatment with a weaker claim, stated
+  as such.** Two references agree on its shape to 0.14–0.37% of diameter
+  but disagree by 2.2% on how large the portrait sits on the disc, so the
+  outline is right to **±1.1% of scale** — materially weaker than the
+  dime's, and the doc says so rather than quoting one number for both.
+- **Not yet measured: the penny, the quarter, and all five reverses.**
+  They are drawn and they are recognisable; they have never been scored
+  against a photograph, and this entry does not claim they have been.
+- **The three silver coins are one silver.** A real dime, nickel and
+  quarter are the same cupronickel; an earlier brightness ladder was a
+  fact the app invented, and a child who learns "the bright one is a dime"
+  fails on real change. Pinned by measurement — an earlier pass claimed to
+  have removed it and left 3.88% behind.
+- **Detail follows size.** Full drawing at 76px and up, a reduced tier at
+  44, a silhouette below. Wave 1 asks "which coin is this?" at 84px, so
+  the one screen that tests recognition gets everything the art has.
+- **Paw Bucks are preserved but unwired.** `src/art/pawcoins.js` keeps its
+  art and its own spec; no screen imports it today. The wallet and store
+  draw CSS circles, as they have since v1.10 — unchanged by this release.
+
 ## v1.54.0 — 2026-08-09
 
 **Money Math 🪙 — Phase 7's last piece, shipping as a preview.** The Paw

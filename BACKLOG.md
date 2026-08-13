@@ -108,6 +108,27 @@ reconsider after calibration.
      step: lock the 134 ids against the fixture, lock the payouts, drop
      `/money` from `BETA_ROUTES`, drop `isBeta` from `moneyVisible`, and
      decide explicitly whether preview progress is kept or cleared.
+   - ✅ **(v1.55.0) real US currency art, split from Paw Bucks.**
+     `src/art/coins.js` is now real money (both sides, five denominations);
+     the fictional art moved intact to `src/art/pawcoins.js` with its own
+     spec. Method, metrics and every iteration in `docs/COIN-ART-METHOD.md`.
+     **Measured: dime obverse** (silhouette IoU 0.867 → 0.981, plus a phase-2
+     interior pass on a cheek-normalised patch-ratio vector) and **nickel
+     obverse** (shape agreed to 0.14–0.37% of diameter, scale only ±1.1%).
+     **Still unmeasured — drawn but never scored against a photograph: the
+     penny, the quarter, and all five reverses.** Next passes, in order:
+     - close the nickel's ±1.1% scale gap (`OBVERSE.nickel.s`) against the
+       proof reference added 2026-08-12;
+     - nickel interior line work (phase 2, same loop as the dime);
+     - penny, quarter, then the reverses.
+     - **The jaw line on the dime is a `stroke-width="1.5"` stroke** while
+       every neighbouring mark became a filled region in phase 2b. The
+       metric scored it right on tone and position and cannot see edge
+       quality, so it passed. Redraw as a tapered region, and add an
+       edge-quality check to the method — a uniform stroke among filled
+       regions is a class of defect the current gates are blind to.
+     - `src/art/pawcoins.js` is preserved but **imported by nothing**; the
+       wallet and store still draw CSS discs, unchanged since v1.10.
    - Superseded plan for R5: `src/screens/money.js`, the seven waves
      wired, THREE appended pets shipped in the SAME commit as their
      three grouped milestones, Grown-Ups `data-subj="money"` toggle + `SUBJ_LABELS`

@@ -58,10 +58,12 @@ licensing.
   guided recounts on misses, per-number mastery tracking, a Play-next hero
   tile, and a goal preview for the next unlock. Numbers grow 1–5 → 1–10 as
   they're genuinely known.
-- **Money Math 🪙 (preview)** — the Paw Bucks a child earns become the
-  curriculum (2.MD.8): meet the coins, count one kind, count a handful,
-  spot equal value, make an amount, count change up from the price, and
-  read ¢ and $ as two ways to write the same thing. Seven waves, 134
+- **Money Math 🪙 (preview)** — **real US money** (2.MD.8): meet the coins,
+  count one kind, count a handful, spot equal value, make an amount, count
+  change up from the price, and read ¢ and $ as two ways to write the same
+  thing. The coins are drawn from photographs of the real thing, both
+  sides, so a child who learns a nickel here can name one in their hand —
+  the Paw Bucks they *earn* stay fictional and separate. Seven waves, 134
   frozen identities, **untimed** — coin questions are multi-step, so speed
   is never the test. Three pigs join the Cozy Corner along the way. Turn it
   on per child with the 🧪 beta chip in Grown-Ups while it is in preview.

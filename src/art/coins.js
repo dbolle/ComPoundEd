@@ -1,37 +1,139 @@
-// Paw Bucks coin art (v1.52.0). One face per `DENOMS` id in
-// src/engine/money.js, drawn as an inline SVG string — no external assets,
-// no network, no CSS, no <defs>/gradients (so a hundred inlined coins can
-// never collide on a shared gradient id).
+// REAL UNITED STATES CURRENCY, drawn. The penny, nickel, dime, quarter and
+// $1 note a child actually holds — obverse and reverse of each — emitted as
+// an inline SVG string with no external assets, no network, no CSS, no
+// <defs>, no gradients and no `id=` attributes at all, because a screen
+// inlines a dozen of these at once and duplicate ids are how inline SVGs
+// bleed into each other.
 //
-// Why this file exists. Coins used to be plain CSS circles separated by a
-// few px of diameter and a few percent of grey. Two things were broken:
-// a coin-recognition activity had nothing to teach on, and a child with low
-// vision or colour-vision deficiency was left telling a nickel from a
-// quarter by ~8px. docs/PEDAGOGY.md §4 names the real obstacle — the dime
-// is the SMALLEST US coin yet worth more than the nickel, and children
-// reasonably infer that size implies value.
+// ─────────────────────────────────────────────────────────────────────────
+// THIS IS NOT PAW BUCKS. The distinction is load-bearing.
+// ─────────────────────────────────────────────────────────────────────────
+// Paw Bucks are what a child EARNS: a fictional game currency, fictitious
+// forever per CHARTER.md, and its own art is the wallet's business. What
+// this file draws is what a child STUDIES — Money Math teaches 2.MD.8, real
+// coin recognition, and everything learned here has to survive the walk to
+// a real shop. So the names, the sizes, the metals and the designs are the
+// real ones, and `coinLabel()` says "dime", never "Paw Dime". The file keys
+// off `DENOMS` ids purely because that is the id vocabulary the money track
+// already speaks; it does not inherit the wallet's fictional labels.
 //
-// So three redundant channels carry the identity, and none of them is
-// colour:
-//   1. FACE VALUE is drawn on every coin (1¢ 5¢ 10¢ 25¢ $1). This is the
-//      point: showing the value is what makes the size/value conflict
-//      teachable instead of merely confusing — the dime is visibly smaller
-//      AND visibly says 10¢.
-//   2. DIAMETERS are the real US ratios (dime < penny < nickel < quarter),
-//      taken from mint millimetres below. The conflict has to be REAL or
-//      there is nothing to teach; do not "fix" the ordering.
-//   3. RIM TREATMENT differs per denomination — plain rim, double ring,
-//      fine reeding, bold reeding, note frame — all of which survive
-//      greyscale and 26px.
-// A paw print rides behind the value (this is a paw currency) at low
-// opacity, so it never competes with the digits.
+// ─────────────────────────────────────────────────────────────────────────
+// WHY DRAWN AND NOT PHOTOGRAPHED
+// ─────────────────────────────────────────────────────────────────────────
+// Every design used here is public domain — US government works, all of
+// them from before the 1989 copyright-notice change — but a PHOTOGRAPH of a
+// coin is a separate copyright from the coin's design, and the Mint's own
+// photographs are reserved by its contractor. So every curve in this file is
+// hand-placed. That also keeps src/art/ATTRIBUTION.md's "all original art"
+// true, and keeps the app fully vector: for an offline PWA, drawing is the
+// difference between a 4kB face and a bitmap set in the service worker.
+//
+// ─────────────────────────────────────────────────────────────────────────
+// WHY THE FILE EXISTS AT ALL
+// ─────────────────────────────────────────────────────────────────────────
+// Coins used to be plain CSS circles separated by a few px of diameter and
+// a few percent of grey. Two things were broken: a coin-recognition activity
+// had nothing to teach on, and a child with low vision or colour-vision
+// deficiency was left telling a nickel from a quarter by ~8px. And
+// docs/PEDAGOGY.md §4 names the real obstacle — the dime is the SMALLEST US
+// coin yet worth more than the nickel, and children reasonably infer that
+// size implies value. That conflict has to be drawn TRUE to be teachable.
+//
+// ─────────────────────────────────────────────────────────────────────────
+// THE IDEA: a coin at 190px and a coin at 26px are not the same drawing.
+// ─────────────────────────────────────────────────────────────────────────
+// `coinSVG` is handed `size`, so it emits DIFFERENT GEOMETRY per size band.
+// Shrinking one drawing is what turns a portrait into a thumbprint; instead
+// each face is authored three times over, and detail is DELETED before it
+// can turn to mud:
+//
+//   full  (size >= 76)  the drawing: hair mass, brow, eye, ear, coat,
+//                       feather and column lines, the full inscription
+//                       layout. 76 and not 96 because wave 1 draws at 84 —
+//                       see tierOf().
+//   mid   (size >= 44)  masses only: head, hair, beard, queue, coat. No
+//                       eye, no ear, no relief hairlines, and only the
+//                       coin's MAIN word if there are pixels for it.
+//   icon  (size <  44)  one bold mark scaled up to fill the field: the head
+//                       alone, re-centred, no neck, no coat, no words.
+//
+// The tier is chosen from the QUARTER's size, never the individual coin's,
+// so a row drawn with one `size` is always one visual family.
+//
+// ─────────────────────────────────────────────────────────────────────────
+// WHAT CARRIES IDENTITY, and none of it is colour
+// ─────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────
+// THE ONLY TEST THAT COUNTS: does it transfer to real change?
+// ─────────────────────────────────────────────────────────────────────────
+// A child who learns the nickel here has to name a REAL nickel, held in a
+// real hand. That is a stricter standard than "our four drawings can be told
+// apart", and it rules out three channels an earlier version of this file
+// leaned on hard, every one of which was OUR invention rather than the
+// coin's:
+//
+//   ✗ A GREYSCALE LADDER. Penny darkest → dime brightest was a lovely,
+//     checkable, accessible idea, and it is a lie: a real dime, nickel and
+//     quarter are the same cupronickel grey. A child taught "the bright one
+//     is a dime" has been taught something that fails at the shop counter.
+//     The three silver coins are now the same silver, and the palette below
+//     no longer carries a luminance ladder to defend.
+//   ✗ RIM WIDTH. A broad flat rim on the nickel and none on the penny told
+//     our coins apart beautifully. Real rims are all much the same. Gone —
+//     every field radius is now the same fraction of the disc.
+//   ✗ REEDING AS A LOOK. Penny and nickel really are smooth while the dime
+//     and quarter really are milled, so it stays in for correctness, but it
+//     is a TACTILE fact: face-on, which is how a coin is seen, it is a
+//     whisper. It is drawn fine and quiet, and it is not asked to identify
+//     anything.
+//
+// What is left is what the child is actually looking at:
+//
+//   1. THE PORTRAIT — likeness and pose. The main event, and the reason the
+//                   four heads below are four complete drawings rather than
+//                   one face with four hairstyles.
+//   2. HOW MUCH OF THE FIELD THE HEAD FILLS. Honest, strong, and markedly
+//                   different across the four: Roosevelt's head all but
+//                   fills the dime, Washington's nearly fills the quarter,
+//                   while Lincoln and Jefferson sit smaller above a coat.
+//                   Taken off the reference photographs, not guessed.
+//   3. THE TEXT LAYOUT. Where LIBERTY sits, where IN GOD WE TRUST sits,
+//                   where the date sits. All four real obverses arrange
+//                   these differently, and a child reads the ARRANGEMENT as
+//                   part of the coin's look long before reading the words.
+//   4. COLOUR       — copper against silver. Real and reliable, and it
+//                   separates exactly one coin from the other three.
+//   5. DIAMETER     — true mint ratios (dime < penny < nickel < quarter).
+//                   docs/PEDAGOGY.md §4: the dime is the SMALLEST US coin
+//                   yet worth more than the nickel, and children reasonably
+//                   infer that size implies value. The conflict has to be
+//                   REAL to be teachable; do not "fix" the ordering. But
+//                   note that wave 1 shows ONE coin with no sibling, so
+//                   diameter is doing nothing there at all.
+//   6. GESTURE    — on the reverse, the whole point. Four profiles look
+//                   alike in a 19px disc; four reverse motifs do not, if
+//                   each is given a different overall PROPORTION rather
+//                   than merely a different subject:
+//                     penny   Lincoln Memorial — LOW AND WIDE, flat top
+//                     nickel  Monticello       — TALL AND CENTRED, spiked
+//                     dime    the torch        — ONE TALL BAR
+//                     quarter the eagle        — WIDE at the top, tips
+//                                                DIPPING, corners empty
+//                     buck    a rectangle, which no coin can ever be
+//                   Penny and nickel are BOTH columned buildings, so they
+//                   are the pair at risk; the note above those two
+//                   functions says how far apart they are pulled.
+//
+// Strokes are specified with a DEVICE-PIXEL FLOOR (see `sw`): a line that
+// would compute to less than ~0.9 real pixels is widened until it is one,
+// so nothing thins into fog as the disc shrinks.
 
 import { DENOMS } from '../engine/money.js';
 
 // Mint diameters, millimetres. The dime really is the smallest.
 export const COIN_MM = { dime: 17.91, penny: 19.05, nickel: 21.21, quarter: 24.26 };
 
-// Every coin is drawn relative to a paw quarter, the biggest coin: the
+// Every coin is drawn relative to the QUARTER, the biggest coin: the
 // `size` a caller passes is the quarter's diameter in px, and each other
 // denomination comes out at `size * COIN_SCALE[id]`. Relative sizes are
 // therefore true with no CSS involved, which is exactly what a wallet row
@@ -56,14 +158,74 @@ export const FACE_VALUE = {
   penny: '1¢',
 };
 
-// Penny copper, the rest silver, the buck green — matching the colours the
-// old CSS circles used, so the swap reads as the same currency.
+// The REAL names, and the reason this map is here rather than imported:
+// `DENOMS[].label` in src/engine/money.js says "Paw Dime", "Paw Buck" — the
+// wallet's fictional currency, which must keep saying exactly that. Money
+// Math is the other thing, so it needs its own vocabulary. Before this map
+// existed every coin on the screen announced itself to a screen reader as
+// "Paw Dime, 10 cents": the child who most depends on the label being right
+// was the one being taught a coin name that exists nowhere outside this app.
+// (src/engine/moneyq.js keeps an identical map for the same reason; the two
+// are deliberately NOT shared, because moneyq.js already imports FACE_VALUE
+// from here and importing back would make the cycle.)
+const COIN_NAME = {
+  penny: 'penny',
+  nickel: 'nickel',
+  dime: 'dime',
+  quarter: 'quarter',
+  buck: 'dollar',
+};
+
+// The two faces. `obverse` is the portrait side and the app's default;
+// `reverse` is the motif side. Exported so a caller can iterate rather than
+// spell the strings, and so a test can assert the set is exactly these two.
+export const COIN_SIDES = ['obverse', 'reverse'];
+
+// Penny copper; nickel, dime and quarter the SAME cupronickel grey, because
+// that is what they are. The nickel is a shade duller and warmer, which is
+// also true and which is about as far as a real difference goes.
+//
+// THIS COSTS US SOMETHING and it is worth naming: the previous palette gave
+// the three silver coins a deliberate greyscale ladder so that a child with
+// low vision or colour-vision deficiency could separate them by tone alone.
+// That was a genuine accessibility win built on a false fact, and a false
+// fact does not transfer to the coin in the child's hand. The tone work has
+// moved INTO the drawing instead — how much of the field the head fills, and
+// where the text sits — where it is true.
+//
+//   body  the disc, and the rim band
+//   field the raised inner circle the motif sits on
+//   motif the portrait / eagle / wheat, filled
+//   deep  the same motif one step darker: the CONTOUR the portrait is
+//         stroked with, and the fill it takes at small sizes so the shape
+//         still separates from the field once anti-aliasing eats the edge
+//   hair  HALFWAY between motif and deep, and that half-step is the whole
+//         point. Hair drawn in `deep` is a black cap, and a black cap on a
+//         mid-tone face is a HELMET — which is exactly what the nickel
+//         looked like, and the reason the last pass bet against it. On the
+//         real coin the hair is the same metal as the cheek: a shade lower
+//         because it is cut deeper, lifted again by lit ridges. So the mass
+//         is only a shade lower here too, and the ridges do the work. The
+//         HAIRLINE is then held by a thin `deep` stroke around the mass
+//         rather than by tone, because at a half-step of tone alone the
+//         forehead disappeared and every head became one blank oval.
+//   cloth the coat — deliberately LIGHTER than the head, because the head is
+//         what has to be read and a dark garment under a mid-tone face
+//         inverted the hierarchy: the cent looked like a mountain wearing a
+//         man
+//   ink   text and the few hairlines the full tier draws
+// The three silver coins share ONE palette, byte for byte. A real dime,
+// nickel and quarter are the same cupronickel: any brightness difference
+// here would be a distinction the app invented, and a child who learned
+// "the bright one is a dime" would fail on real change — which is the
+// entire goal. An earlier pass left a 3.88% luminance spread behind after
+// claiming to have removed it; tests/coins.spec.js now measures it.
 const PALETTE = {
-  penny: { rim: '#a86230', body: '#c9803b', field: '#e0a468', ink: '#43220c' },
-  nickel: { rim: '#9ea6b1', body: '#cdd2d9', field: '#eef1f5', ink: '#1f2a35' },
-  dime: { rim: '#a7aeb9', body: '#d7dce3', field: '#f2f5f9', ink: '#1f2a35' },
-  quarter: { rim: '#959daa', body: '#c4cad3', field: '#e9edf2', ink: '#1f2a35' },
-  buck: { rim: '#4e8c58', body: '#7fb884', field: '#e6f3e2', ink: '#1b4425' },
+  penny: { rim: '#8d5320', body: '#b9762f', field: '#c98a3c', motif: '#96521c', deep: '#6d390e', hair: '#7b4213', cloth: '#a75f22', ink: '#3d1e06' },
+  quarter: { rim: '#8b939b', body: '#c1c6cc', field: '#cfd5da', motif: '#8e969e', deep: '#6b737b', hair: '#777f87', cloth: '#a4acb4', ink: '#242c33' },
+  nickel: { rim: '#8b939b', body: '#c1c6cc', field: '#cfd5da', motif: '#8e969e', deep: '#6b737b', hair: '#777f87', cloth: '#a4acb4', ink: '#242c33' },
+  dime: { rim: '#8b939b', body: '#c1c6cc', field: '#cfd5da', motif: '#8e969e', deep: '#6b737b', hair: '#777f87', cloth: '#a4acb4', ink: '#242c33' },
+  buck: { rim: '#3f7a4e', body: '#cfe3c6', field: '#eaf4e3', motif: '#6d9c73', deep: '#54855e', hair: '#5d8d65', cloth: '#a9c8a4', ink: '#26583a' },
 };
 
 // Deliberately NOT the app's kid font stack: 'Comic Sans MS' is far too
@@ -77,89 +239,2243 @@ export const COIN_IDS = ORDER; // biggest first, as DENOMS is
 
 const denomOf = (id) => DENOMS.find((d) => d.id === id);
 const round = (n) => Math.round(n * 10) / 10;
+const n1 = (n) => Number(n.toFixed(1));
+const n2 = (n) => Number(n.toFixed(2));
 
-// A paw print centred on (cx, cy): pad plus four toes, ~24×20 units at s=1.
-function paw(cx, cy, s, fill, opacity = 1) {
-  const c = (dx, dy, r) =>
-    `<circle cx="${(cx + dx * s).toFixed(1)}" cy="${(cy + dy * s).toFixed(1)}" r="${(r * s).toFixed(1)}"/>`;
-  return `<g fill="${fill}" opacity="${opacity}">
-      <ellipse cx="${cx.toFixed(1)}" cy="${(cy + 5.4 * s).toFixed(1)}" rx="${(8.6 * s).toFixed(1)}" ry="${(6.4 * s).toFixed(1)}"/>
-      ${c(-9.2, -1.8, 3.3)}${c(-3.4, -7.2, 3.6)}${c(3.4, -7.2, 3.6)}${c(9.2, -1.8, 3.3)}
+// Polar helper: a point on the disc, as an SVG coordinate pair.
+const P = (r, deg) => {
+  const a = (deg * Math.PI) / 180;
+  return `${n2(50 + r * Math.cos(a))} ${n2(50 + r * Math.sin(a))}`;
+};
+
+// ─────────────────────────────────────────────────────────── size tiering
+
+// `full` is the tier where a face has enough pixels for a drawn feature;
+// `mid` is where only masses survive; `icon` is where even the mass has to
+// be enlarged and simplified to a glyph. Boundaries picked from the sizes
+// the app actually draws: 190 and 120 (a teaching card), 54 (a coin row),
+// 38 (a pile) and 26 (a wallet chip, the smallest anything is ever drawn).
+// 76 and not 96: `src/screens/money.js` draws the wave-1 recognition
+// question with `coinRow(q.coins, 84)` — ONE coin, alone, no sibling to
+// compare against. That single call is the hardest question the art is ever
+// asked and it was landing in `mid`, i.e. a bare silhouette with the eye,
+// the ear and the hair marks deleted. It now lands in `full`. The smallest
+// thing that draws at that call is the dime at 84 × 0.738 = 62px, which is
+// where the relief widths below were checked.
+function tierOf(size) {
+  if (size >= 76) return 'full';
+  if (size >= 44) return 'mid';
+  return 'icon';
+}
+
+// Stroke width in VIEWBOX units, with a DEVICE-PIXEL FLOOR. The viewBox is
+// 100 units mapped onto `boxW` real pixels, so one device pixel is
+// 100/boxW units — a 1.4-unit ring is a comfortable line at 190px and a
+// disappearing 0.27px ghost at 19px. `minPx` is what the line must never be
+// thinner than once it lands on the screen.
+const sw = (units, minPx, boxW) => n2(Math.max(units, (minPx * 100) / boxW));
+
+// ─────────────────────────────────────────────────────────────────── relief
+//
+// A COIN IS STRUCK METAL, and until this pass every mark in this file was a
+// flat fill — which is to say a raised device and a painted one were the
+// same picture. Relief is the single biggest thing separating "a drawing of
+// a coin" from "a coin", and it costs almost nothing to suggest.
+//
+// It cannot be done the usual way: relief wants a gradient, and gradients
+// want <defs> and a document-unique id, and a screen here inlines a dozen
+// coins that would then collide. So it is faked the way a letterpress fakes
+// it — the SAME silhouette printed three times, a hair apart:
+//
+//   · white, nudged UP-LEFT       the lit edge, where the die's slope faces
+//                                 the light
+//   · `deep`, nudged DOWN-RIGHT   the shadow the raised device casts on the
+//                                 field
+//   · `motif`, in place           the device itself, covering both
+//
+// Only a sliver of each offset copy survives around the rim of the shape,
+// and that sliver is exactly what the eye reads as "this stands proud".
+// Light from the upper left is not a choice — it is the convention every
+// engraver, every OS icon set and every child's own eye already assumes, so
+// getting the direction wrong reads as a hole rather than a bump.
+//
+// The offset is held near 1.2 DEVICE pixels at every size and clamped at
+// both ends: below ~0.55 units it vanishes on a teaching card, above ~1.7 it
+// stops being a bevel and becomes a double image on a wallet chip.
+const reliefOff = (boxW) => n2(Math.min(1.7, Math.max(0.55, 118 / boxW)));
+
+// `solid` is the motif's outer massing — fills only, no per-shape colours,
+// so all three copies can be tinted by the parent <g>. `detail` is whatever
+// is drawn INSIDE it (a dark colonnade recess, a lit column edge, a window)
+// and carries its own colours, so it goes on last and untouched.
+//
+// At `icon` tier the whole motif is already filled in `deep` for contrast
+// against the field, so a dark shadow under a dark shape would only fatten
+// it. It keeps the lit edge, which is the half of the effect that still
+// works at 20px, and drops the other.
+function struck(solid, p, tier, boxW, detail = '') {
+  const o = reliefOff(boxW);
+  if (tier === 'icon') {
+    return `<g fill="#ffffff" opacity="0.5" transform="translate(${-o} ${-o})">${solid}</g>
+      <g fill="${p.deep}">${solid}</g>${detail}`;
+  }
+  return `<g fill="#ffffff" opacity="0.42" transform="translate(${-o} ${-o})">${solid}</g>
+    <g fill="${p.deep}">${solid}</g>
+    <g fill="${p.motif}">${solid}</g>${detail}`;
+}
+
+// A LIT TOP EDGE and a SHADOWED UNDERSIDE, for the horizontal slabs both
+// buildings are made of. The union of a stack of steps has no interior
+// edges at all — without these two lines a flight of steps is one grey
+// ramp, which is most of what "gutted" meant on the penny.
+const ledge = (x0, x1, y, op = 0.45) =>
+  `<rect x="${n2(x0)}" y="${n2(y)}" width="${n2(x1 - x0)}" height="0.7" fill="#ffffff" opacity="${op}"/>`;
+const shade = (x0, x1, y, p, op = 0.55) =>
+  `<rect x="${n2(x0)}" y="${n2(y)}" width="${n2(x1 - x0)}" height="0.9" fill="${p.deep}" opacity="${op}"/>`;
+
+// A COLONNADE, and the polarity is the point. The previous pass cut
+// field-coloured slots out of a solid block, which makes the gaps between
+// the columns the BRIGHTEST thing on the building. On the real cent and the
+// real nickel the gaps are the deepest cut in the die and sit in full
+// shadow, while the column shafts catch the light. So: a dark recess, then
+// lit shafts standing in front of it, each with a highlight down its
+// leading edge — which is also, at no extra cost, what fluting looks like.
+function columns(centres, w, y0, y1, p, fine) {
+  const h = n2(y1 - y0);
+  return centres
+    .map(
+      (cx) =>
+        `<rect x="${n2(cx - w / 2)}" y="${n2(y0)}" width="${n2(w)}" height="${h}" fill="${p.motif}"/>` +
+        (fine
+          ? `<rect x="${n2(cx - w / 2)}" y="${n2(y0)}" width="0.75" height="${h}" fill="#ffffff" opacity="0.55"/>`
+          : '')
+    )
+    .join('');
+}
+
+// Evenly spaced column centres between two inner edges, with an optional
+// WIDER CENTRE BAY — the Memorial needs one for the seated figure and
+// Monticello needs one for its door, and on both real coins that bay is
+// visibly wider than the rest.
+function bayCentres(x0, x1, n, gapAtCentre = 0) {
+  if (!gapAtCentre) {
+    const pitch = (x1 - x0) / n;
+    return Array.from({ length: n }, (_, i) => x0 + pitch * (i + 0.5));
+  }
+  const half = n / 2;
+  const mid = (x0 + x1) / 2;
+  const w = mid - gapAtCentre / 2 - x0;
+  const pitch = w / half;
+  const left = Array.from({ length: half }, (_, i) => x0 + pitch * (i + 0.5));
+  return [...left, ...left.map((c) => 2 * mid - c).reverse()];
+}
+
+// ────────────────────────────────────────────────────────────── the edge
+//
+// EDGE TREATMENT IS THE ONE THING A CHILD CAN CHECK WITH A FINGERTIP on a
+// coin in their own hand, which is the standard this whole file is held to:
+// not "recognises our drawing" but "picks the right coin out of real
+// change". It is also perfectly binary and perfectly true —
+//
+//   penny, nickel    SMOOTH edge
+//   dime, quarter    REEDED edge (118 and 119 milled ridges)
+//
+// so it is drawn as the OUTLINE ITSELF. The disc of a reeded coin is a
+// toothed polygon, not a circle, and the teeth are stroked in the rim colour
+// along with the rest of the contour. Two reasons that beats the previous
+// pass's radial ticks inside the rim band: the CONTOUR is the last thing to
+// survive a downscale (interior ticks are the first), and a toothed
+// silhouette cannot be misread as a decorative bezel — 18 fat ticks on the
+// quarter looked like a watch face.
+//
+// Tooth PITCH is held near 6.5 device px and tooth DEPTH near 1.3 device px
+// at EVERY size, so the same treatment reads the same way on a 190px
+// teaching card and on a 26px wallet chip, instead of turning into a bottle
+// cap at one end and fog at the other.
+//
+// `field` is the radius of the raised inner circle, and therefore the rim
+// width. It is now the SAME on all four coins, because it is the same on all
+// four real coins: an earlier version gave the nickel a broad flat rim and
+// the penny none at all, which told OUR discs apart and would tell a child
+// nothing about the change in their hand. It widens a little at icon tier
+// because a 6-unit ring on a 20px disc is a pixel of mud.
+const REEDED = { dime: true, quarter: true };
+
+const EDGE = {
+  penny: { field: { full: 41.0, mid: 40.5, icon: 42.5 } },
+  nickel: { field: { full: 41.0, mid: 40.5, icon: 42.5 } },
+  dime: { field: { full: 41.0, mid: 40.5, icon: 42.5 } },
+  quarter: { field: { full: 41.0, mid: 40.5, icon: 42.5 } },
+};
+
+// Tooth count and depth for a disc `boxW` px across. Count is capped at 64
+// because the string cost is three coordinate pairs per tooth and a screen
+// inlines a dozen coins; 64 teeth on a 190px disc is a 9px pitch, which is
+// still unmistakably "ridged" and not "fuzzy".
+// Pitch near 4.6 device px, depth near 0.9. Both numbers came down twice: at
+// a 6.5px pitch and a 2.3px depth the quarter was a bottle cap — 56 fat
+// scallops the eye reads as a decorative flower rather than as machining —
+// and even once it was fine enough to read as milling it was still SHOUTING,
+// which is wrong for a fact that on the real object is nearly invisible
+// face-on. It is a whisper now. It is here to be true, not to be the answer.
+function reedGeom(boxW) {
+  const n = Math.max(16, Math.min(96, Math.round((Math.PI * boxW) / 4.6)));
+  const depth = Math.min(3.2, Math.max(0.6, 90 / boxW));
+  return { n, depth };
+}
+
+// A milled contour: crests at radius R with a V notch cut between each pair.
+// Straight segments, not curves — a quadratic dip reads as a soft scallop
+// (a flower), and reeding is machined, so it wants corners. Two points per
+// tooth and one decimal place, because this string is emitted for every
+// reeded coin on the screen and a teaching card draws four of them.
+function reededPath(n, R, depth) {
+  const step = 360 / n;
+  const at = (r, deg) => {
+    const a = (deg * Math.PI) / 180;
+    return `${n1(50 + r * Math.cos(a))} ${n1(50 + r * Math.sin(a))}`;
+  };
+  let d = `M ${at(R, 0)}`;
+  for (let i = 0; i < n; i++) {
+    const a = i * step;
+    d += ` L ${at(R - depth, a + step * 0.5)} L ${at(R, a + step)}`;
+  }
+  return `${d} Z`;
+}
+
+// The coin's outer silhouette, as an un-terminated element so the caller can
+// hang either a fill or a stroke on it. Reeded at every tier — the edge is
+// the identity channel that costs the fewest pixels, so it is the last one
+// that should ever be dropped.
+function outlineOf(id, boxW) {
+  if (!REEDED[id]) return '<circle cx="50" cy="50" r="47"';
+  const { n, depth } = reedGeom(boxW);
+  return `<path d="${reededPath(n, 47, depth)}"`;
+}
+
+// ─────────────────────────────────────────────────────── arced inscription
+//
+// Set one glyph at a time rather than with <textPath>, because a textPath
+// needs an `id` and a hundred inlined coins on one screen would collide on
+// it. Per-glyph also makes the orientation impossible to get wrong — the
+// classic failure is an arc that renders the words upside down along the
+// bottom, because in SVG angle 0 is +x and angle grows DOWNWARD, so the TOP
+// of the circle is 270°, not 90°.
+//
+// `r` is the BASELINE radius. At the top of a circle "up" points away from
+// the centre, so the glyphs grow outward from `r`; callers pass the inner
+// edge of the band they want filled.
+// `centre` is the angle the middle of the word sits at, in SVG degrees
+// (270 = top). It is a per-coin number rather than a constant because the
+// four real coins put their words in four different places, and that is one
+// more true, checkable difference: LIBERTY runs across the TOP of a quarter,
+// down the LEFT of a dime and down the RIGHT of a nickel, while a penny has
+// IN GOD WE TRUST over the top instead.
+// `rev` runs the word the other way round the circle and flips each glyph, so
+// text along the BOTTOM of a coin reads the right way up (as a date does on a
+// quarter) and text up the LEFT side reads upward (as IN GOD WE TRUST does on
+// a nickel). Getting this wrong is not a subtle error: it is the difference
+// between a coin and a coin printed upside down.
+function arcText(text, r, size, fill, opacity, centre = 270, rev = false) {
+  const advance = size * 0.82; // rounded sans, caps, at the letter-spacing below
+  const perGlyph = ((advance / r) * (180 / Math.PI)) * (rev ? -1 : 1);
+  const start = centre - (perGlyph * (text.length - 1)) / 2;
+  let out = `<g font-family="${FONT}" font-size="${size}" font-weight="700" fill="${fill}" opacity="${opacity}" text-anchor="middle">`;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (ch === ' ') continue;
+    const deg = start + perGlyph * i;
+    const a = (deg * Math.PI) / 180;
+    out += `<text transform="translate(${n2(50 + r * Math.cos(a))} ${n2(50 + r * Math.sin(a))}) rotate(${n1(deg + (rev ? -90 : 90))})">${ch}</text>`;
+  }
+  return `${out}</g>`;
+}
+
+// Straight text, for the words a real obverse does NOT arc — LIBERTY on the
+// cent, IN GOD WE TRUST on the dime and the quarter, and three of the four
+// dates.
+function flatText(text, x, y, size, fill, opacity) {
+  return `<text x="${x}" y="${y}" text-anchor="middle" font-family="${FONT}"
+    font-size="${size}" font-weight="700" fill="${fill}" opacity="${opacity}">${text}</text>`;
+}
+
+// ──────────────────────────────────────────────────────────── the portrait
+//
+// Drawn, never photographed. The DESIGNS are public domain (US government
+// works, and every one used here predates the 1989 copyright-notice change),
+// but a photograph of a coin is a SEPARATE copyright from the design and the
+// Mint's own photographs are reserved by its contractor — so every curve
+// below is hand-placed. That also keeps src/art/ATTRIBUTION.md's "all
+// original art" true and keeps the app fully vector, which for an offline
+// PWA is the difference between a 4kB face and a bitmap set.
+//
+// Authored facing RIGHT, origin behind the eye at the top of the ear;
+// `dir = -1` mirrors it to face left. That is not decoration: the Lincoln
+// cent is the ONLY circulating US coin whose portrait faces right, so
+// direction is a real, checkable difference a child can be taught.
+//
+// ─────────────────────────────────────────────────────────────────────────
+// WHY EACH MAN GETS HIS OWN OUTLINE, AND NOT JUST HIS OWN HAIRDO
+// ─────────────────────────────────────────────────────────────────────────
+// The previous pass shared ONE face curve between all four and swapped only
+// the back of the head. Its own verdict was that the four portraits still
+// resembled each other more than they resembled their men, and it was right:
+// a shared profile means a shared silhouette, and the silhouette is all that
+// is left once the drawing shrinks.
+//
+// Worse, wave 1 shows ONE COIN, ALONE — `coinRow(q.coins, 84)` in
+// src/screens/money.js — so there is no sibling next to it and RELATIVE SIZE
+// TELLS THE CHILD NOTHING. A lone silver disc has to be namable as a dime
+// and not a quarter from its own drawing.
+//
+// So each head below is a complete closed path, and the four differ where
+// the difference survives shrinking — in the OUTLINE:
+//
+//   Lincoln     the only one FACING RIGHT; a full BEARD hanging a third of
+//   (cent)      a head below the chin; a tall bare forehead under a wavy
+//               mass of hair that rises ABOVE the crown; coat and bow tie.
+//   Jefferson   a big smooth hair mass sweeping BACK and DOWN past the
+//   (nickel)    nape, then a QUEUE that hangs on down over a high-collared
+//               COAT and finishes in a ribbon bow. No beard.
+//   Roosevelt   modern. Hair cropped tight to the skull, so the back of the
+//   (dime)      head is a small smooth curve with nothing protruding
+//               anywhere; a big plain EAR; a heavy square jaw; bare neck.
+//   Washington  a WIG: the back contour is SCALLOPED into three rolled
+//   (quarter)   curls, and a ribboned queue hangs clear of the bare neck
+//               behind it. Eighteenth century at a glance.
+//
+// Beard / queue-and-coat / bare crop / scalloped wig is four different
+// outlines. Squint at any one of them and the answer is still there.
+//
+// WARMTH, kept from the previous pass because it was hard won: the nose ROOT
+// is a shallow curve and not a notch (a notch is a bite mark), the nose TIP
+// is rounded over (a corner is a hatchet), and there is NO dark mark
+// anywhere on the cheek (a dark crescent beside an eye reads as a socket,
+// which is what made an early attempt look like a skull). Roundness comes
+// from LIGHT relief marks, which is also how a struck coin catches light.
+//
+// PROPORTION, and this is where the second pass was most wrong. Held against
+// the photographs, every head in the first version was a NARROW OVAL: nose
+// to back of skull came to about two thirds of crown to chin. On a real
+// profile with hair on it that measurement is close to 1 — a dime's
+// Roosevelt is actually WIDER than he is tall, because the hair sweeps back
+// past the skull. The ear was in the wrong place for the same reason. On the
+// real coins the eye sits roughly a quarter of the way back from the nose
+// and the ear about seven tenths of the way back; the first version had the
+// ear at four tenths, which is what made four different men all read as the
+// same long-faced mannequin.
+//
+// So, in the local frame used below: the nose reaches x ≈ +23, the forehead
+// is held back near x ≈ +15, the EYE sits at x ≈ +6, the EAR at x ≈ −11 to
+// −17 depending on the head, and the back of the skull runs out to x ≈ −27
+// (Washington, whose wig is tall rather than deep) through −38 (Jefferson
+// and Roosevelt, whose hair sweeps furthest back). Crown at y ≈ −33, chin at
+// y ≈ +30.
+const HEAD = {
+  // LINCOLN. Two things carry him: the beard, and the fact that he is the
+  // only man in the set looking the other way. The hair is a wavy mass with
+  // two crests over a forehead left completely bare — the opposite
+  // arrangement to the three wigs and crops — and the beard follows the JAW
+  // rather than hanging as a bib, which is the correction the photograph
+  // forced: a round beard made him a woodcutter, not a president.
+  Lincoln: [
+    'M 11.0 -26.2', // the hairline, high and far back at the temple
+    'C 12.9 -22.4 14.9 -17.6 15.4 -12.4', // a tall bare forehead
+    'C 15.6 -10.4 15.1 -8.7 14.1 -7.4', // the brow, rolling over
+    'C 13.3 -6.5 12.9 -5.8 13.0 -4.8', // the nose root, a curve not a notch
+    'L 23.9 5.7', // a long straight nose — his longest feature
+    'C 24.9 6.9 24.1 8.1 22.1 8.3', // rounded over at the tip
+    'L 18.7 8.8',
+    'L 17.9 10.8', // philtrum. NO moustache: the cent has none either
+    'C 18.4 11.2 18.3 12.9 16.8 13.6', // a thin upper lip, held FLAT: two
+    'C 17.6 14.4 17.4 16.0 15.9 16.8', // protruding lumps read as a beak
+    'C 17.7 17.8 18.7 19.2 18.7 20.6', // the chin, and then the BEARD
+    'C 19.6 22.4 20.0 25.6 18.6 28.8', // narrow, tracking the JAW down
+    'C 16.6 33.2 10.2 35.6 2.8 35.0', // to a soft point below the chin
+    'C -4.6 34.4 -11.4 30.0 -15.4 23.2', // and back up to the sideburn
+    'C -17.8 18.6 -19.6 12.4 -20.8 6.2',
+    'C -24.6 2.6 -27.2 -3.0 -27.4 -10.0', // the back of the head. Lincoln is
+    'C -27.6 -17.6 -24.4 -24.4 -19.0 -28.4', // NARROW: on the real cent his
+    'C -15.0 -31.4 -11.4 -34.4 -7.4 -34.6', // head is 0.73 as wide as tall,
+    'C -4.0 -34.8 -2.6 -31.8 -0.8 -32.2', // where the other three are near 1
+    'C 1.8 -33.0 4.4 -32.2 5.6 -30.2', // hair crest two
+    'C 7.2 -29.2 10.0 -27.8 11.0 -26.2 Z',
+  ].join(' '),
+
+  // JEFFERSON. One big smooth hair mass — no crests, unlike Lincoln, and no
+  // scallops, unlike Washington — reaching further back at eye level than
+  // any other head here and then sweeping DOWN to the nape. The queue and
+  // the ribbon are in TAIL below, because they hang past the head and over
+  // the coat.
+  Jefferson: [
+    'M 10.09 25.93 C 10.81 25.47 11 24.7 11.19 24.05',
+    'C 11.37 23.45 10.96 22.6 11.3 22.19 C 11.66 21.73 12.56 21.9 13.49 21.6',
+    'C 15.2 21.05 19.34 20.27 20.67 18.86 C 21.64 17.84 21.93 16.27 21.9 15.01',
+    'C 21.86 13.78 20.83 12.76 20.53 11.39 C 20.17 9.73 19.67 7.47 20.15 5.69',
+    'C 20.64 3.85 23.62 1.85 23.61 0.57 C 23.6 -0.21 22.93 -0.53 22.32 -1.29',
+    'C 21.18 -2.69 17.74 -5.03 17 -6.93 C 16.45 -8.33 17.2 -9.86 17.03 -11.15',
+    'C 16.87 -12.29 16.63 -13.18 16.12 -14.3 C 15.43 -15.8 14 -17.4 12.94 -19.18',
+    'C 11.73 -21.23 10.77 -23.99 9.32 -25.96 C 7.98 -27.78 6.47 -29.34 4.68 -30.66',
+    'C 2.82 -32.05 0.57 -33.27 -1.7 -34.02 C -4.01 -34.78 -6.59 -35 -9.1 -35.15',
+    'C -11.64 -35.31 -14.56 -35.56 -16.85 -34.93',
+    'C -18.92 -34.35 -20.57 -33.1 -22.35 -31.83',
+    'C -24.31 -30.44 -26.66 -28.81 -28.02 -26.82',
+    'C -29.35 -24.9 -29.7 -22.42 -30.52 -20.17',
+    'C -31.35 -17.87 -32.25 -15.45 -32.99 -13.18',
+    'C -33.68 -11.04 -34.33 -9.06 -34.83 -6.91',
+    'C -35.35 -4.69 -36.06 -2.14 -36.01 -0.03 C -35.97 1.76 -35.51 3.2 -34.93 4.94',
+    'C -34.24 7.01 -32.41 9.16 -31.9 11.48',
+    'C -31.38 13.86 -31.42 17.43 -31.92 19.05',
+    'C -32.19 19.93 -32.61 20.19 -33.18 20.88',
+    'C -34.05 21.95 -36.4 23.2 -36.82 24.67',
+    'C -37.23 26.1 -36.87 28.56 -35.81 29.56',
+    'C -34.6 30.7 -31.65 30.41 -29.39 30.51',
+    'C -26.88 30.62 -24.07 30.3 -21.41 30.06',
+    'C -18.74 29.83 -16.04 29.49 -13.42 29.09 C -10.84 28.7 -8.38 28.1 -5.8 27.7',
+    'C -3.18 27.28 -0.48 26.92 2.18 26.63 C 4.82 26.34 8.72 26.79 10.09 25.93 Z',
+  ].join(' '),
+
+  // ROOSEVELT, and this one is MEASURED rather than styled. The outline below
+  // is a curve fitted to the portrait's own silhouette, segmented from
+  // coloringbook/ref/dime-obv-2.jpg — a 2015-W proof whose frosted bust sits
+  // on a uniformly black mirror field, so the edge of the portrait is not a
+  // judgement call. That photograph's disc is circular to ±0.5px on a radius
+  // of 470, i.e. it was shot square on, which is why it replaced the original
+  // reference: dime-obv.jpg is tilted about 8° out of plane (its disc is an
+  // ellipse, axis ratio 1.010) and every earlier number taken off it carried
+  // that tilt. One linear map takes that photograph to the frame below —
+  // local = 46.19 − 0.1031·px across and 0.1031·py − 44.18 down — which is
+  // why the numbers are not round.
+  //
+  // The frozen target and the score are in coloringbook/ (gitignored):
+  // silhouette IoU against the traced mask is 0.981, up from 0.867.
+  // What the measuring found, against the version before it:
+  //
+  //   · the head is WIDER THAN TALL. Crown to chin is 58.6% of the coin's
+  //     diameter; nose to the back of the hair is 62.3%; crown to the point
+  //     of the truncation is 76.1%.
+  //   · THE THROAT WAS THE BIG ERROR — nine units too far forward. The real
+  //     underside of the jaw runs BACK almost horizontally from the chin,
+  //     and the front of the bust then drops almost VERTICALLY to a sharp
+  //     point. The old path ran that whole distance as one diagonal, which
+  //     put a wedge of silver under the chin that the coin does not have.
+  //   · the FOREHEAD sits further forward and the CHIN further back than the
+  //     old path had them, and the back of the skull is not as deep: the
+  //     widest point is x ≈ −34.7, where it used to be −37.7.
+  //   · IT IS A BUST, not a head with a stalk. But — and the previous pass
+  //     had this right — there are NO SHOULDERS on a dime and the bust does
+  //     NOT run off the rim. The neck ends in a straight TRUNCATION that
+  //     stops clear of the field, cut at about 37° and rising toward the
+  //     nape: low point under the throat, high corner behind the neck. That
+  //     angled cut is most of what makes the bottom of a real dime look the
+  //     way it does, and it is why the truncation is part of THIS path
+  //     rather than of the shared bareNeck() the quarter uses. The
+  //     photograph's own cut bows off straight by at most 0.9 units over its
+  //     36-unit run, so drawing it straight is a simplification the coin can
+  //     carry.
+  //   · the hair is a MASS with a hairline, not a cap. The outline runs
+  //     forward over the brow into a lock that overhangs the forehead —
+  //     the crown of the coin is hair, and it comes within about four
+  //     units of the field circle.
+  //
+  // Order: the hairline at the temple, down the face, under the chin, down
+  // the throat to the point of the truncation, the straight cut back, up
+  // the nape, round the back of the skull and over the crown to the lock
+  // that closes on the hairline again.
+  Roosevelt: [
+    'M 10.37 -28.04', // hairline meets the profile, high on the forehead
+    'C 11.31 -25.66 12.14 -23.26 13.19 -20.9', // the forehead, sloping
+    'C 14.26 -18.5 15.8 -16.23 16.74 -13.76', // FORWARD as it comes down
+    'C 17.67 -11.29 18.21 -8.05 18.8 -6.07', // the BROW, and it projects
+    'C 19.17 -4.8 19.37 -3.95 19.81 -2.98', // the nose root, a shallow
+    'C 20.24 -2.02 20.76 -1.29 21.39 -0.25', // curve and never a notch
+    'C 22.25 1.17 24.05 3.38 24.55 4.74', // the bridge, straight and long
+    'C 24.86 5.56 25.12 6.35 24.87 6.87', // the tip, rounded over
+    'C 24.63 7.35 23.81 7.53 23.21 7.79', // the nostril wing
+    'C 22.57 8.06 21.65 8.03 21.12 8.43',
+    'C 20.62 8.81 20.29 9.45 20.06 10.06', // philtrum
+    'C 19.82 10.71 19.81 11.34 19.74 12.23', // upper lip
+    'C 19.63 13.67 19.68 16.11 19.7 17.87', // the mouth line and the lower
+    'C 19.72 19.43 20.1 21.32 19.83 22.28', // lip, fuller than the upper
+    'C 19.67 22.82 19.44 23.1 19.07 23.43', // the CHIN
+    'C 18.61 23.84 17.81 24.31 17.13 24.4',
+    'C 16.45 24.5 15.53 23.81 14.98 23.99', // the underside of the JAW, and
+    'C 14.54 24.13 14.42 24.65 14.01 25.04', // it runs almost straight BACK
+    'C 13.39 25.61 12.43 26.52 11.54 27.01', // rather than falling away
+    'C 10.7 27.47 9.96 27.52 8.84 27.92',
+    'C 6.98 28.58 2.63 29.52 1.45 30.69', // the throat
+    'C 0.82 31.3 0.98 31.86 0.65 32.73', // and then the front of the bust
+    'C 0.08 34.26 -1.12 37.47 -1.64 39.06', // drops nearly VERTICALLY
+    'C -1.95 40 -2.09 40.58 -2.31 41.34', // to the point of the truncation
+    'L -31.49 19.07', // THE CUT — straight, ~37°, and clear of the field
+    'C -30.83 16.52 -29.44 12.82 -29.51 11.43', // up the back of the neck
+    'C -29.54 10.9 -29.76 10.82 -29.91 10.34',
+    'C -30.19 9.44 -30.73 7.54 -30.93 6.44', // the nape
+    'C -31.07 5.65 -30.92 5.05 -31.13 4.39',
+    'C -31.34 3.71 -31.81 3.31 -32.2 2.41',
+    'C -32.93 0.75 -34.59 -3.19 -34.72 -5.01', // the widest point of the head
+    'C -34.8 -6.03 -34.45 -6.5 -34.27 -7.45',
+    'C -34.02 -8.76 -33.82 -10.44 -33.34 -12.17',
+    'C -32.73 -14.39 -31.67 -17.95 -30.67 -19.63',
+    'C -30.07 -20.65 -29.51 -21.01 -28.74 -21.79',
+    'C -27.74 -22.82 -26.39 -24.03 -25.11 -25.17',
+    'C -23.71 -26.42 -21.98 -28.17 -20.65 -29',
+    'C -19.74 -29.57 -19.04 -29.75 -18.14 -30.1',
+    'C -17.12 -30.49 -16.18 -30.93 -14.82 -31.19',
+    'C -12.79 -31.58 -9.56 -31.58 -7.02 -31.63', // the crown, four units
+    'C -4.59 -31.69 -1.66 -31.73 0.1 -31.55', // inside the field circle
+    'C 1.15 -31.44 1.77 -31.32 2.6 -31.06',
+    'C 3.48 -30.79 4.21 -30.36 5.24 -29.95', // and forward into the front
+    'C 6.66 -29.38 8.66 -28.68 10.37 -28.04 Z', // lock over the forehead
+  ].join(' '),
+
+  // WASHINGTON. The wig is TALL rather than deep — that is the correction
+  // the photograph forced. An earlier version stacked three rolled curls
+  // straight down the back contour and it came out as a rope; on the coin
+  // the wig is one rounded mass with the curls bunched low, behind and below
+  // the ear, and the individual rolls are surface texture. His mouth is set
+  // back under a heavy chin, which is the one thing every portrait of him
+  // agrees on.
+  Washington: [
+    'M 11.2 -25.6',
+    'C 13.2 -21.4 15.3 -16.8 15.7 -12.0',
+    'C 15.8 -10.2 15.3 -8.6 14.3 -7.4',
+    'C 13.5 -6.6 13.1 -6.0 13.3 -5.0',
+    'L 24.2 5.2', // the biggest nose of the four
+    'C 25.2 6.4 24.4 7.6 22.6 7.8',
+    'L 19.2 8.3',
+    'L 18.4 10.2',
+    'C 18.5 10.6 18.3 12.3 16.7 12.8', // the mouth, set BACK
+    'C 17.5 13.6 17.3 15.2 15.8 16.0',
+    'C 18.0 17.4 19.8 19.8 19.8 22.6', // under a heavy protruding chin
+    'C 19.6 25.8 17.2 28.6 13.0 30.2',
+    'C 7.4 32.4 -0.6 32.2 -7.2 29.4',
+    'C -11.6 27.6 -14.6 24.8 -16.6 21.4', // up to the nape, then the wig:
+    'C -20.2 22.0 -23.4 19.2 -24.0 15.0', // the curl bunch, low and behind
+    'C -26.4 11.8 -26.6 6.0 -24.2 2.6', // ONE rounded bulge. Three stacked
+    'C -26.0 -2.4 -25.2 -9.8 -22.2 -14.6', // rolls came out as a rope.
+    'C -19.0 -20.6 -13.6 -25.8 -7.4 -28.4',
+    'C -2.4 -30.4 3.6 -30.0 7.2 -28.2',
+    'C 9.0 -27.2 10.4 -26.5 11.2 -25.6 Z',
+  ].join(' '),
+};
+
+// ─────────────────────────────────────────────────────────────────────────
+// THE HAIR, AS ITS OWN SHAPE
+// ─────────────────────────────────────────────────────────────────────────
+// A head drawn as one flat fill is an egg with a nose on it. That is not a
+// stylistic complaint: without a hairline there is no forehead, and without a
+// forehead the four men lose the proportion that makes each of them himself —
+// Lincoln's forehead is enormous, Roosevelt's is short under a wave, and
+// Washington's disappears under a wig.
+//
+// So the hair is a SECOND, DARKER shape laid over the head. Each one shares
+// its outer edge with the head outline exactly (the same control points, run
+// backwards) and closes along the hairline, which means the two can never
+// drift apart. Two flat tones is also what the real object does: hair is cut
+// deep into the die and sits in shadow while the cheek catches the light.
+//
+// It is drawn at `full` AND `mid`, not just `full` — mid is the 54px coin
+// row, and a tone block survives 54px where a stroked hairline does not.
+const HAIR = {
+  Lincoln: [
+    'M 11.0 -26.2',
+    'C 10.0 -27.8 7.2 -29.2 5.6 -30.2', // ← head outline, run backwards
+    'C 4.4 -32.2 1.8 -33.0 -0.8 -32.2',
+    'C -2.6 -31.8 -4.0 -34.8 -7.4 -34.6',
+    'C -11.4 -34.4 -15.0 -31.4 -19.0 -28.4',
+    'C -24.4 -24.4 -27.6 -17.6 -27.4 -10.0',
+    'C -27.3 -6.4 -26.6 -3.0 -25.2 0.0',
+    'C -20.0 -3.4 -17.2 -8.6 -16.4 -13.8', // the hairline, coming forward
+    'C -15.6 -19.2 -12.6 -22.8 -8.0 -25.0', // and climbing to a very tall
+    'C -4.2 -27.0 -0.4 -27.8 4.2 -27.4', // forehead — his most-noted feature
+    'C 7.2 -27.4 9.8 -26.8 11.0 -26.2 Z',
+  ].join(' '),
+  Jefferson: [
+    'M 9.32 -25.96 C 9.39 -26.03 6.47 -29.34 4.68 -30.66',
+    'C 2.82 -32.05 0.57 -33.27 -1.7 -34.02 C -4.01 -34.78 -6.59 -35 -9.1 -35.15',
+    'C -11.64 -35.31 -14.56 -35.56 -16.85 -34.93',
+    'C -18.92 -34.35 -20.57 -33.1 -22.35 -31.83',
+    'C -24.31 -30.44 -26.66 -28.81 -28.02 -26.82',
+    'C -29.35 -24.9 -29.7 -22.42 -30.52 -20.17',
+    'C -31.35 -17.87 -32.25 -15.45 -32.99 -13.18',
+    'C -33.68 -11.04 -34.33 -9.06 -34.83 -6.91',
+    'C -35.35 -4.69 -36.06 -2.14 -36.01 -0.03 C -35.97 1.76 -35.51 3.2 -34.93 4.94',
+    'C -34.24 7.01 -32.41 9.16 -31.9 11.48',
+    'C -31.38 13.86 -31.42 17.43 -31.92 19.05',
+    'C -32.19 19.93 -32.61 20.19 -33.18 20.88',
+    'C -34.05 21.95 -36.4 23.2 -36.82 24.67',
+    'C -37.23 26.1 -36.87 28.56 -35.81 29.56 C -34.6 30.7 -31.6 30.52 -29.39 30.51',
+    'C -27.05 30.49 -24.6 29.73 -22.13 29.33 C -19.55 28.92 -15.6 29 -14.23 28.05',
+    'C -13.5 27.55 -13.25 26.95 -13.11 26.11',
+    'C -12.88 24.78 -13.42 22.52 -14.11 20.67',
+    'C -14.92 18.47 -17.01 16.07 -18.03 13.93',
+    'C -18.9 12.11 -19.43 10.55 -20.02 8.69 C -20.67 6.62 -21.43 4.08 -21.7 2.04',
+    'C -21.93 0.34 -21.78 -0.92 -21.79 -2.71',
+    'C -21.82 -5.04 -22.25 -8.19 -21.79 -10.74',
+    'C -21.35 -13.19 -20.55 -15.75 -19.18 -17.75',
+    'C -17.81 -19.76 -15.59 -21.22 -13.57 -22.76',
+    'C -11.48 -24.35 -8.95 -26.1 -6.83 -27.11',
+    'C -5.13 -27.93 -3.79 -28.42 -1.97 -28.72 C 0.25 -29.08 3.94 -29.27 5.6 -28.74',
+    'C 6.54 -28.44 6.96 -27.8 7.6 -27.32 C 8.2 -26.87 9.29 -25.91 9.32 -25.96 Z',
+  ].join(' '),
+  // ROOSEVELT'S HAIR WAS THE WORST SHAPE IN THE FILE, and the fault was not
+  // texture. It was a crescent laid on the skull — a swim cap — when the
+  // real thing is a MASS with three shape facts in it, all of them in the
+  // silhouette and none of them a stroke:
+  //
+  //   · a HAIRLINE running diagonally back from a high forehead. It is the
+  //     longest line on the coin and it is what gives him a forehead at all.
+  //   · a SIDEBURN. The hair comes down in front of the ear and stops level
+  //     with the top of it, then runs back OVER the ear, so the ear is a
+  //     small thing half-buried rather than a shell stuck on a bald cheek.
+  //   · the mass carries on behind the ear and only ends at the NAPE, which
+  //     is where the neck starts. The old crescent stopped short of that and
+  //     left a bare patch of skull behind the ear that no photograph shows.
+  //
+  // Outer edge shared with the head outline exactly, as the other three are.
+  Roosevelt: [
+    'M 10.37 -28.04', // ← head outline, run backwards from the hairline
+    'C 8.66 -28.68 6.66 -29.38 5.24 -29.95',
+    'C 4.21 -30.36 3.48 -30.79 2.6 -31.06',
+    'C 1.77 -31.32 1.15 -31.44 0.1 -31.55',
+    'C -1.66 -31.73 -4.59 -31.69 -7.02 -31.63',
+    'C -9.56 -31.58 -12.79 -31.58 -14.82 -31.19',
+    'C -16.18 -30.93 -17.12 -30.49 -18.14 -30.1',
+    'C -19.04 -29.75 -19.74 -29.57 -20.65 -29',
+    'C -21.98 -28.17 -23.71 -26.42 -25.11 -25.17',
+    'C -26.39 -24.03 -27.74 -22.82 -28.74 -21.79',
+    'C -29.51 -21.01 -30.07 -20.65 -30.67 -19.63',
+    'C -31.67 -17.95 -32.73 -14.39 -33.34 -12.17',
+    'C -33.82 -10.44 -34.02 -8.76 -34.27 -7.45',
+    'C -34.45 -6.5 -34.8 -6.03 -34.72 -5.01',
+    'C -34.59 -3.19 -32.93 0.75 -32.2 2.41',
+    'C -31.81 3.31 -31.34 3.71 -31.13 4.39',
+    'C -30.92 5.05 -31.07 5.65 -30.93 6.44', // the nape, and the hair ends there
+    'C -30.1 5.86 -29.3 5.19 -28.5 4.6', // forward again along the underside
+    'C -26.5 3.7 -24 2.5 -22 1.6',
+    'C -20 0.7 -18.1 -0.1 -16.5 -0.6',
+    'C -14.9 -1.1 -13.6 -1.6 -12.2 -1.7', // over the top of the EAR: measured
+    'C -11.2 -1.4 -10.2 -0.8 -9.4 0.4', // off the photograph the helix appears
+    'C -8.9 1.1 -8.5 1.4 -8.2 1.2', // only below y ≈ −2, and the mass runs on
+    'C -7.9 0.6 -7.4 -0.2 -7 -0.9', // DOWN IN FRONT of it as a short SIDEBURN.
+    'C -6.3 -1.2 -5.6 -2 -4.9 -2.9', // A rounded lobe: drawn as a narrow tab
+    'C -4.2 -3.8 -3.5 -5.3 -2.9 -6.6', // it read as a fang hanging off the
+    'C -2.3 -7.9 -1.9 -9.3 -1.3 -10.7', // temple. THE HAIRLINE, climbing
+    'C -0.7 -12.1 0.1 -13.5 0.8 -15.1', // and up to a tall bare forehead
+    'C 1.6 -16.6 2.3 -18.4 3.2 -20',
+    'C 4.1 -21.6 5 -23.5 6.1 -24.9',
+    'C 7.2 -26.3 9.3 -27.8 10 -28.4 Z',
+  ].join(' '),
+  Washington: [
+    'M 14.2 -18.4', // starts DOWN THE FOREHEAD: the wig covers his temple
+    'C 13.4 -21.4 12.2 -23.8 11.0 -25.4', // ← up the forehead, just inside it
+    'C 10.4 -26.5 9.0 -27.2 7.2 -28.2',
+    'C 3.6 -30.0 -2.0 -30.4 -7.4 -28.4',
+    'C -13.6 -25.8 -19.0 -20.6 -22.2 -14.6',
+    'C -25.2 -9.8 -26.0 -2.4 -24.2 2.6',
+    'C -26.6 6.0 -26.4 11.8 -24.0 15.0',
+    'C -23.4 19.2 -20.2 22.0 -16.6 21.4',
+    'C -16.0 16.0 -14.6 10.0 -13.4 4.0', // the wig comes down PAST the ear
+    'C -12.0 -3.4 -9.4 -10.4 -5.4 -15.4', // and forward over the temple,
+    'C -1.4 -20.4 4.6 -22.4 9.4 -21.4', // which is why so little of Washington
+    'C 11.6 -21.0 13.2 -19.8 14.2 -18.4 Z', // is face at all
+  ].join(' '),
+};
+
+// Lincoln's beard gets the same treatment for the same reason: on the real
+// cent it is a separate, deeply cut mass, and drawing it in the skin tone
+// left his chin looking swollen rather than bearded.
+const BEARD =
+  'M 16.6 17.2 C 17.7 17.8 18.7 19.2 18.7 20.6' +
+  ' C 19.6 22.4 20.0 25.6 18.6 28.8' +
+  ' C 16.6 33.2 10.2 35.6 2.8 35.0' +
+  ' C -4.6 34.4 -11.4 30.0 -15.4 23.2' +
+  ' C -17.8 18.6 -19.6 12.4 -20.8 6.2' +
+  ' C -22.4 4.6 -23.9 2.4 -25.2 0.0' + // meets the hair exactly at the sideburn
+  ' C -23.6 5.0 -21.0 9.8 -17.6 13.6' +
+  ' C -12.0 19.0 -4.4 21.4 2.6 20.6' +
+  ' C 8.0 20.0 13.2 19.0 16.6 17.2 Z';
+
+// What hangs off the back of the head, in the same dark tone as the hair —
+// separate shapes rather than part of the outline because both of these
+// overlap something (Jefferson's queue lies over his coat, Washington's bow
+// sits out beyond his neck) and a single path cannot do that.
+//
+// This is the pair most at risk of collapsing into each other, since both
+// men wore a queue and a ribbon. They are pulled apart by WHERE it sits:
+// Jefferson's runs LOW and long, down the back over a coat collar;
+// Washington's is tied tight at the nape and stands clear against open
+// field, with bare neck below it.
+const TAIL = {
+  // JEFFERSON HAS NO ENTRY HERE ANY MORE. His queue and its ribbon are part
+  // of the TRACED outline and of the traced hair mass — one continuous form,
+  // which is what the coin shows. Drawn as a separate shape it carried its own
+  // stroke, and that stroke read as a seam: the knot looked stuck on the back
+  // of his head rather than grown out of the hair. `TAIL[o.who] || ''` already
+  // tolerates a missing entry, and the silhouette keeps the queue at every
+  // tier because the queue is now in HEAD.
+  Washington:
+    '<path d="M -15.0 18.4 C -18.6 21.4 -20.8 25.6 -21.4 30.4 L -15.4 31.8' +
+    ' C -15.0 27.6 -13.4 24.0 -11.0 21.2 Z"/>' +
+    '<ellipse cx="-23.4" cy="26.0" rx="5.4" ry="3.4" transform="rotate(-34 -23.4 26)"/>' +
+    '<ellipse cx="-23.6" cy="34.0" rx="4.8" ry="3.1" transform="rotate(26 -23.6 34)"/>' +
+    '<circle cx="-19.0" cy="30.2" r="2.6"/>',
+};
+
+// ─────────────────────────────────────────────────────────────────────────
+// HAIR, AND WHY IT IS WORTH THIS MUCH STRING
+// ─────────────────────────────────────────────────────────────────────────
+// Full tier only, and LIGHT: the features that stand proud on a struck coin
+// catch the light, so they get a pale mark. Only the eye and the ear — a
+// hollow and a fold — are drawn dark. Drawing brow, cheek and jaw dark is
+// what made an early attempt look like a skull.
+//
+// The previous pass shipped two or three marks per head and then said, in
+// its own notes, that it would BET AGAINST THE NICKEL transferring. It was
+// right about the cause: on the real cent and the real nickel the hair is a
+// TALL WAVY MASS of separately cut locks — it is the single busiest thing on
+// either coin and the first thing the eye lands on — and ours was a smooth
+// dark cap. A smooth cap is a helmet, and every man in a helmet looks alike.
+//
+// So the locks are drawn: a run of lit ridges lying along the direction the
+// hair actually travels on each coin. Lincoln's rise off a bare forehead and
+// break backwards over the crown; Jefferson's sweep back and then DOWN in
+// long parallel curves to the queue; Roosevelt's is one short wave and
+// nothing else, which is HIS identity and must not be embellished into
+// somebody else's head; Washington's are rolled curls bunched behind the
+// ear.
+//
+// Split into `base` and `fine`. `base` is every stroke that survives at the
+// 62px dime wave 1 draws. `fine` is the closer-spaced work — and the two
+// pale face lights, down the nose ridge and along the jaw, which are how a
+// struck portrait catches light — and it appears only above 130px, where a
+// 1.4-unit line is a real line and not a fleck of dirt.
+const RELIEF = {
+  Lincoln: {
+    base:
+      '<path d="M -14.6 -28.0 q 6.4 -4.2 11.0 -5.0" fill="none" stroke-width="1.8"/>' +
+      '<path d="M -20.0 -20.6 q 6.8 -4.4 11.4 -5.2" fill="none" stroke-width="1.8"/>' +
+      '<path d="M -23.4 -12.0 q 5.0 -3.6 8.4 -4.6" fill="none" stroke-width="1.7"/>' +
+      '<path d="M -15.0 -29.2 q 4.6 -2.0 8.2 -3.0" fill="none" stroke-width="1.6"/>' +
+      '<path d="M -24.2 -18.6 q 5.6 -3.6 9.4 -4.6" fill="none" stroke-width="1.6"/>' +
+      '<path d="M 12.0 20.6 q 3.6 5.4 2.2 11.2" fill="none" stroke-width="1.7"/>' + // beard flow
+      '<path d="M -0.6 21.8 q 2.4 6.0 1.0 11.4" fill="none" stroke-width="1.7"/>',
+    fine:
+      '<path d="M -6.0 -31.6 q 5.4 -0.6 9.6 0.2" fill="none" stroke-width="1.4"/>' +
+      '<path d="M -26.2 -8.0 q 4.4 -2.6 7.2 -3.4" fill="none" stroke-width="1.4"/>' +
+      '<path d="M -18.4 -24.6 q 5.2 -3.0 8.8 -3.8" fill="none" stroke-width="1.3"/>' +
+      // ONE more beard line, and it curves. Four near-vertical strokes down
+      // a beard read as the ribs of a scarf, which is what the first render
+      // of this showed.
+      '<path d="M -8.4 24.6 q 4.6 4.2 8.6 4.8" fill="none" stroke-width="1.3"/>' +
+      '<path d="M 14.0 -5.4 L 22.4 4.4" fill="none" stroke-width="1.2"/>' + // nose ridge, lit
+      '<path d="M 6.6 4.6 q 3.8 3.6 4.6 7.4" fill="none" stroke-width="1.2"/>', // cheek, lit
+  },
+  Jefferson: {
+    // The busiest head of the four, because on the coin it is. Long parallel
+    // curves running back and down, plus a lit line along the queue. Every
+    // start point moved with the redrawn outline (the mass is deeper at the
+    // nape now), and the two queue strokes were re-sited onto the traced
+    // queue, which sits further back and lower than the composed one did.
+    base:
+      '<path d="M -26.24 -26.41 q 6.4 8.8 5.6 18.6" fill="none" stroke-width="1.63"/>' +
+      '<path d="M -30.25 -18.35 q 5.0 9.2 4.2 18.8" fill="none" stroke-width="1.63"/>' +
+      '<path d="M -27.04 1.8 q 2.0 7.8 -0.4 13.6" fill="none" stroke-width="1.55"/>' +
+      '<path d="M -28.04 -25.0 q 5.6 6.0 6.4 13.4" fill="none" stroke-width="1.46"/>' +
+      '<path d="M -30.75 -16.94 q 4.0 7.4 4.0 15.0" fill="none" stroke-width="1.46"/>' +
+      '<path d="M -25.43 1.8 q 3.2 6.4 2.2 12.6" fill="none" stroke-width="1.38"/>',
+    fine:
+      '<path d="M -24.03 -18.76 q 3.6 4.0 3.8 8.4" fill="none" stroke-width="1.2"/>' +
+      '<path d="M -33.25 -6.26 q 2.2 6.4 0.6 11.6" fill="none" stroke-width="1.2"/>' +
+      '<path d="M -26.44 -27.42 q 4.0 3.0 5.2 6.6" fill="none" stroke-width="1.12"/>' +
+      '<path d="M -30.2 22.6 q -2.6 3.0 -3.4 5.4" fill="none" stroke-width="1.2"/>' +
+      '<path d="M -26.4 23.8 q -2.2 2.8 -2.8 4.8" fill="none" stroke-width="1.03"/>' +
+      '<path d="M 14.27 -8.08 L 22.29 1.39" fill="none" stroke-width="1.03"/>' +
+      '<path d="M 6.85 1.8 q 3.6 3.4 4.4 7.0" fill="none" stroke-width="1.03"/>',
+  },
+  // ROOSEVELT, AND THE ONE THING THIS HEAD KEPT GETTING WRONG WAS TONE.
+  //
+  // Every previous pass drew the hair as a DARKER BLOCK with pale streamlines
+  // scratched into it, and every previous pass then wrote in its own notes
+  // that the block was the largest remaining error. It is: on the photograph
+  // the hair is THE SAME SILVER AS THE FACE. Its whole identity is texture and
+  // shape. Sampled off coloringbook/ref/dime-obv.jpg the lit ridges of the
+  // hair are BRIGHTER than the shadowed cheek, and only the cut grooves
+  // between them are dark — so a flat dark fill is not a stylisation of the
+  // object, it is the opposite of it.
+  //
+  // The palette cannot help: the dime, nickel and quarter share one silver
+  // byte for byte and a test measures the spread. So the fix is structural —
+  // `hairLit` on OBVERSE.dime fills the mass in the FACE's own tone at full
+  // tier, and the mass is then carried entirely by line work:
+  //
+  //   groove / grooveFine   DARK strands, in `deep`. These are the cut lines
+  //                         of the die and they are what now says "hair".
+  //   base / fine           LIT ridges, in `field`, lying BETWEEN the grooves.
+  //                         Halved from the previous pass: with a dark stroke
+  //                         either side of it a ridge needs far less width.
+  //
+  // Direction was measured too — see the `groove` comment below, which carries
+  // the four angles phase 2 took off the photograph and the field they imply.
+  //
+  // TONE was measured again in phase 2, against the PRIMARY reference rather
+  // than the weak one, and the note above needs one correction. The 1.34 hair-
+  // to-cheek ratio quoted in docs/COIN-ART-METHOD.md §5 came off
+  // ref/dime-obv.jpg — the 400px, warm-lit, 8-degree-tilted photograph §3 grades
+  // WEAKEST. On ref/dime-obv-2.jpg, the black-field proof §3 grades best, the
+  // same two boxes give 0.966, and the two good proofs put the hair between 1.08
+  // and 1.33 of the cheek depending on the patch. The hair IS brighter than the
+  // cheek; it is not brighter by a third. Phase 2 sized the correction to the
+  // good photograph.
+  Roosevelt: {
+    // THE LIT RIDGES, two of them, and they are now DELIBERATELY QUIET — an
+    // explicit opacity on each, roughly half the group's. Phase 2 refilled the
+    // mass in `cloth` (see `hairLit` on OBVERSE.dime), so a ridge no longer has
+    // to lift a mass drawn too dark; at full strength over the lighter mass the
+    // pair read as two bright ribbons laid on the hair, and the photograph shows
+    // no such streaks — it shows a bright mass with dark cuts in it. The score
+    // is identical either way (the lit fraction of every hair patch is under a
+    // half, so no median moves), which is exactly why this one was decided by
+    // eye. Spacing still obeys the old rule: a groove and a ridge closer than
+    // half their widths plus 0.4 cancel, because the pale stroke draws last.
+    base:
+      '<path d="M -0.6 -29.6 C -3.51 -27.68 -13.22 -22.88 -18.05 -18.08 C -22.89 -13.27 -27.69 -3.66 -29.62 -0.78" fill="none" stroke-width="1.2" opacity="0.55"/>' +
+      '<path d="M 4.68 -24.37 C 2.35 -23.3 -4.97 -20.62 -9.31 -17.98 C -13.66 -15.33 -19.36 -10.08 -21.37 -8.5" fill="none" stroke-width="1.2" opacity="0.55"/>',
+    fine:
+      '<path d="M 15.6 -12.2 C 16.7 -11.4 17.5 -10.6 17.8 -9.6" fill="none" stroke-width="1.2"/>' +
+      '<path d="M 19.4 -1.2 L 23.2 3.2" fill="none" stroke-width="1.2"/>' +
+      '<path d="M 13.4 2.8 C 15.2 5 15.8 7.4 15.4 9.6" fill="none" stroke-width="1.2"/>' +
+      '<path d="M 18.1 18.4 C 17.0 19.3 15.8 19.9 14.5 20.2" fill="none" stroke-width="2.2"/>',
+    // THE GROOVES, and this is the hair. Five at every full-tier size — five is
+    // what a 62px dime can resolve — and seven more between them above 130px.
+    //
+    // PHASE 2 REDREW THE WHOLE FAMILY, and the correction was WHERE the strands
+    // start and HOW STEEP they run, not how many there are. Measured off
+    // dime-obv-2 with a structure tensor in four frozen discs, the coin's
+    // strands run (screen degrees, back-and-down positive):
+    //
+    //     crown 29     mid-mass 39     over the ear 16     back of skull 56
+    //
+    // Two things follow. First, the direction is a FIELD, not a constant: the
+    // hair over the top turns down hard round the occiput while the hair on the
+    // SIDE of the head has not turned at all — 16 against 39 only eight units
+    // away. Drawing one angle everywhere is what made the mass read as a combed
+    // sheet. Second, the strands do not all leave the hairline. Most leave the
+    // PART, which runs from the front hairline back along just under the top
+    // edge, and wrap round the back; only the lower ones leave the temple.
+    // The family that came out of that measures 27 / 37 / 25 / 58 against the
+    // coin's four, mean error 3.8 degrees.
+    //
+    // Every strand stops short of the nape and of the hair's own lower edge, so
+    // nothing leaks onto the cheek or the neck, and the ENDS are staggered:
+    // twelve strands all run to the nape and the nape becomes one dark block.
+    groove:
+      '<path d="M -4.2 -30.3 C -6.89 -28.35 -15.82 -23.31 -20.36 -18.62 C -24.9 -13.92 -29.61 -4.86 -31.47 -2.11" fill="none" stroke-width="1.2"/>' +
+      '<path d="M 5 -26.4 C 2.42 -25.22 -5.71 -22.25 -10.46 -19.33 C -15.2 -16.4 -21.31 -10.59 -23.48 -8.84" fill="none" stroke-width="1.5"/>' +
+      '<path d="M 2.47 -20.83 C -0.01 -19.68 -7.77 -16.71 -12.41 -13.96 C -17.05 -11.21 -23.2 -5.93 -25.36 -4.32" fill="none" stroke-width="1.5"/>' +
+      '<path d="M -2.4 -11.4 C -4.58 -10.7 -11.21 -8.72 -15.51 -7.19 C -19.8 -5.66 -26.06 -3.06 -28.17 -2.23" fill="none" stroke-width="1.4"/>' +
+      '<path d="M -17.1 -1.35 C -18.1 -1.17 -21.12 -0.68 -23.12 -0.26 C -25.11 0.16 -28.08 0.91 -29.07 1.14" fill="none" stroke-width="1.3"/>',
+    // The in-between strands, above 130px only, and THINNER than the five that
+    // have to survive 62px — 0.8 local units against 1.2-1.5. Where the strands
+    // converge at the back of the skull, width is what closes the gaps between
+    // them, and a family drawn at one weight turns that whole corner dark: the
+    // measured back-of-head patch went from 1.16 of the cheek to 0.86 on the
+    // one iteration that carried full-weight strokes into it. The last two are
+    // short cuts low behind the ear, where the coin is dense and we were bare.
+    grooveFine:
+      '<path d="M -13 -29.7 C -14.89 -28.08 -21.3 -23.77 -24.33 -19.95 C -27.36 -16.13 -30.05 -8.96 -31.2 -6.76" fill="none" stroke-width="0.8"/>' +
+      '<path d="M -8.6 -30.2 C -10.8 -28.44 -18.25 -23.84 -21.82 -19.62 C -25.38 -15.4 -28.64 -7.34 -30.01 -4.89" fill="none" stroke-width="0.8"/>' +
+      '<path d="M 1.6 -28 C -1.03 -26.49 -9.55 -22.66 -14.21 -18.95 C -18.87 -15.24 -24.33 -7.94 -26.35 -5.74" fill="none" stroke-width="0.8"/>' +
+      '<path d="M -4.6 -8.4 C -6.33 -7.91 -11.54 -6.54 -14.97 -5.47 C -18.4 -4.4 -23.47 -2.57 -25.17 -1.99" fill="none" stroke-width="0.8"/>' +
+      '<path d="M -6.8 -5.4 C -8.45 -5.03 -13.44 -3.99 -16.69 -3.16 C -19.94 -2.33 -24.71 -0.87 -26.31 -0.42" fill="none" stroke-width="0.8"/>' +
+      '<path d="M -18.63 -0.54 C -19.45 -0.42 -21.92 -0.09 -23.55 0.21 C -25.18 0.5 -27.6 1.07 -28.41 1.24" fill="none" stroke-width="0.8"/>' +
+      '<path d="M -21.24 0.55 C -22.02 0.64 -24.35 0.86 -25.89 1.09 C -27.43 1.31 -29.72 1.76 -30.49 1.9" fill="none" stroke-width="0.8"/>',
+    // THE DARK FACE MARKS, and the file's old rule still holds: no dark
+    // crescent on the CHEEK, because that reads as a socket and turns the
+    // portrait into a skull. What IS dark on the photograph is a short list,
+    // and every one of these is a place where one form OVERHANGS another —
+    // the brow over the eye, the nose over the lip, the lip over the chin,
+    // the jaw over the neck. Drawn in `deep`, not `ink`: they are shadows in
+    // silver, not lines in pencil.
+    // THE JAW, still the strongest dark on the coin and still the only one
+    // drawn at full `ink` weight, because on the photograph it is the deepest
+    // shadow on the obverse. Measured, the boundary runs from the chin back
+    // and slightly UP — (18, 20.5) → (10, 21.5) → (2, 18.6) → (−6, 15.4) —
+    // and ends in a defined ANGLE tucked under the ear lobe at about
+    // (−11, 13.6), where it turns up. The previous pass stopped a unit short
+    // of the angle, so the jaw trailed off into the neck instead of turning,
+    // and the whole lower head stayed one flat pentagon.
+    dark:
+      '<path d="M 19.4 21.4 C 17.6 21.4 14.2 21.4 11 21.2 C 7 21 3.4 19.4 0.4 18.2' +
+      ' C -3.2 16.8 -7.4 15 -10.4 13.6 C -11.4 13 -12.2 12.4 -12.6 11.6" fill="none" stroke-width="1.5"/>',
+    // THE THROAT SHADOW, and it is a REGION, not a line — the one thing phase 2
+    // left on the table and called unreachable.
+    //
+    // Phase 2 measured the throat at 0.806 of the cheek against our 1.000 and
+    // wrote it off with forehead and lips as "not a shortfall; the format",
+    // reasoning that a flat palette can only reach 0.806 by covering half the
+    // throat in `deep`, "which is a collar, not a shadow". Phase 2b tested that
+    // instead of inheriting it, by blurring ref/dime-obv-2 past the frost and
+    // quantising it into the steps this palette can actually reach. The throat
+    // is not a gradient. Scanned ACROSS the neck at y = 25 the photograph reads
+    //
+    //     x   10   8    6    4    2    0   -2   -4   -6   -8
+    //       0.80 0.82 0.82 0.81 0.84 0.85 0.83 0.78 1.10 1.17
+    //
+    // — fourteen units of flat 0.8, then a STEP of 0.3 in two units at x ≈ -5,
+    // which is the lit front edge of the sterno-mastoid running down the side of
+    // the neck. Down the throat at x = 0 it reads 1.07 at y = 18, 0.78 by y = 22:
+    // a second step, under the jaw. Four real edges — the silhouette in front,
+    // the jaw above, the muscle behind, the truncation below — so the shadow is
+    // a closed shape on the coin and a flat fill can name it honestly.
+    //
+    // It is NOT a collar: a collar crosses the neck, and this runs DOWN the
+    // front of it and stops at a near-vertical edge with the lit nape left bare
+    // behind it. §7's own list of permitted darks already has this one — "the
+    // jaw over the neck" — it had simply never been drawn.
+    //
+    // Filled ink at the modelling group's own 0.28 renders at 0.791 of the face
+    // against the coin's 0.806: the worst patch in the whole set, 0.194, becomes
+    // 0.015. Its top edge sits about three units BELOW the jaw stroke, because
+    // the photograph puts light on the underside of the jaw before the shadow
+    // starts, and closing that gap merges the two into one dark bar.
+    // THE TWO LIT PLANES, and they are the other half of the same argument.
+    //
+    // Phase 2 read forehead 1.159 and lips 1.112 against our flat 1.000 and
+    // grouped them with the throat as unreachable. They are not ramps either.
+    // Across the forehead at y = -19 the photograph reads 1.20 1.21 1.20 1.17
+    // 1.15 1.17 1.13 from x = 12 back to x = 0 — a plateau the full width of the
+    // bare forehead, ending at the hairline in front of it and at the BROW RIDGE
+    // below it, where a scan down x = 10 falls 1.17 (y -14) 1.11 (-12) 1.05
+    // (-10) 1.01 (-8). Around the mouth, y = 15 reads 1.27 1.09 1.27 1.16 from
+    // x = 18 back to x = 12 and then steps to 1.01 by x = 10: a lit lip mass
+    // about six units deep against the shadowed side plane behind it.
+    //
+    // So the coin models this face the way a sculptor does — a lit FRONT plane
+    // along the profile and a shadowed SIDE plane behind it — and `cloth`, which
+    // renders at 1.155 of the face, is that front plane to within 0.01 on the
+    // forehead. No new colour: it is the same tone the hair mass already uses,
+    // which is also what the photograph says (crown 1.19, forehead 1.16).
+    //
+    // 12.6's test — "does the mark name a form the coin has?" — is what decides
+    // where each edge goes, and it is why these are two shapes and not one wash
+    // down the front of the face:
+    //   · the forehead stops at the brow ridge, not at the eye, so the socket
+    //     and the temple hollow stay in the darker plane where the coin has them
+    //   · the lip mass stops at the MENTOLABIAL CREASE we already draw, so the
+    //     ball of the chin below it stays a separately lit form (its own mark,
+    //     brighter again at 1.39 against the coin's 1.28) rather than being
+    //     swallowed into one pale slab
+    //   · nothing crosses the open cheek, which stays the normaliser at 1.000
+    // A REGION IS ONLY AS GOOD AS ITS EDGES. The first cut of these two scored
+    // 0.0443 and looked WORSE than the flat face it replaced: three pale and
+    // dark blobs floating clear of every line in the drawing, because each one
+    // was inset a unit or two from the profile, from the hairline and from the
+    // marks below it, and so introduced three or four new boundaries of its own.
+    // A flat fill has no gradient to hide an edge behind, so every edge it has
+    // must be an edge the coin has. The rule that fixed it:
+    //
+    //   BUTT EACH REGION AGAINST LINES THE DRAWING ALREADY DRAWS, so it
+    //   contributes at most ONE new boundary, and let that boundary END on
+    //   drawn lines at both of its ends.
+    //
+    // The forehead therefore runs out to the contour stroke in front, PAST the
+    // hairline behind (the hair mass draws after these and covers it), and its
+    // one free edge is the brow ridge — starting on the profile exactly where
+    // the brow shadow starts, running back along the top of that stroke, then
+    // turning up the temporal line to die on the hairline. The lip mass runs to
+    // the contour in front, its top edge lies along the nasolabial fold and its
+    // bottom along the mentolabial crease, both of which are already strokes, so
+    // its one free edge is the short back one at the mouth corner.
+    plane:
+      '<path d="M 9.8 -26.8 C 10.9 -24.2 12 -21.2 13.5 -18.2' +
+      ' C 14.8 -16 15.9 -13.6 16.9 -11.2' + // to the profile at the brow
+      ' C 15.6 -10.6 14.2 -10.1 12.7 -9.7' + // back along the top of the brow
+      ' C 11.4 -11 9 -12.8 6 -14' + // then up the temporal line
+      ' C 4 -14.8 1.8 -15.2 0.2 -15.2' + // to die on the hairline
+      ' C 0.9 -17.6 2 -20.4 3.4 -22.8' + // up UNDER the hair, which covers it
+      ' C 4.8 -25 6.2 -26.4 10 -26.8 Z"/>' +
+      '<path d="M 19.4 8.4 C 18.5 9.7 17.7 10.6 17.1 11.6' + // along the fold
+      ' C 15.9 12.5 14.2 13.6 13.6 15.1' + // the one free edge, at the corner
+      ' C 13.4 16.2 14.4 17.2 15.4 17.6' + // to the chin crease
+      ' C 16.4 17.9 17.4 18 18.4 17.8' + // forward along it
+      ' C 18.7 16 18.8 14 18.8 12' + // up to the contour stroke
+      ' C 18.9 10.6 19.1 9.2 19.4 8.4 Z"/>',
+    shade:
+      '<path d="M 14.2 23.2 C 12.6 25.2 10.6 26.4 8.4 27.1' + // out to the
+      ' C 5.6 27.9 2.8 28.6 1.7 29.3' + // contour, all the way down the throat
+      ' C 0.9 28.5 -0.8 27.6 -2.6 26.8' +
+      ' C -4.6 25.8 -6.2 23.6 -6.6 21.4' + // UP the muscle's lit front edge
+      ' C -6.9 19.6 -6.4 18 -5.6 17.2' + // and under the ear
+      ' C -3.2 18.4 -0.4 20 2.2 21.2' + // forward again just below the jaw
+      ' C 5.6 22 9.8 22.8 14.2 23.2 Z"/>',
+    // and the FACE, at about two thirds of the jaw's weight. Every mark here
+    // is a place where one form OVERHANGS another — the brow over the eye,
+    // the nose over the lip, the lip over the chin — which is the only kind
+    // of dark the file has ever allowed on a face. Nothing lands on the open
+    // cheek: a dark crescent there reads as a socket and makes a skull, which
+    // is the mistake two earlier passes actually shipped.
+    face:
+      '<path d="M 18 -10.6 C 16.4 -10 14.8 -9.2 13.4 -8.2" fill="none" stroke-width="1.4"/>' +
+      '<path d="M 23.2 5.8 C 22 6.8 20.2 7.4 18.6 7.4" fill="none" stroke-width="1.3"/>' +
+      '<path d="M 18.2 13.2 C 17.2 13.6 16.4 14 15.4 14.2" fill="none" stroke-width="1.4"/>' +
+      '<path d="M 18 17.4 C 17 17.8 16.2 17.8 15.4 17.4" fill="none" stroke-width="1.3"/>',
+    faceFine:
+      // the nostril itself, a hook rather than a hole
+      '<path d="M 23 6 C 22.2 6.9 21.4 7.1 20.8 6.9" fill="none" stroke-width="1"/>' +
+      // the nasolabial line. It stops ABOVE the mouth: run down past the
+      // corner it closes a triangle with the mouth and the chin crease, and
+      // three lines meeting round a chin read as a beard, not a cheek.
+      '<path d="M 20.2 7.4 C 19 8.8 18 10.2 17.4 11.6" fill="none" stroke-width="1"/>' +
+      // the lower lid, which is what makes the eye deep-set rather than drawn
+      '<path d="M 15.2 -5.4 C 13.8 -4.6 12.4 -3.8 11.4 -3.4" fill="none" stroke-width="1"/>',
+  },
+  Washington: {
+    // One arc per roll, bunched LOW and behind the ear where the real coin
+    // bunches them, rather than stacked up the back contour.
+    base:
+      '<path d="M -21.8 -2.0 q 4.8 2.8 5.6 7.0" fill="none" stroke-width="1.8"/>' +
+      '<path d="M -20.0 7.4 q 4.6 2.8 5.2 6.8" fill="none" stroke-width="1.8"/>' +
+      '<path d="M -14.0 -20.0 q 5.6 1.8 8.4 5.0" fill="none" stroke-width="1.7"/>' +
+      '<path d="M -23.4 -12.0 q 5.2 2.6 6.2 6.6" fill="none" stroke-width="1.6"/>',
+    fine:
+      '<path d="M -19.0 -19.4 q 5.4 2.2 7.0 5.6" fill="none" stroke-width="1.4"/>' +
+      '<path d="M -11.0 -25.6 q 5.6 1.2 8.6 3.6" fill="none" stroke-width="1.3"/>' +
+      '<path d="M -17.6 15.4 q 3.4 2.0 4.0 5.0" fill="none" stroke-width="1.3"/>' +
+      '<path d="M 14.2 -5.4 L 23.4 5.0" fill="none" stroke-width="1.2"/>' +
+      '<path d="M 6.8 4.8 q 4.0 3.8 4.8 7.6" fill="none" stroke-width="1.2"/>',
+  },
+};
+
+// The two DARK marks on the whole face, and there are only two.
+//
+// The eye sits at x ≈ 6, well behind the brow: on a profile the eye is about
+// a quarter of the way back from the nose, and putting it at 9.6 (where an
+// earlier version had it) crowded it against the bridge and made every face
+// look startled. A dot alone stares; a dot under a lid that drops at its
+// outer corner reads as calm.
+//
+// `off` shifts the whole mark inside a head's own local frame, and it exists
+// because the dime's frame was re-measured off the photograph and its eye
+// came out 6 units further forward than the shared position. It defaults to
+// no shift, so the other three coins emit exactly the string they did.
+const EYE_MARK = `<path d="M 2.6 -4.6 C 5.0 -6.6 8.0 -6.4 9.4 -4.6" fill="none" stroke-width="1.5"/>
+  <circle cx="6.0" cy="-2.6" r="1.5" stroke="none"/>`;
+const eye = (off) =>
+  off ? `<g transform="translate(${off[0]} ${off[1]})">${EYE_MARK}</g>` : EYE_MARK;
+
+// The EAR, and it earns its place twice over. Every one of the four
+// reference coins shows one plainly and it is most of what stops a profile
+// reading as a mannequin — and its POSITION is what fixes the head's
+// proportion, roughly seven tenths of the way back from the nose. Measured
+// off the dime photograph it is 32px on a 396px coin — SMALL, and half
+// buried: the hair comes down in front of it as a sideburn and runs back
+// over its top. An earlier pass drew Roosevelt's a third larger than the
+// others and fully exposed on a bare cheek, which is the one thing the
+// reference plainly contradicts, so it is now the same size as the rest.
+// Drawn dark rather than light, because on the real coins it is a fold and
+// reads as a shadow, and because an earlier pale version looked like a
+// decorative swirl stuck on the cheek.
+const ear = (k, x, y) =>
+  `<g transform="translate(${x} ${y}) scale(${k})">
+     <path d="M 3.0 -4.4 C -1.8 -5.0 -4.8 -1.0 -4.2 3.6 C -3.6 7.6 -0.8 10.0 2.6 9.6"
+       fill="none" stroke-width="${n2(1.8 / k)}"/>
+     <path d="M 1.2 -0.6 c -1.8 0.8 -2.0 3.8 -0.4 5.0" fill="none" stroke-width="${n2(1.4 / k)}"/>
+   </g>`;
+
+// THE DIME'S OWN EYE AND EAR, because both were measured off the photograph
+// and neither fits the shared mark. `eye()` and `ear()` above are untouched,
+// so the cent, the nickel and the quarter still emit exactly what they did.
+//
+// THE EYE is SMALL and DEEP-SET — on the photograph it is a dark almond about
+// two units long lying under a brow that overhangs it, and it SLOPES: the
+// corner nearest the nose is high, the outer corner drops back and down. The
+// shared mark is a flat lid over a round pupil, which stares. This one does
+// not, and the brow shadow that closes it in is the first stroke of `dark`.
+const EYE_ROOSEVELT =
+  '<path d="M 16.4 -8 C 14.8 -7.4 13.2 -6.4 12.2 -5.4" fill="none" stroke-width="1.4"/>' +
+  '<ellipse cx="14.2" cy="-6.4" rx="1.8" ry="1.05" transform="rotate(-26 14.2 -6.4)" stroke="none"/>';
+
+// THE EAR, measured: front edge at x ≈ −11, back at x ≈ −19.7, lobe bottom at
+// y ≈ +10.3, and NO TOP — the hair crosses it at y ≈ −2.6 and the helix only
+// appears below that. It is an OVAL WITH A CURL IN IT: an outer helix, an
+// antihelix wrapping the concha, and one genuinely dark hollow. The shared
+// `ear()` is a plain C, which at this size read as a bracket stuck on a cheek.
+const EAR_ROOSEVELT =
+  '<path d="M -11 -0.8 C -15 -1.4 -18.8 0.2 -19.4 3.4 C -20 6.6 -17 9.6 -13 10.4" fill="none" stroke-width="1.5"/>' +
+  '<path d="M -12.4 1.6 C -15.2 2.2 -16.6 4.4 -15.8 6.6 C -15.2 8.1 -13.8 8.9 -12.6 8.7" fill="none" stroke-width="1.2"/>' +
+  '<ellipse cx="-14.3" cy="4.4" rx="1.4" ry="2" transform="rotate(18 -14.3 4.4)" stroke="none"/>';
+
+// Which obverse each coin carries, and which way it looks. Post-2004 nickel
+// and post-1998 quarter designs are deliberately NOT referenced: those came
+// through the Mint's Artistic Infusion Program and are not reliably public
+// domain.
+//
+// PROPORTIONS TAKEN FROM THE REAL COINS. Held against photographs of a
+// 1909-S cent, a 2004 nickel, a 1996 dime and a 1994 quarter, the first
+// drawings here were wrong in the same way: the head was too small and it
+// sat on a wide pair of shoulders. On the DIME and the QUARTER there are no
+// shoulders at all — the portrait is a HEAD AND NECK and the neck simply
+// runs off the bottom of the field, which is why those heads look so big and
+// read so well struck at 17mm. The CENT and the NICKEL do have a coat: a
+// lapel and a bow tie under Lincoln's beard, a high stand collar under
+// Jefferson's queue. That 2–2 split is worth drawing correctly, because
+// "coat or bare neck" is one more channel that costs no colour and no
+// pixels, and it happens to separate the two coins that are otherwise most
+// alike in the set (nickel and quarter: both silver, both left-facing, both
+// wearing a queue tied with a ribbon).
+//
+//   s / cy / cx     the head's scale and where its origin lands, chosen so
+//                   the crown clears the inscription band and the jaw sits
+//                   about two thirds of the way down the field.
+//   iconS / iconCy / iconCx
+//                   at icon tier the neck and coat are dropped entirely, so
+//                   the head has to be re-centred and re-scaled to fill the
+//                   disc on its own. These are the values that put each
+//                   man's whole mass — beard, queue and all — centred in the
+//                   field at about 86% of its diameter.
+//   neck            where the collar crosses, in local units below the
+//                   origin. On the cent it sits BELOW the beard: at 15 the
+//                   coat ate the beard whole and the cent lost the one
+//                   feature that tells it from the other three.
+//   earS            the ear's relative size. Roosevelt's is a third larger
+//                   because the real dime's is, and because he has the least
+//                   hair — the ear is worth most on the head with least else.
+export const OBVERSE = {
+// HOW MUCH OF THE FIELD THE HEAD FILLS, measured off the photographs in
+// coloringbook/ref rather than guessed, because it is one of the four things
+// that actually transfers to a real coin — and it turned out to be the thing
+// this file had most wrong. Head height as a fraction of the disc:
+//
+//     cent     ~51%   a small head, high in the field, over a big coat
+//     nickel   ~49%   likewise — and the two of them look alike here, which
+//                     is fine, because copper against silver already
+//                     separates them and nothing else has to
+//     dime     ~66%   Roosevelt's head very nearly fills the coin
+//     quarter  ~64%   so does Washington's
+//
+// The previous version drew all four at about 60–66%, which made a cent look
+// like a quarter struck in copper. Lincoln lost a third of his size here and
+// the coin looks far more like itself for it.
+  penny: {
+    who: 'Lincoln', dir: 1, bare: false, neck: 38, ear: [0.95, -12, 0],
+    s: 0.65, cy: 39.3, cx: 6.0, iconS: 1.06, iconCy: 49.6, iconCx: 3.2,
+  },
+  nickel: {
+    who: 'Jefferson', dir: -1, bare: false, neck: 23, ear: [1.0, -16.6, -2.2],
+    s: 0.95, cy: 43.7, cx: -6.4, iconS: 0.95, iconCy: 43.7, iconCx: -6.4,
+  },
+  // THE DIME IS THE ONE MEASURED RATHER THAN COMPOSED. `cut` says its
+  // truncation is drawn INSIDE HEAD.Roosevelt — the neck ends in a straight
+  // angled cut that stops clear of the field, which the shared bareNeck()
+  // (which closes on the rim) cannot express. s/cx/cy are the three numbers
+  // that put the photograph's own coordinates on our disc: crown 3 units
+  // inside the rim, chin 57.6% of the diameter below it, nose and back of
+  // hair 63% apart.
+  // `hairLit` is the tone correction: at full tier the hair mass is filled in
+  // `cloth` — LIGHTER than the face — and carried by grooves, because that is
+  // what the photograph shows. It stays a darker block at `mid`, where there is
+  // no line work at all and tone is the only channel a 40px coin has left. See
+  // bust() for the four measured ratios this is sized to.
+  // `earMark` / `eyeMark` are the two features measured close enough off the
+  // photograph to deserve their own paths; the other three coins keep the
+  // shared ones.
+  dime: {
+    who: 'Roosevelt', dir: -1, bare: true, cut: true, neck: 17, hairLit: true,
+    ear: [1.07, -12.2, 3.0], eye: [5.8, -1.2],
+    earMark: EAR_ROOSEVELT, eyeMark: EYE_ROOSEVELT,
+    // icon repeats s/cy/cx rather than carrying its own numbers. The old icon
+    // trio was fitted to the OLD outline and, held against the traced mask
+    // with the corrected one, scored 0.816 where the full tier scores 0.981 —
+    // it was correcting for a head that no longer exists. With a measured
+    // outline the accuracy-optimal placement is the same at every tier, and
+    // the dime's glyph was never one of the two that get enlarged to read
+    // small (the cent's and the quarter's are).
+    s: 0.97, cy: 45.3, cx: -2.7, iconS: 0.97, iconCy: 45.3, iconCx: -2.7,
+  },
+  quarter: {
+    who: 'Washington', dir: -1, bare: true, neck: 17, ear: [0.8, -14, 3],
+    s: 1.0, cy: 47.5, cx: 5.4, iconS: 1.1, iconCy: 46.9, iconCx: -2.4,
+  },
+};
+
+// Both closures below finish on the FIELD circle with a real arc. That is
+// the alternative to a clipPath — which would need <defs> and a
+// document-unique id, and a hundred inlined coins would collide on it.
+// Closing the silhouette on the arc is exact, id-free and free at runtime.
+const onField = (rIn, deg) => {
+  const a = (deg * Math.PI) / 180;
+  return [50 + rIn * Math.cos(a), 50 + rIn * Math.sin(a)];
+};
+
+// A bare neck, cropped by the bottom of the field — how the dime, nickel
+// and quarter really end. `dir` decides which side of the disc the throat
+// is on, so the arc has to run the other way when the portrait is mirrored.
+function bareNeck(rIn, dir, s, cx, cy) {
+  // 70°/110° rather than 66°/114°: a neck of constant width reads as a
+  // plinth with a head on it, so it still WIDENS as it goes down, but the
+  // first pass widened it so far that the dime and the quarter both looked
+  // like a head resting on a pair of shoulders — which is exactly what the
+  // reference photographs say is NOT there.
+  const front = dir > 0 ? 70 : 110; // the throat, under the chin
+  const back = dir > 0 ? 110 : 70; // the nape
+  const [fx, fy] = onField(rIn, front);
+  const [bx, by] = onField(rIn, back);
+  const ox = 50 + cx;
+  const tFx = ox + dir * 12 * s;
+  const tFy = cy + 25 * s;
+  const tBx = ox - dir * 11 * s;
+  const tBy = cy + 21 * s;
+  return `<path d="M ${n2(tFx)} ${n2(tFy)}
+    C ${n2(ox + dir * 11 * s)} ${n2(cy + 38 * s)} ${n2(fx)} ${n2((fy + tFy) / 2)} ${n2(fx)} ${n2(fy)}
+    A ${rIn} ${rIn} 0 0 ${dir > 0 ? 1 : 0} ${n2(bx)} ${n2(by)}
+    C ${n2(bx)} ${n2((by + tBy) / 2)} ${n2(ox - dir * 18 * s)} ${n2(cy + 38 * s)} ${n2(tBx)} ${n2(tBy)} Z"/>`;
+}
+
+// THE COAT, and it is a bigger deal than it looks. On both the cent and the
+// nickel the bust occupies the bottom third of the coin and the shoulder
+// runs across it as a strong DIAGONAL — higher behind the head, dropping
+// away in front — because the sitter is turned. An earlier version drew a
+// symmetrical collar with two little wings and it read as a plinth: the
+// portrait looked mounted rather than worn.
+//
+// So: the neck is drawn first (same shape and same tone as a bare-necked
+// coin, so the throat is skin), then the garment is laid over it from the
+// collar down, in the lighter `cloth` tone, meeting the rim at two DIFFERENT
+// heights.
+function coat(rIn, dir, s, cx, cy, neck) {
+  const ox = 50 + cx;
+  const yN = cy + neck * s; // the collar, below the beard / below the queue
+  // Back shoulder high, front shoulder low. `dir > 0` faces right, so the
+  // back of the shoulder is on the LEFT of the disc and the angles swap.
+  const backA = dir > 0 ? 150 : 30;
+  const frontA = dir > 0 ? 36 : 144;
+  const [bx, by] = onField(rIn, backA);
+  const [fx, fy] = onField(rIn, frontA);
+  const nB = ox - dir * 14 * s; // where the collar crosses at the nape
+  const nF = ox + dir * 9 * s; // and at the throat, a little lower
+  const sweep = dir > 0 ? 0 : 1;
+  // A stroke that leaves the field draws ON THE RIM — §8: there is no clip
+  // path anywhere in this file, so nothing stops it. At the nickel's measured
+  // scale the lapel ran clear off the coin and read as a scratch, so it is
+  // shortened to stop inside the field. On the cent it already ends 5 units
+  // short, `lapT` is exactly 1, and that coin's string is unchanged byte for
+  // byte — which the containment sweep checks.
+  const lapT = (() => {
+    const lim = rIn - 1.5;
+    if (Math.hypot(nF + dir * 9 * s - 50, yN + 26 * s - 50) <= lim) return 1;
+    let lo = 0;
+    let hi = 1;
+    for (let i = 0; i < 40; i++) {
+      const m = (lo + hi) / 2;
+      if (Math.hypot(nF + dir * 9 * s * m - 50, yN + 26 * s * m - 50) > lim) hi = m;
+      else lo = m;
+    }
+    return lo;
+  })();
+  const lapel = `<path fill="none" d="M ${n2(nF)} ${n2(yN + 2 * s)}
+      C ${n2(nF + dir * 7 * s * lapT)} ${n2(yN + 9 * s * lapT)} ${n2(nF + dir * 10 * s * lapT)} ${n2(yN + 17 * s * lapT)} ${n2(nF + dir * 9 * s * lapT)} ${n2(yN + 26 * s * lapT)}"/>`;
+  // The shoulder catches the light along its top edge — the same curve as
+  // the garment's back seam, drawn once more in white. On a struck coin the
+  // cloth is the lowest relief on the whole face, and without this line it
+  // is the only thing that stays completely flat.
+  // …and it STOPS SHORT of the rim. Run all the way out to the field circle
+  // it read as a wire laid across the coat rather than as a lit edge.
+  const ex = nB + 0.55 * (bx - nB);
+  const ey = yN - 4 * s + 0.55 * (by - (yN - 4 * s));
+  const lit = `<path fill="none" stroke="#ffffff" stroke-width="${n2(1.2 * s)}" opacity="0.26"
+      stroke-linecap="round" d="M ${n2(nB)} ${n2(yN - 4 * s)}
+      C ${n2(nB - dir * 8 * s)} ${n2(yN + 7 * s)} ${n2(ex - dir * 3)} ${n2(ey - 7)} ${n2(ex)} ${n2(ey)}"/>`;
+  return `<path d="M ${n2(nB)} ${n2(yN - 4 * s)}
+      C ${n2(nB - dir * 8 * s)} ${n2(yN + 7 * s)} ${n2(bx - dir * 5)} ${n2(by - 15)} ${n2(bx)} ${n2(by)}
+      A ${rIn} ${rIn} 0 0 ${sweep} ${n2(fx)} ${n2(fy)}
+      C ${n2(fx + dir * 5)} ${n2(fy - 13)} ${n2(nF + dir * 8 * s)} ${n2(yN + 11 * s)} ${n2(nF)} ${n2(yN + 2 * s)}
+      Z"/>${lapel}${lit}`;
+}
+
+// Lincoln's bow tie, which the real cent has and which is worth the four
+// curves it costs: it is the one thing on the whole coin that is obviously
+// an ITEM OF CLOTHING, and a child who has spotted it once will look for it
+// again. Drawn in the head tone against the darker coat so it separates.
+const bowTie = (ox, y, k) =>
+  `<path d="M ${n2(ox - 8 * k)} ${n2(y - 3.4 * k)} L ${n2(ox - 2 * k)} ${n2(y)}
+     L ${n2(ox - 8 * k)} ${n2(y + 3.4 * k)} Z
+     M ${n2(ox + 8 * k)} ${n2(y - 3.4 * k)} L ${n2(ox + 2 * k)} ${n2(y)}
+     L ${n2(ox + 8 * k)} ${n2(y + 3.4 * k)} Z"/>
+   <circle cx="${n2(ox)}" cy="${n2(y)}" r="${n2(2.1 * k)}"/>`;
+
+// The portrait. Below `full`, the relief marks are DELETED rather than
+// shrunk — a 1.5-unit eye at 38px is a smudge that reads as damage, not as
+// a face. What is NEVER deleted is the outline, the queue or the beard,
+// because those are the four identities and they are all silhouette.
+//
+// At `icon` the neck and coat are dropped and the head is re-centred to fill
+// the disc on its own: Lincoln's beard hangs low off a wavy crown,
+// Jefferson's queue drops behind a big smooth mass, Washington's back is
+// three bumps with a bow behind it, and Roosevelt is the small tight one
+// with nothing sticking out anywhere. Mass, not detail, is what a 19px disc
+// can show.
+function bust(id, tier, p, dim, boxW) {
+  const o = OBVERSE[id];
+  const icon = tier === 'icon';
+  const s = icon ? o.iconS : o.s;
+  const cy = icon ? o.iconCy : o.cy;
+  const cx = icon ? o.iconCx : o.cx;
+  const head = icon ? p.deep : p.motif;
+  // THE CONTOUR, and it is the most valuable line in the file. Wave 1 shows
+  // ONE coin with no sibling, so the head's OUTLINE is what the child has to
+  // read — beard, queue, crop or wig. A flat fill on a mid-tone field left
+  // that outline soft, and a soft outline is a soft answer. One dark stroke
+  // around the whole silhouette sharpens exactly the thing being asked
+  // about, and it is honest to the object: a struck portrait stands proud of
+  // the field and catches a shadow all the way round.
+  //
+  // `/s` because the stroke is inside the scaled group; the sw() floor keeps
+  // it at least one device pixel on the 62px dime wave 1 draws.
+  const edgeW = n2(sw(1.15, 0.9, boxW) / s);
+  // The coat is LIGHTER than the head, not darker. With a dark garment under
+  // a mid-tone face the hierarchy inverted and the cent read as a mountain
+  // wearing a man; the head has to be the darkest thing on the coin because
+  // the head is the question. A bare neck is the same piece of person as the
+  // head, so it takes the head's tone and no seam is drawn across the throat.
+  const cloth = o.bare ? head : p.cloth;
+  // `fine` is a SECOND detail step inside `full`, taken from real pixels
+  // rather than from the tier: 130px is where a 1.3-unit line stops being a
+  // fleck and starts being a lock of hair. A teaching card at 190 gets the
+  // close-spaced work; the 84px recognition coin does not, and is cleaner
+  // for it.
+  const fine = boxW >= 130;
+  const r = RELIEF[o.who];
+  // THREE stroke groups, not two, and the middle one is the change this pass
+  // turns on. `groove` is DARK line work drawn in `deep` rather than `ink`:
+  // shadow in silver, not a line in pencil. It is what lets the dime's hair
+  // be the same tone as its face and still read as hair — and it goes down
+  // BEFORE the lit ridges, because on a struck coin the cut comes first and
+  // the light sits on what is left standing.
+  const grooves =
+    r.groove
+      ? `<g fill="none" stroke="${p.ink}" stroke-linecap="round" stroke-linejoin="round" opacity="0.33">
+           ${r.groove}${fine ? r.grooveFine || '' : ''}</g>`
+      : '';
+  // and the face modelling, at two thirds of the jaw's weight — heavy enough
+  // to be a shadow, light enough that no single one of them becomes a line
+  // drawn ON the face.
+  const modelling =
+    r.face
+      ? `<g fill="none" stroke="${p.ink}" stroke-linecap="round" stroke-linejoin="round" opacity="0.28">
+           ${r.face}${fine ? r.faceFine || '' : ''}</g>`
+      : '';
+  // THE TWO TONE REGIONS, and they are the phase-2b change. Everything else in
+  // this function draws LINES inside the outline; these draw AREAS, which is the
+  // only other thing a gradient-free format has. `plane` is the lit frontal
+  // planes in `cloth` — the same "fill a mass in a different palette tone" move
+  // that fixed the hair, applied to the forehead and the lip mass, both of which
+  // the photograph shows as flat plateaus near 1.15 of the cheek rather than as
+  // ramps. `shade` is the throat's cast shadow, filled ink at the modelling
+  // group's own opacity. Both are `full`-tier only, and both go down BEFORE the
+  // line work, because on a struck coin the plane is the form and the grooves
+  // and lights are cut into it. See RELIEF.Roosevelt for the scans that placed
+  // every edge on a measured tonal step.
+  // They go down between the head fill and the HAIR, so the hair's own dark
+  // contour draws over the forehead plane's back edge and that edge never
+  // becomes a second hairline.
+  const planes =
+    tier === 'full' && r.plane ? `<g fill="${p.cloth}" stroke="none">${r.plane}</g>` : '';
+  const shade =
+    tier === 'full' && r.shade ? `<g fill="${p.ink}" stroke="none" opacity="0.28">${r.shade}</g>` : '';
+  // `grooves`, `modelling`, `planes` and `shade` are EMPTY for the other three
+  // heads and are concatenated with no separator of their own, so the cent, the
+  // nickel and the quarter still emit byte for byte the string they emitted
+  // before.
+  const relief =
+    tier === 'full'
+      ? `${grooves}<g fill="none" stroke="${p.field}" stroke-linecap="round" stroke-linejoin="round" opacity="0.85">
+           ${r.base}${fine ? r.fine : ''}</g>${modelling}
+         <g fill="${p.ink}" stroke="${p.ink}" stroke-linecap="round" stroke-linejoin="round" opacity="0.42">
+           ${o.eyeMark || eye(o.eye)}${o.earMark || ear(...o.ear)}${r.dark || ''}</g>`
+      : '';
+  // THE BEVEL. The head is the highest relief on the coin, so it gets the
+  // full struck treatment: a lit edge up-left, a cast shadow down-right, the
+  // portrait over both. Computed in LOCAL units — the group is scaled by `s`
+  // and mirrored by `dir`, so a translate of (tx, ty) here lands at
+  // (dir·s·tx, s·ty) on screen, and the x term has to carry `dir` or the
+  // light comes from the wrong side on the three left-facing coins.
+  const ro = reliefOff(boxW) / s;
+  const rx = n2(o.dir * ro);
+  const ry = n2(ro);
+  const bevel =
+    `<path d="${HEAD[o.who]}" transform="translate(${n2(-rx)} ${n2(-ry)})" fill="#ffffff" stroke="none" opacity="${icon ? 0.5 : 0.42}"/>` +
+    (icon ? '' : `<path d="${HEAD[o.who]}" transform="translate(${rx} ${ry})" fill="${p.deep}" stroke="none"/>`);
+  const rIn = EDGE[id].field[tier];
+  // The neck is ALWAYS drawn, coat or no coat, and always in the head's own
+  // tone — the throat is skin on every one of the four real coins. The
+  // garment then goes over it from the collar down.
+  // …except on the dime, where `cut` says the neck is already part of the
+  // head path, ends in its own angled truncation and never reaches the rim.
+  const strokeW = sw(1.15, 0.9, boxW);
+  const below = icon || o.cut
+    ? ''
+    : `<g fill="${head}" stroke="${p.deep}" stroke-width="${strokeW}" stroke-linejoin="round">
+         ${bareNeck(rIn, o.dir, s, cx, cy)}</g>` +
+      (o.bare
+        ? ''
+        : `<g fill="${cloth}" stroke="${p.deep}" stroke-width="${strokeW}" stroke-linejoin="round" stroke-linecap="round">
+             ${coat(rIn, o.dir, s, cx, cy, o.neck)}</g>` +
+          (id === 'penny'
+            ? `<g fill="${p.deep}" stroke="none">${bowTie(50 + cx, cy + (o.neck + 3) * s, s)}</g>`
+            : ''));
+  // Hair (and Lincoln's beard) as a darker mass over the head, at every tier
+  // that is not `icon`. At icon the whole bust is one flat shape already, so
+  // a second tone inside a 19px disc would only be noise.
+  //
+  // The queue and the ribbon go in with the hair, because that is what they
+  // are. At icon they rejoin the single mass instead, so the silhouette keeps
+  // its tail.
+  const tail = TAIL[o.who] || '';
+  // THE HAIR'S TONE, and on the dime it is neither `hair` nor the face's own
+  // silver: at full tier it is `cloth`, the LIGHTEST tone in the palette below
+  // the field. Measured on ref/dime-obv-2.jpg against the cheek, the coin's hair
+  // runs 1.19 at the crown, 1.13 on the front lock, 1.08 at the back and 0.97
+  // where it tucks over the ear. Filling the mass in the face's own tone — what
+  // phase 1 did — pins all four of those at 1.00; `cloth` renders at 1.148 of
+  // `motif`, which lands inside that band, and the grooves then pull the
+  // over-ear patch back down where the coin is darker. No new colour: `cloth` is
+  // the coat tone the three silvers already share byte for byte, and the dime
+  // has no coat to spend it on.
+  // At `mid` there is no line work at all, so it keeps the darker fill,
+  // which is the only channel a 40px coin has left.
+  const hairFill = o.hairLit && tier === 'full' ? p.cloth : p.hair;
+  const hair = icon
+    ? ''
+    : `<g fill="${hairFill}" stroke="${p.deep}" stroke-width="${n2(sw(0.9, 0.7, boxW) / s)}" stroke-linejoin="round"><path d="${HAIR[o.who]}"/>${
+        o.who === 'Lincoln' ? `<path d="${BEARD}"/>` : ''
+      }${tail}</g>`;
+  return `<g${dim ? ' opacity="0.42"' : ''}>
+      ${below}
+      <g fill="${head}" stroke="${p.deep}" stroke-width="${edgeW}" stroke-linejoin="round"
+         transform="translate(${n2(50 + cx)} ${cy}) scale(${n2(o.dir * s)} ${n2(s)})">
+        ${bevel}<path d="${HEAD[o.who]}"/>${icon ? tail : ''}${planes}${shade}${hair}${relief}</g>
     </g>`;
 }
 
-// Reeding: n radial ticks around the rim. Coarse+thick vs fine+thin is the
-// difference a low-vision child can still see at 26px.
-function reeding(n, r0, r1, width, color) {
-  let out = '';
-  for (let i = 0; i < n; i++) {
-    const a = (i / n) * Math.PI * 2;
-    const cos = Math.cos(a);
-    const sin = Math.sin(a);
-    out += `<line x1="${(50 + r0 * cos).toFixed(1)}" y1="${(50 + r0 * sin).toFixed(1)}" x2="${(50 + r1 * cos).toFixed(1)}" y2="${(50 + r1 * sin).toFixed(1)}" stroke="${color}" stroke-width="${width}" stroke-linecap="butt"/>`;
+// ───────────────────────────────────────────────────────────── the reverses
+//
+// Why the reverse exists at all: four presidential profiles are four ovals
+// with a nose, and at 26px they are the same oval. Four reverse motifs are
+// not, IF each is given a distinct gesture rather than a distinct subject.
+// Every motif below is sized so its bounding shape reaches the field edge,
+// and every one of them is a FILL — no motif detail is ever a stroke, so
+// none of it can thin away.
+
+// ── The two buildings, and why they do not collide ───────────────────────
+//
+// Penny and nickel both carry a columned building, which is precisely the
+// trap an earlier candidate named: "a building" is not an identity. Two
+// passes tried to solve that by INVENTING a difference — squashing the
+// Memorial into a letterbox and stretching Monticello into a steeple with a
+// spire on top, so the two silhouettes could not be confused. It worked, and
+// it was wrong: real Monticello has no spire and is wider than it is tall.
+// Coins that are easy to tell apart from EACH OTHER and hard to match to the
+// objects fail the only test this file has.
+//
+// Drawn honestly, they separate anyway, on their ROOFLINE:
+//
+//   Lincoln Memorial  ONE FLAT LINE the entire width — a uniform colonnade
+//                     under a flat roof, over broad steps. Nothing whatever
+//                     rises above it.
+//   Monticello        a roofline in THREE STEPS each side, rising from low
+//                     end pavilions through taller wings to a triangular
+//                     PEDIMENT with a shallow DOME peaking behind it.
+//
+// Flat bar against stepped peak. Squint at either, or shrink it to 20px, and
+// the answer is still there — and it is the answer the real coin gives.
+//
+// WHAT THE PREVIOUS PASS GOT WRONG was believing the gesture was enough.
+// Measured at 190px it spent 5260 characters on Lincoln's head and 1847 on
+// the whole Memorial: a bar, seven slots and three little boxes for a
+// statue. At the size the app draws a teaching card that is not a building,
+// it is a token FOR a building, and a child looking at a real cent has
+// nothing to match. Both are rebuilt below to the standard of the obverses —
+// attic, entablature, architrave, a colonnade with lit shafts against a
+// shadowed recess, capitals, plinths, a terrace and steps on the Memorial;
+// dome, pediment, six-column portico, door, stepped wings, end-pavilion
+// colonnades, windows and a roof balustrade on Monticello.
+//
+// Each returns `{ solid, detail }`:
+//   solid   the outer massing, fills only and no colours of its own, so
+//           `struck()` can print it three times for the bevel.
+//   detail  everything INSIDE the massing — the dark recess between the
+//           columns, the lit leading edge of each shaft, a window, a step's
+//           line of light. It carries its own colours and goes on last.
+//
+// Every x below is bounded by the FIELD circle, radius 41 at full tier, plus
+// the bevel's extra unit down-right: at y = 68 the widest a slab can be is
+// ±35.7 about the centre line. An early pass let the steps reach y = 73 and
+// they sliced straight through the rim.
+
+// Penny — the Lincoln Memorial (Frank Gasparro, 1959–2008; pre-1989, so
+// public domain like the rest. NOT the 2010 Union Shield, which is not).
+// GESTURE: LOW AND WIDE — a long colonnade under a flat roof, over a
+// terrace that runs wider still.
+function lincolnMemorial(tier, p, boxW) {
+  if (tier === 'icon') {
+    // Four fat gaps still say "columns" rather than "wall", and at 20px the
+    // roof slab and the terrace are the whole identity.
+    const slots = [30, 43.3, 56.6, 70]
+      .map((x) => `<rect x="${n2(x - 2.1)}" y="47" width="4.2" height="14" fill="${p.field}"/>`)
+      .join('');
+    return {
+      solid:
+        '<rect x="20" y="32" width="60" height="7"/>' +
+        '<rect x="14" y="39" width="72" height="8"/>' +
+        '<rect x="17" y="47" width="66" height="14"/>' +
+        '<rect x="12" y="61" width="76" height="7"/>',
+      detail: slots,
+    };
   }
-  return out;
+  const full = tier === 'full';
+  // A second detail step INSIDE `full`, taken from real pixels rather than
+  // from the tier: at 130px a 1.2-unit dentil is a dentil, and at 84 it is a
+  // speck of dirt on the die.
+  const fine = full && boxW >= 130;
+
+  // The colonnade. Twelve columns is the real number and it is what makes
+  // the building read as the Memorial and not as "a temple"; eight is what
+  // a 54px coin can hold without the shafts merging.
+  const n = full ? 12 : 8;
+  const cw = full ? 3.3 : 3.6;
+  // The CENTRE bay is opened wide on purpose — that is where the seated
+  // figure goes, and an even 4-unit slot would hide him completely.
+  const centres = bayCentres(18.6, 81.4, n, full ? 6.4 : 4.4);
+
+  const solid =
+    // attic cornice, attic storey (the one that carries the state names)
+    '<rect x="19" y="27" width="62" height="2.4"/>' +
+    '<rect x="22" y="29.4" width="56" height="5.2"/>' +
+    // the entablature, overhanging both ways — the strongest horizontal on
+    // the coin and the reason the silhouette reads as a letterbox
+    '<rect x="15" y="34.6" width="70" height="4.6"/>' +
+    '<rect x="17" y="39.2" width="66" height="2.6"/>' +
+    // the colonnade block, then what it stands on
+    '<rect x="17.5" y="41.8" width="65" height="17.8"/>' +
+    '<rect x="16" y="59.6" width="68" height="2.6"/>' +
+    '<rect x="13.5" y="62.2" width="73" height="3"/>' +
+    // the stair down off the terrace — narrower than the terrace, which is
+    // both what the artwork shows and the only thing the field circle
+    // allows this far down the coin. It is a BROAD flight, not the 32-unit
+    // ledge it started as: at that width it read as a rail floating under
+    // the building rather than as the way in.
+    '<rect x="25" y="65.2" width="50" height="3.4"/>';
+
+  const detail =
+    // THE RECESS. Everything between the columns is the deepest cut in the
+    // die; drawing it as the brightest part of the building (which is what
+    // cutting field-coloured slots does) inverts the whole face.
+    `<rect x="18" y="41.8" width="64" height="17.8" fill="${p.deep}"/>` +
+    columns(centres, cw, 42.6, 58.4, p, fine) +
+    // capital band and plinth band: the shafts have to stop on something
+    `<rect x="18" y="41.8" width="64" height="1.5" fill="${p.motif}"/>` +
+    `<rect x="18" y="58.0" width="64" height="1.6" fill="${p.motif}"/>` +
+    ledge(18, 82, 41.8, 0.3) +
+    // the seated figure, lit against the shadow of his own bay. Full tier
+    // only: at 54px he is three pixels and reads as a chip in the die, so
+    // he is deleted rather than shrunk — the rule the portraits follow.
+    (full
+      ? `<g fill="${p.motif}"><circle cx="50" cy="46.6" r="1.2"/>
+           <path d="M 47.6 48.0 L 52.4 48.0 L 53.0 55.4 L 47.0 55.4 Z"/>
+           <rect x="45.8" y="55.4" width="8.4" height="2.6"/></g>
+         <rect x="47.0" y="48.0" width="0.9" height="7.4" fill="#ffffff" opacity="0.45"/>`
+      : '') +
+    // the attic divided into panels, and the dentil course under the
+    // entablature — the two pieces of fine masonry the cent actually shows
+    (fine
+      ? `<g fill="${p.deep}" opacity="0.5">${[26.6, 33.2, 39.8, 46.4, 53.0, 59.6, 66.2, 72.8]
+          .map((x) => `<rect x="${x}" y="29.9" width="0.9" height="4.2"/>`)
+          .join('')}</g>` +
+        `<g fill="${p.deep}" opacity="0.45">${Array.from({ length: 21 }, (_, i) => 17.5 + i * 3.2)
+          .map((x) => `<rect x="${n2(x)}" y="38.1" width="1.2" height="1.0"/>`)
+          .join('')}</g>` +
+        ledge(26, 74, 66.4, 0.3) +
+        ledge(26, 74, 67.5, 0.3)
+      : '') +
+    // and the lines of light and shadow that turn a stack of slabs into
+    // steps. Without these the whole base is one grey ramp.
+    ledge(22, 78, 29.4) +
+    ledge(15, 85, 34.6) +
+    shade(15, 85, 38.3, p, 0.4) +
+    ledge(16, 84, 59.6) +
+    shade(16, 84, 61.3, p) +
+    ledge(13.5, 86.5, 62.2) +
+    shade(13.5, 86.5, 64.3, p) +
+    ledge(25, 75, 65.2);
+  return { solid, detail };
 }
 
-// Rim treatments, one per denomination — the colour-free identity channel.
-const RIM = {
-  penny: () => '', // plain: a real penny has a smooth edge
-  nickel: (p) => `<circle cx="50" cy="50" r="44" fill="none" stroke="${p.rim}" stroke-width="1.8"/>`, // double ring
-  dime: (p) => reeding(30, 41.5, 47.5, 1.5, p.rim), // fine reeding, like the real dime
-  quarter: (p) => reeding(16, 40.5, 47.5, 4, p.rim), // bold reeding
+// Nickel — Monticello, as it sat on the 1938–2003 reverse.
+//
+// THIS IS THE SECOND TIME THIS MOTIF HAS BEEN DRAWN WRONG ON PURPOSE, and
+// the correction is worth writing down because the reasoning was seductive
+// both times. An earlier brief asked for Monticello "tall and centred with a
+// spire" so it could not be confused with the cent's Memorial. Held against
+// `coloringbook/ref/nickel-rev-2.png` that is simply not the building: real
+// Monticello is WIDE AND LOW — about twice as wide as it is tall — and it
+// has NO SPIRE AT ALL. What it has is a shallow dome over a triangular
+// pediment, a columned portico under that, and long wings STEPPING DOWN
+// either side to end pavilions.
+//
+// The invented gesture also was not needed, which is the part worth
+// remembering: accuracy and distinctiveness agree here.
+//
+//   Memorial     ONE FLAT ROOFLINE the whole width. Nothing rises above it.
+//   Monticello   a roofline in THREE STEPS each side, with a dome and a
+//                pediment peaking in the middle.
+//
+// Flat bar versus stepped peak is a real difference a child can check
+// against real change. Stretching Monticello into a steeple made our two
+// coins easy to tell apart from each other and harder to match to the
+// objects, which is the whole failure mode this file exists to avoid.
+function monticello(tier, p, boxW) {
+  if (tier === 'icon') {
+    // Wide and low, dome and pediment kept — they are the silhouette, and
+    // the stepped roofline survives 20px where a window does not.
+    return {
+      solid:
+        '<path d="M 42 34 A 8 7 0 0 1 58 34 Z"/>' +
+        '<path d="M 50 33.6 L 64 43 L 36 43 Z"/>' +
+        '<rect x="36" y="42" width="28" height="20"/>' +
+        '<rect x="23" y="46" width="54" height="16"/>' +
+        '<rect x="12" y="50" width="76" height="12"/>' +
+        '<rect x="12" y="62" width="76" height="6"/>',
+      detail: [41, 50, 59]
+        .map((x) => `<rect x="${x - 1.8}" y="45" width="3.6" height="17" fill="${p.field}"/>`)
+        .join(''),
+    };
+  }
+  const full = tier === 'full';
+  const fine = full && boxW >= 130;
+  // Six columns across the portico is the real count and it is what makes
+  // the centre read as a PORTICO rather than as a doorway; four is what a
+  // 54px coin can hold without them merging into a grey band.
+  const centres = bayCentres(38.5, 61.5, full ? 6 : 4, full ? 5.4 : 0);
+  // The end pavilions carry their own little colonnades on the real coin.
+  const padL = full ? [16.6, 20.2, 23.8] : [17.8, 22.4];
+  const padR = padL.map((x) => 100 - x);
+
+  // THE ROOFLINE, and the order of it is the whole motif. The first attempt
+  // at this had the wings' roof ABOVE the portico's, which flattens the
+  // middle and turns the dome into a hat floating over a shed. On the coin
+  // the levels run, lowest first: end pavilions → wings → portico cornice →
+  // pediment → dome. Five steps up to the middle, five back down.
+  const solid =
+    // the dome — SHALLOW, sitting behind the pediment. A half-ball on a
+    // drum is a mosque; this is a saucer with its bottom hidden.
+    '<path d="M 42 33.6 A 8 6.6 0 0 1 58 33.6 Z"/>' +
+    '<rect x="43.5" y="33" width="13" height="3.4"/>' +
+    // the pediment, and the portico cornice under it
+    '<path d="M 50 33.4 L 63.5 41.8 L 36.5 41.8 Z"/>' +
+    '<rect x="35.5" y="41.4" width="29" height="2.4"/>' +
+    '<rect x="37" y="43.8" width="26" height="18.2"/>' +
+    // the wings, a step lower
+    '<rect x="24" y="41.6" width="52" height="2.4"/>' +
+    '<rect x="25" y="44" width="50" height="18"/>' +
+    // the end pavilions, a step lower again, running the full width
+    '<rect x="12.5" y="45.6" width="75" height="2.4"/>' +
+    '<rect x="13.5" y="48" width="73" height="14"/>' +
+    // the long terrace the whole house stands on, and one step off it
+    '<rect x="12.5" y="62" width="75" height="2.6"/>' +
+    '<rect x="15" y="64.6" width="70" height="2"/>';
+
+  const detail =
+    // portico: a shadowed recess with lit columns in front of it
+    `<rect x="38" y="44" width="24" height="18" fill="${p.deep}"/>` +
+    columns(centres, full ? 2.6 : 3.0, 44.8, 61.4, p, fine) +
+    `<rect x="38" y="44" width="24" height="1.1" fill="${p.motif}"/>` +
+    `<rect x="38" y="61.2" width="24" height="0.8" fill="${p.motif}"/>` +
+    // the doorway under the middle of the portico
+    (full
+      ? `<rect x="47.2" y="51.4" width="5.6" height="10.6" fill="${p.motif}"/>` +
+        `<rect x="48.3" y="53" width="3.4" height="9" fill="${p.deep}"/>`
+      : '') +
+    // the end pavilions' own colonnades — the reason the ends of the real
+    // building are not blank walls
+    `<g fill="${p.deep}">${[...padL, ...padR]
+      .map((x) => `<rect x="${n2(x - 1.1)}" y="49.4" width="2.2" height="12.2"/>`)
+      .join('')}</g>` +
+    // wing windows: two tall ones a side, mirrored about the centre line
+    `<g fill="${p.deep}">${(full ? [29.5, 34] : [31.5])
+      .flatMap((x) => [x, 100 - x])
+      .map((x) => `<rect x="${n2(x - 1.5)}" y="47" width="3" height="8"/>`)
+      .join('')}</g>` +
+    (fine
+      ? // the balustrades along the wing roofs, the pediment's fanlight, and
+        // two lit ribs over the dome
+        `<g fill="${p.deep}" opacity="0.45">${[26.5, 29.5, 32.5, 35.5, 64.5, 67.5, 70.5, 73.5]
+          .map((x) => `<rect x="${x}" y="41.6" width="1" height="2.4"/>`)
+          .join('')}</g>` +
+        `<path d="M 47.8 41.6 A 2.2 2.2 0 0 1 52.2 41.6 Z" fill="${p.deep}" opacity="0.6"/>` +
+        `<g fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.3">
+           <path d="M 49.2 27.4 C 46.2 28.6 43.9 30.8 42.6 33.4"/>
+           <path d="M 50.8 27.4 C 53.8 28.6 56.1 30.8 57.4 33.4"/></g>` +
+        `<g fill="#ffffff" opacity="0.4">${[29.5, 34, 66, 70.5]
+          .map((x) => `<rect x="${n2(x - 1.9)}" y="46.3" width="3.8" height="0.6"/>`)
+          .join('')}</g>`
+      : '') +
+    ledge(35.5, 64.5, 41.4) +
+    ledge(24, 76, 41.6) +
+    ledge(12.5, 87.5, 45.6) +
+    shade(13.5, 86.5, 48, p, 0.4) +
+    ledge(12.5, 87.5, 62) +
+    shade(12.5, 87.5, 63.7, p) +
+    ledge(15, 85, 64.6);
+  return { solid, detail };
+}
+// Dime — the torch of the 1946 reverse, with the OLIVE branch on the left
+// and the OAK on the right. GESTURE: ONE TALL BAR. It is the only motif in
+// the set taller than it is wide, and at icon size the branches go entirely
+// and the bar plus its flame is the whole drawing.
+//
+// The two branches are drawn as two different plants, which they are: olive
+// leaves are smooth ovals, oak leaves are lobed and carry acorns. On the
+// real dime that asymmetry is obvious and it is the detail that stops the
+// motif reading as a wheat ear or a pair of wings.
+function torch(tier, p, boxW) {
+  // A flame with THREE tongues, not one blob: a single teardrop over a
+  // shaft is a lightbulb, and the tongues are what a child sees first.
+  const flame =
+    '<path d="M 50 10.6 C 52.6 15.4 54.0 18.8 54.4 21.6' +
+    ' C 55.4 19.8 56.0 17.8 56.0 15.8 C 58.4 20.4 58.8 25.6 57.2 29.6' +
+    ' C 55.8 33.2 53.0 35.4 50 35.4 C 47.0 35.4 44.2 33.2 42.8 29.6' +
+    ' C 41.2 25.6 41.6 20.4 44.0 15.8 C 44.0 17.8 44.6 19.8 45.6 21.6' +
+    ' C 46.0 18.8 47.4 15.4 50 10.6 Z"/>';
+  if (tier === 'icon') {
+    return {
+      solid: `${flame}<rect x="43.5" y="34" width="13" height="7" rx="1.6"/>
+        <rect x="45.5" y="40" width="9" height="38"/>
+        <rect x="41.5" y="76" width="17" height="7" rx="1.6"/>`,
+      detail: '',
+    };
+  }
+  const full = tier === 'full';
+  const fine = full && boxW >= 130;
+  const olive = (x, y, rot, k) =>
+    `<g transform="translate(${x} ${n2(y)}) rotate(${n1(rot)})"><ellipse cx="0" cy="0" rx="${n2(4.3 * k)}" ry="${n2(2.1 * k)}"/></g>`;
+  // An oak leaf is the same footprint with three bites taken out of each
+  // side. It costs one path and it is the difference between "two branches"
+  // and "the dime's two branches". Kept to three lobes and one decimal
+  // place on purpose: the whole branch is printed three times by struck(),
+  // so every character in this path is paid for six more times over.
+  const OAK =
+    'M -4.3 0.1 C -3.6 -1.3 -2.4 -1.1 -1.8 -0.2 C -1.2 -1.9 0.4 -2 1.1 -0.8' +
+    ' C 2.6 -1.6 4.3 -0.8 4.3 0.1 C 4.3 1 2.6 1.8 1.1 1' +
+    ' C 0.4 2.2 -1.2 2.1 -1.8 0.4 C -2.4 1.3 -3.6 1.5 -4.3 0.1 Z';
+  const oak = (x, y, rot, k) =>
+    `<g transform="translate(${x} ${n2(y)}) rotate(${n1(rot)}) scale(${n2(k)})"><path d="${OAK}"/></g>`;
+  // OLIVE LEFT, OAK RIGHT — the way round the real dime has them; the
+  // previous layout had it backwards, and it also hung every leaf off the
+  // INSIDE of its stem at a downward angle, which packed them into each
+  // other and came out as a centipede. Leaves belong OUTBOARD of the stem,
+  // pointing up and away, and spaced further apart than they are long.
+  const branch = (mirror) => {
+    const f = mirror ? -1 : 1;
+    const x = (v) => n2(50 + f * v);
+    // Seven leaves, big and OVERLAPPING. Overlap was never the problem — a
+    // real branch overlaps — the problem was direction; five small ones
+    // spaced clear of each other only turned the centipede into a fern.
+    const leaves = full ? 7 : 5;
+    const k = full ? 1.18 : 1.34;
+    let g = '';
+    for (let i = 0; i < leaves; i++) {
+      const t = i / (leaves - 1);
+      const ay = 72 - 41 * t; // up the stem
+      const ax = 14.6 + 2.6 * Math.sin(t * 2.4); // following its bow
+      const rot = 32 + 26 * t; // rising as it climbs
+      g += mirror
+        ? olive(x(ax + 4.8), ay - 1.6, rot, k)
+        : oak(x(ax + 4.8), ay - 1.6, -rot, k);
+    }
+    return `<path d="M ${x(13.2)} 76 C ${x(19)} 62 ${x(19.6)} 44 ${x(14.2)} 30
+      L ${x(16.9)} ${n2(29.6)} C ${x(22.4)} 44 ${x(21.8)} 63 ${x(16.0)} 77 Z"/>${g}`;
+  };
+  const solid = `${flame}
+    <rect x="43" y="34.5" width="14" height="6.5" rx="1.6"/>
+    <rect x="46" y="40" width="8" height="37"/>
+    <rect x="41" y="76" width="18" height="6.5" rx="1.6"/>
+    ${branch(false)}${branch(true)}`;
+  // THE INTERIOR. A flat bar is a chimney; the real torch is a fluted
+  // cylinder with two collars, and the fluting is what makes it metal.
+  const detail =
+    `<g fill="#ffffff" opacity="0.45"><rect x="46.6" y="40.4" width="0.9" height="36.2"/>
+       <rect x="52.5" y="40.4" width="0.9" height="36.2"/>
+       <rect x="43.4" y="35.1" width="0.9" height="5.4"/><rect x="41.4" y="76.6" width="0.9" height="5.4"/></g>` +
+    `<g fill="${p.deep}" opacity="0.5"><rect x="46" y="48" width="8" height="1.1"/>
+       <rect x="46" y="58" width="8" height="1.1"/><rect x="46" y="68" width="8" height="1.1"/>
+       <rect x="43" y="37.4" width="14" height="1.1"/><rect x="41" y="78.8" width="18" height="1.1"/></g>` +
+    (fine
+      ? `<g fill="none" stroke="#ffffff" stroke-width="0.9" opacity="0.42" stroke-linecap="round">
+           <path d="M 50 16.4 C 51.6 20.4 52.2 24.6 51.4 28.6"/>
+           <path d="M 46.6 22.6 C 45.4 26.0 45.4 29.4 46.6 32.2"/></g>` +
+        `<g fill="none" stroke="${p.field}" stroke-width="0.9" opacity="0.5">
+           <path d="M 36.6 74 C 39.4 60 39.8 44 36.0 32"/>
+           <path d="M 63.4 74 C 60.6 60 60.2 44 64.0 32"/></g>`
+      : '');
+  return { solid, detail };
+}
+
+// Quarter — the heraldic eagle of the 1932–1998 reverse, redrawn off
+// `coloringbook/ref/quarter-rev-2.png` (the older photograph was gold-toned
+// and dark, and the shape taken from it was wrong).
+//
+// THE SHAPE IS THE WHOLE JOB, and the previous version had it wrong in one
+// specific way: the wings were two nearly HORIZONTAL blades, which is a
+// gliding bird and reads as a moth or a swallow. On the coin the wings are
+// RAISED at the shoulder, arch up and out to a high wrist, and then the
+// primaries sweep DOWN AND OUT so the tips finish LOW and wide. That upward
+// arch into a downward sweep is the eagle's signature and it survives to
+// 26px, where feather lines and an eye do not.
+//
+// The other three corrections, all from the same photograph:
+//   · the BODY is a narrow vertical column of breast feathers — much
+//     narrower than the wing span. Drawn broad, it becomes a thorax.
+//   · the head is SMALL and set on a slender neck, with a hooked beak.
+//   · the bird stands on a horizontal bundle of ARROWS, heads to the left,
+//     and an olive wreath sweeps across the bottom under it. Neither is
+//     decoration: they are what makes the pose heraldic rather than a bird
+//     photographed in flight.
+//
+// There is NO SHIELD on this eagle. The Great Seal's eagle (drawn on the
+// dollar note in this same file) has one on its chest and the quarter's does
+// not, and adding one to look "more heraldic" would teach a coin that does
+// not exist.
+function eagle(tier, p, boxW) {
+  const full = tier === 'full';
+  const fine = full && boxW >= 130;
+  const x = (f, v) => n2(50 + f * v);
+  // THE WING. Leading edge up off the shoulder to a high wrist, then out and
+  // down; trailing edge back with four primary notches. The tips stop at
+  // ±35 at y ≈ 51, where the field circle (radius 40.5) still has ±40 to
+  // spare — an earlier pass put them at ±42 and they sliced the rim.
+  const wing = (f) => `<path d="M ${x(f, 4)} 29.5
+      C ${x(f, 12)} 24.6 ${x(f, 23)} 26.4 ${x(f, 30.4)} 34.6
+      C ${x(f, 34)} 38.8 ${x(f, 35.8)} 44.4 ${x(f, 35)} 50.6
+      Q ${x(f, 30.6)} 46.4 ${x(f, 28.4)} 51
+      Q ${x(f, 23.4)} 45.6 ${x(f, 20.6)} 49.6
+      Q ${x(f, 15.6)} 43.8 ${x(f, 13)} 47.4
+      Q ${x(f, 9.4)} 41.6 ${x(f, 7.4)} 44.4
+      C ${x(f, 4.6)} 39.4 ${x(f, 3.6)} 34 ${x(f, 4)} 29.5 Z"/>`;
+  // HEAD, NECK, BODY, LEGS. Small head, slender neck, narrow body: three
+  // separate widths, and getting them wrong in the same direction is what
+  // turned an earlier render into a duck sitting on a moth.
+  const rHead = tier === 'icon' ? 4.4 : 3.7;
+  const anatomy = `<circle cx="50" cy="22.4" r="${rHead}"/>
+    <path d="M 46.8 21.2 L ${tier === 'icon' ? 41.4 : 42.4} 22.8
+      C 44 23.4 44.6 24.4 44.2 25.6 L 47 25 Z"/>
+    <path d="M 47.4 25 L 52.6 25 L 54.2 31.6 L 45.8 31.6 Z"/>
+    <path d="M 45.6 29.6 C 43.9 37.6 44.3 47.6 46 55.6 L 54 55.6
+      C 55.7 47.6 56.1 37.6 54.4 29.6 Z"/>
+    <rect x="46.6" y="54" width="2.2" height="9"/><rect x="51.2" y="54" width="2.2" height="9"/>`;
+  // THE ARROW BUNDLE, heads to the LEFT and fletching to the RIGHT, exactly
+  // as the die cuts it. Two earlier passes drew arrows and both times a long
+  // shaft crossing the vertical body read as a dart; it is drawn here BEFORE
+  // the tail and in the same fill, so the union hides the crossing and what
+  // shows is a stub either side — which is what the coin shows.
+  const arrows = full
+    ? // ONE bundle, thick, with binding — not two thin parallel bars. Two
+      // bars and a point is the arrow GLYPH a child sees on a screen every
+      // day, and that is what the first version of this drew.
+      // Both ends FLARE rather than come to a point. A single triangle on
+      // the left end is the arrow glyph a child sees on a screen every day,
+      // and that is exactly what it read as; the real bundle shows several
+      // heads bunched together, which at coin size is a widened, ragged end.
+      `<rect x="31.5" y="61.4" width="37" height="4" rx="1.9"/>
+       <path d="M 33 59.9 L 28.2 61.5 L 28.2 66.3 L 33 67.9 Z"/>
+       <path d="M 67 60.9 L 73.4 62.3 L 73.4 65.5 L 67 66.9 Z"/>`
+    : '';
+  // The tail fan, short and behind the arrows.
+  const tail = `<path d="M 45.8 54 L 54.2 54 C 55.6 59 55.4 64 53.8 68.4
+      Q 51.9 66.4 50 68.6 Q 48.1 66.4 46.2 68.4 C 44.6 64 44.4 59 45.8 54 Z"/>`;
+  // THE OLIVE WREATH sweeping across the bottom, two branches meeting under
+  // the tail. Parametric, so the leaves sit ON the stem instead of beside it
+  // — the failure that made the last version's sprigs read as two small
+  // animals crouching under the bird.
+  const wreath = full
+    ? [1, -1]
+        .map((f) => {
+          const P0 = [50, 79.6];
+          const C = [50 + f * 16, 79.6];
+          const P1 = [50 + f * 28, 64.6];
+          const at = (t) => [
+            (1 - t) ** 2 * P0[0] + 2 * (1 - t) * t * C[0] + t * t * P1[0],
+            (1 - t) ** 2 * P0[1] + 2 * (1 - t) * t * C[1] + t * t * P1[1],
+          ];
+          let g = `<path d="M ${n2(P0[0])} ${n2(P0[1] + 1.6)}
+            Q ${n2(C[0])} ${n2(C[1] + 1.8)} ${n2(P1[0])} ${n2(P1[1] + 1.6)}
+            L ${n2(P1[0] - f * 2.6)} ${n2(P1[1] - 0.8)}
+            Q ${n2(C[0] - f * 1.8)} ${n2(C[1] - 1.6)} ${n2(P0[0])} ${n2(P0[1] - 1.6)} Z"/>`;
+          for (const t of [0.16, 0.32, 0.48, 0.64, 0.79, 0.92]) {
+            const [cx, cy] = at(t);
+            const rot = f * -(14 + 34 * t);
+            g += `<ellipse cx="0" cy="0" rx="5.2" ry="2.6"
+              transform="translate(${n2(cx + f * 2)} ${n2(cy - 3.6)}) rotate(${n1(rot)})"/>`;
+          }
+          return g;
+        })
+        .join('')
+    : '';
+  const solid = `${wing(1)}${wing(-1)}${arrows}${tail}${anatomy}${wreath}`;
+
+  // FEATHERS. Primaries radiating from each wrist out to the trailing edge,
+  // a row of coverts across each wing, and vertical lines down the breast.
+  // Vertical, always: the pass before last banded the body horizontally and
+  // the bird instantly became a moth — stacked cross-bars are what an insect
+  // abdomen looks like.
+  const primaries = full
+    ? [0, 1, 2, 3, 4]
+        .map((i) => {
+          const t = 0.14 + i * 0.2;
+          return [1, -1]
+            .map(
+              (f) =>
+                `<path d="M ${x(f, 10 + 12 * t)} ${n2(29.6 + 5 * t)} L ${x(f, 9 + 25 * t)} ${n2(43 + 4 * t)}"/>`
+            )
+            .join('');
+        })
+        .join('')
+    : '';
+  const coverts = fine
+    ? [1, -1]
+        .map(
+          (f) =>
+            `<path d="M ${x(f, 7)} 31.4 C ${x(f, 15)} 29.4 ${x(f, 23)} 32.4 ${x(f, 28)} 39"/>` +
+            `<path d="M ${x(f, 6)} 36.4 C ${x(f, 14)} 35 ${x(f, 21)} 38 ${x(f, 26)} 44"/>`
+        )
+        .join('')
+    : '';
+  const detail = full
+    ? // ONE DARK DOT, and it is worth more than any other mark on this
+      // motif: an eye is what turns a silhouette into an animal, and a child
+      // finds it before they find the wings.
+      `<circle cx="48.3" cy="21.7" r="1" fill="${p.deep}"/>` +
+      `<g fill="none" stroke="${p.field}" stroke-linecap="round" opacity="0.75">
+         <g stroke-width="1.4">${primaries}</g>
+         <g stroke-width="1.1">${coverts}</g>
+         <g stroke-width="1.2">
+           <path d="M 47 32 L 46.6 54"/><path d="M 50 32 L 50 54.6"/><path d="M 53 32 L 53.4 54"/>
+           <path d="M 47.4 56 L 46.9 66"/><path d="M 50 56 L 50 66.6"/><path d="M 52.6 56 L 53.1 66"/></g>
+         ${
+           fine
+             ? `<g stroke-width="0.9" opacity="0.85">
+                  <path d="M 45.6 36 q 4.4 1.8 8.8 0"/><path d="M 45.2 41 q 4.8 1.8 9.6 0"/>
+                  <path d="M 45 46 q 5 1.8 10 0"/><path d="M 45.2 51 q 4.8 1.8 9.6 0"/></g>
+                <g stroke-width="0.9"><path d="M 47.6 26.6 q 2.4 1.4 3.4 3"/></g>`
+             : ''
+         }
+       </g>` +
+      // the arrows' own bindings, so the bundle reads as a bundle
+      (fine
+        ? `<g fill="${p.deep}" opacity="0.5"><rect x="38" y="62.2" width="1.2" height="2"/>
+             <rect x="44" y="62.2" width="1.2" height="2"/><rect x="56" y="62.2" width="1.2" height="2"/>
+             <rect x="62" y="62.2" width="1.2" height="2"/></g>`
+        : '')
+    : '';
+  return { solid, detail };
+}
+const REVERSE_MOTIF = { penny: lincolnMemorial, nickel: monticello, dime: torch, quarter: eagle };
+
+// ──────────────────────────────────────────────────────────── the value
+//
+// Never drawn by default. No real US coin prints its value on its obverse,
+// and a printed "10¢" answers "which coin is this?" for the child — which is
+// the entire question wave 1 asks. `opts.value === true` turns it on as a
+// deliberate teaching scaffold.
+//
+// textLength + lengthAdjust="spacingAndGlyphs" locks the string to an exact
+// width so it cannot overflow the disc whichever font the device resolves.
+// The dime is the worst case in the set: the smallest coin carrying the
+// longest string, at 19px in a 26px wallet row.
+function valueText(id, p, halo) {
+  const face = FACE_VALUE[id];
+  const three = face.length > 2;
+  // data-face marks the ONE element carrying the value, so a recognition
+  // activity can target it and a test can measure it.
+  return `<text data-face="${face}" x="50" y="${three ? 66 : 67.5}" text-anchor="middle"
+      font-family="${FONT}" font-size="${three ? 44 : 50}" font-weight="800" fill="${p.ink}"
+      textLength="${three ? 72 : 56}" lengthAdjust="spacingAndGlyphs"
+      stroke="${halo}" stroke-width="4.5" paint-order="stroke">${face}</text>`;
+}
+
+// ─────────────────────────────────────────────────────────────── the disc
+// ─────────────────────────────────────────────────────────────────────────
+// WHERE THE WORDS GO — and this is a real identity channel, not decoration
+// ─────────────────────────────────────────────────────────────────────────
+// All four real obverses arrange their lettering differently, and a child
+// reads that ARRANGEMENT as part of the coin's overall look long before
+// reading a single word:
+//
+//   cent      IN GOD WE TRUST across the TOP; LIBERTY flat at the LEFT at
+//             eye height; the date flat at the RIGHT. Words on both flanks.
+//   nickel    nothing across the top at all. Two long arcs running down the
+//             two SIDES — IN GOD WE TRUST up the left, LIBERTY and then the
+//             date down the right.
+//   dime      LIBERTY arcing over the TOP-LEFT shoulder; IN GOD / WE TRUST
+//             in two small flat lines at the BOTTOM LEFT, right down on the
+//             truncation; the date at the BOTTOM RIGHT.
+//   quarter   LIBERTY across the TOP; IN GOD / WE TRUST flat at the LEFT;
+//             the date arced across the BOTTOM — the only one of the four
+//             with anything written along the bottom edge.
+//
+// The date is 1985 on every coin, which is not a fudge: in 1985 all four of
+// these exact designs were in circulation together.
+//
+// `min` is the box width in px below which a line is DELETED rather than
+// shrunk — a blurred word reads as damage to the coin, which is worse than
+// no word. The MAIN line survives to a much smaller coin than the secondary
+// ones, because the main line is where most of the layout signal is.
+const YEAR = '1985';
+const INSCRIPTION = {
+  penny: {
+    main: { kind: 'arc', text: 'IN GOD WE TRUST', size: 5.0, centre: 270 },
+    rest: [
+      { kind: 'flat', text: 'LIBERTY', x: 20, y: 53, size: 5.2 },
+      { kind: 'flat', text: YEAR, x: 78, y: 68, size: 5.4 },
+    ],
+  },
+  nickel: {
+    main: { kind: 'arc', text: 'LIBERTY', size: 5.6, centre: 332 },
+    rest: [
+      { kind: 'arc', text: 'IN GOD WE TRUST', size: 5.0, centre: 182, rev: true },
+      { kind: 'arc', text: YEAR, size: 5.2, centre: 18 },
+    ],
+  },
+  // The dime's LIBERTY was arcing over the TOP-LEFT SHOULDER at 236°. On the
+  // photograph it runs DOWN THE LEFT RIM: the L sits at 170° (just below the
+  // nine-o'clock line) and the Y at 241°, so the word is centred at about
+  // 206° and reads UPWARD. It is also much bigger than this file had it —
+  // measured cap height is 6.9 units on a 100-unit coin, where 5.8 was
+  // giving 4.2 — and the letters nearly touch the rim.
+  dime: {
+    main: { kind: 'arc', text: 'LIBERTY', size: 7.6, centre: 206 },
+    // …and the three small lines were each a few units out once the two
+    // faces could be laid over one another: the motto sits further left and
+    // a little higher, tight under the truncation, and the date rides up to
+    // meet it rather than sitting on the rim.
+    rest: [
+      { kind: 'flat', text: 'IN GOD', x: 28.2, y: 77, size: 4.4 },
+      { kind: 'flat', text: 'WE TRUST', x: 32.5, y: 82, size: 4.4 },
+      { kind: 'flat', text: YEAR, x: 69, y: 80.5, size: 5.0 },
+    ],
+  },
+  quarter: {
+    main: { kind: 'arc', text: 'LIBERTY', size: 6.2, centre: 270 },
+    rest: [
+      { kind: 'flat', text: 'IN GOD', x: 20, y: 61, size: 4.0 },
+      { kind: 'flat', text: 'WE TRUST', x: 21, y: 66, size: 4.0 },
+      { kind: 'arc', text: YEAR, size: 5.6, centre: 90, rev: true },
+    ],
+  },
 };
 
-// The value, locked to an exact width. textLength + spacingAndGlyphs means
-// the string cannot overflow the disc no matter which font resolves on the
-// device — the failure mode that would otherwise clip "25¢" to "25".
-function valueText(id, p) {
-  const face = FACE_VALUE[id];
-  // Two-character faces get the bigger type; three-character ones ("10¢",
-  // "25¢") are pushed as large as the inner field's chord allows, because
-  // the DIME is the worst case in the whole set — the smallest coin
-  // carrying the longest string, at ~19px in a 26px wallet row.
-  const three = face.length > 2;
-  const fontSize = three ? 43 : 48;
-  const textLength = three ? 70 : 55;
-  const baseline = three ? 65.5 : 67;
-  // data-face marks the ONE element that carries the face value, so a
-  // recognition activity can target it (hide it to ask "which coin?") and
-  // tests can measure it without catching the note's corner marks.
-  return `<text data-face="${face}" x="50" y="${baseline}" text-anchor="middle" font-family="${FONT}"
-      font-size="${fontSize}" font-weight="700" fill="${p.ink}"
-      textLength="${textLength}" lengthAdjust="spacingAndGlyphs">${face}</text>`;
+// Below 62px a 6-unit word is under 4 device px and turns to fur; below
+// 110px the secondary lines do the same. Wave 1 draws the quarter at 84 and
+// the dime at 62, so the main line — the one that carries the layout — is
+// present at exactly the size the recognition question asks.
+const INS_MAIN_MIN = 62;
+const INS_REST_MIN = 110;
+
+// THE REVERSE LEGEND, and it is the most legible lettering on any real coin.
+// Every US reverse names the country round one edge and the DENOMINATION IN
+// WORDS round the other, in letters twice the height of anything on the
+// obverse — ONE CENT, FIVE CENTS, ONE DIME, QUARTER DOLLAR. That is a real
+// thing a child can read on real change, and it is not the printed-numeral
+// scaffold `opts.value` turns on: a numeral answers wave 1's question, a
+// word on the reverse is the coin telling the truth about itself the way the
+// Mint struck it.
+//
+// The nickel is the odd one out and is drawn odd: E PLURIBUS UNUM over the
+// top, FIVE CENTS flat below the building, UNITED STATES OF AMERICA round
+// the bottom. The other three put the country on top and the denomination
+// underneath. That arrangement is one more true, checkable difference.
+//
+// One floor for all four (135px of coin), so a row drawn at one `size` never
+// shows the words on the quarter and not on the dime. Below it the words are
+// deleted rather than shrunk: a blurred word reads as damage to the coin.
+const REV_TEXT = {
+  penny: { top: 'UNITED STATES OF AMERICA', bottom: 'ONE CENT', bs: 6.6 },
+  nickel: {
+    top: 'E PLURIBUS UNUM',
+    bottom: 'UNITED STATES OF AMERICA',
+    bs: 4.5,
+    flat: { text: 'FIVE CENTS', x: 50, y: 74.5, size: 5.2 },
+  },
+  dime: { top: 'UNITED STATES OF AMERICA', bottom: 'ONE DIME', bs: 6.6 },
+  quarter: { top: 'UNITED STATES OF AMERICA', bottom: 'QUARTER DOLLAR', bs: 5.3 },
+};
+const REV_TEXT_MIN = 135;
+
+function inscriptionOf(id, side, rField, p, boxW) {
+  if (side === 'reverse') {
+    const t = REV_TEXT[id];
+    if (!t || boxW < REV_TEXT_MIN) return '';
+    return (
+      arcText(t.top, rField - 4.6, 4.5, p.ink, 0.6, 270) +
+      arcText(t.bottom, rField - t.bs * 0.9 - 0.6, t.bs, p.ink, 0.66, 90, true) +
+      (t.flat ? flatText(t.flat.text, t.flat.x, t.flat.y, t.flat.size, p.ink, 0.6) : '')
+    );
+  }
+  const spec = INSCRIPTION[id];
+  if (!spec || boxW < INS_MAIN_MIN) return '';
+  const lines = boxW >= INS_REST_MIN ? [spec.main, ...spec.rest] : [spec.main];
+  return lines
+    .map((l) =>
+      l.kind === 'arc'
+        ? arcText(l.text, rField - l.size * 0.85 - 0.7, l.size, p.ink, 0.62, l.centre, l.rev)
+        : flatText(l.text, l.x, l.y, l.size, p.ink, 0.62)
+    )
+    .join('');
 }
 
-function discSVG(id, box, attrs) {
+function discSVG(id, box, attrs, tier, side, withValue, size) {
   const p = PALETTE[id];
+  const e = EDGE[id];
+  const rField = e.field[tier];
+  const outline = outlineOf(id, box.w);
+  const reverse = side === 'reverse';
+  // The motif is dimmed under the value scaffold so the digits stay the
+  // first thing read — the whole reason the scaffold exists.
+  const rev = reverse ? REVERSE_MOTIF[id](tier, p, box.w) : null;
+  const motif = reverse
+    ? `<g${withValue ? ' opacity="0.42"' : ''}>${struck(rev.solid, p, tier, box.w, rev.detail)}</g>`
+    : bust(id, tier, p, withValue, box.w);
+  // The inscription sits just inside the field edge, the way a struck coin
+  // sets it — but only where the glyphs are big enough to be WORDS.
+  // LIBERTY is 7 characters and still reads at 120px; E PLURIBUS UNUM is 15
+  // and turns to a smear below about 150, so it has its own, higher, floor.
+  // A blurred word is worse than no word: it reads as damage.
+  // Drawn at mid tier as well as full, and that is a change of mind: the
+  // previous pass deleted every word below 96px, which meant the layout —
+  // channel 3, one of the four things that actually transfers — was absent
+  // from the only screen that asks the child to name a coin.
+  const inscription = tier === 'icon' ? '' : inscriptionOf(id, side, rField, p, box.w);
+  // Filled AND stroked in one element. Nothing the coin draws reaches past
+  // the field circle, so the contour never needs redrawing on top — and on a
+  // reeded coin the toothed path is the single longest string in the file,
+  // so emitting it twice was doubling the cost of the dime and the quarter.
   return `<svg viewBox="0 0 100 100" width="${box.w}" height="${box.h}" ${attrs} xmlns="http://www.w3.org/2000/svg">
-    <circle cx="50" cy="50" r="47" fill="${p.body}"/>
-    ${RIM[id](p)}
-    <circle cx="50" cy="50" r="47" fill="none" stroke="${p.rim}" stroke-width="2.4"/>
-    <circle cx="50" cy="50" r="41" fill="${p.field}"/>
-    <circle cx="50" cy="50" r="41" fill="none" stroke="${p.rim}" stroke-width="1.6"/>
-    ${paw(50, 49, 2.4, p.rim, 0.17)}
-    ${valueText(id, p)}
-    <path d="M18 34 A38 38 0 0 1 44 13" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.35"/>
+    ${outline} fill="${p.body}" stroke="${p.rim}" stroke-width="${sw(2.6, 1.0, box.w)}" stroke-linejoin="round"/>
+    <circle cx="50" cy="50" r="${rField}" fill="${p.field}"/>
+    ${motif}
+    <circle cx="50" cy="50" r="${rField}" fill="none" stroke="${p.rim}" stroke-width="${sw(1.4, 0.8, box.w)}"/>
+    ${inscription}
+    ${withValue ? valueText(id, p, p.field) : ''}
+    <path d="M ${P(43.4, 216)} A 43.4 43.4 0 0 1 ${P(43.4, 266)}" fill="none" stroke="#ffffff" stroke-width="${sw(3, 1.4, box.w)}" stroke-linecap="round" opacity="0.26"/>
   </svg>`;
 }
 
-function noteSVG(box, attrs) {
+// ─────────────────────────────────────────────────────────────── the note
+//
+// 31 CFR 411 governs colour illustrations of US currency: one-sided, and
+// either under 75% or over 150% of real linear size. Every clause is met by
+// construction and none of it by accident —
+//   ONE-SIDED   each call returns a single flat image of a single face.
+//               There is no path in this file that prints an obverse and a
+//               reverse back to back.
+//   SIZE        a real note is 155.96mm ≈ 589 CSS px wide; this one is
+//               size × 1.24, so it stays under 75% (442px) for any `size`
+//               below 356. The app's largest draw is 190 → 236px, 40%.
+//   NOT A COPY  the aspect ratio is 1.79:1 against a real note's 2.61:1,
+//               the palette is a stylised sage and cream rather than the
+//               note's grey-green, and every ornament is a drawn wave, not
+//               an engraved guilloche. It is a Paw Buck, not a dollar.
+function noteSVG(box, attrs, tier, side, withValue) {
   const p = PALETTE.buck;
+  const small = tier === 'icon';
+  const reverse = side === 'reverse';
+  // Hand-drawn scallop border: the thing that most obviously says "this is
+  // an illustration". Same wave the app's other art uses.
+  const wave = (y, amp, n, w0 = 10, w1 = 90) => {
+    const step = (w1 - w0) / n;
+    let d = `M ${w0} ${y}`;
+    for (let i = 0; i < n; i++) {
+      const x = w0 + i * step;
+      d += ` Q ${n2(x + step / 4)} ${n2(y - amp)} ${n2(x + step / 2)} ${y}`;
+      d += ` Q ${n2(x + (3 * step) / 4)} ${n2(y + amp)} ${n2(x + step)} ${y}`;
+    }
+    return d;
+  };
   const corner = (x, y) =>
-    `<text x="${x}" y="${y}" text-anchor="middle" font-family="${FONT}" font-size="11" font-weight="700" fill="${p.ink}" opacity="0.9">1</text>`;
+    `<text x="${x}" y="${y}" text-anchor="middle" font-family="${FONT}" font-size="10"
+       font-weight="800" fill="${p.ink}" opacity="0.85">1</text>`;
+  const frame = `<rect x="1.4" y="1.4" width="97.2" height="53.2" rx="5" fill="${p.body}"/>
+    ${small ? '' : `<path d="${wave(8, 2.2, 10)}" fill="none" stroke="${p.rim}" stroke-width="1" opacity="0.75"/>
+       <path d="${wave(48, 2.2, 10)}" fill="none" stroke="${p.rim}" stroke-width="1" opacity="0.75"/>`}
+    <rect x="5" y="5" width="90" height="46" rx="3.5" fill="none" stroke="${p.rim}" stroke-width="${sw(1.6, 0.8, box.w)}"/>
+    <rect x="1.4" y="1.4" width="97.2" height="53.2" rx="5" fill="none" stroke="${p.rim}" stroke-width="${sw(2.6, 1.0, box.w)}"/>
+    ${small ? '' : corner(12, 17) + corner(88, 47)}`;
+
+  if (!reverse) {
+    // OBVERSE: the portrait in an oval, the word ONE beside it. Washington's
+    // wig is the widest silhouette in the set, so it survives the shrink to
+    // a 30px note better than any of the others would.
+    return `<svg viewBox="0 0 100 56" width="${box.w}" height="${box.h}" ${attrs} xmlns="http://www.w3.org/2000/svg">
+      ${frame}
+      <ellipse cx="34" cy="28" rx="17" ry="21" fill="${p.field}" stroke="${p.rim}" stroke-width="${sw(1.4, 0.8, box.w)}"/>
+      <g transform="translate(34 30) scale(${small ? 0.62 : 0.55})" fill="${small ? p.deep : p.motif}">
+        ${struck(`<path d="${HEAD.Washington}"/>${TAIL.Washington}`, p, tier, box.w * 0.55)}</g>
+      <ellipse cx="34" cy="28" rx="17" ry="21" fill="none" stroke="${p.rim}" stroke-width="${sw(1.4, 0.8, box.w)}"/>
+      ${small || withValue ? '' : `<text x="72" y="33" text-anchor="middle" font-family="${FONT}" font-size="13"
+          font-weight="800" letter-spacing="1.6" fill="${p.ink}" opacity="0.8">ONE</text>
+        <path d="${wave(41, 1.6, 5, 58, 86)}" fill="none" stroke="${p.rim}" stroke-width="1" opacity="0.7"/>`}
+      ${withValue ? valueNote(p) : ''}
+    </svg>`;
+  }
+
+  // REVERSE: the Great Seal, both halves of it — the unfinished pyramid
+  // under its eye on the left, the eagle on the right, ONE between them.
+  // GESTURE: two roundels flanking a word, which is a shape no coin has.
+  const pyramid = small
+    ? '<path d="M 22 36 L 30 20 L 38 36 Z"/>'
+    : `<path d="M 21.5 37 L 30 21.5 L 38.5 37 Z"/>
+       <path d="M 26 27 L 30 19 L 34 27 Z"/>`;
+  const pyramidCut = small
+    ? ''
+    : `<g fill="none" stroke="${p.field}" stroke-width="1" opacity="0.75">
+         <path d="M 24.6 33.5 h 10.8"/><path d="M 26.3 30.3 h 7.4"/><path d="M 25.4 25.4 h 9.2"/></g>
+       <circle cx="30" cy="24.6" r="1.5" fill="${p.field}"/>`;
+  // The Great Seal's eagle: wings RAISED, which is the pose that tells it
+  // from the quarter's spread-wing eagle at a glance, and a shield on its
+  // chest. At icon size everything but the shield and a raised chevron goes.
+  const seal = small
+    ? '<path d="M 70 17 C 72.4 17 73.6 18.6 73.4 20.8 L 66.6 20.8 C 66.4 18.6 67.6 17 70 17 Z"/><path d="M 56 17.5 C 61.5 19.5 65 23 66.6 27 L 73.4 27 C 75 23 78.5 19.5 84 17.5 C 82.5 25 77.5 30 70 31.5 C 62.5 30 57.5 25 56 17.5 Z"/><path d="M 65.6 26 h 8.8 c 0.8 6.6 -1.8 11.4 -4.4 13.8 c -2.6 -2.4 -5.2 -7.2 -4.4 -13.8 Z"/>'
+    : `<path d="M 70 16.5 C 72.7 16.5 74 18.4 73.7 20.9 L 73.4 22.6 L 66.6 22.6 L 66.3 20.9 C 66 18.4 67.3 16.5 70 16.5 Z"/>
+       <path d="M 66.4 18.8 L 62 20.2 L 66.5 21.6 Z"/>
+       <path d="M 56.5 17 C 61.5 19 65.4 22.4 67.4 26.4 L 66.2 28.6 C 62.6 24.4 59 21.6 55.5 20.6 Z"/>
+       <path d="M 83.5 17 C 78.5 19 74.6 22.4 72.6 26.4 L 73.8 28.6 C 77.4 24.4 81 21.6 84.5 20.6 Z"/>
+       <path d="M 66.6 22 L 73.4 22 C 74.2 24.4 74.4 26 74.2 27.6 L 65.8 27.6 C 65.6 26 65.8 24.4 66.6 22 Z"/>
+       <path d="M 65.6 27 h 8.8 c 0.8 6.4 -1.8 11.2 -4.4 13.6 c -2.6 -2.4 -5.2 -7.2 -4.4 -13.6 Z"/>`;
+  // The shield's stripes and the pyramid's courses are CUTS, not massing, so
+  // they go on after the bevel rather than being printed three times with it.
+  const sealCut = small
+    ? ''
+    : `<g fill="none" stroke="${p.field}" stroke-width="0.9" opacity="0.85">
+         <path d="M 66 30.4 h 8"/><path d="M 67 33.6 h 6"/><path d="M 70 27.6 v 4"/></g>`;
   return `<svg viewBox="0 0 100 56" width="${box.w}" height="${box.h}" ${attrs} xmlns="http://www.w3.org/2000/svg">
-    <rect x="1.6" y="1.6" width="96.8" height="52.8" rx="6" fill="${p.body}" stroke="${p.rim}" stroke-width="2.4"/>
-    <rect x="6" y="6" width="88" height="44" rx="4" fill="none" stroke="${p.rim}" stroke-width="1.4"/>
-    <rect x="9" y="9" width="82" height="38" rx="3" fill="none" stroke="${p.rim}" stroke-width="0.8" stroke-dasharray="3 2.4"/>
-    ${corner(14, 19)}${corner(86, 44)}
-    <ellipse cx="54" cy="28" rx="29" ry="18" fill="${p.field}" stroke="${p.rim}" stroke-width="1.4"/>
-    <text data-face="${FACE_VALUE.buck}" x="54" y="39" text-anchor="middle" font-family="${FONT}" font-size="30" font-weight="700"
-      fill="${p.ink}" textLength="34" lengthAdjust="spacingAndGlyphs">${FACE_VALUE.buck}</text>
-    <circle cx="18" cy="30" r="9.5" fill="${p.field}" stroke="${p.rim}" stroke-width="1.4"/>
-    ${paw(18, 29.5, 0.62, p.rim, 0.95)}
+    ${frame}
+    <circle cx="30" cy="28" r="${small ? 15 : 16}" fill="${p.field}" stroke="${p.rim}" stroke-width="${sw(1.4, 0.8, box.w)}"/>
+    <circle cx="70" cy="28" r="${small ? 15 : 16}" fill="${p.field}" stroke="${p.rim}" stroke-width="${sw(1.4, 0.8, box.w)}"/>
+    <g${withValue ? ' opacity="0.42"' : ''}>${struck(`${pyramid}${seal}`, p, tier, box.w, `${pyramidCut}${sealCut}`)}</g>
+    ${small || withValue ? '' : `<text x="50" y="32" text-anchor="middle" font-family="${FONT}" font-size="9"
+        font-weight="800" letter-spacing="0.6" fill="${p.ink}" opacity="0.8">ONE</text>`}
+    ${withValue ? valueNote(p) : ''}
   </svg>`;
 }
+
+// The note's value scaffold sits dead centre, where both faces have room.
+const valueNote = (p) =>
+  `<text data-face="$1" x="50" y="37" text-anchor="middle" font-family="${FONT}" font-size="28"
+     font-weight="800" fill="${p.ink}" textLength="32" lengthAdjust="spacingAndGlyphs"
+     stroke="${p.body}" stroke-width="4.5" paint-order="stroke">$1</text>`;
+
+// ────────────────────────────────────────────────────────────────── public
 
 // Rendered pixel box for a denomination, given the paw quarter's diameter.
 // Exported so a caller can size the slot it drops the coin into without
@@ -173,13 +2489,24 @@ export function coinPx(denomId, size = 40) {
   return { w: round(size * s), h: round(size * s) };
 }
 
-// Screen-reader text. Mirrors the face so a recognition activity reads the
-// same thing a sighted child sees, and states the equivalence outright:
-// "Paw Buck, 100 cents". Callers may override with `opts.label`.
+// Screen-reader text, and it says what the coin REALLY is: "dime, 10 cents",
+// "dollar, 100 cents". It reads the same thing a sighted child is being
+// asked to recognise, and states the equivalence outright, which is the one
+// fact wave 1 turns on. The cent count is still taken from `DENOMS` — the
+// VALUES are real even in the wallet; only the names were fictional.
+//
+// Deliberately the SAME for both sides: to a child a coin is one object, and
+// a screen reader announcing "dime, reverse" would be naming a mechanic
+// nobody has been taught.
+//
+// A future Paw Bucks consumer — a wallet row, a piggy bank — should pass its
+// own `opts.label` ("Paw Dime, 10 paw cents") rather than change this.
 export function coinLabel(denomId) {
   const d = denomOf(denomId);
-  if (!d) return '';
-  return `${d.label}, ${d.cents} cent${d.cents === 1 ? '' : 's'}`;
+  if (!d || !COIN_NAME[denomId]) return '';
+  // "1 cent", not "1 cents": v1.53.2 made singular and plural agree
+  // everywhere a child reads or hears a count, and this is one of those.
+  return `${COIN_NAME[denomId]}, ${d.cents} cent${d.cents === 1 ? '' : 's'}`;
 }
 
 // coinSVG(denomId, size, opts) -> SVG string (pure; no DOM, no globals).
@@ -188,23 +2515,33 @@ export function coinLabel(denomId) {
 // is drawn at its true relative diameter, so passing one number to a whole
 // row keeps the size ordering honest. Use coinPx() if you need the box.
 //
-// Accessibility: by default the SVG carries role="img" and an aria-label
-// from coinLabel() ("Paw dime, 10 cents"). Two overrides:
-//   opts.label       — supply your own aria-label (e.g. "Take a paw dime back")
-//   opts.decorative  — true when the coin sits inside an element that
-//                      already names it; emits aria-hidden="true" and no
-//                      role, so a screen reader does not say it twice.
+//   opts.side       — 'obverse' (default, the portrait) or 'reverse'.
+//                     Anything else falls back to the obverse rather than
+//                     drawing nothing, because a typo in a screen must not
+//                     leave a hole where a coin was.
+//   opts.value      — true prints the face value: a teaching scaffold, OFF
+//                     by default (see valueText).
+//   opts.label      — override the aria-label.
+//   opts.decorative — true when the coin sits inside an element that already
+//                     names it; emits aria-hidden="true" and no role, so a
+//                     screen reader does not say it twice.
+//   opts.className  — extra class on the root <svg>.
+//
 // No tooltip attribute is ever emitted: tooltips do not exist on a tablet,
 // so every word a child needs is either drawn on the coin or in the label.
 export function coinSVG(denomId, size = 40, opts = {}) {
   const box = coinPx(denomId, size);
   if (!box || !FACE_VALUE[denomId]) return '';
+  const tier = tierOf(size);
+  const side = opts.side === 'reverse' ? 'reverse' : 'obverse';
   const a11y = opts.decorative
     ? 'aria-hidden="true" focusable="false"'
     : `role="img" aria-label="${esc(opts.label ?? coinLabel(denomId))}"`;
   const cls = opts.className ? ` ${opts.className}` : '';
-  const attrs = `class="coin-art${cls}" data-denom="${denomId}" data-value="${FACE_VALUE[denomId]}" ${a11y}`;
-  return denomId === 'buck' ? noteSVG(box, attrs) : discSVG(denomId, box, attrs);
+  const attrs = `class="coin-art${cls}" data-denom="${denomId}" data-value="${FACE_VALUE[denomId]}" data-side="${side}" data-tier="${tier}" ${a11y}`;
+  return denomId === 'buck'
+    ? noteSVG(box, attrs, tier, side, opts.value === true)
+    : discSVG(denomId, box, attrs, tier, side, opts.value === true, size);
 }
 
 function esc(s) {

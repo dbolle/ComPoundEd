@@ -11,7 +11,17 @@ import { DENOMS } from './money.js';
 import { FACE_VALUE } from '../art/coins.js';
 
 const CENTS = Object.fromEntries(DENOMS.map((d) => [d.id, d.cents]));
-const LABEL = Object.fromEntries(DENOMS.map((d) => [d.id, d.label]));
+// The REAL names, not the wallet's. Paw Buck / Paw Dime are the fictional
+// currency a child EARNS (CHARTER: fictitious forever); Money Math teaches
+// the money that exists — 2.MD.8 is about real US coins, and a child who
+// learns "Paw Dime" has learned a word that works nowhere else.
+const LABEL = {
+  penny: 'penny',
+  nickel: 'nickel',
+  dime: 'dime',
+  quarter: 'quarter',
+  buck: 'dollar',
+};
 // mix ids count quarters-dimes-nickels-pennies, biggest first.
 const MIX_ORDER = ['quarter', 'dime', 'nickel', 'penny'];
 
