@@ -2042,20 +2042,40 @@ function bust(id, tier, p, dim, boxW) {
 // public domain like the rest. NOT the 2010 Union Shield, which is not).
 // GESTURE: LOW AND WIDE — a long colonnade under a flat roof, over a
 // terrace that runs wider still.
+// MEASURED off `coloringbook/ref/penny-rev-2.png`, disc-normalised into this
+// viewBox (see coloringbook/reverses.md and `_rvtarget.json`). Every number
+// below is a reading, not a proportion someone liked:
+//
+//   COUNT   12 columns. Counted twice, from two independent references —
+//           the struck cent's capital band (12 maxima, pitch 4.94) and
+//           Gasparro's own plaster model in raw pixels (12 line PAIRS
+//           bounding 12 shafts). §15.1's gate is zero error and this is it.
+//   RHYTHM  centres 22.65 .. 76.97, mean gap 4.94, the centre (statue) bay
+//           5.85 on the coin. The plaster says 4.95 there, i.e. the two
+//           references DISAGREE about the widening by 0.18 of a gap; it is
+//           drawn at the coin's value and the disagreement is published.
+//   BANDS   the horizontal lines are what survives the shrink:
+//           30.5 roof · 32.1/37.8 attic frieze · 39.9 dentils ·
+//           41.85 colonnade top · 58.2 colonnade foot · 59.6 terrace ·
+//           65.0 the bottom step. The previous drawing ran 27.0 .. 68.6,
+//           i.e. 41.6 units tall where the coin's is 34.5 — 20% too tall,
+//           which is why it read as a letterbox rather than as a temple.
 function lincolnMemorial(tier, p, boxW) {
   if (tier === 'icon') {
-    // Four fat gaps still say "columns" rather than "wall", and at 20px the
-    // roof slab and the terrace are the whole identity.
-    const slots = [30, 43.3, 56.6, 70]
-      .map((x) => `<rect x="${n2(x - 2.1)}" y="47" width="4.2" height="14" fill="${p.field}"/>`)
-      .join('');
+    // §15.4: at 20px the twelve columns are one device pixel each. Four fat
+    // field-coloured gaps are NOT a colonnade at that size, they are the
+    // stripe artefact §16.1 names — measured, the old icon carried 1.9x the
+    // reference's along-band variation. The colonnade becomes ONE BLOCK,
+    // lifted to `motif` against the `deep` slabs above and below it, which
+    // is the one thing the blurred photograph does say: the colonnade zone
+    // is LIGHTER than the roof and terrace shadows that frame it.
     return {
       solid:
-        '<rect x="20" y="32" width="60" height="7"/>' +
-        '<rect x="14" y="39" width="72" height="8"/>' +
-        '<rect x="17" y="47" width="66" height="14"/>' +
-        '<rect x="12" y="61" width="76" height="7"/>',
-      detail: slots,
+        '<rect x="20.5" y="31" width="59" height="7.5"/>' +
+        '<rect x="16" y="38.5" width="68" height="4"/>' +
+        '<rect x="17.5" y="42.5" width="65" height="16"/>' +
+        '<rect x="13.5" y="58.5" width="73" height="7"/>',
+      detail: `<rect x="18.5" y="43.5" width="63" height="14" fill="${p.motif}"/>`,
     };
   }
   const full = tier === 'full';
@@ -2064,75 +2084,78 @@ function lincolnMemorial(tier, p, boxW) {
   // speck of dirt on the die.
   const fine = full && boxW >= 130;
 
-  // The colonnade. Twelve columns is the real number and it is what makes
-  // the building read as the Memorial and not as "a temple"; eight is what
-  // a 54px coin can hold without the shafts merging.
-  const n = full ? 12 : 8;
-  const cw = full ? 3.3 : 3.6;
-  // The CENTRE bay is opened wide on purpose — that is where the seated
-  // figure goes, and an even 4-unit slot would hide him completely.
-  const centres = bayCentres(18.6, 81.4, n, full ? 6.4 : 4.4);
+  // TWELVE columns, and the count is a hard gate (§15.1): it is what makes
+  // this building the Memorial. At `mid` a column is 1.5 device pixels, so
+  // the honest answer is not "draw eight" — eight is a DIFFERENT BUILDING —
+  // it is to draw none and let the colonnade be one lit block, exactly as
+  // at `icon`. `bayCentres(19.9, 80.1, 12, 0.91)` reproduces the measured
+  // centres to a worst error of 0.13 of one gap.
+  const centres = bayCentres(19.9, 80.1, 12, 0.91);
 
   const solid =
-    // attic cornice, attic storey (the one that carries the state names)
-    '<rect x="19" y="27" width="62" height="2.4"/>' +
-    '<rect x="22" y="29.4" width="56" height="5.2"/>' +
+    // roof cornice and the attic storey (the one carrying the state names)
+    '<rect x="20.5" y="30.5" width="59" height="1.6"/>' +
+    '<rect x="21.5" y="32.1" width="57" height="5.7"/>' +
     // the entablature, overhanging both ways — the strongest horizontal on
-    // the coin and the reason the silhouette reads as a letterbox
-    '<rect x="15" y="34.6" width="70" height="4.6"/>' +
-    '<rect x="17" y="39.2" width="66" height="2.6"/>' +
-    // the colonnade block, then what it stands on
-    '<rect x="17.5" y="41.8" width="65" height="17.8"/>' +
-    '<rect x="16" y="59.6" width="68" height="2.6"/>' +
-    '<rect x="13.5" y="62.2" width="73" height="3"/>' +
-    // the stair down off the terrace — narrower than the terrace, which is
-    // both what the artwork shows and the only thing the field circle
-    // allows this far down the coin. It is a BROAD flight, not the 32-unit
-    // ledge it started as: at that width it read as a rail floating under
-    // the building rather than as the way in.
-    '<rect x="25" y="65.2" width="50" height="3.4"/>';
+    // the coin and the reason the silhouette reads low and wide
+    '<rect x="16.5" y="37.8" width="67" height="2.1"/>' +
+    '<rect x="17.2" y="39.9" width="65.6" height="1.95"/>' +
+    // the colonnade block, then what it stands on. The terrace is a single
+    // broad platform on the coin, not a flight of narrow ledges: the stair
+    // is cut INTO it up the middle and shows as lines, not as a silhouette.
+    '<rect x="17.5" y="41.85" width="64.8" height="16.35"/>' +
+    '<rect x="16" y="58.2" width="68" height="1.4"/>' +
+    '<rect x="13.5" y="59.6" width="73" height="5.4"/>';
 
   const detail =
     // THE RECESS. Everything between the columns is the deepest cut in the
     // die; drawing it as the brightest part of the building (which is what
-    // cutting field-coloured slots does) inverts the whole face.
-    `<rect x="18" y="41.8" width="64" height="17.8" fill="${p.deep}"/>` +
-    columns(centres, cw, 42.6, 58.4, p, fine) +
+    // cutting field-coloured slots does) inverts the whole face. It is a
+    // HALF-STRENGTH deep, not a full one: measured, a full-strength recess
+    // gave the band 1.6x the reference's along-band variation at 84px.
+    `<g fill="${p.deep}" opacity="0.55"><rect x="18" y="41.85" width="64" height="16.35"/></g>` +
+    // Drawn at `mid` as well as `full`, and that is the measurement talking:
+    // at a 42px box the reference's colonnade band still carries 0.20 of
+    // along-band high-frequency energy, and a flat block carried 0.00. Twelve
+    // aliased columns are closer to the coin than eight clean ones or none.
+    columns(centres, 3.0, 43.2, 57.2, p, fine) +
     // capital band and plinth band: the shafts have to stop on something
-    `<rect x="18" y="41.8" width="64" height="1.5" fill="${p.motif}"/>` +
-    `<rect x="18" y="58.0" width="64" height="1.6" fill="${p.motif}"/>` +
-    ledge(18, 82, 41.8, 0.3) +
-    // the seated figure, lit against the shadow of his own bay. Full tier
-    // only: at 54px he is three pixels and reads as a chip in the die, so
-    // he is deleted rather than shrunk — the rule the portraits follow.
+    `<rect x="18" y="41.85" width="64" height="1.35" fill="${p.motif}"/>` +
+    `<rect x="18" y="57.2" width="64" height="1.0" fill="${p.motif}"/>` +
+    ledge(18, 82, 41.85, 0.3) +
+    // the seated figure, lit against the shadow of his own bay. The bay he
+    // sits in is the widened centre one — measured 5.85 against a 4.94 mean
+    // — and he is 3.0 units wide, which is what fits it. Full tier only: at
+    // 54px he is three pixels and reads as a chip in the die.
     (full
-      ? `<g fill="${p.motif}"><circle cx="50" cy="46.6" r="1.2"/>
-           <path d="M 47.6 48.0 L 52.4 48.0 L 53.0 55.4 L 47.0 55.4 Z"/>
-           <rect x="45.8" y="55.4" width="8.4" height="2.6"/></g>
-         <rect x="47.0" y="48.0" width="0.9" height="7.4" fill="#ffffff" opacity="0.45"/>`
+      ? `<g fill="${p.motif}"><circle cx="50" cy="45.9" r="1.0"/>
+           <path d="M 48.3 47.1 L 51.7 47.1 L 52.2 53.4 L 47.8 53.4 Z"/>
+           <rect x="47.2" y="53.4" width="5.6" height="2.1"/></g>
+         <rect x="48.3" y="47.1" width="0.7" height="6.3" fill="#ffffff" opacity="0.45"/>`
       : '') +
     // the attic divided into panels, and the dentil course under the
     // entablature — the two pieces of fine masonry the cent actually shows
     (fine
-      ? `<g fill="${p.deep}" opacity="0.5">${[26.6, 33.2, 39.8, 46.4, 53.0, 59.6, 66.2, 72.8]
-          .map((x) => `<rect x="${x}" y="29.9" width="0.9" height="4.2"/>`)
+      ? `<g fill="${p.deep}" opacity="0.5">${[27.0, 33.2, 39.4, 45.6, 51.8, 58.0, 64.2, 70.4]
+          .map((x) => `<rect x="${x}" y="32.9" width="0.8" height="4.0"/>`)
           .join('')}</g>` +
-        `<g fill="${p.deep}" opacity="0.45">${Array.from({ length: 21 }, (_, i) => 17.5 + i * 3.2)
-          .map((x) => `<rect x="${n2(x)}" y="38.1" width="1.2" height="1.0"/>`)
+        `<g fill="${p.deep}" opacity="0.45">${Array.from({ length: 21 }, (_, i) => 17.6 + i * 3.15)
+          .map((x) => `<rect x="${n2(x)}" y="40.1" width="1.1" height="0.9"/>`)
           .join('')}</g>` +
-        ledge(26, 74, 66.4, 0.3) +
-        ledge(26, 74, 67.5, 0.3)
+        // the broad central staircase, cut into the terrace
+        `<g fill="${p.deep}" opacity="0.4">${[60.6, 61.9, 63.2]
+          .map((y) => `<rect x="31" y="${y}" width="38" height="0.6"/>`)
+          .join('')}</g>`
       : '') +
     // and the lines of light and shadow that turn a stack of slabs into
     // steps. Without these the whole base is one grey ramp.
-    ledge(22, 78, 29.4) +
-    ledge(15, 85, 34.6) +
-    shade(15, 85, 38.3, p, 0.4) +
-    ledge(16, 84, 59.6) +
-    shade(16, 84, 61.3, p) +
-    ledge(13.5, 86.5, 62.2) +
-    shade(13.5, 86.5, 64.3, p) +
-    ledge(25, 75, 65.2);
+    ledge(21, 79, 30.5) +
+    ledge(16.5, 83.5, 37.8) +
+    shade(16.5, 83.5, 39.0, p, 0.4) +
+    ledge(16, 84, 58.2) +
+    shade(16, 84, 59.0, p) +
+    ledge(13.5, 86.5, 59.6) +
+    shade(13.5, 86.5, 63.9, p);
   return { solid, detail };
 }
 
@@ -2159,31 +2182,48 @@ function lincolnMemorial(tier, p, boxW) {
 // against real change. Stretching Monticello into a steeple made our two
 // coins easy to tell apart from each other and harder to match to the
 // objects, which is the whole failure mode this file exists to avoid.
+// MEASURED off THREE independent photographs — `nickel-rev-2.png`,
+// `nickel-rev.jpg` and `nickel-rev-proof.png` (checked genuinely different:
+// NCC 0.13 and −0.39 against each other) — disc-normalised into this viewBox.
+//
+//   COUNT   FOUR portico columns, at 39.07 / 46.23 / 53.90 / 61.20, mean gap
+//           7.38. All three references give four and they agree on the
+//           centres to 0.6 of a unit. THIS DRAWING PREVIOUSLY HAD SIX, and
+//           six is not a near miss: §15.1's threshold is zero. What the
+//           extra two were is identifiable — between the four columns sit
+//           three openings, a plain one either side of a CENTRE DOOR under
+//           its own little pediment, and drawing those openings as columns
+//           is exactly how a colonnade acquires phantom members.
+//   BANDS   dome 30.5..38.0 · pediment apex 34.5, base 41.5 · wing roofline
+//           40.8 with the balustrade from 39.0 · cornices 43.3 and 45.4 ·
+//           building foot 58.5 · terrace 60.4.
+//   WIDTHS  dome 41..59 · pediment 33..67 · portico 35..65 · main block
+//           18..82 · ends 12.8..86.1 · terrace 11.5..88.5.
 function monticello(tier, p, boxW) {
   if (tier === 'icon') {
-    // Wide and low, dome and pediment kept — they are the silhouette, and
-    // the stepped roofline survives 20px where a window does not.
+    // §15.4 again: three field-coloured slots at 23px are stripes, not a
+    // portico. One lit block under the pediment, and the stepped roofline —
+    // dome, pediment, wings, ends — carries the whole identity.
     return {
       solid:
-        '<path d="M 42 34 A 8 7 0 0 1 58 34 Z"/>' +
-        '<path d="M 50 33.6 L 64 43 L 36 43 Z"/>' +
-        '<rect x="36" y="42" width="28" height="20"/>' +
-        '<rect x="23" y="46" width="54" height="16"/>' +
-        '<rect x="12" y="50" width="76" height="12"/>' +
-        '<rect x="12" y="62" width="76" height="6"/>',
-      detail: [41, 50, 59]
-        .map((x) => `<rect x="${x - 1.8}" y="45" width="3.6" height="17" fill="${p.field}"/>`)
-        .join(''),
+        '<path d="M 42 33 A 8 6.4 0 0 1 58 33 Z"/>' +
+        '<path d="M 50 33 L 64 42 L 36 42 Z"/>' +
+        '<rect x="35" y="41" width="30" height="18"/>' +
+        '<rect x="20" y="43.5" width="60" height="15.5"/>' +
+        '<rect x="12" y="46" width="76" height="13"/>' +
+        '<rect x="11.5" y="59" width="77" height="4"/>',
+      detail: `<rect x="36.5" y="43" width="27" height="15" fill="${p.motif}"/>`,
     };
   }
   const full = tier === 'full';
   const fine = full && boxW >= 130;
-  // Six columns across the portico is the real count and it is what makes
-  // the centre read as a PORTICO rather than as a doorway; four is what a
-  // 54px coin can hold without them merging into a grey band.
-  const centres = bayCentres(38.5, 61.5, full ? 6 : 4, full ? 5.4 : 0);
-  // The end pavilions carry their own little colonnades on the real coin.
-  const padL = full ? [16.6, 20.2, 23.8] : [17.8, 22.4];
+  // FOUR columns across the portico. Measured centres 39.07 46.23 53.90
+  // 61.20; `bayCentres(35.4, 64.6, 4, 0.4)` puts them at 39.05 46.25 53.75
+  // 60.95, a worst error of 0.25 units = 0.034 of one gap.
+  const centres = bayCentres(35.4, 64.6, 4, 0.4);
+  // The end bays carry a pilaster either side of their window on the real
+  // coin — two marks a side, not the three-bar colonnade drawn before.
+  const padL = [15.0, 19.6];
   const padR = padL.map((x) => 100 - x);
 
   // THE ROOFLINE, and the order of it is the whole motif. The first attempt
@@ -2193,65 +2233,74 @@ function monticello(tier, p, boxW) {
   // pediment → dome. Five steps up to the middle, five back down.
   const solid =
     // the dome — SHALLOW, sitting behind the pediment. A half-ball on a
-    // drum is a mosque; this is a saucer with its bottom hidden.
-    '<path d="M 42 33.6 A 8 6.6 0 0 1 58 33.6 Z"/>' +
-    '<rect x="43.5" y="33" width="13" height="3.4"/>' +
-    // the pediment, and the portico cornice under it
-    '<path d="M 50 33.4 L 63.5 41.8 L 36.5 41.8 Z"/>' +
-    '<rect x="35.5" y="41.4" width="29" height="2.4"/>' +
-    '<rect x="37" y="43.8" width="26" height="18.2"/>' +
-    // the wings, a step lower
-    '<rect x="24" y="41.6" width="52" height="2.4"/>' +
-    '<rect x="25" y="44" width="50" height="18"/>' +
-    // the end pavilions, a step lower again, running the full width
-    '<rect x="12.5" y="45.6" width="75" height="2.4"/>' +
-    '<rect x="13.5" y="48" width="73" height="14"/>' +
-    // the long terrace the whole house stands on, and one step off it
-    '<rect x="12.5" y="62" width="75" height="2.6"/>' +
-    '<rect x="15" y="64.6" width="70" height="2"/>';
+    // drum is a mosque; this is a saucer with its bottom hidden. Measured
+    // 41..59 wide, top 30.5, base 38.0.
+    '<path d="M 41 38 A 9 7.5 0 0 1 59 38 Z"/>' +
+    '<rect x="43" y="37" width="14" height="3"/>' +
+    // the pediment (apex 34.5, base 41.5, 33..67) and the portico cornice
+    '<path d="M 50 34.5 L 67 41.5 L 33 41.5 Z"/>' +
+    '<rect x="34" y="41.5" width="32" height="1.8"/>' +
+    '<rect x="35" y="43.3" width="30" height="15.2"/>' +
+    // the wings, a step lower: roofline 40.8, cornice 43.3, block 18..82
+    '<rect x="19" y="40.8" width="62" height="2.5"/>' +
+    '<rect x="18" y="43.3" width="64" height="15.2"/>' +
+    // the end bays, a step lower again, running the full measured width
+    '<rect x="12.8" y="45.4" width="74.4" height="2.2"/>' +
+    '<rect x="13.4" y="47.6" width="73.2" height="10.9"/>' +
+    // the long terrace the whole house stands on
+    '<rect x="11.5" y="58.5" width="77" height="1.9"/>';
 
   const detail =
-    // portico: a shadowed recess with lit columns in front of it
-    `<rect x="38" y="44" width="24" height="18" fill="${p.deep}"/>` +
-    columns(centres, full ? 2.6 : 3.0, 44.8, 61.4, p, fine) +
-    `<rect x="38" y="44" width="24" height="1.1" fill="${p.motif}"/>` +
-    `<rect x="38" y="61.2" width="24" height="0.8" fill="${p.motif}"/>` +
-    // the doorway under the middle of the portico
+    // portico: a shadowed recess with FOUR lit columns in front of it. The
+    // recess is half-strength `deep` for the same reason as the cent's —
+    // full strength put more along-band variance in the drawing than the
+    // photograph has.
+    `<g fill="${p.deep}" opacity="0.55"><rect x="35.6" y="43.3" width="28.8" height="15.2"/></g>` +
+    columns(centres, 2.6, 44.4, 57.6, p, fine) +
+    `<rect x="35.6" y="43.3" width="28.8" height="1.1" fill="${p.motif}"/>` +
+    `<rect x="35.6" y="57.6" width="28.8" height="0.9" fill="${p.motif}"/>` +
+    // THE CENTRE DOOR, under its own small pediment — the feature that the
+    // six-column version was drawing as two extra columns. It sits in the
+    // MIDDLE opening, between columns 2 and 3, and the two openings either
+    // side of it are plain.
     (full
-      ? `<rect x="47.2" y="51.4" width="5.6" height="10.6" fill="${p.motif}"/>` +
-        `<rect x="48.3" y="53" width="3.4" height="9" fill="${p.deep}"/>`
+      ? `<rect x="47.5" y="49" width="5.5" height="9.5" fill="${p.motif}"/>` +
+        `<rect x="48.4" y="50.4" width="3.7" height="8.1" fill="${p.deep}"/>` +
+        `<path d="M 46.9 48.6 L 50.25 46.2 L 53.6 48.6 Z" fill="${p.motif}"/>` +
+        `<g fill="${p.deep}" opacity="0.5"><rect x="41.5" y="49" width="3.5" height="9.5"/>
+           <rect x="55.5" y="49" width="3.5" height="9.5"/></g>`
       : '') +
-    // the end pavilions' own colonnades — the reason the ends of the real
-    // building are not blank walls
-    `<g fill="${p.deep}">${[...padL, ...padR]
-      .map((x) => `<rect x="${n2(x - 1.1)}" y="49.4" width="2.2" height="12.2"/>`)
+    // the end bays: a pilaster either side of each end window
+    `<g fill="${p.deep}" opacity="0.6">${[...padL, ...padR]
+      .map((x) => `<rect x="${n2(x - 0.9)}" y="48.4" width="1.8" height="9.8"/>`)
       .join('')}</g>` +
-    // wing windows: two tall ones a side, mirrored about the centre line
-    `<g fill="${p.deep}">${(full ? [29.5, 34] : [31.5])
+    // wing windows: two tall ones a side at the MEASURED 22.0 and 30.5,
+    // spanning 49.0..55.5 — the pair drawn before sat at 29.5 and 34, both
+    // crowded against the portico with the outer half of each wing blank.
+    `<g fill="${p.deep}">${(full ? [22.0, 30.5] : [26.5])
       .flatMap((x) => [x, 100 - x])
-      .map((x) => `<rect x="${n2(x - 1.5)}" y="47" width="3" height="8"/>`)
+      .map((x) => `<rect x="${n2(x - 1.5)}" y="49" width="3" height="6.5"/>`)
       .join('')}</g>` +
     (fine
-      ? // the balustrades along the wing roofs, the pediment's fanlight, and
-        // two lit ribs over the dome
-        `<g fill="${p.deep}" opacity="0.45">${[26.5, 29.5, 32.5, 35.5, 64.5, 67.5, 70.5, 73.5]
-          .map((x) => `<rect x="${x}" y="41.6" width="1" height="2.4"/>`)
+      ? // the balustrade along the wing roofs (measured top 39.0), the
+        // pediment's fanlight, and two lit ribs over the dome
+        `<g fill="${p.deep}" opacity="0.45">${[21, 24, 27, 30, 33, 67, 70, 73, 76, 79]
+          .map((x) => `<rect x="${x}" y="39" width="1" height="1.8"/>`)
           .join('')}</g>` +
-        `<path d="M 47.8 41.6 A 2.2 2.2 0 0 1 52.2 41.6 Z" fill="${p.deep}" opacity="0.6"/>` +
+        `<path d="M 47.9 41.5 A 2.1 2.1 0 0 1 52.1 41.5 Z" fill="${p.deep}" opacity="0.6"/>` +
         `<g fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.3">
-           <path d="M 49.2 27.4 C 46.2 28.6 43.9 30.8 42.6 33.4"/>
-           <path d="M 50.8 27.4 C 53.8 28.6 56.1 30.8 57.4 33.4"/></g>` +
-        `<g fill="#ffffff" opacity="0.4">${[29.5, 34, 66, 70.5]
-          .map((x) => `<rect x="${n2(x - 1.9)}" y="46.3" width="3.8" height="0.6"/>`)
+           <path d="M 49.2 31.0 C 46.4 32.0 44.2 34.2 43.0 36.6"/>
+           <path d="M 50.8 31.0 C 53.6 32.0 55.8 34.2 57.0 36.6"/></g>` +
+        `<g fill="#ffffff" opacity="0.4">${[22, 30.5, 69.5, 78]
+          .map((x) => `<rect x="${n2(x - 1.9)}" y="48.3" width="3.8" height="0.6"/>`)
           .join('')}</g>`
       : '') +
-    ledge(35.5, 64.5, 41.4) +
-    ledge(24, 76, 41.6) +
-    ledge(12.5, 87.5, 45.6) +
-    shade(13.5, 86.5, 48, p, 0.4) +
-    ledge(12.5, 87.5, 62) +
-    shade(12.5, 87.5, 63.7, p) +
-    ledge(15, 85, 64.6);
+    ledge(34, 66, 41.5) +
+    ledge(19, 81, 40.8) +
+    ledge(12.8, 87.2, 45.4) +
+    shade(13.4, 86.6, 47.6, p, 0.4) +
+    ledge(11.5, 88.5, 58.5) +
+    shade(11.5, 88.5, 59.9, p);
   return { solid, detail };
 }
 // Dime — the torch of the 1946 reverse, with the OLIVE branch on the left
@@ -2266,17 +2315,31 @@ function monticello(tier, p, boxW) {
 function torch(tier, p, boxW) {
   // A flame with THREE tongues, not one blob: a single teardrop over a
   // shaft is a lightbulb, and the tongues are what a child sees first.
+  // MEASURED off `coloringbook/ref/dime-rev-2.jpg`. ⚠️ THE DIME HAS ONE
+  // REFERENCE, NOT TWO: `dime-rev.jpg` and `dime-rev-2.jpg` are the same
+  // photograph at 486px and 733px diameter (mean |delta| 5.35 grey levels,
+  // NCC 0.9931, where two different coins run 40-90 apart). Everything below
+  // is single-source and is labelled as such in coloringbook/reverses.md.
+  //
+  // The previous torch ran y 10.6 .. 82.5, i.e. 71.9 units for a torch the
+  // coin draws in 58.5 (20.0 .. 78.5) — 23% too tall — and its FOOT was 18
+  // units wide against a measured 6.6. An 18-unit foot is a lamp base; the
+  // dime's torch ends in a small turned knob.
+  //   flame  20.0 .. 33.0, 43.5 .. 57.0 wide
+  //   head   33.0 .. 38.5, 44.5 .. 55.4
+  //   shaft  38.5 .. 69.6, 45.6 .. 54.0   (bands at 40.5 and 53.4)
+  //   foot   69.6 .. 78.4, 6.8 wide at its widest
   const flame =
-    '<path d="M 50 10.6 C 52.6 15.4 54.0 18.8 54.4 21.6' +
-    ' C 55.4 19.8 56.0 17.8 56.0 15.8 C 58.4 20.4 58.8 25.6 57.2 29.6' +
-    ' C 55.8 33.2 53.0 35.4 50 35.4 C 47.0 35.4 44.2 33.2 42.8 29.6' +
-    ' C 41.2 25.6 41.6 20.4 44.0 15.8 C 44.0 17.8 44.6 19.8 45.6 21.6' +
-    ' C 46.0 18.8 47.4 15.4 50 10.6 Z"/>';
+    '<path d="M 50 20 C 52.09 22.52 53.22 24.3 53.54 25.77' +
+    ' C 54.34 24.82 54.82 23.78 54.82 22.73 C 56.75 25.14 57.07 27.86 55.79 29.96' +
+    ' C 54.66 31.84 52.41 33 50 33 C 47.59 33 45.34 31.84 44.21 29.96' +
+    ' C 42.93 27.86 43.25 25.14 45.18 22.73 C 45.18 23.78 45.66 24.82 46.46 25.77' +
+    ' C 46.78 24.3 47.91 22.52 50 20 Z"/>';
   if (tier === 'icon') {
     return {
-      solid: `${flame}<rect x="43.5" y="34" width="13" height="7" rx="1.6"/>
-        <rect x="45.5" y="40" width="9" height="38"/>
-        <rect x="41.5" y="76" width="17" height="7" rx="1.6"/>`,
+      solid: `${flame}<rect x="44.5" y="32.6" width="11" height="6" rx="1.5"/>
+        <rect x="45.6" y="38" width="8.8" height="32"/>
+        <rect x="46.6" y="69.4" width="6.8" height="9" rx="1.6"/>`,
       detail: '',
     };
   }
@@ -2306,42 +2369,48 @@ function torch(tier, p, boxW) {
     // Seven leaves, big and OVERLAPPING. Overlap was never the problem — a
     // real branch overlaps — the problem was direction; five small ones
     // spaced clear of each other only turned the centipede into a fern.
+    // MEASURED: each branch occupies y 27..63 and reaches 33 units out from
+    // the centre line, where the previous parameterisation ran y 31..72 and
+    // reached only 27 — it hung down past the foot of the torch and into the
+    // space E PLURIBUS UNUM occupies on the coin, and it stopped short at the
+    // rim end. Seven leaves a side, which is what the one reference shows,
+    // with the count flagged LOW CONFIDENCE in reverses.md.
     const leaves = full ? 7 : 5;
-    const k = full ? 1.18 : 1.34;
+    const k = full ? 1.22 : 1.38;
     let g = '';
     for (let i = 0; i < leaves; i++) {
       const t = i / (leaves - 1);
-      const ay = 72 - 41 * t; // up the stem
-      const ax = 14.6 + 2.6 * Math.sin(t * 2.4); // following its bow
-      const rot = 32 + 26 * t; // rising as it climbs
+      const ay = 62 - 33 * t; // up the stem
+      const ax = 15.4 + 3.4 * Math.sin(t * 2.4); // following its bow
+      const rot = 30 + 28 * t; // rising as it climbs
       g += mirror
-        ? olive(x(ax + 4.8), ay - 1.6, rot, k)
-        : oak(x(ax + 4.8), ay - 1.6, -rot, k);
+        ? olive(x(ax + 6.2), ay - 1.6, rot, k)
+        : oak(x(ax + 6.2), ay - 1.6, -rot, k);
     }
-    return `<path d="M ${x(13.2)} 76 C ${x(19)} 62 ${x(19.6)} 44 ${x(14.2)} 30
-      L ${x(16.9)} ${n2(29.6)} C ${x(22.4)} 44 ${x(21.8)} 63 ${x(16.0)} 77 Z"/>${g}`;
+    return `<path d="M ${x(13.0)} 65 C ${x(18.4)} 54 ${x(19.2)} 41 ${x(14.6)} 27.5
+      L ${x(17.2)} ${n2(27.2)} C ${x(22.0)} 41 ${x(21.2)} 55 ${x(15.8)} 66 Z"/>${g}`;
   };
   const solid = `${flame}
-    <rect x="43" y="34.5" width="14" height="6.5" rx="1.6"/>
-    <rect x="46" y="40" width="8" height="37"/>
-    <rect x="41" y="76" width="18" height="6.5" rx="1.6"/>
+    <rect x="44.5" y="33" width="10.9" height="5.5" rx="1.5"/>
+    <rect x="45.6" y="38.5" width="8.4" height="31.1"/>
+    <rect x="45.8" y="69.6" width="8.4" height="3" rx="1"/>
+    <rect x="48.3" y="72.6" width="3.4" height="4"/>
+    <rect x="46.6" y="76" width="6.8" height="2.4" rx="1"/>
     ${branch(false)}${branch(true)}`;
   // THE INTERIOR. A flat bar is a chimney; the real torch is a fluted
   // cylinder with two collars, and the fluting is what makes it metal.
   const detail =
-    `<g fill="#ffffff" opacity="0.45"><rect x="46.6" y="40.4" width="0.9" height="36.2"/>
-       <rect x="52.5" y="40.4" width="0.9" height="36.2"/>
-       <rect x="43.4" y="35.1" width="0.9" height="5.4"/><rect x="41.4" y="76.6" width="0.9" height="5.4"/></g>` +
-    `<g fill="${p.deep}" opacity="0.5"><rect x="46" y="48" width="8" height="1.1"/>
-       <rect x="46" y="58" width="8" height="1.1"/><rect x="46" y="68" width="8" height="1.1"/>
-       <rect x="43" y="37.4" width="14" height="1.1"/><rect x="41" y="78.8" width="18" height="1.1"/></g>` +
+    `<g fill="#ffffff" opacity="0.45"><rect x="46.4" y="38.9" width="0.8" height="30.3"/>
+       <rect x="52.4" y="38.9" width="0.8" height="30.3"/>
+       <rect x="44.9" y="33.6" width="0.8" height="4.4"/></g>` +
+    // the two BANDS the coin actually cuts, at the measured 40.5 and 53.4
+    `<g fill="${p.deep}" opacity="0.5"><rect x="45.6" y="40.1" width="8.4" height="1.0"/>
+       <rect x="45.6" y="53.0" width="8.4" height="1.0"/>
+       <rect x="44.5" y="36.9" width="10.9" height="1.0"/></g>` +
     (fine
-      ? `<g fill="none" stroke="#ffffff" stroke-width="0.9" opacity="0.42" stroke-linecap="round">
-           <path d="M 50 16.4 C 51.6 20.4 52.2 24.6 51.4 28.6"/>
-           <path d="M 46.6 22.6 C 45.4 26.0 45.4 29.4 46.6 32.2"/></g>` +
-        `<g fill="none" stroke="${p.field}" stroke-width="0.9" opacity="0.5">
-           <path d="M 36.6 74 C 39.4 60 39.8 44 36.0 32"/>
-           <path d="M 63.4 74 C 60.6 60 60.2 44 64.0 32"/></g>`
+      ? `<g fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.42" stroke-linecap="round">
+           <path d="M 50 21.6 C 51.2 23.7 51.6 25.9 51.0 28.0"/>
+           <path d="M 47.3 24.8 C 46.6 26.6 46.6 28.4 47.3 29.9"/></g>`
       : '');
   return { solid, detail };
 }
@@ -2350,13 +2419,16 @@ function torch(tier, p, boxW) {
 // `coloringbook/ref/quarter-rev-2.png` (the older photograph was gold-toned
 // and dark, and the shape taken from it was wrong).
 //
-// THE SHAPE IS THE WHOLE JOB, and the previous version had it wrong in one
-// specific way: the wings were two nearly HORIZONTAL blades, which is a
-// gliding bird and reads as a moth or a swallow. On the coin the wings are
-// RAISED at the shoulder, arch up and out to a high wrist, and then the
-// primaries sweep DOWN AND OUT so the tips finish LOW and wide. That upward
-// arch into a downward sweep is the eagle's signature and it survives to
-// 26px, where feather lines and an eye do not.
+// THE SHAPE IS THE WHOLE JOB, and it has now been wrong twice in the same
+// direction: the wings were drawn as two nearly HORIZONTAL blades finishing
+// at y ≈ 51. MEASURED off the reference disc-normalised into this viewBox,
+// the wings SPAN 12..88 and HANG TO y 64 — the leading edge leaves the
+// shoulder at y 27.6, runs out and slightly down to a tip at ±37.5 by y 39,
+// and the primaries then fall away to their lowest point at ±28.6, y 64,
+// almost level with the arrow bundle. The old wing left the whole lower half
+// of its own region bare: the band X 18..44, Y 33..53 measured 0.83 of the
+// field where the coin measures 0.62, the largest tone error of the four
+// reverses and a shape error, not a colour one.
 //
 // The other three corrections, all from the same photograph:
 //   · the BODY is a narrow vertical column of breast feathers — much
@@ -2375,29 +2447,32 @@ function eagle(tier, p, boxW) {
   const full = tier === 'full';
   const fine = full && boxW >= 130;
   const x = (f, v) => n2(50 + f * v);
-  // THE WING. Leading edge up off the shoulder to a high wrist, then out and
-  // down; trailing edge back with four primary notches. The tips stop at
-  // ±35 at y ≈ 51, where the field circle (radius 40.5) still has ±40 to
-  // spare — an earlier pass put them at ±42 and they sliced the rim.
-  const wing = (f) => `<path d="M ${x(f, 4)} 29.5
-      C ${x(f, 12)} 24.6 ${x(f, 23)} 26.4 ${x(f, 30.4)} 34.6
-      C ${x(f, 34)} 38.8 ${x(f, 35.8)} 44.4 ${x(f, 35)} 50.6
-      Q ${x(f, 30.6)} 46.4 ${x(f, 28.4)} 51
-      Q ${x(f, 23.4)} 45.6 ${x(f, 20.6)} 49.6
-      Q ${x(f, 15.6)} 43.8 ${x(f, 13)} 47.4
-      Q ${x(f, 9.4)} 41.6 ${x(f, 7.4)} 44.4
-      C ${x(f, 4.6)} 39.4 ${x(f, 3.6)} 34 ${x(f, 4)} 29.5 Z"/>`;
+  // THE WING, to the measured envelope. Widest point ±37.5 at y 39.5, where
+  // the field circle (41.0) still has ±39.4 to spare, and the lowest primary
+  // ±28.6 at y 64, where it has ±38.1.
+  const wing = (f) => `<path d="M ${x(f, 4.5)} 27.6
+      C ${x(f, 14)} 25.4 ${x(f, 26)} 27.2 ${x(f, 32.6)} 31.6
+      C ${x(f, 36.4)} 34.2 ${x(f, 37.6)} 36.6 ${x(f, 37.5)} 39.6
+      C ${x(f, 37.3)} 45.4 ${x(f, 36.2)} 51.2 ${x(f, 33.4)} 56.4
+      C ${x(f, 31.8)} 59.4 ${x(f, 30.4)} 62 ${x(f, 28.6)} 64
+      Q ${x(f, 27.2)} 59 ${x(f, 24.8)} 60.4
+      Q ${x(f, 23.4)} 55.6 ${x(f, 21)} 56.6
+      Q ${x(f, 19.6)} 52 ${x(f, 17)} 52.6
+      C ${x(f, 13.4)} 47.6 ${x(f, 9.4)} 40.6 ${x(f, 6.4)} 33.6
+      C ${x(f, 5.6)} 31.6 ${x(f, 4.8)} 29.4 ${x(f, 4.5)} 27.6 Z"/>`;
   // HEAD, NECK, BODY, LEGS. Small head, slender neck, narrow body: three
   // separate widths, and getting them wrong in the same direction is what
-  // turned an earlier render into a duck sitting on a moth.
-  const rHead = tier === 'icon' ? 4.4 : 3.7;
-  const anatomy = `<circle cx="50" cy="22.4" r="${rHead}"/>
-    <path d="M 46.8 21.2 L ${tier === 'icon' ? 41.4 : 42.4} 22.8
-      C 44 23.4 44.6 24.4 44.2 25.6 L 47 25 Z"/>
-    <path d="M 47.4 25 L 52.6 25 L 54.2 31.6 L 45.8 31.6 Z"/>
-    <path d="M 45.6 29.6 C 43.9 37.6 44.3 47.6 46 55.6 L 54 55.6
-      C 55.7 47.6 56.1 37.6 54.4 29.6 Z"/>
-    <rect x="46.6" y="54" width="2.2" height="9"/><rect x="51.2" y="54" width="2.2" height="9"/>`;
+  // turned an earlier render into a duck sitting on a moth. The head was at
+  // y 22.4 and measures 25..31, so the whole column has come down 5.4 units;
+  // the body measures 45..55 wide and 31..58 tall.
+  const rHead = tier === 'icon' ? 4.2 : 3.5;
+  const anatomy = `<circle cx="50" cy="27.8" r="${rHead}"/>
+    <path d="M 46.8 26.6 L ${tier === 'icon' ? 41.4 : 42.4} 28.2
+      C 44 28.8 44.6 29.8 44.2 31 L 47 30.4 Z"/>
+    <path d="M 47.6 29.6 L 52.4 29.6 L 53.8 34 L 46.2 34 Z"/>
+    <path d="M 45.4 32 C 44.2 40 44.6 50 46 58 L 54 58
+      C 55.4 50 55.8 40 54.6 32 Z"/>
+    <rect x="46.8" y="56" width="2.2" height="8"/><rect x="51" y="56" width="2.2" height="8"/>`;
   // THE ARROW BUNDLE, heads to the LEFT and fletching to the RIGHT, exactly
   // as the die cuts it. Two earlier passes drew arrows and both times a long
   // shaft crossing the vertical body read as a dart; it is drawn here BEFORE
@@ -2411,13 +2486,17 @@ function eagle(tier, p, boxW) {
       // the left end is the arrow glyph a child sees on a screen every day,
       // and that is exactly what it read as; the real bundle shows several
       // heads bunched together, which at coin size is a widened, ragged end.
-      `<rect x="31.5" y="61.4" width="37" height="4" rx="1.9"/>
-       <path d="M 33 59.9 L 28.2 61.5 L 28.2 66.3 L 33 67.9 Z"/>
-       <path d="M 67 60.9 L 73.4 62.3 L 73.4 65.5 L 67 66.9 Z"/>`
+      // MEASURED X 31..70, Y 61.5..67.5. The bundle drawn before ran 28.2 to
+      // 73.4 — 45 units for a bundle the coin cuts in 39 — and it reached
+      // further out on each side than the eagle's own legs are apart.
+      `<rect x="34.5" y="61.8" width="31" height="4" rx="1.8"/>
+       <path d="M 35.5 60.4 L 31 62 L 31 67 L 35.5 68.6 Z"/>
+       <path d="M 65 60.9 L 70 62.2 L 70 66.6 L 65 67.9 Z"/>`
     : '';
-  // The tail fan, short and behind the arrows.
-  const tail = `<path d="M 45.8 54 L 54.2 54 C 55.6 59 55.4 64 53.8 68.4
-      Q 51.9 66.4 50 68.6 Q 48.1 66.4 46.2 68.4 C 44.6 64 44.4 59 45.8 54 Z"/>`;
+  // The tail fan, short and behind the arrows: on the coin it is almost
+  // entirely hidden by the bundle, so it stops at 66, not 68.6.
+  const tail = `<path d="M 46.2 56 L 53.8 56 C 55 60 54.8 63.4 53.4 66.4
+      Q 51.7 64.6 50 66.6 Q 48.3 64.6 46.6 66.4 C 45.2 63.4 45 60 46.2 56 Z"/>`;
   // THE OLIVE WREATH sweeping across the bottom, two branches meeting under
   // the tail. Parametric, so the leaves sit ON the stem instead of beside it
   // — the failure that made the last version's sprigs read as two small
@@ -2457,10 +2536,13 @@ function eagle(tier, p, boxW) {
     ? [0, 1, 2, 3, 4]
         .map((i) => {
           const t = 0.14 + i * 0.2;
+          // The primaries run DOWN-AND-IN across the new wing, from the
+          // shoulder end of the leading edge to the low trailing edge, which
+          // is the direction the photograph's feather lines actually take.
           return [1, -1]
             .map(
               (f) =>
-                `<path d="M ${x(f, 10 + 12 * t)} ${n2(29.6 + 5 * t)} L ${x(f, 9 + 25 * t)} ${n2(43 + 4 * t)}"/>`
+                `<path d="M ${x(f, 11 + 13 * t)} ${n2(30 + 5 * t)} L ${x(f, 22 + 12 * t)} ${n2(57.5 - 2 * t)}"/>`
             )
             .join('');
         })
@@ -2470,8 +2552,8 @@ function eagle(tier, p, boxW) {
     ? [1, -1]
         .map(
           (f) =>
-            `<path d="M ${x(f, 7)} 31.4 C ${x(f, 15)} 29.4 ${x(f, 23)} 32.4 ${x(f, 28)} 39"/>` +
-            `<path d="M ${x(f, 6)} 36.4 C ${x(f, 14)} 35 ${x(f, 21)} 38 ${x(f, 26)} 44"/>`
+            `<path d="M ${x(f, 7)} 29.6 C ${x(f, 16)} 28.2 ${x(f, 25)} 30.4 ${x(f, 31.4)} 34.6"/>` +
+            `<path d="M ${x(f, 8)} 34.6 C ${x(f, 17)} 33.8 ${x(f, 25)} 36.4 ${x(f, 32)} 41"/>`
         )
         .join('')
     : '';
@@ -2479,27 +2561,26 @@ function eagle(tier, p, boxW) {
     ? // ONE DARK DOT, and it is worth more than any other mark on this
       // motif: an eye is what turns a silhouette into an animal, and a child
       // finds it before they find the wings.
-      `<circle cx="48.3" cy="21.7" r="1" fill="${p.deep}"/>` +
+      `<circle cx="48.3" cy="27.1" r="1" fill="${p.deep}"/>` +
       `<g fill="none" stroke="${p.field}" stroke-linecap="round" opacity="0.75">
          <g stroke-width="1.4">${primaries}</g>
          <g stroke-width="1.1">${coverts}</g>
          <g stroke-width="1.2">
-           <path d="M 47 32 L 46.6 54"/><path d="M 50 32 L 50 54.6"/><path d="M 53 32 L 53.4 54"/>
-           <path d="M 47.4 56 L 46.9 66"/><path d="M 50 56 L 50 66.6"/><path d="M 52.6 56 L 53.1 66"/></g>
+           <path d="M 47 34.4 L 46.7 56.4"/><path d="M 50 34.4 L 50 57"/><path d="M 53 34.4 L 53.3 56.4"/></g>
          ${
            fine
              ? `<g stroke-width="0.9" opacity="0.85">
-                  <path d="M 45.6 36 q 4.4 1.8 8.8 0"/><path d="M 45.2 41 q 4.8 1.8 9.6 0"/>
-                  <path d="M 45 46 q 5 1.8 10 0"/><path d="M 45.2 51 q 4.8 1.8 9.6 0"/></g>
-                <g stroke-width="0.9"><path d="M 47.6 26.6 q 2.4 1.4 3.4 3"/></g>`
+                  <path d="M 45.4 38.4 q 4.6 1.8 9.2 0"/><path d="M 45 43.4 q 5 1.8 10 0"/>
+                  <path d="M 44.8 48.4 q 5.2 1.8 10.4 0"/><path d="M 45 53.4 q 5 1.8 10 0"/></g>
+                <g stroke-width="0.9"><path d="M 47.6 32 q 2.4 1.4 3.4 3"/></g>`
              : ''
          }
        </g>` +
       // the arrows' own bindings, so the bundle reads as a bundle
       (fine
-        ? `<g fill="${p.deep}" opacity="0.5"><rect x="38" y="62.2" width="1.2" height="2"/>
-             <rect x="44" y="62.2" width="1.2" height="2"/><rect x="56" y="62.2" width="1.2" height="2"/>
-             <rect x="62" y="62.2" width="1.2" height="2"/></g>`
+        ? `<g fill="${p.deep}" opacity="0.5"><rect x="40" y="62.6" width="1.2" height="2"/>
+             <rect x="45" y="62.6" width="1.2" height="2"/><rect x="55" y="62.6" width="1.2" height="2"/>
+             <rect x="60" y="62.6" width="1.2" height="2"/></g>`
         : '')
     : '';
   return { solid, detail };

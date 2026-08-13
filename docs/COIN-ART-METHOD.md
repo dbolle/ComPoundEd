@@ -1777,3 +1777,207 @@ Two tools lied on this pass and both were caught by the same reflex.
 
 > **Change the art and re-run the measurement. A number that does not move is a
 > bug, not a stable result.**
+
+---
+
+## 22. What the four reverses added — counting, and two tools that lied
+
+Written after the reverses pass (2026-08-13). Run document:
+`coloringbook/reverses.md`; frozen target `coloringbook/_rvtarget.json`; the
+`_rv*` tools are inventoried in `coloringbook/TOOLS.md`. Headline numbers:
+
+```
+                     count error      rhythm mean/worst      icon HF ratio
+  penny  before      4 (at mid)       0.190 / 0.479          4.04x
+  penny  after       0 (every tier)   0.048 / 0.112          0.00x
+  nickel before      2                (span error -23.7%)    4.33x
+  nickel after       0 (every tier)   0.007 / 0.018          0.80x
+  dime               phase 1 only — torch was 23% too tall, foot 18u vs 6.6u
+  quarter            phase 1 only — wings stopped at y 51 against a measured 64
+```
+
+**Depth was deliberately uneven and is stated as such in the run document.**
+Two subjects got phase 4 in full; two got phase 1 and one correction each.
+That was the right trade for one run and the honesty about it is the part
+worth copying.
+
+### 22.1 A tool that gives the SAME answer before and after is broken — and it will look plausible
+
+§21.9 said "change the art and re-run; a number that does not move is a bug".
+It happened again immediately, and the shape of the bug is worth recording
+because nothing about the numbers looked wrong.
+
+The tier-tone tool upsampled our render with `sharp.resize(kernel:'nearest')`
+and then sampled the result. **sharp returns THREE channels from a raw
+one-channel input.** The sampler read a buffer of stride `3W` as if it were
+`W`, so it sampled a squeezed, wrapped image. The output differed per coin,
+differed per size, and was stable to four decimals — everything a working
+measurement looks like. It was caught only because the before and after runs
+came back **byte-identical** after a change that visibly altered the icon.
+
+Two defences, both cheap:
+
+- **Assert the buffer length.** `if (buf.length !== W*H) throw` is one line and
+  would have caught this at the first call.
+- **Feed the pipeline a known palette colour and check the grey that comes
+  back** (§20.1). After the fix the tool recovers `field` as grey **151** on the
+  cent and **212** on the silver coins — exactly the palette's own values. It
+  had been reporting 213 on the cent, which is not a colour in that palette at
+  all, and nobody looked.
+
+> A field level that is not one of your own palette's greys is a bug report.
+
+### 22.2 A plateau is not a peak: flat-topped art defeats a peak finder built on a photograph
+
+The count instrument was written against the photograph, where every column is
+a rounded relief and `p[i] > p[i-1] && p[i] > p[i+1]` finds it. **Our columns
+are rectangles.** A band-average across a rectangle is a plateau, and a strict
+peak test finds nothing on a plateau, so the scorer reported a COUNT OF ZERO
+for art that provably contained four columns.
+
+It only showed up because at the largest tier a white highlight stripe turns
+each flat top into a true peak — so the tool worked at `size 190` and returned
+zero at `84` and `54`. A tool that works at one tier and not another is not
+"noisy at small sizes"; it is wrong.
+
+> Any extremum finder used on BOTH a photograph and vector art must collapse
+> runs of equal value to their centre. Test it on a square wave before trusting
+> it on a coin.
+
+### 22.3 The count really is the whole subject, and prose in the file is not evidence
+
+`monticello()` carried the comment *"Six columns across the portico is the real
+count and it is what makes the centre read as a PORTICO"*. Three independent
+photographs — an uncirculated nickel, a second struck nickel, and a proof,
+cross-correlated against each other first (NCC 0.13 and −0.39, so genuinely
+three) — all say **four**, at 39.07 / 46.23 / 53.90 / 61.20.
+
+The extra two were identifiable and that is the transferable part: **between
+the four columns sit three openings**, a plain one either side of a centre door
+under its own small pediment. Their lit frames are what a six-column reading is
+counting. Every phantom column found in this pass was an *opening's edge*, not
+an invented shaft — so when a count comes out too high, look for what the
+extras are bounding before assuming the drawing was careless.
+
+§6 rule 6 says do not trust a prose description of a coin *including the
+brief's*. Extend it: **do not trust a comment in your own source either.** It
+is a description of a coin, written by someone who was not looking at one.
+
+### 22.4 "Repeated elements become one toned block" is a fact about PIXELS, not about a tier name
+
+§15.4 is right and it was over-applied. The cent's colonnade was replaced with
+a flat block at `mid` as well as at `icon`, on the reasoning that a 3-unit
+column cannot resolve there. Measured, at `mid` the coin's own colonnade band
+carries **0.201** of along-band high-frequency energy and the flat block
+carried **0.000**; at `icon` the coin carries **0.018**. So:
+
+```
+  penny colonnade, along-band HF energy, ours / reference
+              icon (20px box)     mid (42px)     full (66px)
+  8 columns        4.04x             0.45x          0.53x
+  flat block       0.00x             0.00x            —
+  12 columns         —               0.30x          0.29x
+```
+
+Twelve aliased columns at a 2 px pitch are closer to the coin than a clean flat
+block. **Measure the reference at the tier before deciding the tier cannot hold
+the element.** The line between "draw them" and "tone them" fell between 20 px
+and 42 px on this subject and nobody could have named it in advance.
+
+And the defect §16.1 actually names is *high* variance where the reference is
+smooth. Undershooting is the safe side; the gate should be one-sided.
+
+### 22.5 Every reverse in this file was drawn to fill the disc, not to fit the design
+
+Three of the four had the same error in the same direction, and it is a
+systematic one worth naming:
+
+```
+                    drawn height     measured height    error
+  Lincoln Memorial   41.6 units       34.5 units         +20%
+  torch (dime)       71.9             58.5               +23%
+  eagle wings        stop at y 51     hang to y 64        -20% (the other way)
+```
+
+A designer sizing a motif inside a circle fills the circle. A die sinker
+leaves a wide bare field, because the legend has to go somewhere and because
+the rim protects the relief. **Measure the motif's own bounding box in
+disc-normalised units before drawing anything**; on all four US reverses it
+occupies far less of the disc than instinct puts there.
+
+The eagle is the instructive inverse: it is not "too small", it is the wrong
+*shape* — the wings hang. Filling the disc and fitting the design are different
+mistakes and the same measurement finds both.
+
+### 22.6 IoU was never computed, and that was the right call
+
+§15 says IoU is close to useless on an architectural subject. This pass tested
+that by not using it at all. The two buildings were scored on count, on a
+rhythm vector in units of one inter-column gap, and on a band-edge vector — and
+every one of those numbers moved decisively where a silhouette IoU would have
+moved by a fraction of a percent (the Memorial's silhouette is a rectangle
+under a slab before and after; the six-to-four column change is entirely
+interior).
+
+The replacement for IoU on this class of subject, in order:
+
+1. **count** — from two photographs, both written down, threshold zero;
+2. **rhythm** — centres as fractions of façade width, mean |Δ| in units of one
+   gap, **end gaps reported separately**;
+3. **bands** — every horizontal edge as a vector in disc-normalised `v`;
+4. **tier variance** — the along-band high-frequency energy against the
+   photograph reduced to the same device pixel count.
+
+Steps 1–3 are cheap and they are what makes the building that building.
+
+### 22.7 Reduce the PHOTOGRAPH to the tier, and look at it
+
+The most useful single image of this pass was not an overlay or a chart. It was
+`coloringbook/_rv-tiers.png`: the reference disc-normalised and box-filtered
+down to **the coin's real device pixel count at each tier**, printed beside our
+before and after.
+
+It settled three questions no scalar did:
+
+- the cent's Memorial at 20 px is a *light* low band, not a dark bar — which is
+  where the house-style tone error is visible rather than merely tabulated;
+- the dime at 20 px is a **fat dark cluster**, torch and both branches merged,
+  where our icon draws a bare thin bar. That is a defect we did not know we had;
+- the new eagle at 26 and 54 px looked, to me, like a regression — a dark delta
+  instead of a clean bird. **The real coin at those sizes is a dark
+  spread-winged mass with a vertical body.** The old silhouette was prettier and
+  less like the object.
+
+> §6 rule 5 says look at the render. Add: look at the PHOTOGRAPH at the same
+> size, next to it. The eye is the right instrument for "is this the same
+> thing"; it is a terrible instrument for "how big is it", and shrinking the
+> reference is what lets you use it for the first without being fooled by the
+> second.
+
+### 22.8 A legend band you cannot draw is still worth measuring
+
+The reverse legends were measured with a radial sweep of the **angular standard
+deviation** — lettering is the only thing on a coin's outer field that is
+high-variance at constant radius, so the band shows as a plateau of σ between
+two low-σ shoulders. Take the sweep in a sector where nothing else lives
+(straight up, 250°–290°) or the device swamps it.
+
+```
+  legend band, viewBox radius (disc r = 47)
+  penny   35.7 .. 42.5      nickel  37.1 .. 43.0
+  dime  ~ 34.3 .. 42.3      quarter ~ 35.7 .. 43.7
+```
+
+We draw the reverse legend from 36.4 with a cap height of 4.5 against a
+measured 6–7. The inner radius is right; the height is two thirds. It cannot be
+enlarged because our field circle sits at 41.0 and the real band straddles it —
+so the finding is that **the field circle, not the type size, is what limits
+the legend**, and that is a decision about every coin on both sides rather than
+an art fix. Measuring something you have decided not to change is still worth
+the ten minutes: it turns "the lettering looks small" into a number and a
+reason.
+
+Related, and cheap to check on any new subject: **three of the four reverses
+carry a legend we do not draw at all** — MONTICELLO under the nickel's
+building, E PLURIBUS UNUM across the dime's middle and in the quarter's upper
+arc. Enumerate every string on the coin before deciding which to draw.
