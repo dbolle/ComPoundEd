@@ -527,7 +527,17 @@ function fitOff(o, solid, rField) {
 // `rField` is the field circle this massing is being struck inside, and it is
 // what stops the offset copy from printing on the rim. Omitted where there is
 // no field circle to respect (the $1 note).
-function struck(solid, p, tier, boxW, detail = '', rField = 0) {
+//
+// `mass` overrides the mid/full massing tone for ONE motif rather than for the
+// palette, which is the house idiom (`t.min ?? SHARED`): the quarter's eagle
+// asks for `p.deep` at every tier so its device-against-field reading does not
+// swing between tiers, and the other three motifs are byte-identical.
+//
+// NOTE for anyone tempted to read the `deep` layer as shading: at mid/full it
+// is drawn with the SAME geometry as the layer painted over it, so it is
+// entirely hidden and contributes nothing. The bevel is the offset white copy;
+// `deep` is dead paint at those tiers and always has been.
+function struck(solid, p, tier, boxW, detail = '', rField = 0, mass = null) {
   const o = fitOff(reliefOff(boxW), solid, rField);
   if (tier === 'icon') {
     return `<g fill="#ffffff" opacity="0.5" transform="translate(${-o} ${-o})">${solid}</g>
@@ -535,7 +545,7 @@ function struck(solid, p, tier, boxW, detail = '', rField = 0) {
   }
   return `<g fill="#ffffff" opacity="0.42" transform="translate(${-o} ${-o})">${solid}</g>
     <g fill="${p.deep}">${solid}</g>
-    <g fill="${p.motif}">${solid}</g>${detail}`;
+    <g fill="${mass ?? p.motif}">${solid}</g>${detail}`;
 }
 
 // A LIT TOP EDGE and a SHADOWED UNDERSIDE, for the horizontal slabs both
@@ -690,8 +700,15 @@ function outlineOf(id, boxW) {
 // quarter) and text up the LEFT side reads upward (as IN GOD WE TRUST does on
 // a nickel). Getting this wrong is not a subtle error: it is the difference
 // between a coin and a coin printed upside down.
-function arcText(text, r, size, fill, opacity, centre = 270, rev = false) {
-  const advance = size * 0.82; // rounded sans, caps, at the letter-spacing below
+// `advF` is the per-advance width as a fraction of the font size, and it is a
+// parameter rather than the old bare literal because ANGULAR SPAN and CAP
+// HEIGHT are two independent facts about a legend and 0.82 ties them together.
+// Measured on `ref/quarter-rev-2.png`, the reverse's UNITED STATES OF AMERICA
+// spans ~170° of arc and QUARTER DOLLAR ~94°; at 0.82 the same strings, drawn
+// at the cap height the coin has, span 187° and 125°. It defaults to 0.82, so
+// every call that does not pass it emits byte-for-byte what it emitted before.
+function arcText(text, r, size, fill, opacity, centre = 270, rev = false, advF = 0.82) {
+  const advance = size * advF; // rounded sans, caps, at the letter-spacing below
   const perGlyph = ((advance / r) * (180 / Math.PI)) * (rev ? -1 : 1);
   const start = centre - (perGlyph * (text.length - 1)) / 2;
   let out = `<g font-family="${FONT}" font-size="${size}" font-weight="700" fill="${fill}" opacity="${opacity}" text-anchor="middle">`;
@@ -2764,21 +2781,52 @@ function torch(tier, p, boxW) {
 // `coloringbook/ref/quarter-rev-2.png` (the older photograph was gold-toned
 // and dark, and the shape taken from it was wrong).
 //
-// THE SHAPE IS THE WHOLE JOB, and it has now been wrong twice in the same
-// direction: the wings were drawn as two nearly HORIZONTAL blades finishing
-// at y ≈ 51. MEASURED off the reference disc-normalised into this viewBox,
-// the wings SPAN 12..88 and HANG TO y 64 — the leading edge leaves the
-// shoulder at y 27.6, runs out and slightly down to a tip at ±37.5 by y 39,
-// and the primaries then fall away to their lowest point at ±28.6, y 64,
-// almost level with the arrow bundle. The old wing left the whole lower half
-// of its own region bare: the band X 18..44, Y 33..53 measured 0.83 of the
-// field where the coin measures 0.62, the largest tone error of the four
-// reverses and a shape error, not a colour one.
+// THE SHAPE IS THE WHOLE JOB, and it has now been wrong THREE times. Rounds
+// past drew the wings as two nearly HORIZONTAL blades leaving the shoulder at
+// y 27.6 and running out to ±37.5 by y 39.6. Rendered at the sizes a child
+// sees, that silhouette read first as an ANCHOR and then — once round 3 gave
+// it the tone the coin has — as a SAILBOAT: a vertical mast, a triangular
+// sail, a curved hull. Numbers cannot see that; the contact sheet can.
 //
-// The other three corrections, all from the same photograph:
-//   · the BODY is a narrow vertical column of breast feathers — much
-//     narrower than the wing span. Drawn broad, it becomes a thorax.
-//   · the head is SMALL and set on a slender neck, with a hooked beak.
+// REDRAWN OFF THE PHOTOGRAPHS, at the radius ladder in `coloringbook/r4`:
+// `quarter-rev-2.png` (alpha-matte cutout, disc fit p95 0.15% of R) and
+// `quarter-rev-3.jpg` (p95 0.32%) for geometry, `qp1963-rev-pad.png` (cameo
+// proof) to read the silhouette against a black mirror field. Every number
+// below was read off a gridded, disc-normalised crop of one of those three.
+//
+//   · THE WING'S LEADING EDGE IS A HOOK, not a horizontal blade. It leaves
+//     the neck at (46.5, 34.2), dips OUT and slightly down to (42, 34.8),
+//     then rises steeply out and UP to a rounded APEX at (31.2, 20.0) —
+//     above the top of the head. That rising diagonal is the single feature
+//     that makes a spread-winged bird read as a bird at 20 device pixels.
+//   · THE FIELD SHOWS THROUGH BESIDE THE HEAD. Between the leading edge and
+//     the neck the die leaves a deep dark NOTCH, x 34..48 by y 22..34 on the
+//     left and its mirror on the right. The old wing had none: it started at
+//     the head's own edge and went flat outward, so the two wings and the
+//     body were one continuous bar.
+//   · THE WING'S OUTER EDGE IS A CIRCULAR ARC. Read at nine points from the
+//     apex round to the lowest primary, the reference's outer boundary sits
+//     at r 34.6..37.5 of the coin's centre — within half a unit of a circle.
+//     It is drawn here as one `A` command.
+//   · THE PRIMARIES HANG DOWN AND OUT and their tips run from (17.4, 63.8)
+//     up and in to the body at (44, 54), so the wing's trailing edge slopes
+//     the opposite way to its leading edge.
+//   · THE BODY WIDENS DOWNWARD. It is not a parallel column: the breast
+//     starts 7.6 units wide under the neck and the two legs splay to 42.6
+//     and 57.4 by y 58.6, where they meet the arrows.
+//
+// WHERE WE KNOWINGLY DIFFER FROM THE COIN, and why: the reference's outer
+// wing edge reaches r 37.5 at nine and three o'clock, OUTBOARD of its own
+// legend baseline (36.5) — on the coin the wingtips and the letters very
+// nearly touch. Ours stops at 35.4, because our field circle is 41.0 where
+// the coin's rim seats at 44.2, so our whole legend band is compressed into
+// 4.6 units instead of 7.7 and taller letters now occupy 36.4..40.9. That is
+// D5-rim, it is shared with three unmeasured coins, and it is reported
+// rather than fixed here.
+//
+// The other three corrections, all from the same photographs:
+//   · the head is SMALL and set on a slender neck, with a hooked beak, and
+//     it sits LEFT of centre because the bird faces left.
 //   · the bird stands on a horizontal bundle of ARROWS, heads to the left,
 //     and an olive wreath sweeps across the bottom under it. Neither is
 //     decoration: they are what makes the pose heraldic rather than a bird
@@ -2788,56 +2836,74 @@ function torch(tier, p, boxW) {
 // dollar note in this same file) has one on its chest and the quarter's does
 // not, and adding one to look "more heraldic" would teach a coin that does
 // not exist.
+const WING_R = 35.4;
 function eagle(tier, p, boxW) {
   const full = tier === 'full';
   const fine = full && boxW >= 130;
   const x = (f, v) => n2(50 + f * v);
-  // THE WING, to the measured envelope. Widest point ±37.5 at y 39.5, where
-  // the field circle (41.0) still has ±39.4 to spare, and the lowest primary
-  // ±28.6 at y 64, where it has ±38.1.
-  const wing = (f) => `<path d="M ${x(f, 4.5)} 27.6
-      C ${x(f, 14)} 25.4 ${x(f, 26)} 27.2 ${x(f, 32.6)} 31.6
-      C ${x(f, 36.4)} 34.2 ${x(f, 37.6)} 36.6 ${x(f, 37.5)} 39.6
-      C ${x(f, 37.3)} 45.4 ${x(f, 36.2)} 51.2 ${x(f, 33.4)} 56.4
-      C ${x(f, 31.8)} 59.4 ${x(f, 30.4)} 62 ${x(f, 28.6)} 64
-      Q ${x(f, 27.2)} 59 ${x(f, 24.8)} 60.4
-      Q ${x(f, 23.4)} 55.6 ${x(f, 21)} 56.6
-      Q ${x(f, 19.6)} 52 ${x(f, 17)} 52.6
-      C ${x(f, 13.4)} 47.6 ${x(f, 9.4)} 40.6 ${x(f, 6.4)} 33.6
-      C ${x(f, 5.6)} 31.6 ${x(f, 4.8)} 29.4 ${x(f, 4.5)} 27.6 Z"/>`;
-  // HEAD, NECK, BODY, LEGS. Small head, slender neck, narrow body: three
-  // separate widths, and getting them wrong in the same direction is what
-  // turned an earlier render into a duck sitting on a moth. The head was at
-  // y 22.4 and measures 25..31, so the whole column has come down 5.4 units;
-  // the body measures 45..55 wide and 31..58 tall.
-  const rHead = tier === 'icon' ? 4.2 : 3.5;
-  const anatomy = `<circle cx="50" cy="27.8" r="${rHead}"/>
-    <path d="M 46.8 26.6 L ${tier === 'icon' ? 41.4 : 42.4} 28.2
-      C 44 28.8 44.6 29.8 44.2 31 L 47 30.4 Z"/>
-    <path d="M 47.6 29.6 L 52.4 29.6 L 53.8 34 L 46.2 34 Z"/>
-    <path d="M 45.4 32 C 44.2 40 44.6 50 46 58 L 54 58
-      C 55.4 50 55.8 40 54.6 32 Z"/>
-    <rect x="46.8" y="56" width="2.2" height="8"/><rect x="51" y="56" width="2.2" height="8"/>`;
+  // THE WING. `v` is distance from the coin's vertical axis, so one authored
+  // path mirrors exactly; the sweep flag flips with `f` because a mirrored
+  // arc runs the other way round.
+  const wing = (f) => `<path d="M ${x(f, 3.5)} 34.2
+      C ${x(f, 7)} 35.2 ${x(f, 9.6)} 34.6 ${x(f, 11)} 33
+      C ${x(f, 13.6)} 30.6 ${x(f, 16.6)} 25.6 ${x(f, 18.76)} 19.98
+      A ${WING_R} ${WING_R} 0 0 ${f > 0 ? 1 : 0} ${x(f, 32.59)} 63.83
+      C ${x(f, 28)} 61.2 ${x(f, 23.5)} 58.6 ${x(f, 19)} 57.5
+      C ${x(f, 14)} 56.4 ${x(f, 10)} 55.2 ${x(f, 6)} 54
+      C ${x(f, 4.6)} 46 ${x(f, 3.9)} 40 ${x(f, 3.5)} 34.2 Z"/>`;
+  // HEAD, NECK, BODY, LEGS. The head measures 11.5 units across and 6 tall on
+  // `quarter-rev-2.png` — an ellipse, not the circle this used to draw — with
+  // the crown at y 23.6 and the beak tip out at (40.6, 28.4). It sits LEFT of
+  // the axis, at cx 47.6, because the bird faces left.
+  //
+  // The icon head is scaled UP, as it has been since the first pass — a
+  // 3-unit feature is under one device pixel at 26px and a head is what makes
+  // an animal. 1.30 rather than the old 1.18 for a MEASURED reason: it is also
+  // the icon/mid tier boundary's largest lever, and swept 1.00/1.18/1.30/1.45
+  // the boundary d(ink) reads 0.0988 / 0.0957 / 0.0895 / 0.0895. D10 is quoted
+  // here in ABSOLUTE d(ink), never in the ratio, because the ratio's
+  // denominator is a property of this drawing.
+  const hs = tier === 'icon' ? 1.3 : 1;
+  const anatomy = `<ellipse cx="47.6" cy="26.6" rx="${n2(4.3 * hs)}" ry="${n2(3.1 * hs)}"/>
+    <path d="M 44.6 25.4 L ${n2(50 - 9.2 * hs)} 27.9 C 42.9 28.9 43.6 29.6 44.2 30
+      L 46.6 29.4 Z"/>
+    <path d="M 45.6 28.4 C 45.4 31 45.8 33 46.2 34.4 L 53.8 34.4
+      C 53.6 32.6 53.2 30.4 52.6 28.2 Z"/>
+    <path d="M 46.2 32.5 L 53.8 32.5 C 55.6 40 57 49.4 57.4 58.6
+      L 42.6 58.6 C 43 49.4 44.4 40 46.2 32.5 Z"/>`;
   // THE ARROW BUNDLE, heads to the LEFT and fletching to the RIGHT, exactly
   // as the die cuts it. Two earlier passes drew arrows and both times a long
   // shaft crossing the vertical body read as a dart; it is drawn here BEFORE
-  // the tail and in the same fill, so the union hides the crossing and what
-  // shows is a stub either side — which is what the coin shows.
-  const arrows = full
-    ? // ONE bundle, thick, with binding — not two thin parallel bars. Two
-      // bars and a point is the arrow GLYPH a child sees on a screen every
-      // day, and that is what the first version of this drew.
-      // Both ends FLARE rather than come to a point. A single triangle on
-      // the left end is the arrow glyph a child sees on a screen every day,
-      // and that is exactly what it read as; the real bundle shows several
-      // heads bunched together, which at coin size is a widened, ragged end.
-      // MEASURED X 31..70, Y 61.5..67.5. The bundle drawn before ran 28.2 to
-      // 73.4 — 45 units for a bundle the coin cuts in 39 — and it reached
-      // further out on each side than the eagle's own legs are apart.
-      `<rect x="34.5" y="61.8" width="31" height="4" rx="1.8"/>
-       <path d="M 35.5 60.4 L 31 62 L 31 67 L 35.5 68.6 Z"/>
-       <path d="M 65 60.9 L 70 62.2 L 70 66.6 L 65 67.9 Z"/>`
-    : '';
+  // the tail and in the same fill, so the union hides the crossing.
+  //
+  // DRAWN AT EVERY TIER (D13, round 3's finding, kept). They used to be
+  // `full`-only, which left the bottom third of the icon and mid draws as bare
+  // field while the coin has a bundle and a wreath right across it. Measured
+  // against `ref/quarter-rev-2.png` reduced to the same device pixel count, the
+  // r 30..40 band — 44% of the disc interior — carried ink 0.25..0.59 where the
+  // coin carries 0.64..0.85. Neither mark goes near the field circle.
+  //
+  // ONE bundle, thick, with binding — not two thin parallel bars. Two
+  // bars and a point is the arrow GLYPH a child sees on a screen every day,
+  // and that is what the first version of this drew.
+  //
+  // THE FLARED ENDS ARE GONE, AND THE PHOTOGRAPH IS WHY. This file used to
+  // say "Both ends FLARE rather than come to a point … the real bundle shows
+  // several heads bunched together, which at coin size is a widened, ragged
+  // end", and drew two outward triangles to match. Read off
+  // `ref/quarter-rev-2.png` at the frozen registration, gridded in viewBox
+  // units, the bundle is UNIFORM: it runs x 30..70 at y 61.5..67.5 and
+  // neither end is wider than the shaft — the left end tapers slightly where
+  // the heads bunch and the right end is a squared bundle of nocks. Nothing
+  // on the coin flares.
+  //
+  // It matters more than a unit of width: two outward triangles either side
+  // of a vertical body ARE the double-headed-arrow glyph, and once round 3's
+  // tone work made the massing dark that glyph became the strongest mark on
+  // the lower half of the coin. The fix for "it reads as an arrow" had become
+  // the cause of it.
+  const arrows = `<rect x="30.6" y="61.6" width="38.8" height="4.6" rx="1.4"/>
+       <path d="M 34 61.9 L 30 62.9 L 30 64.9 L 34 65.9 Z"/>`;
   // The tail fan, short and behind the arrows: on the coin it is almost
   // entirely hidden by the bundle, so it stops at 66, not 68.6.
   const tail = `<path d="M 46.2 56 L 53.8 56 C 55 60 54.8 63.4 53.4 66.4
@@ -2846,9 +2912,8 @@ function eagle(tier, p, boxW) {
   // the tail. Parametric, so the leaves sit ON the stem instead of beside it
   // — the failure that made the last version's sprigs read as two small
   // animals crouching under the bird.
-  const wreath = full
-    ? [1, -1]
-        .map((f) => {
+  const wreath = [1, -1]
+    .map((f) => {
           const P0 = [50, 79.6];
           const C = [50 + f * 16, 79.6];
           const P1 = [50 + f * 28, 64.6];
@@ -2868,8 +2933,7 @@ function eagle(tier, p, boxW) {
           }
           return g;
         })
-        .join('')
-    : '';
+        .join('');
   const solid = `${wing(1)}${wing(-1)}${arrows}${tail}${anatomy}${wreath}`;
 
   // FEATHERS. Primaries radiating from each wrist out to the trailing edge,
@@ -2877,47 +2941,75 @@ function eagle(tier, p, boxW) {
   // Vertical, always: the pass before last banded the body horizontally and
   // the bird instantly became a moth — stacked cross-bars are what an insect
   // abdomen looks like.
-  const primaries = full
+  // FIVE per wing, and the count is the constraint, not the curve
+  // (COIN-ART-METHOD §15: a count is stronger than a shape). Counted on the
+  // two cameo proofs at the judge's declared locus the left wing's primaries
+  // come out modal 5 (`qp1963-rev-pad`) and modal 4 (`qp1964-rev-pad`); five
+  // is the higher-confidence of the two and is what is drawn.
+  //
+  // They live in the OUTER-LOWER wing and run out-and-down, which is where
+  // and how the blades run on both photographs; the band inboard of the
+  // leading edge is smooth on the coin and is left smooth here. The first
+  // placement ran them from (20, 31) clear across to (33, 62) and at 380px
+  // they read as five struts holding the wing up — the same failure mode as
+  // the horizontal body bands that once made this bird a moth.
+  const primaries = tier !== 'icon'
     ? [0, 1, 2, 3, 4]
         .map((i) => {
-          const t = 0.14 + i * 0.2;
-          // The primaries run DOWN-AND-IN across the new wing, from the
-          // shoulder end of the leading edge to the low trailing edge, which
-          // is the direction the photograph's feather lines actually take.
+          const t = i / 4;
           return [1, -1]
             .map(
               (f) =>
-                `<path d="M ${x(f, 11 + 13 * t)} ${n2(30 + 5 * t)} L ${x(f, 22 + 12 * t)} ${n2(57.5 - 2 * t)}"/>`
+                `<path d="M ${x(f, 24 + 5 * t)} ${n2(37 + 10 * t)} L ${x(f, 33 - 2 * t)} ${n2(56 + 6 * t)}"/>`
             )
             .join('');
         })
         .join('')
     : '';
-  const coverts = fine
+  // The coverts are as prominent on the coin as the primaries are, and gating
+  // them at `fine` (130px) meant the 84px recognition draw carried one and not
+  // the other — an asymmetry with nothing in the object behind it. They now
+  // follow the primaries.
+  const coverts = tier !== 'icon'
     ? [1, -1]
         .map(
           (f) =>
-            `<path d="M ${x(f, 7)} 29.6 C ${x(f, 16)} 28.2 ${x(f, 25)} 30.4 ${x(f, 31.4)} 34.6"/>` +
-            `<path d="M ${x(f, 8)} 34.6 C ${x(f, 17)} 33.8 ${x(f, 25)} 36.4 ${x(f, 32)} 41"/>`
+            `<path d="M ${x(f, 6)} 36 C ${x(f, 11)} 33.5 ${x(f, 15)} 30 ${x(f, 17.6)} 25"/>` +
+            `<path d="M ${x(f, 8)} 41 C ${x(f, 14)} 38 ${x(f, 19)} 34 ${x(f, 22.6)} 29"/>`
         )
         .join('')
     : '';
-  const detail = full
+  // FEATHER SEPARATIONS ARE CUT, SO THEY ARE DARK (round 3's finding, kept).
+  // This group used to stroke in `p.field` — field-coloured slots cut out of
+  // the massing, which makes the groove the BRIGHTEST thing on the wing. That
+  // is the exact polarity error `columns()` above was rewritten to fix on the
+  // cent and the nickel, and it had survived here. On `ref/quarter-rev-2.png`
+  // the primaries read as dark lines separating lit feathers.
+  //
+  // THE CUT MUST BE DARKER THAN THE MASSING IT IS CUT INTO: with the eagle
+  // massed in `deep` and the cuts stroked in `deep` too, the two are the same
+  // grey and every feather line disappears. `ink` at 0.45 over `deep` lands at
+  // grey 82 against the massing's 114 — a groove, visible at 84px.
+  //
+  // Drawn from `mid` up rather than `full` up, for the same reason the wreath
+  // now is: at 44px a 1.4-unit line is 0.6 device pixels and reads as tone
+  // across the wing, which is what the photograph shows at that size.
+  const detail = tier !== 'icon'
     ? // ONE DARK DOT, and it is worth more than any other mark on this
       // motif: an eye is what turns a silhouette into an animal, and a child
       // finds it before they find the wings.
-      `<circle cx="48.3" cy="27.1" r="1" fill="${p.deep}"/>` +
-      `<g fill="none" stroke="${p.field}" stroke-linecap="round" opacity="0.75">
-         <g stroke-width="1.4">${primaries}</g>
-         <g stroke-width="1.1">${coverts}</g>
+      `<circle cx="46.6" cy="26.1" r="1" fill="${p.ink}" opacity="0.8"/>` +
+      `<g fill="none" stroke="${p.ink}" stroke-linecap="round" opacity="0.45">
+         <g stroke-width="1.1">${primaries}</g>
+         <g stroke-width="1">${coverts}</g>
          <g stroke-width="1.2">
-           <path d="M 47 34.4 L 46.7 56.4"/><path d="M 50 34.4 L 50 57"/><path d="M 53 34.4 L 53.3 56.4"/></g>
+           <path d="M 47.6 42 L 45.4 58"/><path d="M 52.4 42 L 54.6 58"/></g>
          ${
            fine
              ? `<g stroke-width="0.9" opacity="0.85">
-                  <path d="M 45.4 38.4 q 4.6 1.8 9.2 0"/><path d="M 45 43.4 q 5 1.8 10 0"/>
-                  <path d="M 44.8 48.4 q 5.2 1.8 10.4 0"/><path d="M 45 53.4 q 5 1.8 10 0"/></g>
-                <g stroke-width="0.9"><path d="M 47.6 32 q 2.4 1.4 3.4 3"/></g>`
+                  <path d="M 46 37.6 q 4 1.6 8 0"/><path d="M 45.6 41.6 q 4.4 1.6 8.8 0"/>
+                  <path d="M 48 46 q 2 1.4 4 0"/><path d="M 48 50.4 q 2 1.4 4 0"/></g>
+                <g stroke-width="0.9"><path d="M 47.6 31.6 q 2.4 1.4 3.4 3"/></g>`
              : ''
          }
        </g>` +
@@ -2928,7 +3020,14 @@ function eagle(tier, p, boxW) {
              <rect x="60" y="62.6" width="1.2" height="2"/></g>`
         : '')
     : '';
-  return { solid, detail };
+  // ONE TONE AT EVERY TIER (round 3's finding, kept). The coin's own
+  // device-against-field reading is flat across sizes — measured on
+  // `ref/quarter-rev-2.png` reduced to 26, 44, 54 and 84 device pixels it runs
+  // 0.767 / 0.734 / 0.714 / 0.689 — while ours swung 0.832 / 0.875 / 0.876 /
+  // 0.852 because the icon tier massed in `deep` and every larger tier in
+  // `motif`, a 35-grey-level jump at the tier boundary. `mass: p.deep` removes
+  // the swing rather than adding a compensating tone somewhere else.
+  return { solid, detail, mass: p.deep };
 }
 const REVERSE_MOTIF = { penny: lincolnMemorial, nickel: monticello, dime: torch, quarter: eagle };
 
@@ -3100,7 +3199,49 @@ const REV_TEXT = {
     flat: { text: 'FIVE CENTS', x: 50, y: 74.5, size: 5.2 },
   },
   dime: { top: 'UNITED STATES OF AMERICA', bottom: 'ONE DIME', bs: 6.6 },
-  quarter: { top: 'UNITED STATES OF AMERICA', bottom: 'QUARTER DOLLAR', bs: 5.3, min: 84 },
+  // THE QUARTER'S REVERSE LETTERS ARE THE ONLY ONES THAT HAVE BEEN MEASURED,
+  // so it is the only coin carrying overrides (`t.min ?? SHARED` is the house
+  // idiom; the other three emit byte-for-byte what they emitted before).
+  //
+  // Round 4's frozen band target (`judge/_jq4band.json`, read off a polar
+  // unwrap of `quarter-rev-2.png` and `quarter-rev-3.jpg`) says the coin's
+  // reverse legends are TWICE the height this file drew them:
+  //
+  //     top    baseline r 36.5, cap top 43.4, CAP HEIGHT 6.9, span ~170°
+  //     bottom baseline r 37.0, cap top 43.7, CAP HEIGHT 6.7, span ~94°
+  //     ours (before)  3.2 and 3.8 — 46% and 57% of the coin's
+  //
+  // WHAT IS DRAWN HERE IS THE CEILING, NOT THE TARGET, AND THE ARITHMETIC IS
+  // WORTH READING BEFORE ANYONE "FINISHES" THIS. The cap box of an arced glyph
+  // reaches r = hypot(baseline + 0.72·size, 0.31·size). With the baseline held
+  // at the frozen 36.40 the field circle (41.0) is hit at size 6.32 — cap 4.49.
+  // A cap of 5.87, the bottom of the ±15% gate, needs r 42.34: 1.34 units
+  // OUTSIDE the field circle, which is a D8 containment breach at every tier.
+  // Even at the far edge of the baseline's own ±1.5 gate (35.00) the ceiling is
+  // cap 5.84, still short. The two gates cannot both be met while
+  // `EDGE.quarter.field.full` is 41.0, because the coin seats its rim at 44.2
+  // and gives the legend 7.7 units of band where we have 4.6. That is D5-rim,
+  // it is shared with three coins nobody has measured, and it is reported
+  // rather than fixed here.
+  //
+  // So: 6.25 and 7.25, the largest sizes that keep 0.0000% outside the field
+  // circle at every tier with room to spare for `n2()`'s two decimal places
+  // (measured max r 40.954 and 40.920 against 41.0), giving cap 4.44 and 5.15
+  // — 64% and 77% of the coin's, up from 46% and 57%.
+  quarter: {
+    top: 'UNITED STATES OF AMERICA',
+    bottom: 'QUARTER DOLLAR',
+    ts: 6.25,
+    tadv: 0.751, // 23 advances at r 36.40 -> 170.0°, the coin's ~170°
+    bs: 7.25,
+    // The bottom baseline is normally derived from the size (`bs*0.9 + 0.6`),
+    // which would drag it to 33.8 and out of its own ±1.5 gate as the letters
+    // grow. Held as a literal so the size and the radius are independent:
+    // 41.0 − 5.37 = 35.63, the exact radius the round-4 target froze us at.
+    bOff: 5.37,
+    badv: 0.62, // 13 advances at r 35.63 -> 94.0°, the coin's ~94°
+    min: 84,
+  },
 };
 const REV_TEXT_MIN = 135;
 
@@ -3109,8 +3250,8 @@ function inscriptionOf(id, side, rField, p, boxW) {
     const t = REV_TEXT[id];
     if (!t || boxW < (t.min ?? REV_TEXT_MIN)) return '';
     return (
-      arcText(t.top, rField - 4.6, 4.5, p.ink, 0.6, 270) +
-      arcText(t.bottom, rField - t.bs * 0.9 - 0.6, t.bs, p.ink, 0.66, 90, true) +
+      arcText(t.top, rField - 4.6, t.ts ?? 4.5, p.ink, 0.6, 270, false, t.tadv ?? 0.82) +
+      arcText(t.bottom, rField - (t.bOff ?? t.bs * 0.9 + 0.6), t.bs, p.ink, 0.66, 90, true, t.badv ?? 0.82) +
       (t.flat ? flatText(t.flat.text, t.flat.x, t.flat.y, t.flat.size, p.ink, 0.6) : '')
     );
   }
@@ -3136,7 +3277,7 @@ function discSVG(id, box, attrs, tier, side, withValue, size) {
   // first thing read — the whole reason the scaffold exists.
   const rev = reverse ? REVERSE_MOTIF[id](tier, p, box.w) : null;
   const motif = reverse
-    ? `<g${withValue ? ' opacity="0.42"' : ''}>${struck(rev.solid, p, tier, box.w, rev.detail, rField)}</g>`
+    ? `<g${withValue ? ' opacity="0.42"' : ''}>${struck(rev.solid, p, tier, box.w, rev.detail, rField, rev.mass)}</g>`
     : bust(id, tier, p, withValue, box.w);
   // The inscription sits just inside the field edge, the way a struck coin
   // sets it — but only where the glyphs are big enough to be WORDS.
