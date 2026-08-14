@@ -1,0 +1,53 @@
+{
+ "penny-obv.jpg": {
+  "cx": 248.77,
+  "cy": 252.11,
+  "R": 250.74,
+  "p95pctR": 0.6,
+  "via": "B edge"
+ },
+ "penny-obv-2.jpg": {
+  "cx": 447.54,
+  "cy": 444.89,
+  "R": 445.83,
+  "p95pctR": 1.38,
+  "via": "A flood",
+  "note": "A/B DISAGREE by 3.4% of R — published, not silently resolved"
+ },
+ "penny-obv-3.jpg": {
+  "cx": 999.79,
+  "cy": 993.56,
+  "R": 986.97,
+  "p95pctR": 0.25,
+  "via": "B edge"
+ },
+ "penny-obv-4.png": {
+  "cx": 1000.96,
+  "cy": 1004.57,
+  "R": 989.97,
+  "p95pctR": 0.57,
+  "via": "A flood"
+ },
+ "penny-rev.jpg": {
+  "cx": 248.29,
+  "cy": 243.42,
+  "R": 240.88,
+  "p95pctR": 2.13,
+  "via": "B edge",
+  "note": "A/B DISAGREE by 5.2% of R — published, not silently resolved"
+ },
+ "penny-rev-2.png": {
+  "cx": 371.75,
+  "cy": 372.04,
+  "R": 372.61,
+  "p95pctR": 0.64,
+  "via": "A flood"
+ },
+ "penny-rev-artwork.jpg": {
+  "cx": 250.52,
+  "cy": 222.3,
+  "R": 252.41,
+  "p95pctR": 13.93,
+  "via": "B edge"
+ }
+}

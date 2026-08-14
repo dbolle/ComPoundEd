@@ -1066,3 +1066,78 @@ will see — **including a prior of its own manufacture**.
 - **§3's D12 control.** It has now corrected the judge in two consecutive rounds,
   once against a specialist's claim and once against the judge's own arithmetic.
   It is the only check in this process that is not running on a prior.
+
+---
+
+# NICKEL r0 PROPOSALS
+
+> **Nothing in this section is in force.** It is the judge's report on the
+> nickel's first run (round 0, 2026-08-14, `coloringbook/judge/nickel-r0.md`),
+> written to the same standard as Appendices P, Q and R: what happened, then
+> the concrete edit. The reasoning and the evidence for each item are in that
+> file; only the proposed edits are restated here, so that a reader of this
+> document can see what is being asked of it without reading the run log.
+>
+> Three of the five exist because the process caught the JUDGE.
+
+**N1 — the gates file must be written and committed BEFORE the first
+measurement.** §3 says a gate is stated before measuring; nothing says when the
+artefact recording that has to exist. `nickel-gates.md` was written after the
+round's measurements, and although every gate in it is inherited from §3, from
+`quarter-gates.md`, from an earlier round's instrument header, or from a
+reference measured before ours, **a reader cannot check that.**
+*Proposed addition to §6:* the gates file is a frozen target in the sense of §1
+— written, hashed and committed before the first measurement, with its hash in
+the scorecard. A round whose gates were written after its values is reported as
+a **self-assessment** and its passes are provisional.
+
+**N2 — a verdict is missing: `UNGATED`.** D6's value is measured and ranks;
+§3 says its gate is "declared per coin" and no declaration has ever been
+written for any coin in four rounds. D5-presence measures something the rubric
+has no threshold for. `UNMEASURED` is wrong (the measurement exists), `WAIVED`
+is wrong (it can be made), `N/A` is wrong (the metric has a subject), and
+declaring the gate now — having seen the value — is what §8 forbids.
+*Proposed addition to §2.1:* `UNGATED` — measured and trusted, no threshold
+ever stated. Fails like `UNMEASURED`; routes to the judge, who must state the
+gate in a round that does not also measure it.
+
+**N3 — §4.3's overlay obligation needs a mechanical assertion.**
+`_jq41disc.mjs` publishes the §4.3 overlay Appendix R6 requires. It has never
+contained a circle: `best()` returns a hough object with no `W`/`H`, so
+`tile / Math.max(undefined, undefined)` is `NaN`, and libvips drops a `NaN`
+circle silently while still drawing the text label.
+*Proposed addition to §4.3:* an overlay is not published until its geometry is
+**asserted finite before rasterising** and until the judge has **read the image
+back** and said in the round document what is in it. "The file exists" is not
+"the overlay was drawn", and "I ran the overlay tool" is not "I looked".
+
+**N4 — the same-photograph test must run on SPLITS and CROPS.** The trap has
+hit six times out of six. This instance is new in kind: `nickel-obv-proof.png`
+and `nickel-rev-proof.png` are the two halves of `nickel-proof-both.jpg`, and
+no correlation between *them* could show it, because one plate's two faces are
+genuinely uncorrelated. What found it was splitting the plate and fitting a
+disc to each half — **R = 1411.41, bit-identical**.
+*Proposed addition to §21.5 / the independence check:* split every multi-face
+plate and enter each half as a first-class reference, and print the **fitted R
+for every file in one column**. Two files with a bit-identical R are one
+photograph until proved otherwise.
+
+**N5 — a dimension can pass because we drew nothing.** D5-HF passes at
+0.27×–0.96× against a one-sided 1.5× gate. On **14 of its 24 cells our drawing
+emits no letters at all**, so the ratio compares bare field against a
+photograph that has a legend, and the emptier our drawing is the better it
+scores. This is Appendix R2's complaint one step out: R2 found a gate whose
+denominator the drawing controls; this is a gate that **rewards absence**.
+*Proposed edit to §3's D5 row:* every lettering ratio is reported beside a
+**presence flag** — did our drawing emit the feature at that tier at all — and
+a one-sided gate is **not evaluated** where the flag is false; such a cell is
+`UNGATED`, never a pass. More generally: **a one-sided gate must state what
+stops the drawing from meeting it by drawing less.**
+
+**What round 0 on the nickel says should NOT change:** §4.3 (three instruments
+caught this round, all by drawing the located feature and looking, none by
+their bounds or response tests); §3's D12 control (it corrected the judge for a
+third consecutive round, this time against three priors of the judge's own
+manufacture); §6.1's reference-invariance test (24 of 24 bit-identical, one
+extra loop); and §8's refusal to relax a gate, tested three times here and
+recorded as three misses.

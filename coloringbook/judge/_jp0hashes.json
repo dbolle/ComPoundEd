@@ -1,0 +1,126 @@
+{
+ "src/art/coins.js": {
+  "kind": "subject",
+  "sha256": "565d70716e429ca8f71c006de112d86143c8c6a3f3116a5ecbd8fa97bf183f1f"
+ },
+ "coloringbook/_headmask-penny.json": {
+  "kind": "target",
+  "sha256": "94e58055954f1802e0a6a97c35d9b2484fddbf9fed71c0d97f0b57812bddb9d4"
+ },
+ "coloringbook/_tonepatches-penny.json": {
+  "kind": "target",
+  "sha256": "b368bdbdb4306da89290706bca5745a9e30ddea2f70cb71ee32df4896f8bec80"
+ },
+ "coloringbook/_pyreg.json": {
+  "kind": "target",
+  "sha256": "37bafec1c34b9a2f3c4c913980752ca2d5d655cb679d712d965e4d02681789d4"
+ },
+ "coloringbook/_rvtarget.json": {
+  "kind": "target",
+  "sha256": "034bcb0ab7b272345572576305234e122d810097200527e77451379886b7d775"
+ },
+ "coloringbook/ref/penny-obv.jpg": {
+  "kind": "reference",
+  "sha256": "bc663dc496f2d2b130a410ce6b6f7bff21d9ddac1a970072fdf55817a405a065"
+ },
+ "coloringbook/ref/penny-obv-2.jpg": {
+  "kind": "reference",
+  "sha256": "3615e64428191d48c6a4118ae3585224ca14d7080bb04f15feed4f202f070e38"
+ },
+ "coloringbook/ref/penny-obv-3.jpg": {
+  "kind": "reference",
+  "sha256": "fe1b8cf868a62560a5eca6287d901b9d75346f2bb10acf5d727b70827d67e543"
+ },
+ "coloringbook/ref/penny-obv-4.png": {
+  "kind": "reference",
+  "sha256": "c7e5d02b248b26be7de4a53c13f6f0b2be8003ccd4ef6f1b8bf9acdad8a4c52f"
+ },
+ "coloringbook/ref/penny-rev.jpg": {
+  "kind": "reference",
+  "sha256": "23ee8c2e140cfe02d82d11647424ad5f779d95253b9f4c6e4e3dac0ef669be24"
+ },
+ "coloringbook/ref/penny-rev-2.png": {
+  "kind": "reference",
+  "sha256": "0105b257503a9455b80c91ca43a815042b84d9aad50ec7f9556875496b60db71"
+ },
+ "coloringbook/ref/penny-rev-artwork.jpg": {
+  "kind": "reference",
+  "sha256": "622069e8964d79612ef195fcdaaee46583c1d6d939808410ed50fc3a2c38c5de"
+ },
+ "coloringbook/judge/_jqgeom.mjs": {
+  "kind": "eval",
+  "sha256": "38e0eef4234129c540e1d8f81df9086e97dec2e88631b98891a10ff6596c6390"
+ },
+ "coloringbook/judge/_jq8contain-v2.mjs": {
+  "kind": "eval",
+  "sha256": "512f61d57444b288264269b34b2d3ddaac244a62e777f9a657e5fd2bda1b86c6"
+ },
+ "coloringbook/judge/_jq8depth.mjs": {
+  "kind": "eval",
+  "sha256": "2e655dfd6e45b9ff20cac8093251405408284f62efc79b8459797512ed29cef8"
+ },
+ "coloringbook/judge/_jq8depthrun.mjs": {
+  "kind": "eval",
+  "sha256": "1041b7f7542e047ad5448081416dd956efa565284c8c433a12c642294c6f9768"
+ },
+ "coloringbook/judge/_jq9well.mjs": {
+  "kind": "eval",
+  "sha256": "d07d61504aa150a713f2642e1e6bfaa7116da02841a7856fe829b03d4147244f"
+ },
+ "coloringbook/judge/_jq67edge.mjs": {
+  "kind": "eval",
+  "sha256": "419c4666a2e6f44515bf79e84792631eb99607272e2739c32f6ef8da3d177408"
+ },
+ "coloringbook/judge/_jq10tier-v2.mjs": {
+  "kind": "eval",
+  "sha256": "6aca74664beee694c3211131e1624a5a4a14a900919797da973531e85d6d00d9"
+ },
+ "coloringbook/judge/_jq11disc.mjs": {
+  "kind": "eval",
+  "sha256": "5cd4dcf745cb1eaeea1288fcde67709113e1dead139ae864e59facbb6e49766d"
+ },
+ "coloringbook/judge/_jq20indep.mjs": {
+  "kind": "eval",
+  "sha256": "80aec1aa76b7dd1d398461f1d9873b0a3d1ef25d2c816a58bdfd3ffc18e94e61"
+ },
+ "coloringbook/judge/_jq23count.mjs": {
+  "kind": "eval",
+  "sha256": "9f05815463cb8125596f7eb8e85607704bc24500d1d815b0177c9cdd755a04ed"
+ },
+ "coloringbook/judge/_jq44unwrap.mjs": {
+  "kind": "eval",
+  "sha256": "0af96e9ebcbf4f14c687e577fe34c482a4511e76dfe97dfd7b4ddab3d8f5f38e"
+ },
+ "coloringbook/_pylib.mjs": {
+  "kind": "eval",
+  "sha256": "3574b774d9645e72aec7a15a1e1d9d1397c1098c67e819c4a903fae7d7936037"
+ },
+ "coloringbook/_pyeval.mjs": {
+  "kind": "eval",
+  "sha256": "604fe26cf752fc6b6bfca6f32693ffb31a4929a5cb48ea7e0c3c194e0ebf057a"
+ },
+ "coloringbook/_rvnorm.mjs": {
+  "kind": "eval",
+  "sha256": "90edc1ebd95203d4bd00d76583cdc7dab5683a76cf7315f182f0ff2cc69f4dff"
+ },
+ "coloringbook/_rvlib2.mjs": {
+  "kind": "eval",
+  "sha256": "1766e31856e5f0365016a55d7b8b22e4e9d0791ffec436b04e71fb7be27b116d"
+ },
+ "coloringbook/_x6lib.mjs": {
+  "kind": "eval",
+  "sha256": "f5339d0fc744340e1feed977d17881a02ef45b5021772d5efd421157ae47b9d7"
+ },
+ "coloringbook/_x6dark.mjs": {
+  "kind": "eval",
+  "sha256": "56e7c9440c9c2081504aff07ca684ba805be55e5d6e7d872972e9b9b7ca62bfa"
+ },
+ "coloringbook/judge/_jp1discs.json": {
+  "kind": "roundTarget",
+  "sha256": "de72c3e35287a49db1cef76fec59fecd0a1ebbc0cd32d53b9bc43b679b2bbbca"
+ },
+ "coloringbook/judge/_jp4band.json": {
+  "kind": "roundTarget",
+  "sha256": "d92b8c7b57f2a743e895c679ce5b86929c0ab7a90b31c320820e263c56d93fc4"
+ }
+}

@@ -1,0 +1,333 @@
+{
+  "coin": "nickel",
+  "round": 0,
+  "date": "2026-08-14",
+  "commit": "5c1aeb1",
+  "subject": { "src/art/coins.js": "sha256:565d70716e429ca8f71c006de112d86143c8c6a3f3116a5ecbd8fa97bf183f1f" },
+  "targets": {
+    "coloringbook/_headmask-nickel.json": "sha256:58eaa016e0481a8f",
+    "coloringbook/_rvtarget.json": "sha256:034bcb0ab7b27234",
+    "coloringbook/_nkicp.json": "sha256:4b4d703d458f4769",
+    "coloringbook/_nkreg.json": "sha256:5b2bdff97b3677fb",
+    "coloringbook/judge/_jn1discs.json": "sha256:fb5e43261ade106c",
+    "ref/nickel-obv.jpg": "sha256:87744e23c452670e",
+    "ref/nickel-obv-3.png": "sha256:432900bcdadf21af",
+    "ref/nickel-obv-4.jpg": "sha256:baf36e9c361672de",
+    "ref/nickel-obv-5.JPG": "sha256:98844ad0e718b076",
+    "ref/nickel-obv-proof.png": "sha256:fe61e366883e9021",
+    "ref/nickel-proof-both.jpg": "sha256:a822706160b92b63",
+    "ref/nickel-rev.jpg": "sha256:a1791666398dc2e7",
+    "ref/nickel-rev-2.png": "sha256:697bfb228cc6ce06",
+    "ref/nickel-rev-proof.png": "sha256:d323c18ceed592bc"
+  },
+  "evals": {
+    "_jqgeom.mjs": "sha256:38e0eef4234129c5",
+    "_jq8contain-v2.mjs": "sha256:512f61d57444b288",
+    "_jq9well.mjs": "sha256:d07d61504aa150a7",
+    "_jq67edge.mjs": "sha256:419c4666a2e6f445",
+    "_jq10tier-v2.mjs": "sha256:6aca74664beee694",
+    "_jq43seg.mjs": "sha256:98a6ad0c471a93e6",
+    "_jq20indep.mjs": "sha256:80aec1aa76b7dd1d",
+    "_jq41disc.mjs": "sha256:5c6a81d8620d7090",
+    "_nkeval.mjs": "sha256:6bd0ec900029b1a8",
+    "_nkparts.mjs": "sha256:3fb1f6d64321e6d2",
+    "_rvnorm.mjs": "sha256:90edc1ebd95203d4",
+    "_rvscore.mjs": "sha256:d5db0bfc0256386d",
+    "_rvlib2.mjs": "sha256:1766e31856e5f036",
+    "_x6lib.mjs": "sha256:f5339d0fc744340e",
+    "_x6dark.mjs": "sha256:56e7c9440c9c2081",
+    "_jn1disc.mjs": "sha256:3ac0b403676dec11",
+    "_jn1over.mjs": "sha256:235e247a62e7c21d",
+    "_jn2indep.mjs": "sha256:accdee9e51ced495",
+    "_jn3unwrap.mjs": "sha256:24c0dae370da550f",
+    "_jn4band.mjs": "sha256:c33f41fbcc11c982",
+    "_jn5rim.mjs": "sha256:aae421784d972083",
+    "_jn6iou.mjs": "sha256:6e756627f94988b9",
+    "_jn8tier.mjs": "sha256:378215ad3243d9d8",
+    "_jn9d13.mjs": "sha256:9c04e2c80c688feb",
+    "_jn10hf.mjs": "sha256:335910d9c7176081",
+    "_jn11look.mjs": "sha256:7240c1feec507fae",
+    "_jn12seg.mjs": "sha256:7977eefd28694958",
+    "_jn13d6.mjs": "sha256:e44fd203ef5b0cdf"
+  },
+  "dimensions": [
+    {
+      "id": "D1", "side": "obverse", "name": "obverse silhouette",
+      "metric": "region IoU vs _headmask-nickel.json; ours = HEAD from the shipped SVG union the bare neck (§11.5)",
+      "locus": "v <= 0.33 in disc coordinates, frozen with the target; 1024^2 grid",
+      "gate": ">= 0.95", "value": 0.98946, "verdict": "PASS",
+      "response_test": "cx+1 -> 0.95506; cy+1 -> 0.96528; s x1.03 -> 0.95186; s x0.978 -> 0.96453. Four perturbations, four different answers, none bit-identical.",
+      "caveat": "SCALE CONFIDENCE. The two registrations behind this target agree on shape to 0.137% and 0.373% of diameter and disagree by 2.21% on portrait-to-disc scale. Re-derived this round: that gap alone is worth 0.0104 of IoU at this placement. §11.4 asserts ~0.04; the measured figure is 0.0104 and §11.4's number should be re-checked by whoever owns the method doc.",
+      "owner": "silhouette", "round_first_measured": 0
+    },
+    {
+      "id": "D1", "side": "reverse", "name": "obverse silhouette", "metric": "n/a",
+      "locus": "n/a", "gate": "n/a", "value": null, "verdict": "N/A",
+      "justification": "The reverse motif's silhouette is D2's subject, not D1's. Scoring it twice would double-count one measurement.",
+      "owner": "silhouette", "round_first_measured": 0
+    },
+    {
+      "id": "D2", "side": "reverse", "name": "reverse motif silhouette",
+      "metric": "freeze test first: min pairwise device IoU across the threshold sweep, then cross-reference agreement",
+      "locus": "r <= 0.862 R on a 700^2 disc-normalised grid; motif = connected component of {grey >= T} containing the centre; T = Tv +- 15 step 5, Tv the photograph's own histogram valley floor",
+      "gate": "self-agreement >= 0.97 AND two independent references >= 0.95, before any target is frozen",
+      "value": { "nickel-rev-proof.png": { "minPairwise": 0.8361, "minAdjacent": 0.9562, "areaMonotone": true, "areaPctField": [34.2, 32.7, 31.7, 31.2, 30.1, 29.5, 28.6] }, "nickel-rev-2.png": { "minPairwise": 0.0, "note": "polarity inverted: the device is DARK against a LIGHT field, so a {grey >= T} component rule returns 1 cell. This is an instrument limitation, not a fact about the coin." }, "nickel-rev.jpg": { "minPairwise": 0.0043, "areaMonotone": true } },
+      "verdict": "UNMEASURED",
+      "routes_to": "the JUDGE, not an acquisition and not a specialist",
+      "justification": "Appendix R3: BLOCKED means no artefact we have can measure it, not 'the instrument I built cannot'. The overlay _jn12seg-nickel-rev-proof.png shows all seven thresholds' contours running along Monticello's own dome, pediment, portico, wings, terrace and end pavilions, tight to the building and — unlike the quarter's eagle — NOT welded to either legend. Nearly all of the 0.164 of disagreement is INTERIOR holes in the frosting, not silhouette. Two pieces of judge work would settle it and neither needs a photograph: (1) fill interior holes, which _nkseg.segment() already does and _jq43seg.motif() does not; (2) run the light-field references in the opposite polarity. The nickel is much closer to a frozen reverse target than the quarter ever got.",
+      "overlay": "coloringbook/judge/_jn12seg-nickel-rev-proof.png",
+      "owner": "judge", "round_first_measured": 0
+    },
+    {
+      "id": "D2", "side": "obverse", "name": "reverse motif silhouette", "metric": "n/a",
+      "locus": "n/a", "gate": "n/a", "value": null, "verdict": "N/A",
+      "justification": "There is no reverse motif on the obverse; D1 carries the obverse silhouette.",
+      "owner": "silhouette", "round_first_measured": 0
+    },
+    {
+      "id": "D3", "side": "obverse", "name": "interior tone",
+      "metric": "mean |delta ratio| over a frozen, cheek-normalised patch set",
+      "locus": "no frozen patch set exists for this coin",
+      "gate": "<= 1/2 the flat-drawing floor", "value": null, "verdict": "UNMEASURED",
+      "routes_to": "the JUDGE — freezing a target is judge work",
+      "justification": "The nickel has no `_tonepatches-nickel.json`. The dime, the cent and the quarter each have one; the nickel's phase-1 pass measured ONE ratio (method doc §11.6: hair 1.36x the cheek on the coin, 0.85x in our drawing) and never froze a patch set. §2: a dimension nobody has measured is not passing. What it needs is a nickel local frame plus a containment-checked patch set plus the flat-drawing floor — about the work `_pyfreezetone.mjs` did for the cent.",
+      "related_evidence": "D13-obverse independently says our obverse is far too inky at every tier, which is a level error D3 would also see.",
+      "owner": "judge", "round_first_measured": 0
+    },
+    {
+      "id": "D3", "side": "reverse", "name": "interior tone",
+      "metric": "mean |delta ratio| over a frozen, cheek-normalised patch set",
+      "locus": "no frozen patch set and no normaliser exist for this side",
+      "gate": "<= 1/2 the flat-drawing floor", "value": null, "verdict": "UNMEASURED",
+      "routes_to": "the JUDGE", "owner": "judge", "round_first_measured": 0
+    },
+    {
+      "id": "D4", "side": "reverse", "name": "structural rhythm (mid and full tiers)",
+      "metric": "portico column count and centre positions vs _rvtarget.json, measured off OUR OWN RENDER with the same instrument used on the photographs",
+      "locus": "Y 46.0..56.0, X 34..66 (the portico band), frozen by the reverses pass in _rvscore's nickel SPEC",
+      "gate": "count error 0; mean |dPos| <= 0.15 gaps; worst <= 0.30",
+      "value": { "190px": { "count": 4, "error": 0, "meanGaps": 0.007, "worstGaps": 0.018, "centres": [38.07, 45.31, 53.03, 60.07], "spanScaleErr": "-2.6%" }, "84px": { "count": 4, "error": 0, "meanGaps": 0.008, "worstGaps": 0.019 }, "54px": { "count": 4, "error": 0, "meanGaps": 0.007, "worstGaps": 0.014 } },
+      "target": { "count": 4, "centres": [39.07, 46.23, 53.9, 61.2], "independentCounts": 3, "note": "nickel-rev-2.png, nickel-rev-proof.png and nickel-rev.jpg all give FOUR and agree on the centres to 0.6 of a unit." },
+      "verdict": "PASS",
+      "response_test": "the same extrema instrument returns 9 and 13 on synthetic combs of 9 and 13 and 0 on a flat field (re-run on the quarter in round 4 at this hash).",
+      "note": "THE FOUR COLUMNS SURVIVED. v1.56.0 corrected a six-column drawing whose own source comment asserted six was 'the real count'; three independent photographs say four, and our render now measures four at every tier that draws a colonnade.",
+      "owner": "rhythm", "round_first_measured": 0
+    },
+    {
+      "id": "D4-icon", "side": "reverse", "name": "structural rhythm at the icon tier",
+      "metric": "same", "locus": "same",
+      "gate": "count error 0", "value": { "count": 1, "error": 3 }, "verdict": "FAIL",
+      "justification": "At icon the drawing deliberately substitutes ONE lit block for the four-column portico, on the documented ground that 'three field-coloured slots at 23px are stripes, not a portico' (§15.4). That decision is reasoned and it is in the source; it has never been SCORED, and §15.4's own title is 'the rhythm must survive the tier drop'. It is recorded as a miss rather than exempted, because §8 forbids writing an exemption after seeing the value. What the round can say is that a reader should treat this as a design decision to re-examine, not as a bug.",
+      "owner": "rhythm", "round_first_measured": 0
+    },
+    {
+      "id": "D4", "side": "obverse", "name": "structural rhythm",
+      "metric": "n/a", "locus": "n/a", "gate": "n/a", "value": null, "verdict": "N/A",
+      "justification": "Waiver-grade: the Jefferson obverse is a single portrait. There is no repeated structural element on the coin — no colonnade, no wreath, no bay rhythm — so the metric has no subject. Checked against the references rather than assumed: `_jn3unwrap-nickel-obv-5.png` and `-nickel-obv.png` show one head, one queue, one collar.",
+      "owner": "rhythm", "round_first_measured": 0
+    },
+    {
+      "id": "D5-band", "side": "reverse", "name": "lettering — band radius",
+      "metric": "legend band inner radius, ours (from the source's own arithmetic) vs the REFERENCES' angular high-pass band",
+      "locus": "E PLURIBUS UNUM sector 225-315 deg; UNITED STATES OF AMERICA sector 30-150 deg; radial window r 33..46 step 0.05; angular high-pass sigma 3.0 deg. Frozen literals from the target.",
+      "gate": "+- 1.5 viewBox units",
+      "value": { "E PLURIBUS UNUM": { "coin": 36.80, "perRef": [37.05, 37.20, 36.15], "ours": 36.40, "delta": -0.40 }, "UNITED STATES OF AMERICA": { "coin": 36.72, "perRef": [36.60, 37.25, 36.30], "ours": 36.35, "delta": -0.37 } },
+      "verdict": "PASS",
+      "overlay": "coloringbook/judge/_jn5-nickel-rev-2.png",
+      "owner": "lettering", "round_first_measured": 0
+    },
+    {
+      "id": "D5-band", "side": "obverse", "name": "lettering — band radius",
+      "metric": "same",
+      "locus": "IN GOD WE TRUST sector 140-210 deg; LIBERTY sector 318-352 deg",
+      "gate": "+- 1.5 viewBox units",
+      "value": { "IN GOD WE TRUST": { "coin": 37.18, "perRef": [36.90, 37.45], "ours": 36.05, "delta": -1.13 }, "LIBERTY": { "coin": 36.85, "perRef": [36.85, 36.85], "ours": 35.54, "delta": -1.31 } },
+      "verdict": "PASS",
+      "caveat": "Both are inside the gate by less than 0.4 of a unit, and both are inboard. `nickel-obv-5.JPG` was DROPPED from this row: the located band drawn on its unwrap plainly disagrees with the letters in the picture (§4.3), and a number the overlay contradicts is not a value.",
+      "overlay": "coloringbook/judge/_jn5-nickel-obv-5.png",
+      "owner": "lettering", "round_first_measured": 0
+    },
+    {
+      "id": "D5-cap", "side": "reverse", "name": "lettering — cap height",
+      "metric": "cap height, ours = 0.72 x font size; the coin's from the high-pass band width, cross-checked by an independent advance-arithmetic route",
+      "locus": "as D5-band",
+      "gate": "+- 15% of the coin's",
+      "value": { "coin": 5.8, "coin_range": [5.4, 6.1], "coin_crosscheck": "E PLURIBUS UNUM spans ~88 deg of arc read off the unwrap; 15 chars = 14 advances; at r 40 that is 4.39 units/advance, and a bold caps face advances ~0.72 x cap, giving cap ~6.1. UNITED STATES OF AMERICA spans ~134 deg, 23 advances, 4.03 units/advance, cap ~5.6. Two methods sharing no step.", "ours": 3.24, "fraction_of_coin": 0.56 },
+      "verdict": "FAIL",
+      "note": "The same failure the quarter had (46% and 57% before repair). Our nickel legend is in the right PLACE at a bit over half the right SIZE — round 4's S5 exactly: a dimension can pass on radius while the feature is plainly wrong, because the dimension was specified as a radius and the error is a size.",
+      "owner": "lettering", "round_first_measured": 0
+    },
+    {
+      "id": "D5-cap", "side": "obverse", "name": "lettering — cap height",
+      "metric": "same", "locus": "as D5-band", "gate": "+- 15% of the coin's",
+      "value": { "coin": 5.7, "LIBERTY_ours": 4.03, "LIBERTY_fraction": 0.71, "IN_GOD_WE_TRUST_ours": 3.60, "IGWT_fraction": 0.63 },
+      "verdict": "FAIL", "owner": "lettering", "round_first_measured": 0
+    },
+    {
+      "id": "D5-HF", "side": "both", "name": "lettering — along-band high-frequency energy",
+      "metric": "mean |first difference| along the arc, ours / the reference reduced to the SAME device pixel count, each normalised by its own p90 field level",
+      "locus": "r = 40.00 (reverse) and r = 40.05 (obverse) — the mid-radius of the band the REFERENCES show, written as literals; sectors as D5-band",
+      "gate": "<= 1.5x, one-sided (undershoot is the safe side, §22.4)",
+      "value": { "worst_ratio": 0.964, "range": "0.266x - 0.964x over 24 tier x legend combinations", "at_84px": { "E PLURIBUS UNUM": 0.717, "UNITED STATES OF AMERICA": 0.572, "IN GOD WE TRUST": 0.600, "LIBERTY": 0.482 } },
+      "verdict": "PASS",
+      "response_test": "REFERENCE-INVARIANCE (§6.1, mandatory): the same references scored against src/art/coins.js and against coloringbook/pre-nickel.js returned BIT-IDENTICAL reference-side numbers in all 24 cells. This is the test round 2 on the quarter failed, and it is the reason the 1.51x there was really 2.01x.",
+      "caveat": "Passing here is nearly meaningless on its own: on 14 of the 24 rows OUR DRAWING EMITS NO LETTERS AT ALL, so the ratio is measuring bare field against a legend. See D5-presence.",
+      "owner": "lettering", "round_first_measured": 0
+    },
+    {
+      "id": "D5-presence", "side": "reverse", "name": "lettering — is a legend drawn at all",
+      "metric": "does our drawing emit <text> at the tiers where the reference, reduced to the same device pixel count, still resolves separated letter-marks",
+      "locus": "as D5-HF",
+      "gate": "BASELINE, NO GATE — no gate has ever been stated for this and §8 forbids inventing one after the value",
+      "value": { "REV_TEXT_MIN": 135, "first_size_that_draws": 156, "at_84px_ours": "no legend", "at_84px_reference_HF": { "E PLURIBUS UNUM": 0.1233, "UNITED STATES OF AMERICA": 0.1762 }, "missing_entirely_at_every_tier": "MONTICELLO (the coin sets it at Y ~64.5, X 20..80; we never draw it)" },
+      "verdict": "UNMEASURED",
+      "justification": "The value is measured; the RUBRIC has no gate for it. At 84 px — the box `money.js` gives a coin when wave 1 asks a child to name it — our nickel reverse draws no words and the coin has four lines of them, and the photograph at 73 device pixels still shows those words as separated marks rather than a smear (HF 0.12-0.18 against 0.0 for a coin drawing nothing). This is the same finding the quarter's round 0 made; the quarter's floor came down from 135 to 84 as a result. The nickel's `REV_TEXT_MIN` is still the shared 135 and the source says in as many words that 'nobody has rendered the nickel's legend against its own photograph yet'. Somebody has now.",
+      "owner": "lettering", "round_first_measured": 0
+    },
+    {
+      "id": "D5-rim", "side": "both", "name": "the field circle against the coin's own rim seat",
+      "metric": "rim seat = the innermost radius outboard of the legend at which the along-angle MEAN grey falls more than 25 levels below the field level (median mean over r 41..43)",
+      "locus": "whole circle; search window r 42.0..46.5; both bounds printed",
+      "gate": "+- 1.0 viewBox unit (round 4's quarter D5-rim gate, stated there before any nickel value existed)",
+      "value": { "coin": 44.33, "perRef": { "nickel-rev.jpg": 44.05, "nickel-obv.jpg": 44.15, "nickel-rev-2.png": 44.30, "nickel-obv-5.JPG": 44.80 }, "sd": 0.32, "ours": { "full": 41.0, "mid": 40.5, "icon": 42.5 }, "delta": { "full": -3.33, "mid": -3.83, "icon": -1.83 } },
+      "verdict": "FAIL",
+      "excluded": "nickel-obv-proof.png (45.70) and nickel-rev-proof.png (43.20) are excluded: this rule is PHOTOMETRIC and a cameo proof's field is a black mirror (§20.3/§20.4). They are also one photograph, not two.",
+      "corroboration": "The quarter's round 4 measured its own rim seat at 44.2 on three references by a completely different method (a viewBox ladder read by eye off a polar unwrap). Two coins, two methods, 44.33 and 44.2 — 0.13 units apart.",
+      "consequence": "The coin gives its legend 44.33 - 36.8 = 7.53 units of band. We give it 41.0 - 36.4 = 4.60. That is why D5-cap cannot be fixed by a specialist working inside `EDGE`: growing the cap to the coin's ~5.8 puts the cap box outside the field circle and converts a lettering failure into a D8 containment failure. It is the identical wall the quarter hit (7.7 vs 4.6).",
+      "routes_to": "the JUDGE / the owner — `EDGE[id].field` is ONE literal shared by all four coins and `scripts/coin-shared-claims.mjs` flags it. Two of the four have now been measured and both say ~44.2-44.3.",
+      "owner": "judge", "round_first_measured": 0
+    },
+    {
+      "id": "D6", "side": "both", "name": "edge quality",
+      "metric": "width-variation ratio per mark (a stroke-rendered mark is 1.000 by construction); FRACTION OF DRAWN LENGTH carried by ratio-1.000 marks. Lettering, the blank, the two field circles and the specular arc excluded by name.",
+      "locus": "every drawn mark at 26 / 44 / 84 / 190 px",
+      "gate": "BASELINE, NO GATE. §3 says D6's gate is 'declared per coin' and no declaration has ever been written for any coin.",
+      "value": { "obverse": { "26": 0.0, "44": 0.0115, "84": 0.1171, "190": 0.1592 }, "reverse": { "26": 0.0, "44": 0.0, "84": 0.0, "190": 0.0035 } },
+      "verdict": "UNMEASURED",
+      "justification": "The metric §3 asks for had never been implemented — `_jq67edge.mjs` still runs the bounding-box neighbour test that Appendix P1 SUPERSEDED, and on the nickel it duly flags 10 of 10 and 17 of 17 stroke marks, which cannot rank and cannot route. `_jn13d6.mjs` implements the adopted metric. It ranks: the dime, whose jaw line §14 names as the known instance, reads 24.9% and 35.2% against the nickel's 11.7% and 15.9%. The value exists; the per-coin gate the rubric requires does not, and inventing one now, after the value, is what §8 forbids.",
+      "owner": "edge", "round_first_measured": 0
+    },
+    {
+      "id": "D7", "side": "obverse", "name": "curve quality",
+      "metric": "max knot turn. §3 as revised by Appendix P2: FITTED CONTOURS ONLY; a path authored as a polygon declares its corners in the scorecard, by index, and a path with NO DECLARATION IS SCORED WHOLE.",
+      "locus": "every scored path in the shipped SVG at 190 px",
+      "gate": "0 knots turning > 75 degrees",
+      "value": { "fitted_contours": { "HEAD.Jefferson (37 knots)": 71.5, "the hair/queue path (34 knots)": 69.9, "knots_over_75": 0 }, "undeclared_authored_paths": { "coat back seam": 134.7, "coat front seam": 111.8, "shared EAR glyph": 90.6, "knots_over_75": 5 } },
+      "verdict": "FAIL",
+      "justification": "On the fitted contours alone the nickel obverse passes at 71.5 degrees, comfortably. It fails because P2's exemption is conditional on a DECLARATION that does not exist: no corner declaration has ever been written, for this coin or any other, so 'a path with no declaration is scored whole' applies and the three authored paths above are in scope. The repair is cheap and is not art: write the declaration. The list above is it.",
+      "owner": "silhouette", "round_first_measured": 0
+    },
+    {
+      "id": "D7", "side": "reverse", "name": "curve quality",
+      "metric": "same", "locus": "same", "gate": "0 knots turning > 75 degrees",
+      "value": { "fitted_contours": "none — the Monticello motif is authored rectangles, one arc and two triangles; there is no fitted contour on this side", "undeclared_authored_paths": { "the pediment triangle M 50 34.5 L 67 41.5 L 33 41.5 Z": 157.6, "the centre-door pediment": 71.2, "knots_over_75": 3 } },
+      "verdict": "FAIL",
+      "justification": "Same reason: the pediment's apex is a corner the die genuinely cuts, and it is exempt the moment somebody declares it. Nobody has.",
+      "owner": "silhouette", "round_first_measured": 0
+    },
+    {
+      "id": "D8", "side": "obverse", "name": "containment",
+      "metric": "% of drawn path length outside EDGE.nickel.field[tier], AND deepest breach in viewBox units",
+      "locus": "EDGE.nickel.field[tier]; the full candidate circle set is printed on every row and reads `47(blank,rejected) 40.5(fill) 40.5(ring)`",
+      "gate": "0.00% at every tier; a breach shallower than 0.01 units (n2()'s quantum) is reported at its depth and does not count",
+      "value": { "worst_fraction": 0.080928, "at": "44 and 54 px (mid)", "deepest_breach_units": 1.4698, "deep_fraction": 0.027972, "per_tier": { "26,38 icon": 0.0, "44,54 mid": 0.080928, "76 full": 0.037634, "84 full": 0.036612, "120 full": 0.030829, "190 full": 0.022639, "380 full": 0.021302 }, "max_radius": 41.970 },
+      "verdict": "FAIL",
+      "diagnosis": "Two separate offenders, and only one of them is the bevel. (1) HEAD.Jefferson's own outline reaches r 40.640 BEFORE any offset — 0.1398 units outside the mid field circle of 40.5, on 3.74 units of length per copy. (2) `bust()` emits two offset copies of the same path at translate(-+ro) with NO bound, and that carries the lit copy to 41.970 — a breach of 1.4698 units on 22.17 units of length. `struck()` already bounds the reverse's offset with `fitOff(o, solid, rField)`; `bust()` does not, and `src/art/coins.js:3307-3313` says so in its own comment. Both fixes are small and neither needs the head redrawn from scratch.",
+      "response_test": "the instrument's own RESPONSE=1 moves a mark 20 units outward and the fraction goes from 0 to clearly non-zero (validated on the quarter at this hash).",
+      "owner": "last toucher / silhouette", "round_first_measured": 0
+    },
+    {
+      "id": "D8", "side": "reverse", "name": "containment",
+      "metric": "same", "locus": "same", "gate": "0.00% at every tier",
+      "value": { "worst_fraction": 0.0, "deepest_breach_units": 0.0, "max_radius": 41.691 },
+      "verdict": "PASS",
+      "note": "The reverse is clean because `struck()` runs its massing through `fitOff`. That is the proof the obverse fix works: the mechanism already exists in this file.",
+      "owner": "last toucher", "round_first_measured": 0
+    },
+    {
+      "id": "D9", "side": "both", "name": "well-formedness",
+      "metric": "undefined / NaN / Infinity / null / empty attribute / unbalanced tags over 5 ids x 2 sides x 2 value x 9 sizes",
+      "locus": "180 renders", "gate": "0", "value": 0, "verdict": "PASS",
+      "response_test": "RESPONSE=1 injects `undefined` into one emitted attribute and the sweep catches it and names the render.",
+      "owner": "blocking", "round_first_measured": 0
+    },
+    {
+      "id": "D10", "side": "obverse", "name": "tier behaviour",
+      "metric": "boundary d(ink) in ABSOLUTE units beside the ratio to the within-tier p90; plus the within-tier jump distribution",
+      "locus": "sizes 26..200 step 2 (widened past 120 so the legend switches at boxW 62, 110 and 135 are inside the window — Appendix R2)",
+      "gate": "boundary jump <= 4x the within-tier p90",
+      "value": { "icon->mid (42->44)": { "dInk_abs": 0.1895, "ratio": 24.21 }, "mid->full (74->76)": { "dInk_abs": 0.0145, "ratio": 1.86 }, "within_tier": { "n": 85, "median": 0.0017, "p90": 0.0078, "max": 0.0381 } },
+      "verdict": "FAIL",
+      "note": "24.21x is by a wide margin the worst tier boundary measured on any coin in four rounds (the quarter's worst was 5.9x). The numerator is absolute and large — 0.1895 of ink fraction — so this is not R2's denominator artefact. Four of the largest within-tier pops (26->28 through 40->42) also sit inside the icon tier itself.",
+      "regression_check": "ID=quarter on the published 26..120 window reproduces the quarter's own 3.44x / 1.72x exactly.",
+      "owner": "tier", "round_first_measured": 0
+    },
+    {
+      "id": "D10", "side": "reverse", "name": "tier behaviour",
+      "metric": "same", "locus": "same", "gate": "boundary jump <= 4x the within-tier p90",
+      "value": { "icon->mid (42->44)": { "dInk_abs": 0.0438, "ratio": 2.31 }, "mid->full (74->76)": { "dInk_abs": 0.0427, "ratio": 2.25 }, "within_tier": { "n": 85, "median": 0.0052, "p90": 0.0190, "max": 0.0876 } },
+      "verdict": "PASS",
+      "note": "Reported beside the pass, per R2: the single largest discontinuity anywhere on this side is WITHIN a tier — 0.0876 at 154->156, 16.8x the within-tier median, where the reverse legend switches on. The gate cannot see it.",
+      "owner": "tier", "round_first_measured": 0
+    },
+    {
+      "id": "D11", "side": "both", "name": "discriminability",
+      "metric": "_x6lib MAD, greyscale, icon tier, every coin at equal width on a 64^2 grid",
+      "locus": "icon tier, 26 px, frozen",
+      "gate": "round 0 establishes the baseline; later rounds: no regression",
+      "value": { "nickel.o vs dime.o": 0.0534, "nickel.o vs quarter.o": 0.0738, "nickel.o vs penny.o": 0.1867, "nickel.r vs dime.r": 0.0812, "nickel.r vs quarter.r": 0.1037, "nickel.r vs penny.r": 0.1905, "nickel.o vs nickel.r": 0.0861, "set_overall_min": 0.0534, "set_reverse_min": 0.0812, "set_obverse_min": 0.0534 },
+      "verdict": "PASS",
+      "escalate": { "id": "§17 set gate", "metric": "reverse minimum / obverse minimum", "gate": ">= 3.0x", "value": 1.52, "verdict": "ESCALATE", "note": "§6.2 requires this on every scorecard until it is met. It was 1.49x in round 0 on the quarter and is 1.52x now." },
+      "coin_note": "THE NICKEL OBVERSE IS ONE HALF OF THE SET'S CLOSEST PAIR. nickel.o vs dime.o = 0.0534 is the overall minimum across all 28 pairs, and nickel.o also makes the third-closest pair. Any repair that darkens or simplifies the nickel obverse further has to be checked here first.",
+      "response_test": "_x6check: all 32 palette colours exact through the raster path, field recovered as 212 and 148; mad(self)=0, mad(100,140)=0.156863 against a closed form.",
+      "owner": "cross-coin", "round_first_measured": 0
+    },
+    {
+      "id": "D12", "side": "both", "name": "looked at",
+      "metric": "the judge reads the render at 26/44/84/190 px at the real device pixel count, with a CONTROL rendered and read FIRST",
+      "locus": "n/a", "gate": "must have happened, and what was seen is written down",
+      "value": { "control": "coloringbook/judge/_jn11-control.png — the DIME, both sides, four tiers, untouched this round", "subject": "coloringbook/judge/_jn11-subject.png — the nickel, both sides, four tiers, each beside its own photograph reduced to the SAME device pixel count" },
+      "verdict": "PASS",
+      "what_the_control_settled": "I went in holding three numbers of my own manufacture that all say 'the nickel obverse is a dark blob'. The dime control is EQUALLY dark at 26 px, so 'inky icon portrait' is a property of bust() and the palette and is not attributable to the nickel. What the control does NOT show, and the nickel does, is the head crossing and interrupting the pale rim ring on the left at 26 and 44 px — which is D8's 1.47 units, visible. The vertical seam artefact in the 26 px panels appears in the control too and is my sheet's, not the art's.",
+      "owner": "judge", "round_first_measured": 0
+    },
+    {
+      "id": "D13", "side": "obverse", "name": "device against field",
+      "metric": "mean/field and ink fraction over the disc interior, ours vs ref/nickel-obv.jpg reduced to the SAME device pixel count, each normalised by its own p90 field",
+      "locus": "r < 40 (whole interior) and r < 33 (inside every legend, §22.8)",
+      "gate": "|delta mean/field| <= 0.05 at each tier",
+      "value": { "26px": { "ref": 0.8549, "ours": 0.7115, "delta": -0.1434, "inkRef": 0.402, "inkOurs": 0.644 }, "44px": { "ref": 0.8585, "ours": 0.7444, "delta": -0.1141, "inkRef": 0.366, "inkOurs": 0.781 }, "84px": { "ref": 0.8551, "ours": 0.7669, "delta": -0.0882, "inkRef": 0.332, "inkOurs": 0.735 } },
+      "verdict": "FAIL",
+      "note": "Outside the gate at every tier, in the same direction: our obverse is far too dark and carries roughly TWICE the ink the coin does. The RAD-33 rows at 26 and 44 px are NOT used: the instrument's own §22.1 assert fired, recovering field levels of 210 and 180 instead of the palette's 212, because at that radius and that device pixel count the p90 no longer lands on bare field. Reporting the assert rather than the number is the point of having it.",
+      "owner": "tone", "round_first_measured": 0
+    },
+    {
+      "id": "D13", "side": "reverse", "name": "device against field",
+      "metric": "same, vs ref/nickel-rev-2.png", "locus": "same", "gate": "|delta mean/field| <= 0.05 at each tier",
+      "value": { "26px": { "ref": 0.8482, "ours": 0.8617, "delta": 0.0135, "inkRef": 0.475, "inkOurs": 0.387 }, "44px": { "ref": 0.8550, "ours": 0.8880, "delta": 0.0330, "inkRef": 0.478, "inkOurs": 0.372 }, "84px": { "ref": 0.8516, "ours": 0.8996, "delta": 0.0480, "inkRef": 0.468, "inkOurs": 0.322 } },
+      "verdict": "PASS",
+      "note": "Passes at all three tiers, but the trend is monotone toward the gate and 84 px clears it by 0.0011. The ink fraction is short by 0.09-0.15 at every tier, and a large part of that shortfall is the legend we do not draw (D5-presence): at RAD 33, inside every legend, the ink gap halves to -0.045/-0.061/-0.087.",
+      "owner": "tone", "round_first_measured": 0
+    }
+  ],
+  "verdict": "FAIL",
+  "tally": { "rows": 28, "PASS": 11, "FAIL": 9, "UNMEASURED": 5, "N/A": 3, "ESCALATE_beside_D11": 1 },
+  "failing": ["D8-obverse", "D10-obverse", "D13-obverse", "D5-cap-reverse", "D5-cap-obverse", "D5-rim", "D4-icon", "D7-obverse", "D7-reverse"],
+  "unmeasured": ["D2-reverse", "D3-obverse", "D3-reverse", "D5-presence-reverse", "D6-both"],
+  "escalated": ["§17 set discriminability ratio 1.52x against 3.0x"],
+  "looked_at": "coloringbook/judge/_jn11-control.png (read first) and coloringbook/judge/_jn11-subject.png",
+  "overlays": [
+    "coloringbook/judge/_jn1disc-overlay.png",
+    "coloringbook/judge/_jn3unwrap-*.png",
+    "coloringbook/judge/_jn5-nickel-rev-2.png",
+    "coloringbook/judge/_jn5-nickel-obv-5.png",
+    "coloringbook/judge/_jn6-d1-diff.png",
+    "coloringbook/judge/_jn12seg-nickel-rev-proof.png"
+  ],
+  "verification": {
+    "tests": "npx playwright test tests/coins.spec.js tests/pawcoins.spec.js -> 18 passed, exit 0",
+    "subject_unchanged": "src/art/coins.js sha256 565d70716e429ca8... at the start and end of the round; git status clean for src/",
+    "browsers": "one at a time; every other tool is sharp"
+  },
+  "notes": "Round 0 for the nickel. Nothing in src/art/coins.js was touched. Two instrument faults were found and reported rather than fixed: _jq41disc.mjs's §4.3 overlay draws NaN circles and has never contained a circle, and _jq67edge.mjs implements the D6 metric Appendix P1 superseded. Six of the nickel's nine reference files are seven distinct photographs: nickel-obv-proof.png and nickel-rev-proof.png are the two halves of nickel-proof-both.jpg (rawNCC 1.0000 and 0.9852, fitted R bit-identical at 1411.41)."
+}

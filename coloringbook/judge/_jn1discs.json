@@ -1,0 +1,74 @@
+{
+ "nickel-obv.jpg": {
+  "cx": 242.82,
+  "cy": 244.85,
+  "R": 230.49,
+  "via": "grey",
+  "p95resid_pctR": 0.78,
+  "ambiguous": false
+ },
+ "nickel-obv-4.jpg": {
+  "cx": 472.71,
+  "cy": 461.74,
+  "R": 343.83,
+  "via": "chroma",
+  "p95resid_pctR": 62.13,
+  "ambiguous": true
+ },
+ "nickel-obv-5.JPG": {
+  "cx": 473.67,
+  "cy": 474.18,
+  "R": 474.23,
+  "via": "grey",
+  "p95resid_pctR": 0.15,
+  "ambiguous": false
+ },
+ "nickel-obv-proof.png": {
+  "cx": 1436.47,
+  "cy": 1455.38,
+  "R": 1411.41,
+  "via": "grey",
+  "p95resid_pctR": 0.7,
+  "ambiguous": true
+ },
+ "nickel-rev.jpg": {
+  "cx": 242.75,
+  "cy": 244.92,
+  "R": 230.99,
+  "via": "grey",
+  "p95resid_pctR": 0.8,
+  "ambiguous": false
+ },
+ "nickel-rev-2.png": {
+  "cx": 479.56,
+  "cy": 480.62,
+  "R": 475.75,
+  "via": "grey",
+  "p95resid_pctR": 0.47,
+  "ambiguous": true
+ },
+ "nickel-rev-proof.png": {
+  "cx": 1439.6,
+  "cy": 1455.11,
+  "R": 1418.55,
+  "via": "grey",
+  "p95resid_pctR": 0.87,
+  "ambiguous": true
+ },
+ "_jn-proofboth-obv.png": {
+  "cx": 1496.47,
+  "cy": 1515.38,
+  "R": 1411.41,
+  "via": "grey",
+  "p95resid_pctR": 0.7,
+  "ambiguous": true
+ },
+ "_jn-proofboth-rev.png": {
+  "cx": 1499.87,
+  "cy": 1514.14,
+  "R": 1417.69,
+  "via": "grey",
+  "p95resid_pctR": 0.82,
+  "ambiguous": true
+ }
+}
