@@ -1141,3 +1141,202 @@ third consecutive round, this time against three priors of the judge's own
 manufacture); §6.1's reference-invariance test (24 of 24 bit-identical, one
 extra loop); and §8's refusal to relax a gate, tested three times here and
 recorded as three misses.
+
+---
+
+# PENNY r0 PROPOSALS
+
+> **Nothing in this section is in force.** It is the judge's report on the first
+> holistic pass over the **cent** (penny, round 0, 2026-08-14,
+> `coloringbook/judge/penny-r0.md`), written to the same standard as Appendices
+> P, Q and R: what happened, then the concrete edit. A second judge ran on the
+> nickel in parallel and its proposals are in the section above; where the two
+> overlap that is corroboration, not duplication, and it should be read as such.
+
+### PY1. `EDGE.field` is now measured on TWO coins and it is wrong on both. Adopt D5-rim as a rubric row.
+
+Round 4 on the quarter measured the rim seat at **44.2** off three references,
+recorded `EDGE.quarter.field.full = 41.0` as a failing row, and correctly said
+it could not act because the literal is shared with three coins nobody had
+measured. Round 0 on the cent measured it independently — different references,
+different judge, a polar unwrap plus a per-column silhouette check that puts the
+two frame references' own coin edge at 47.18 and 46.95 against a definitional
+47.00 — and gets **44.0 ± 0.8**.
+
+Two coins, two reference sets, **0.2 units apart**, against one shared literal
+of 41.0 that was never measured on anything.
+
+The cost is not cosmetic and it is not confined to D5. `coins.js:3222` already
+records the arithmetic: a legend cap inside its own ±15 % gate needs r 42.34,
+which is *outside* a 41.0 field circle, so **D5-cap and D8 cannot both be
+satisfied while the field circle is where it is.** On the cent this is worse
+than on the quarter, because `ONE CENT` is a 10.4-unit cap over 136° of arc and
+we draw 5.15 over 70.2°. Six of this coin's eighteen failing rows sit behind
+that one constant.
+
+> **Proposed new row in §3**, and a rule with it:
+>
+> | # | Dimension | Metric | Typical gate | Owner |
+> |---|---|---|---|---|
+> | D14 | Rim seat | the radius at which the field ends and the raised rim begins, read off a polar unwrap of the reference, vs `EDGE[id].field.full` | ±1.0 viewBox units | **judge** |
+>
+> And: **a constant shared across subjects may not be scored per subject until
+> it has been measured on every subject that shares it.** Until then each coin's
+> row is `ESCALATE`, carrying its own measurement, and the escalation names the
+> other subjects still unmeasured. Two of four are now done.
+
+### PY2. A band gate stated on ONE extreme of a legend passes while the legend is in the wrong place
+
+`D5-band` is specified as a baseline radius. On the cent's bottom legend that is
+the extreme nearest the rim; on the top legend it is the extreme nearest the
+centre. Our `ONE CENT` **passes** its ±1.5-unit gate — inner extreme 29.77
+against the coin's 30.9 — while its outer extreme is **6.38 units short**, so
+the whole legend floats in mid-field with a six-unit bare gutter the coin does
+not have.
+
+This is Appendix S5 ("a dimension can PASS and the coin still be wrong in the
+same place") reappearing with a different cause: not a missing number, but a
+number taken at whichever end of the feature happens to be right. It also cost
+me an hour of confusion, because `judge/_jq4band.json` records the quarter's
+bottom legend as *baseline 37.0, cap top 43.7* — i.e. with the opposite
+convention to the physical one, since a bottom legend's feet point at the rim.
+
+> **Proposed edit to §3's D5 row and to §6.1:** a band is frozen as **`rInner`
+> and `rOuter`** — the extremes nearest the centre and nearest the rim — never as
+> a "baseline", and the gate is stated on **both**. Typographic baseline and cap
+> top are derived quantities and change places between a top and a bottom
+> legend, which is exactly the ambiguity a frozen target must not carry.
+
+### PY3. A reverse-only instrument left half of D13 unmeasured on four coins, and nobody could see the gap
+
+`_x6dark.mjs` is the frozen D13 instrument. Its `PAIRS` table pairs every id
+with a `*-rev-*` reference, so **D13-obverse has never been measured on any
+coin.** Measured this round on the cent obverse with the same frozen constants:
+`Δ mean/field` = **−0.2537** at the icon tier, five times the gate, with our ink
+fraction at 0.740 against the coin's 0.337.
+
+That is the worst number on the cent, D3 scores 0.1596 on the same side and is
+structurally blind to it (every D3 ratio is divided by the cheek), and D12 saw
+it independently — ours is a solid dark blob, the coin is a soft mottle.
+
+The scorecard could not show the hole, because §3's "every dimension is scored
+per side" is a rule about the *scorecard* and this was a property of the *tool*.
+
+> **Proposed addition to §4:** an instrument states the **subjects it covers**,
+> and the scorecard row for a subject it does not cover is `UNMEASURED`, not
+> absent. Mechanically: a metric defined "per side" whose implementation takes no
+> side argument is a bug report. §2 already says a blank is a red row — this is
+> the case where the blank was invisible because a row was never written at all.
+
+### PY4. Two implementations of one metric disagreed by 44 % of its gate, and the scorecard had nowhere to say so
+
+D13-reverse reads −0.0261 / −0.0210 / +0.0415 through `_x6dark.mjs` and
+−0.0481 / −0.0066 / +0.0446 through this round's re-derivation. Same locus, same
+frozen constants, same tiers; they differ only in how the *photograph* is
+resampled to the device pixel count. The spread is ±0.022 against a ±0.05 gate.
+
+Both give `PASS`, so no verdict moves. But §4's corollary is about two identical
+answers being suspicious; there is no rule at all about two *different* answers
+to the same question, and a scorecard `value` field holds one number.
+
+> **Proposed addition to §4:** where a quantity is computed by more than one
+> implementation, **publish every implementation's answer and the spread**, and
+> record the spread as a fraction of the gate. A spread over **half** the gate
+> makes the dimension `UNTRUSTED` until one implementation is frozen as *the*
+> instrument. Reproducing a number with a second implementation is the cheapest
+> check in this process and it is currently nobody's job.
+
+### PY5. §4.1 needs a companion for the degenerate pass — an answer that is the WHOLE search space
+
+D2 on `penny-rev.jpg` returned **min pairwise IoU 0.9899 against a 0.97 freeze
+condition** — a clean pass — while the mask it agreed with itself about was
+**99.3 % of the entire locus**. A threshold sweep that selects everything agrees
+with itself perfectly at every threshold.
+
+§4.1 catches an answer equal to a search *bound*. This is the mirror: an answer
+equal to the search *space*. It is not hypothetical here — it is one line above
+a `MEETS the 0.97 freeze condition` in my own console, and the only reason it
+was not published is that the instrument prints the area fraction beside the
+IoU because §4.2 made me print the whole candidate set.
+
+> **Proposed addition to §4.1:** a selection or segmentation instrument prints
+> the **size of what it selected as a fraction of what it was allowed to
+> select**, and a result covering more than ~90 % (or less than ~1 %) of the
+> locus is a failure report, whatever its self-agreement. **Self-agreement is
+> not a measure of correctness when the answer is degenerate**, and the two
+> degenerate answers — *everything* and *nothing* — are both maximally
+> self-consistent.
+
+### PY6. A hashed instrument's own self-test can go stale, and §1 has no procedure for it
+
+`_jq8contain-v2.mjs` throws `RESPONSE anchor missing — fix the test before
+trusting D8` at `HEAD`: its response-test anchor is a quarter path that commit
+`5c1aeb1` rewrote. The failure is *loud and correct* — the file was written to
+fail this way rather than silently pass — and it leaves the judge with a
+dimension whose §4 obligation cannot be discharged and an instrument §1 forbids
+editing.
+
+I re-implemented the response test for the cent in my own file. That works, and
+it means the response test for D8 is now maintained in two places, only one of
+which is hashed with the value.
+
+Related, and the same shape: `_jq10tier-v2.mjs` hard-codes `'quarter'` at line
+64, so D10 for any other coin needs a parallel implementation (mine reproduces
+v2's quarter numbers bit-for-bit, which is the only reason it can be believed).
+
+> **Proposed addition to §1:** an instrument's **self-test is part of the
+> instrument** and a stale self-test is an instrument fault, reportable and
+> repairable by the judge under §1.1's procedure (report, rule, fix, re-hash,
+> re-score, retract beside) — it does not require a specialist to have found it.
+> And: **an instrument written for one subject that another subject needs is a
+> fault too.** The judge may lift it to a parameter, but only by publishing the
+> equivalence — the new implementation must reproduce the old one **bit-for-bit
+> on the old subject**, and that run goes in the scorecard.
+
+### PY7. §4.3 should require the picture the question is asked in, on every coin — S2 is worth adopting
+
+Round 4 on the quarter proposed the polar unwrap (Appendix S2, not in force):
+render the artefact in the coordinate system the feature is *defined* in, with a
+labelled ladder, and read the feature off it. On the cent it did in fifteen
+minutes what two detectors written the same afternoon could not do at all — both
+of mine reported themselves at a search bound (correctly, per §4.1), because the
+memorial's relief and the bust run inboard of the legends with no bare gutter,
+so there is no shoulder for a plateau method to find.
+
+Five band finders across two coins have now failed and one picture has worked
+twice.
+
+> **Proposed: adopt S2 into §4.3 verbatim**, and add the corollary this round
+> paid for. The unwrap's own coordinates depend on a fitted disc, so **publish
+> where the artefact's silhouette lands in the unwrap's units.** It should be
+> 47.00 by construction. On the cent's two frame references it lands at 47.18
+> and 46.95 — sound — and on the reference the frozen obverse mask was traced
+> from it lands at 45.71, with a p5–p95 spread of 9.4 %, i.e. bimodal and not
+> usable for a geometric gate. That one line is the difference between a band
+> read to ±0.1 units and one read to ±1.3.
+
+### What the cent's round 0 says should NOT change
+
+- **§1's hashing**, a fourth time, and this round is the first where it had to
+  hold across *two concurrent judges*. 29 frozen artefacts, `git status` showing
+  no modified tracked file, and the whole run attributable to one commit.
+- **§4.1's null test.** It fired three times in one afternoon — two band finders
+  and, in a different form, a segmentation — and every one of those was a
+  confident-looking number I would otherwise have published. It is the rule that
+  earns its keep fastest.
+- **§4.2's "print the whole candidate set".** It is the only reason PY5's
+  degenerate pass was visible, and D8's `47(blank,rejected) 41(fill) 41(ring)`
+  row is the corrected instrument showing its work on every line.
+- **§3's D12 control, and Appendix R6's extension of it to the judge's own
+  priors.** Rendering the nickel first attributed three of the loudest things
+  on our cent — the fat rim, the 26 px blob, the specular sausage — to shared
+  machinery before I had looked at the cent at all. Two of the three turned out
+  to be real, measured failures anyway (D5-rim, D13-obverse), which is the point:
+  the control did not excuse them, it told me **whose** they were.
+- **§8's refusal to relax a gate.** Tested twice here. I had written the D8 row
+  in my gates file reading Appendix Q3's depth exemption as adopted; it is not,
+  and since the briefing had told me the cent's figure before I wrote the file,
+  the honest move was to correct the gate *back* to 0.00 % and publish the FAIL.
+  And D3 is scored against §3's typical ≤ ½ the flat floor rather than
+  `penny-obv.md`'s own weaker "≤ the flat floor", because **inheriting a gate
+  weaker than the typical one is relaxing by another route.**

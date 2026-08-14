@@ -58,6 +58,17 @@ a different instrument:
 **Frozen: 44.0 ± 0.8.** Two coins, two judges, two reference sets, **0.2 units
 apart**. The shared literal is wrong for the *set*, not for one coin.
 
+> **Corroboration, arriving after this round froze.** The nickel judge ran
+> concurrently and independently and committed `71b2134` / `52d7b89`: rim seat
+> **44.33** on the nickel (per-reference 44.05 and 44.15), against the same
+> 41.0. So the count is now **three coins measured, three answers between 44.0
+> and 44.3, one shared literal of 41.0**, arrived at by three judges using
+> different references and — the nickel's note says so explicitly — different
+> rim-seat definitions. The dime is the only one left. This is recorded here
+> because it changes nothing about the cent's measurement and everything about
+> what should be done with it: PY1 below asks for a rubric row, and three of
+> four is enough to act on.
+
 What it costs, concretely. Our rim band runs 41.0 → 47.0, six units wide; the
 coin's runs 44.0 → 47.0, three. `coins.js:3222` already spells out the trap for
 the quarter — a cap height inside the ±15 % gate needs r 42.34, which is
