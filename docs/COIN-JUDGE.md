@@ -1340,3 +1340,203 @@ twice.
   And D3 is scored against §3's typical ≤ ½ the flat floor rather than
   `penny-obv.md`'s own weaker "≤ the flat floor", because **inheriting a gate
   weaker than the typical one is relaxing by another route.**
+
+---
+
+# DIME r0 PROPOSALS
+
+> **Nothing in this section is in force.** It is the judge's report on the first
+> holistic pass over the **dime** (round 0, 2026-08-14,
+> `coloringbook/judge/dime-r0.md`), written to the same standard as Appendices
+> P, Q and R and as the NICKEL and PENNY sections above. A second judge ran on
+> the $1 note in parallel. Four of these six exist because the process caught an
+> INSTRUMENT the previous rounds published from.
+
+### DM1. `EDGE.field` is now measured on ALL FOUR coins. It is one constant, not a table — and D14 should be adopted.
+
+The cent's PY1 asked for a `D14 Rim seat` row and said "a constant shared across
+subjects may not be scored per subject until it has been measured on every
+subject that shares it. Two of four are now done." **Four of four are now done.**
+
+| coin | measured rim seat | judge | independent photographs |
+|---|---|---|---|
+| cent | 44.0 ± 0.8 | penny r0 | 3 |
+| nickel | 44.33 ± 0.32 | nickel r0 | 3 |
+| quarter | 44.20 | quarter r4 | 3 |
+| **dime** | **43.75 ± 0.38** | dime r0 | **4** |
+
+**44.07 ± 0.24 against one shared literal of 41.0.** The dime was the coin most
+likely to differ — smallest blank, a portrait that nearly fills it — and it is
+0.32 units below the mean with its own spread of 0.38. **Every pairwise gap
+between the four coins is inside one coin's own measurement spread.** The
+honest reading of four independent measurements is a **single corrected
+constant near 44.0**, not a per-coin table; a per-coin table would need better
+photographs, not more coins.
+
+> **Proposed: adopt PY1's D14 row verbatim, and close its escalation clause.**
+> The clause reads "until then each coin's row is `ESCALATE`, carrying its own
+> measurement, and the escalation names the other subjects still unmeasured."
+> There are none left. The row becomes a live gate, and the four measurements
+> above are the derivation of the corrected constant, written down *before* any
+> art moves.
+
+The cost is not cosmetic on this coin either. The dime's LIBERTY wants a cap of
+**7.92 units** (three references agreeing to ±0.23) with its top at **r 42.25**,
+which is outside a 41.0 field circle; we draw 5.93 reaching 39.39. Its reverse
+legend wants a cap of 8.20 reaching 42.40; we draw 3.52 reaching 39.67. **Nine
+of this coin's sixteen failing rows sit behind that one constant.**
+
+### DM2. Three of the four rim seats were measured with rules that read OPPOSITE SIDES of the same bevel
+
+`_jn5rim.mjs`'s rule is *"the innermost radius where the mean falls DROP below
+the field level"*. The dime's obverse of record is a cameo proof whose field is
+near-black and whose rim is **brighter**, so a signed drop cannot find it at all;
+I declared the `|m − L|` generalisation in the gates file before measuring, and
+it reproduces `_jn5rim.mjs` **exactly** on both nickel reverses.
+
+It does not reproduce it on the struck obverses, and that is the finding:
+
+```
+  nickel-obv.jpg         signed-DARK 44.20    |abs| 43.30
+  nickel-obv-proof.png   signed-DARK 45.70    |abs| 42.60
+  nickel-rev-proof.png   signed-DARK 43.20    |abs| 42.95
+```
+
+A coin lit from one side has a rim whose inner bevel is **bright on one side of
+the coin and dark on the other**. A signed-dark rule waits for the shadowed
+flank; an absolute rule takes the lit one. They are up to 3.1 units apart and
+neither is wrong — they are measuring different features and calling both "the
+rim seat".
+
+> **Proposed addition to §6.1, and to PY1's D14 row:** a radial feature defined
+> as a *transition* must state **which flank of the transition it names**, and
+> the definition must be executable on a subject whose contrast has the opposite
+> sign. Where two rules disagree on the same artefact, publish both and the gap;
+> a cross-subject constant assembled from subjects measured by rules that
+> disagree by 3 units is not four measurements of one thing.
+>
+> Concretely: define the rim seat as **the innermost radius at which the surface
+> departs from the flat field in EITHER direction**, and report the signed-dark
+> answer beside it. That is the definition that survives a mirror field.
+
+### DM3. Out-of-frame is not black, and a hashed instrument has been returning the FRAME as a feature
+
+`_jp4unwrap.mjs` samples the source through a fitted disc and returns **0**
+outside the image. Out-of-frame is not black; it is a 255-level step at the
+frame edge, and on **four of the dime's six references** the frame cuts inside
+the unwrap's outer radius.
+
+Run as inherited, `_jp7edge.mjs` — the instrument that checks *"the coin's own
+silhouette lands at 47.00 by construction"*, which is cent PY7's whole point —
+locked onto that step on 288 to 708 columns per reference and returned edge
+spreads of **7.7 %–9.7 %**. By my own gates file that disqualifies **all six**
+dime references for any geometric gate. With out-of-frame samples marked invalid
+and a second estimator (background departure, scanning inward from outside the
+coin), the same references return **46.74–47.08 with 0.07–1.59 % spreads**.
+
+Both faults are silent. Neither shows up in a response test — perturb the art
+and the number still moves.
+
+> **Proposed addition to §4.1:** an instrument that samples a source through a
+> transform must carry a **validity mask**, and **report the fraction of its
+> locus that fell outside the source**. A locus that is not wholly inside the
+> artefact is a bound in disguise, and "the sampler returned a number for every
+> pixel" is not "every pixel was measured". A run whose locus is more than a few
+> per cent out of frame is a failure report.
+>
+> And the corollary this round paid for: **the cent's published 47.18 / 46.95 /
+> 46.55 came off the max-gradient rule and should be re-derived** with the
+> background rule before anything leans on them. That is a judge job, not a
+> specialist's.
+
+### DM4. A dimension can PASS at its gate while its TARGET disagrees with itself by as much as the gate
+
+D5-band's gate is ±1.5 viewBox units. The dime's three independent obverse
+photographs put LIBERTY's outer extreme at **40.86 / 43.39 / 42.50** — a
+±1.29-unit spread — and the disagreement **survives re-expressing every radius
+against each photograph's own coin edge in the same angular sector**, so it is
+not the disc fits (`_jd12check.mjs`). The likely cause is that a coin
+photographed a few degrees off-axis shows its **reeded side wall** outside the
+face, so what a silhouette finder calls r = 47 is not the same physical circle
+on two photographs.
+
+The dimension is still scored `FAIL`, because the miss (−2.86 units on the outer
+extreme, −25.1 % on cap height) is larger than the spread. But a reader of the
+scorecard would have no way to know the target was that weak.
+
+> **Proposed addition to §6:** every gate that compares ours against a target
+> measured on more than one reference reports the **target's own between-
+> reference spread** in the same units, beside the gate. Where that spread is
+> more than **half** the gate, the row carries the spread in its verdict —
+> `FAIL (target spread 0.86x gate)` — and a `PASS` under such a target is
+> provisional. §4's rule about two identical answers, and cent PY4's about two
+> different ones, are both about *instruments*; this is the third case and it is
+> about *artefacts*.
+
+### DM5. A rewritten instrument's fitted-path identification is per-subject, and D7 vanished again
+
+`_jp9edge.mjs` implements §3's D7 by identifying the fitted contours *by their
+opening coordinates* — the cent's `HEAD`/`HAIR`/`BEARD`. Run on the dime it
+prints `FITTED none — every path on this side is authored, so D7's subject is
+empty here`, which is a defensible sentence and completely false: the dime's
+`HEAD` is fitted from `_headmask.json` by `_p2build.mjs` and carries a **111.0°
+knot**, one over the gate.
+
+This is cent PY3 (*"an instrument states the subjects it covers"*) for the third
+time in three rounds, and it is worse than the `_x6dark.mjs` case because the
+instrument did not go silent — **it printed a confident negative**.
+
+> **Proposed strengthening of PY3:** an instrument that identifies a feature *by
+> a per-subject signature* must **enumerate the subjects it has signatures for**
+> and return `UNMEASURED` — never "not present" — for the others. "I found none"
+> and "I cannot look here" must not be the same output. Mechanically: a
+> subject-keyed lookup with no entry for the subject is a throw, not an empty
+> list.
+
+### DM6. §5's priority order needs an explicit override clause, because obeying it here would have been wrong
+
+§5 orders the repairable failures D9 → D8 → D1/D2 → D4 → D3/D13 → D5 → D6 → D7 →
+D10. On this coin that puts **D10-obverse** (a 0.0878 ink step at one tier
+boundary, 5.56× a p90) ahead of **D13-reverse** (+0.20 to +0.30 against a ±0.05
+gate, at *every* tier, on the side and at the size a child names the coin,
+confirmed by two implementations, by a RAD=33 control that removes the legend
+explanation, and by D12's own eyes).
+
+I dispatched D13-reverse and wrote down why. But the spec as written says I
+should not have, and a judge that quietly reorders the queue is doing exactly
+what §1 exists to prevent.
+
+> **Proposed addition to §5:** the priority order is a **default**, and a round
+> may depart from it by naming the departure, the row it promoted, the row it
+> demoted, and the evidence — in the round document, before dispatching. What
+> the order encodes is *structure before tone before ornament*; what it cannot
+> encode is a tone failure four to six times its gate against a structure
+> failure at 1.4× of its own. **An order that cannot be departed from in writing
+> will be departed from silently.**
+
+### What the dime's round 0 says should NOT change
+
+- **§1's hashing**, a fifth time, and the second round to hold it across two
+  concurrent judges. 55 frozen artefacts, all byte-identical at the end, `git
+  status` clean outside my own `_jd*` and `dime-*` files.
+- **Nickel N1's gates-before-measurement rule.** I wrote and hashed
+  `dime-gates.md` before running anything, and it immediately earned its keep:
+  it is the file that says a reference whose edge spread exceeds 3 % may not
+  carry a geometric gate, which is what made DM3's instrument fault a *finding*
+  rather than a silently accepted set of six bad references.
+- **§4.3, and Appendix R3's "try the overlay before you block".** Every
+  substantive result in this round came from a picture: the rim seat (three
+  estimators disagreed by 3.4 units and the 0.25-unit ladder settled it), the
+  specular highlights that E1 mistook for a rim, the legend band, and D12.
+  Five band finders across three coins have now failed and the same picture has
+  worked three times.
+- **§3's D12 control.** It corrected me for a fourth consecutive round, in both
+  directions: it attributed the dime's fat rim and its solid dark obverse blob to
+  shared machinery, and it *refused* to excuse the reverse, because the quarter's
+  reverse is solid and dark at the same 26 px where the dime's is pale and thin.
+- **§8's refusal to relax a gate.** Tested three times here: D5-span-obverse is
+  recorded as a marginal PASS at −13.8 % against ±15 % rather than rounded either
+  way; D5-band-obverse is recorded as `FAIL` even though the target's own spread
+  nearly covers the gate (DM4 proposes reporting the spread, not softening the
+  gate); and D3 is scored against §3's ≤ ½ the flat floor rather than
+  `dime-p2.md`'s weaker ≤ 0.10.

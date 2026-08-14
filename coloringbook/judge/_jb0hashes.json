@@ -1,0 +1,86 @@
+{
+  "src/art/coins.js": {
+    "kind": "subject",
+    "sha256": "565d70716e429ca8f71c006de112d86143c8c6a3f3116a5ecbd8fa97bf183f1f"
+  },
+  "src/art/pawcoins.js": {
+    "kind": "subject",
+    "sha256": "b2ca267a674fbd69836ee85fb04092bbba80b32d63a14840c2743ce58d005cd6"
+  },
+  "coloringbook/judge/buck-gates.md": {
+    "kind": "gates",
+    "sha256": "1427060e1e830b7fd4be11f6980bc367ff22b2f8c52f3c3492aa52461c0cbd24"
+  },
+  "coloringbook/ref/bill-obv.jpg": {
+    "kind": "reference",
+    "sha256": "2f16ecf19b8c86c21512508de6e3bb5d96e47694f874c7e8e19201b61115e46a"
+  },
+  "coloringbook/ref/bill-obv-2.jpg": {
+    "kind": "reference",
+    "sha256": "b2d59e04ca5f1473634e572c31b8c1ff7a4945ab7de12fe478eef77fdfbbca74"
+  },
+  "coloringbook/ref/bill-rev.jpg": {
+    "kind": "reference",
+    "sha256": "afaf28076de72a0fc90f0d7c6182686207dd7c7d0ca8701dc39a74a71f2311db"
+  },
+  "coloringbook/ref/bill-rev-2.jpg": {
+    "kind": "reference",
+    "sha256": "dadbd08bd54adcdb82b8e2081c641dd715b9c78a415681e1e349385ebd6abb35"
+  },
+  "coloringbook/_blfit.mjs": {
+    "kind": "eval",
+    "sha256": "ac65034a6e56c3413831efb16f427be39ad09505c3c0b11c507158789c4ba08c"
+  },
+  "coloringbook/_blnorm.mjs": {
+    "kind": "eval",
+    "sha256": "9c06748b64cefd70c1b1c891f47cb022261d546f8c5ebae28d7d70b7a41d7b06"
+  },
+  "coloringbook/_blover.mjs": {
+    "kind": "eval",
+    "sha256": "c2fd59475faac56631813dc7fa97bb81c79b7bb5aa2dbfcbbb1f0de01523dbe1"
+  },
+  "coloringbook/_blgrid.mjs": {
+    "kind": "eval",
+    "sha256": "0c309dc3966815d12c957157eb4ae6279eabbc5c83a9beead8b04cb887bcab4e"
+  },
+  "coloringbook/_blindep.mjs": {
+    "kind": "eval",
+    "sha256": "63c0aa6888e4a4166d2ef66f8699c3a9c972b72f56c4e0ebc5c3c1adf8feedb7"
+  },
+  "coloringbook/_blellipse.mjs": {
+    "kind": "eval",
+    "sha256": "625daf97657f7ddc8bfeab33f72d30ca4eac7e75bddd5dd0f61a696bf4d845f8"
+  },
+  "coloringbook/_blseal.mjs": {
+    "kind": "eval",
+    "sha256": "3e4f60c78fb11f5ac7570776806338909d29f8b848bd95165417468251a69d73"
+  },
+  "coloringbook/_blours.mjs": {
+    "kind": "eval",
+    "sha256": "3922d458c683e0627bce89c8e3f0f1737cb7269b37ae74860049b7e819b3c4bf"
+  },
+  "coloringbook/_x6lib.mjs": {
+    "kind": "eval",
+    "sha256": "f5339d0fc744340e1feed977d17881a02ef45b5021772d5efd421157ae47b9d7"
+  },
+  "coloringbook/_x6dark.mjs": {
+    "kind": "eval",
+    "sha256": "56e7c9440c9c2081504aff07ca684ba805be55e5d6e7d872972e9b9b7ca62bfa"
+  },
+  "coloringbook/_x6sweep.mjs": {
+    "kind": "eval",
+    "sha256": "0fce77c987d0166ba72428ed2fde03bb43a9f5913df62d85bae5ec6a06c98b32"
+  },
+  "coloringbook/_x6mat.mjs": {
+    "kind": "eval",
+    "sha256": "161eb40554b8496ab0ef045260dddefad6c3634b4ed4897b786b17b91a5319b3"
+  },
+  "coloringbook/judge/_jb1fits.json": {
+    "kind": "roundTarget",
+    "sha256": "c1d7870fdf3b0614f04b96b232709349a6c270648fe06864d568d3034a79b17e"
+  },
+  "coloringbook/judge/_jb4target.json": {
+    "kind": "roundTarget",
+    "sha256": "6070fa2c26996648894250c21775287d3ca9ffc229aec1588f8257670ac1c7a4"
+  }
+}

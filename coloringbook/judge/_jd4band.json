@@ -1,0 +1,869 @@
+{
+ "params": {
+  "FIELD_WIN": [
+   36,
+   42
+  ],
+  "RIM_WIN": [
+   40,
+   46.5
+  ],
+  "GRAD_WIN": [
+   40,
+   46
+  ],
+  "DROP": 25,
+  "STEP": 0.05,
+  "SECTORS": {
+   "obverse": [
+    [
+     2,
+     34
+    ],
+    [
+     142,
+     158
+    ]
+   ],
+   "reverse": null
+  }
+ },
+ "refs": {
+  "dime-obv.jpg": {
+   "side": "obverse",
+   "correction": 1.0012,
+   "usableForGeometry": true,
+   "loci": {
+    "whole circle, angular MEAN": {
+     "E1": {
+      "seat": 40.05,
+      "L": 168.7,
+      "crossings": [
+       40.05,
+       43.2
+      ],
+      "down": [
+       40.05,
+       43.2
+      ],
+      "up": [],
+      "seatSigned": 40.05,
+      "seatBright": null,
+      "atBound": true
+     },
+     "E2": {
+      "seat": 42.45,
+      "peaks": [
+       [
+        42.45,
+        27.11
+       ],
+       [
+        43.65,
+        36.58
+       ],
+       [
+        44.25,
+        28.87
+       ],
+       [
+        45.3,
+        34.34
+       ]
+      ],
+      "max": 36.58,
+      "atBound": false
+     }
+    },
+    "whole circle, angular MEDIAN": {
+     "E1": {
+      "seat": 40.05,
+      "L": 176,
+      "crossings": [
+       40.05,
+       43.25
+      ],
+      "down": [
+       40.05,
+       43.25
+      ],
+      "up": [],
+      "seatSigned": 40.05,
+      "seatBright": null,
+      "atBound": true
+     },
+     "E2": {
+      "seat": 40.5,
+      "peaks": [
+       [
+        40.5,
+        15.7
+       ],
+       [
+        40.65,
+        14.27
+       ],
+       [
+        42.05,
+        26.63
+       ],
+       [
+        42.35,
+        30.92
+       ],
+       [
+        42.5,
+        31.39
+       ],
+       [
+        42.9,
+        32.34
+       ],
+       [
+        43.65,
+        39.95
+       ],
+       [
+        44.35,
+        35.67
+       ],
+       [
+        45,
+        30.92
+       ],
+       [
+        45.4,
+        19.98
+       ]
+      ],
+      "max": 39.95,
+      "atBound": false
+     }
+    },
+    "bare-field sectors [[2,34],[142,158]], MEAN": {
+     "E1": {
+      "seat": 40.25,
+      "L": 183.6,
+      "crossings": [
+       40.25,
+       43.25,
+       45.05
+      ],
+      "down": [
+       40.25,
+       43.25,
+       45.05
+      ],
+      "up": [],
+      "seatSigned": 40.25,
+      "seatBright": null,
+      "atBound": false
+     },
+     "E2": {
+      "seat": 42.35,
+      "peaks": [
+       [
+        42.35,
+        41.09
+       ],
+       [
+        43.5,
+        84.14
+       ],
+       [
+        44.25,
+        68.39
+       ],
+       [
+        45.3,
+        64.11
+       ]
+      ],
+      "max": 84.14,
+      "atBound": false
+     }
+    },
+    "bare-field sectors [[2,34],[142,158]], MEDIAN": {
+     "E1": {
+      "seat": 40.25,
+      "L": 183,
+      "crossings": [
+       40.25,
+       43.2,
+       45
+      ],
+      "down": [
+       40.25,
+       43.2,
+       45
+      ],
+      "up": [],
+      "seatSigned": 40.25,
+      "seatBright": null,
+      "atBound": false
+     },
+     "E2": {
+      "seat": 42.3,
+      "peaks": [
+       [
+        42.3,
+        41.85
+       ],
+       [
+        43.3,
+        129.37
+       ],
+       [
+        44.3,
+        118.9
+       ],
+       [
+        45.3,
+        56.6
+       ]
+      ],
+      "max": 129.37,
+      "atBound": false
+     }
+    }
+   }
+  },
+  "dime-obv-2.jpg": {
+   "side": "obverse",
+   "correction": 0.9983,
+   "usableForGeometry": true,
+   "loci": {
+    "whole circle, angular MEAN": {
+     "E1": {
+      "seat": 42.08,
+      "L": 33.6,
+      "crossings": [
+       42.08,
+       43.08,
+       46.17
+      ],
+      "down": [],
+      "up": [
+       42.08,
+       43.08,
+       46.17
+      ],
+      "seatSigned": null,
+      "seatBright": 42.08,
+      "atBound": false
+     },
+     "E2": {
+      "seat": 41.53,
+      "peaks": [
+       [
+        41.53,
+        44.55
+       ],
+       [
+        43.18,
+        76.56
+       ],
+       [
+        43.88,
+        83.05
+       ],
+       [
+        45.32,
+        127.07
+       ],
+       [
+        45.47,
+        127.65
+       ]
+      ],
+      "max": 127.65,
+      "atBound": false
+     }
+    },
+    "whole circle, angular MEDIAN": {
+     "E1": {
+      "seat": 43.33,
+      "L": 7,
+      "crossings": [
+       43.33,
+       46.12
+      ],
+      "down": [],
+      "up": [
+       43.33,
+       46.12
+      ],
+      "seatSigned": null,
+      "seatBright": 43.33,
+      "atBound": false
+     },
+     "E2": {
+      "seat": 43.23,
+      "peaks": [
+       [
+        43.23,
+        103.51
+       ],
+       [
+        43.83,
+        129.27
+       ],
+       [
+        45.27,
+        144.05
+       ],
+       [
+        45.47,
+        142.62
+       ]
+      ],
+      "max": 144.05,
+      "atBound": false
+     }
+    },
+    "bare-field sectors [[2,34],[142,158]], MEAN": {
+     "E1": {
+      "seat": 41.83,
+      "L": 5.4,
+      "crossings": [
+       41.83,
+       46.12
+      ],
+      "down": [],
+      "up": [
+       41.83,
+       46.12
+      ],
+      "seatSigned": null,
+      "seatBright": 41.83,
+      "atBound": false
+     },
+     "E2": {
+      "seat": 41.63,
+      "peaks": [
+       [
+        41.63,
+        150.68
+       ],
+       [
+        41.98,
+        80.42
+       ],
+       [
+        42.63,
+        55
+       ],
+       [
+        43.23,
+        60.01
+       ],
+       [
+        44.22,
+        59.58
+       ],
+       [
+        44.67,
+        69.64
+       ],
+       [
+        45.32,
+        122.59
+       ]
+      ],
+      "max": 150.68,
+      "atBound": false
+     }
+    },
+    "bare-field sectors [[2,34],[142,158]], MEDIAN": {
+     "E1": {
+      "seat": 41.93,
+      "L": 4,
+      "crossings": [
+       41.93,
+       46.12
+      ],
+      "down": [],
+      "up": [
+       41.93,
+       46.12
+      ],
+      "seatSigned": null,
+      "seatBright": 41.93,
+      "atBound": false
+     },
+     "E2": {
+      "seat": 41.63,
+      "peaks": [
+       [
+        41.63,
+        229.44
+       ],
+       [
+        42.63,
+        115.91
+       ],
+       [
+        43.18,
+        75.37
+       ],
+       [
+        45.27,
+        147.87
+       ]
+      ],
+      "max": 229.44,
+      "atBound": false
+     }
+    }
+   }
+  },
+  "dime-obv-3.jpg": {
+   "side": "obverse",
+   "correction": 1.0055,
+   "usableForGeometry": true,
+   "loci": {
+    "whole circle, angular MEAN": {
+     "E1": {
+      "seat": 44.74,
+      "L": 146.8,
+      "crossings": [
+       44.74,
+       46.3
+      ],
+      "down": [
+       44.74,
+       46.3
+      ],
+      "up": [],
+      "seatSigned": 44.74,
+      "seatBright": null,
+      "atBound": false
+     },
+     "E2": {
+      "seat": 44.64,
+      "peaks": [
+       [
+        44.64,
+        73.5
+       ],
+       [
+        45.7,
+        42.2
+       ]
+      ],
+      "max": 73.5,
+      "atBound": false
+     }
+    },
+    "whole circle, angular MEDIAN": {
+     "E1": {
+      "seat": 44.64,
+      "L": 160,
+      "crossings": [
+       44.64
+      ],
+      "down": [
+       44.64
+      ],
+      "up": [],
+      "seatSigned": 44.64,
+      "seatBright": null,
+      "atBound": false
+     },
+     "E2": {
+      "seat": 44.59,
+      "peaks": [
+       [
+        44.59,
+        97.56
+       ],
+       [
+        45.6,
+        58.25
+       ],
+       [
+        45.65,
+        58.25
+       ]
+      ],
+      "max": 97.56,
+      "atBound": false
+     }
+    },
+    "bare-field sectors [[2,34],[142,158]], MEAN": {
+     "E1": {
+      "seat": 44.49,
+      "L": 170.1,
+      "crossings": [
+       44.49
+      ],
+      "down": [
+       44.49
+      ],
+      "up": [],
+      "seatSigned": 44.49,
+      "seatBright": null,
+      "atBound": false
+     },
+     "E2": {
+      "seat": 44.54,
+      "peaks": [
+       [
+        44.54,
+        125.88
+       ],
+       [
+        45.4,
+        58.58
+       ],
+       [
+        45.55,
+        59.1
+       ]
+      ],
+      "max": 125.88,
+      "atBound": false
+     }
+    },
+    "bare-field sectors [[2,34],[142,158]], MEDIAN": {
+     "E1": {
+      "seat": 44.54,
+      "L": 174,
+      "crossings": [
+       44.54,
+       45.75
+      ],
+      "down": [
+       44.54,
+       45.75
+      ],
+      "up": [],
+      "seatSigned": 44.54,
+      "seatBright": null,
+      "atBound": false
+     },
+     "E2": {
+      "seat": 44.54,
+      "peaks": [
+       [
+        44.54,
+        128.34
+       ],
+       [
+        45.2,
+        60.15
+       ],
+       [
+        45.6,
+        66.3
+       ]
+      ],
+      "max": 128.34,
+      "atBound": false
+     }
+    }
+   }
+  },
+  "dime-obv-4.jpg": {
+   "side": "obverse",
+   "correction": 0.9793,
+   "usableForGeometry": false,
+   "loci": {
+    "whole circle, angular MEAN": {
+     "E1": {
+      "seat": 45.54,
+      "L": 109.1,
+      "crossings": [
+       45.54
+      ],
+      "down": [],
+      "up": [
+       45.54
+      ],
+      "seatSigned": null,
+      "seatBright": 45.54,
+      "atBound": false
+     },
+     "E2": {
+      "seat": 45.15,
+      "peaks": [
+       [
+        45.15,
+        38.32
+       ]
+      ],
+      "max": 38.32,
+      "atBound": false
+     }
+    },
+    "whole circle, angular MEDIAN": {
+     "E1": {
+      "seat": 40.74,
+      "L": 9,
+      "crossings": [
+       40.74,
+       44.66
+      ],
+      "down": [],
+      "up": [
+       40.74,
+       44.66
+      ],
+      "seatSigned": null,
+      "seatBright": 40.74,
+      "atBound": false
+     },
+     "E2": {
+      "seat": 45.05,
+      "peaks": [
+       [
+        45.05,
+        179.43
+       ]
+      ],
+      "max": 179.43,
+      "atBound": false
+     }
+    },
+    "bare-field sectors [[2,34],[142,158]], MEAN": {
+     "E1": {
+      "seat": 46.32,
+      "L": 79.8,
+      "crossings": [
+       46.32
+      ],
+      "down": [],
+      "up": [
+       46.32
+      ],
+      "seatSigned": null,
+      "seatBright": 46.32,
+      "atBound": false
+     },
+     "E2": {
+      "seat": null,
+      "peaks": [],
+      "max": 34.82,
+      "atBound": true
+     }
+    },
+    "bare-field sectors [[2,34],[142,158]], MEDIAN": {
+     "E1": {
+      "seat": 46.32,
+      "L": 0,
+      "crossings": [
+       46.32
+      ],
+      "down": [],
+      "up": [
+       46.32
+      ],
+      "seatSigned": null,
+      "seatBright": 46.32,
+      "atBound": false
+     },
+     "E2": {
+      "seat": null,
+      "peaks": [],
+      "max": 108.92,
+      "atBound": true
+     }
+    }
+   }
+  },
+  "dime-rev.jpg": {
+   "side": "reverse",
+   "correction": 0.9997,
+   "usableForGeometry": true,
+   "loci": {
+    "whole circle, angular MEAN": {
+     "E1": {
+      "seat": 43.64,
+      "L": 134,
+      "crossings": [
+       43.64,
+       44.79
+      ],
+      "down": [
+       43.64,
+       44.79
+      ],
+      "up": [],
+      "seatSigned": 43.64,
+      "seatBright": null,
+      "atBound": false
+     },
+     "E2": {
+      "seat": 41.44,
+      "peaks": [
+       [
+        41.44,
+        22.53
+       ],
+       [
+        42.44,
+        29.25
+       ],
+       [
+        43.34,
+        35.92
+       ],
+       [
+        44.84,
+        23.58
+       ]
+      ],
+      "max": 35.92,
+      "atBound": false
+     }
+    },
+    "whole circle, angular MEDIAN": {
+     "E1": {
+      "seat": 43.24,
+      "L": 134,
+      "crossings": [
+       43.24,
+       44.69
+      ],
+      "down": [
+       43.24,
+       44.69
+      ],
+      "up": [],
+      "seatSigned": 43.24,
+      "seatBright": null,
+      "atBound": false
+     },
+     "E2": {
+      "seat": 41.39,
+      "peaks": [
+       [
+        41.39,
+        22.39
+       ],
+       [
+        41.49,
+        21.44
+       ],
+       [
+        42.34,
+        33.34
+       ],
+       [
+        43.34,
+        60.02
+       ],
+       [
+        43.79,
+        33.82
+       ],
+       [
+        44.84,
+        35.73
+       ]
+      ],
+      "max": 60.02,
+      "atBound": false
+     }
+    }
+   }
+  },
+  "dime-rev-2.jpg": {
+   "side": "reverse",
+   "correction": 0.9997,
+   "usableForGeometry": true,
+   "loci": {
+    "whole circle, angular MEAN": {
+     "E1": {
+      "seat": 43.74,
+      "L": 133.9,
+      "crossings": [
+       43.74,
+       44.79
+      ],
+      "down": [
+       43.74,
+       44.79
+      ],
+      "up": [],
+      "seatSigned": 43.74,
+      "seatBright": null,
+      "atBound": false
+     },
+     "E2": {
+      "seat": 41.39,
+      "peaks": [
+       [
+        41.39,
+        20.53
+       ],
+       [
+        42.44,
+        26.48
+       ],
+       [
+        43.34,
+        32.3
+       ],
+       [
+        44.79,
+        21.44
+       ]
+      ],
+      "max": 32.3,
+      "atBound": false
+     }
+    },
+    "whole circle, angular MEDIAN": {
+     "E1": {
+      "seat": 43.24,
+      "L": 135,
+      "crossings": [
+       43.24,
+       44.69
+      ],
+      "down": [
+       43.24,
+       44.69
+      ],
+      "up": [],
+      "seatSigned": 43.24,
+      "seatBright": null,
+      "atBound": false
+     },
+     "E2": {
+      "seat": 41.49,
+      "peaks": [
+       [
+        41.49,
+        21.44
+       ],
+       [
+        42.34,
+        30.96
+       ],
+       [
+        43.34,
+        56.21
+       ],
+       [
+        43.39,
+        56.21
+       ],
+       [
+        43.79,
+        27.63
+       ],
+       [
+        44.84,
+        29.53
+       ]
+      ],
+      "max": 56.21,
+      "atBound": false
+     }
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,17 @@
+{
+ "coloringbook/judge/_jp9edge.mjs": "sha256:a1800b5b8102055149ecffca91065e65f559e2f35bbbff917f2f646ccc8f4d97",
+ "coloringbook/judge/_jp10tier.mjs": "sha256:fd67c9e54f9be5de3e3f3cda321bcf38666a74643833430b25beeded67cd9ad2",
+ "coloringbook/judge/_jp8ours.mjs": "sha256:3c393084c56fb9eea2a9736f7720e37027dd15cf3840360f52ec38952dc87d56",
+ "coloringbook/judge/_jp3disc.mjs": "sha256:a0fa2697bc27fa8ea9d45d1f1d3db37305ffda351611751b27d01937fd4a687e",
+ "coloringbook/judge/_jp1discs.json": "sha256:de72c3e35287a49db1cef76fec59fecd0a1ebbc0cd32d53b9bc43b679b2bbbca",
+ "coloringbook/judge/_jp12look.mjs": "sha256:b7976ef442a55c656348b19437837fda041d91c5501deafb61b5c9caa88c4e4c",
+ "coloringbook/judge/_jp13d2d13.mjs": "sha256:0ee9a23c5e8c4afbf3bd9f8b8155ad879c7c477b65c8af7329da0746b1296e8b",
+ "coloringbook/_x6check.mjs": "sha256:87fccaf23b1e34bf8ad489a2a0a9961c58ddfe892cdbb65ddcd402dc8d2edcb7",
+ "coloringbook/_x6sens.mjs": "sha256:71801f2639b206541cc8b9d2b87aa5d6981f6fc8beb5be237b7315775ab4a295",
+ "coloringbook/_x6grid.mjs": "sha256:4c3ee768e51b998c55e1a56810dbadb6bb1558eafaf7cc20d60f8100c494ace9",
+ "coloringbook/_p2build.mjs": "sha256:74b190ab44783ced645d15671bf711bfa871bbc39d7a9697f28ff4c487bcf8bf",
+ "coloringbook/_p2ident.mjs": "sha256:3fab6f60b1abc0fc2eda580b23f80d7f4e44b6897dc2bc3c1188cfdbb08f35b5",
+ "coloringbook/_rvgrid.mjs": "sha256:14c90d2ccd37cfa77e2ae60aae84ac8206787580a61ee32266a6d496362e981a",
+ "coloringbook/_rvprof.mjs": "sha256:25ae9f130e0d74e0389223a8e675d68789d2b5cd8e6b4a251b00185815d30d77",
+ "coloringbook/_rvindep.mjs": "sha256:4efadb78ba2599473322322cdb804c53c829121311c42b8e122d6eab61977551"
+}

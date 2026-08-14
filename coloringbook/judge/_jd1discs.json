@@ -1,0 +1,45 @@
+{
+ "dime-obv.jpg": {
+  "cx": 199.42,
+  "cy": 198.99,
+  "R": 200.03,
+  "p95pctR": 0.41,
+  "via": "A flood"
+ },
+ "dime-obv-2.jpg": {
+  "cx": 475.04,
+  "cy": 475.43,
+  "R": 468.4,
+  "p95pctR": 0.12,
+  "via": "A flood"
+ },
+ "dime-obv-3.jpg": {
+  "cx": 371.9,
+  "cy": 390.73,
+  "R": 368.35,
+  "p95pctR": 0.44,
+  "via": "B edge"
+ },
+ "dime-obv-4.jpg": {
+  "cx": 492.05,
+  "cy": 413.42,
+  "R": 383.65,
+  "p95pctR": 5.28,
+  "via": "B edge",
+  "note": "A/B DISAGREE by 6.0% of R — published, not silently resolved"
+ },
+ "dime-rev.jpg": {
+  "cx": 247.38,
+  "cy": 252.12,
+  "R": 243.06,
+  "p95pctR": 0.21,
+  "via": "A flood"
+ },
+ "dime-rev-2.jpg": {
+  "cx": 373.25,
+  "cy": 380.42,
+  "R": 366.61,
+  "p95pctR": 0.15,
+  "via": "A flood"
+ }
+}

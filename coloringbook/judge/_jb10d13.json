@@ -1,0 +1,618 @@
+{
+  "generated": "coloringbook/judge/_jb10d13.mjs",
+  "WIN": {
+    "reverse": {
+      "pyramid": {
+        "x": [
+          5.13,
+          41.13
+        ],
+        "y": [
+          5,
+          51
+        ]
+      },
+      "eagle": {
+        "x": [
+          58.88,
+          94.88
+        ],
+        "y": [
+          5,
+          51
+        ]
+      },
+      "whole-frame": {
+        "x": [
+          5,
+          95
+        ],
+        "y": [
+          5,
+          51
+        ]
+      }
+    },
+    "obverse": {
+      "portrait-measured": {
+        "x": [
+          32.05,
+          68.05
+        ],
+        "y": [
+          5,
+          51
+        ]
+      },
+      "whole-frame": {
+        "x": [
+          5,
+          95
+        ],
+        "y": [
+          5,
+          51
+        ]
+      }
+    }
+  },
+  "TIERS": {
+    "icon": 26,
+    "mid": 54,
+    "full": 190
+  },
+  "rows": [
+    {
+      "side": "reverse",
+      "tier": "icon",
+      "size": 26,
+      "file": "bill-rev.jpg",
+      "name": "pyramid",
+      "ours": {
+        "n": 154,
+        "px": "11x14",
+        "field": 241,
+        "ink": 0.18181818181818182,
+        "meanOverField": 0.8465269170663362
+      },
+      "ref": {
+        "n": 180,
+        "px": "12x15",
+        "field": 190,
+        "ink": 0.16666666666666666,
+        "meanOverField": 0.8331001566556423
+      },
+      "dMean": 0.013426760410693905,
+      "dInk": 0.015151515151515166
+    },
+    {
+      "side": "reverse",
+      "tier": "icon",
+      "size": 26,
+      "file": "bill-rev.jpg",
+      "name": "eagle",
+      "ours": {
+        "n": 154,
+        "px": "11x14",
+        "field": 236,
+        "ink": 0.23376623376623376,
+        "meanOverField": 0.8416795069337442
+      },
+      "ref": {
+        "n": 180,
+        "px": "12x15",
+        "field": 191.2,
+        "ink": 0.26666666666666666,
+        "meanOverField": 0.8100371356642444
+      },
+      "dMean": 0.03164237126949976,
+      "dInk": -0.0329004329004329
+    },
+    {
+      "side": "reverse",
+      "tier": "icon",
+      "size": 26,
+      "file": "bill-rev.jpg",
+      "name": "whole-frame",
+      "ours": {
+        "n": 392,
+        "px": "28x14",
+        "field": 238,
+        "ink": 0.19387755102040816,
+        "meanOverField": 0.8499828502829703
+      },
+      "ref": {
+        "n": 435,
+        "px": "29x15",
+        "field": 197.2,
+        "ink": 0.25517241379310346,
+        "meanOverField": 0.8139536628613532
+      },
+      "dMean": 0.03602918742161709,
+      "dInk": -0.0612948627726953
+    },
+    {
+      "side": "reverse",
+      "tier": "icon",
+      "size": 26,
+      "file": "bill-rev-2.jpg",
+      "name": "pyramid",
+      "ours": {
+        "n": 154,
+        "px": "11x14",
+        "field": 241,
+        "ink": 0.18181818181818182,
+        "meanOverField": 0.8465269170663362
+      },
+      "ref": {
+        "n": 180,
+        "px": "12x15",
+        "field": 179.2,
+        "ink": 0.15,
+        "meanOverField": 0.8382016456565562
+      },
+      "dMean": 0.00832527140978001,
+      "dInk": 0.03181818181818183
+    },
+    {
+      "side": "reverse",
+      "tier": "icon",
+      "size": 26,
+      "file": "bill-rev-2.jpg",
+      "name": "eagle",
+      "ours": {
+        "n": 154,
+        "px": "11x14",
+        "field": 236,
+        "ink": 0.23376623376623376,
+        "meanOverField": 0.8416795069337442
+      },
+      "ref": {
+        "n": 180,
+        "px": "12x15",
+        "field": 180.1,
+        "ink": 0.2611111111111111,
+        "meanOverField": 0.8106827720571261
+      },
+      "dMean": 0.030996734876618026,
+      "dInk": -0.027344877344877366
+    },
+    {
+      "side": "reverse",
+      "tier": "icon",
+      "size": 26,
+      "file": "bill-rev-2.jpg",
+      "name": "whole-frame",
+      "ours": {
+        "n": 392,
+        "px": "28x14",
+        "field": 238,
+        "ink": 0.19387755102040816,
+        "meanOverField": 0.8499828502829703
+      },
+      "ref": {
+        "n": 435,
+        "px": "29x15",
+        "field": 186.5,
+        "ink": 0.2620689655172414,
+        "meanOverField": 0.8129967971604032
+      },
+      "dMean": 0.036986053122567086,
+      "dInk": -0.06819141449683325
+    },
+    {
+      "side": "reverse",
+      "tier": "mid",
+      "size": 54,
+      "file": "bill-rev.jpg",
+      "name": "pyramid",
+      "ours": {
+        "n": 800,
+        "px": "25x32",
+        "field": 241,
+        "ink": 0.2675,
+        "meanOverField": 0.8230290456431535
+      },
+      "ref": {
+        "n": 744,
+        "px": "24x31",
+        "field": 194.8,
+        "ink": 0.29973118279569894,
+        "meanOverField": 0.8146828796915117
+      },
+      "dMean": 0.008346165951641837,
+      "dInk": -0.03223118279569892
+    },
+    {
+      "side": "reverse",
+      "tier": "mid",
+      "size": 54,
+      "file": "bill-rev.jpg",
+      "name": "eagle",
+      "ours": {
+        "n": 800,
+        "px": "25x32",
+        "field": 241,
+        "ink": 0.33125,
+        "meanOverField": 0.797359958506224
+      },
+      "ref": {
+        "n": 744,
+        "px": "24x31",
+        "field": 192,
+        "ink": 0.3682795698924731,
+        "meanOverField": 0.7941554763420106
+      },
+      "dMean": 0.003204482164213429,
+      "dInk": -0.037029569892473135
+    },
+    {
+      "side": "reverse",
+      "tier": "mid",
+      "size": 54,
+      "file": "bill-rev.jpg",
+      "name": "whole-frame",
+      "ours": {
+        "n": 1952,
+        "px": "61x32",
+        "field": 241,
+        "ink": 0.29200819672131145,
+        "meanOverField": 0.8092646758723897
+      },
+      "ref": {
+        "n": 1860,
+        "px": "60x31",
+        "field": 202.4,
+        "ink": 0.37849462365591396,
+        "meanOverField": 0.7906289763263853
+      },
+      "dMean": 0.018635699546004414,
+      "dInk": -0.08648642693460251
+    },
+    {
+      "side": "reverse",
+      "tier": "mid",
+      "size": 54,
+      "file": "bill-rev-2.jpg",
+      "name": "pyramid",
+      "ours": {
+        "n": 800,
+        "px": "25x32",
+        "field": 241,
+        "ink": 0.2675,
+        "meanOverField": 0.8230290456431535
+      },
+      "ref": {
+        "n": 744,
+        "px": "24x31",
+        "field": 185.7,
+        "ink": 0.3185483870967742,
+        "meanOverField": 0.8139405506855647
+      },
+      "dMean": 0.009088494957588789,
+      "dInk": -0.05104838709677417
+    },
+    {
+      "side": "reverse",
+      "tier": "mid",
+      "size": 54,
+      "file": "bill-rev-2.jpg",
+      "name": "eagle",
+      "ours": {
+        "n": 800,
+        "px": "25x32",
+        "field": 241,
+        "ink": 0.33125,
+        "meanOverField": 0.797359958506224
+      },
+      "ref": {
+        "n": 744,
+        "px": "24x31",
+        "field": 182.4,
+        "ink": 0.34274193548387094,
+        "meanOverField": 0.8040923186413237
+      },
+      "dMean": -0.006732360135099702,
+      "dInk": -0.011491935483870952
+    },
+    {
+      "side": "reverse",
+      "tier": "mid",
+      "size": 54,
+      "file": "bill-rev-2.jpg",
+      "name": "whole-frame",
+      "ours": {
+        "n": 1952,
+        "px": "61x32",
+        "field": 241,
+        "ink": 0.29200819672131145,
+        "meanOverField": 0.8092646758723897
+      },
+      "ref": {
+        "n": 1860,
+        "px": "60x31",
+        "field": 194.8,
+        "ink": 0.4043010752688172,
+        "meanOverField": 0.7825684574863265
+      },
+      "dMean": 0.026696218386063175,
+      "dInk": -0.11229287854750575
+    },
+    {
+      "side": "reverse",
+      "tier": "full",
+      "size": 190,
+      "file": "bill-rev.jpg",
+      "name": "pyramid",
+      "ours": {
+        "n": 9180,
+        "px": "85x108",
+        "field": 241,
+        "ink": 0.2544662309368192,
+        "meanOverField": 0.8420384382429782
+      },
+      "ref": {
+        "n": 9180,
+        "px": "85x108",
+        "field": 223,
+        "ink": 0.5538126361655773,
+        "meanOverField": 0.7109892413358334
+      },
+      "dMean": 0.13104919690714478,
+      "dInk": -0.2993464052287581
+    },
+    {
+      "side": "reverse",
+      "tier": "full",
+      "size": 190,
+      "file": "bill-rev.jpg",
+      "name": "eagle",
+      "ours": {
+        "n": 9180,
+        "px": "85x108",
+        "field": 241,
+        "ink": 0.3184095860566449,
+        "meanOverField": 0.8183327457308419
+      },
+      "ref": {
+        "n": 9180,
+        "px": "85x108",
+        "field": 220.7,
+        "ink": 0.6176470588235294,
+        "meanOverField": 0.6945418913488318
+      },
+      "dMean": 0.1237908543820101,
+      "dInk": -0.29923747276688456
+    },
+    {
+      "side": "reverse",
+      "tier": "full",
+      "size": 190,
+      "file": "bill-rev.jpg",
+      "name": "whole-frame",
+      "ours": {
+        "n": 22896,
+        "px": "212x108",
+        "field": 241,
+        "ink": 0.2800489168413697,
+        "meanOverField": 0.8277308761826886
+      },
+      "ref": {
+        "n": 22896,
+        "px": "212x108",
+        "field": 223.6,
+        "ink": 0.5531970649895178,
+        "meanOverField": 0.7163149921077218
+      },
+      "dMean": 0.11141588407496683,
+      "dInk": -0.27314814814814814
+    },
+    {
+      "side": "reverse",
+      "tier": "full",
+      "size": 190,
+      "file": "bill-rev-2.jpg",
+      "name": "pyramid",
+      "ours": {
+        "n": 9180,
+        "px": "85x108",
+        "field": 241,
+        "ink": 0.2544662309368192,
+        "meanOverField": 0.8420384382429782
+      },
+      "ref": {
+        "n": 9180,
+        "px": "85x108",
+        "field": 209.2,
+        "ink": 0.5237472766884531,
+        "meanOverField": 0.7197760497270487
+      },
+      "dMean": 0.12226238851592952,
+      "dInk": -0.2692810457516339
+    },
+    {
+      "side": "reverse",
+      "tier": "full",
+      "size": 190,
+      "file": "bill-rev-2.jpg",
+      "name": "eagle",
+      "ours": {
+        "n": 9180,
+        "px": "85x108",
+        "field": 241,
+        "ink": 0.3184095860566449,
+        "meanOverField": 0.8183327457308419
+      },
+      "ref": {
+        "n": 9180,
+        "px": "85x108",
+        "field": 207.1,
+        "ink": 0.5752723311546841,
+        "meanOverField": 0.7070874703584313
+      },
+      "dMean": 0.11124527537241058,
+      "dInk": -0.25686274509803925
+    },
+    {
+      "side": "reverse",
+      "tier": "full",
+      "size": 190,
+      "file": "bill-rev-2.jpg",
+      "name": "whole-frame",
+      "ours": {
+        "n": 22896,
+        "px": "212x108",
+        "field": 241,
+        "ink": 0.2800489168413697,
+        "meanOverField": 0.8277308761826886
+      },
+      "ref": {
+        "n": 22896,
+        "px": "212x108",
+        "field": 209.8,
+        "ink": 0.5173392732354997,
+        "meanOverField": 0.7248508073436266
+      },
+      "dMean": 0.10288006883906198,
+      "dInk": -0.23729035639413
+    },
+    {
+      "side": "obverse",
+      "tier": "icon",
+      "size": 26,
+      "file": "bill-obv-2.jpg",
+      "name": "portrait-measured",
+      "ours": {
+        "n": 168,
+        "px": "12x14",
+        "field": 221,
+        "ink": 0.38095238095238093,
+        "meanOverField": 0.822317388493859
+      },
+      "ref": {
+        "n": 165,
+        "px": "11x15",
+        "field": 206.1,
+        "ink": 0.37575757575757573,
+        "meanOverField": 0.7657838818499397
+      },
+      "dMean": 0.05653350664391932,
+      "dInk": 0.0051948051948051965
+    },
+    {
+      "side": "obverse",
+      "tier": "icon",
+      "size": 26,
+      "file": "bill-obv-2.jpg",
+      "name": "whole-frame",
+      "ours": {
+        "n": 392,
+        "px": "28x14",
+        "field": 221,
+        "ink": 0.29591836734693877,
+        "meanOverField": 0.8581817342321544
+      },
+      "ref": {
+        "n": 435,
+        "px": "29x15",
+        "field": 201.5,
+        "ink": 0.33793103448275863,
+        "meanOverField": 0.799852141157548
+      },
+      "dMean": 0.05832959307460639,
+      "dInk": -0.04201266713581986
+    },
+    {
+      "side": "obverse",
+      "tier": "mid",
+      "size": 54,
+      "file": "bill-obv-2.jpg",
+      "name": "portrait-measured",
+      "ours": {
+        "n": 800,
+        "px": "25x32",
+        "field": 241,
+        "ink": 0.4075,
+        "meanOverField": 0.772551867219917
+      },
+      "ref": {
+        "n": 800,
+        "px": "25x32",
+        "field": 207.3,
+        "ink": 0.40875,
+        "meanOverField": 0.7747321291424191
+      },
+      "dMean": -0.0021802619225020914,
+      "dInk": -0.0012500000000000289
+    },
+    {
+      "side": "obverse",
+      "tier": "mid",
+      "size": 54,
+      "file": "bill-obv-2.jpg",
+      "name": "whole-frame",
+      "ours": {
+        "n": 1952,
+        "px": "61x32",
+        "field": 221,
+        "ink": 0.3391393442622951,
+        "meanOverField": 0.8422038424449225
+      },
+      "ref": {
+        "n": 1952,
+        "px": "61x32",
+        "field": 204.4,
+        "ink": 0.4057377049180328,
+        "meanOverField": 0.7896767375235794
+      },
+      "dMean": 0.05252710492134316,
+      "dInk": -0.06659836065573771
+    },
+    {
+      "side": "obverse",
+      "tier": "full",
+      "size": 190,
+      "file": "bill-obv-2.jpg",
+      "name": "portrait-measured",
+      "ours": {
+        "n": 9180,
+        "px": "85x108",
+        "field": 241,
+        "ink": 0.36775599128540304,
+        "meanOverField": 0.796192335855504
+      },
+      "ref": {
+        "n": 9265,
+        "px": "85x109",
+        "field": 208.5,
+        "ink": 0.3789530491095521,
+        "meanOverField": 0.767070659326513
+      },
+      "dMean": 0.029121676528991003,
+      "dInk": -0.011197057824149037
+    },
+    {
+      "side": "obverse",
+      "tier": "full",
+      "size": 190,
+      "file": "bill-obv-2.jpg",
+      "name": "whole-frame",
+      "ours": {
+        "n": 22896,
+        "px": "212x108",
+        "field": 221,
+        "ink": 0.3402777777777778,
+        "meanOverField": 0.8645913372605937
+      },
+      "ref": {
+        "n": 23217,
+        "px": "213x109",
+        "field": 206.3,
+        "ink": 0.3676616272558901,
+        "meanOverField": 0.7854526443957651
+      },
+      "dMean": 0.07913869286482855,
+      "dInk": -0.027383849478112288
+    }
+  ]
+}

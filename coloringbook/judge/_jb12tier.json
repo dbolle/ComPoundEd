@@ -1,0 +1,60 @@
+{
+  "generated": "coloringbook/judge/_jb12tier.mjs",
+  "LO": 26,
+  "HI": 200,
+  "G": 64,
+  "BOUNDARIES": [
+    44,
+    76
+  ],
+  "out": {
+    "obverse": {
+      "p90": 0.04794634650735294,
+      "boundaries": [
+        {
+          "from": 43,
+          "to": 44,
+          "v": 0.0650323606004902,
+          "identical": false
+        },
+        {
+          "from": 75,
+          "to": 76,
+          "v": 0.03645929074754902,
+          "identical": false
+        }
+      ],
+      "pops": [],
+      "worstWithin": {
+        "from": 47,
+        "to": 48,
+        "v": 0.06908222273284313,
+        "identical": true
+      }
+    },
+    "reverse": {
+      "p90": 0.05582107843137255,
+      "boundaries": [
+        {
+          "from": 43,
+          "to": 44,
+          "v": 0.06523916207107844,
+          "identical": false
+        },
+        {
+          "from": 75,
+          "to": 76,
+          "v": 0.04664234834558824,
+          "identical": false
+        }
+      ],
+      "pops": [],
+      "worstWithin": {
+        "from": 31,
+        "to": 32,
+        "v": 0.07088694852941177,
+        "identical": true
+      }
+    }
+  }
+}
