@@ -1540,3 +1540,224 @@ what §1 exists to prevent.
   nearly covers the gate (DM4 proposes reporting the spread, not softening the
   gate); and D3 is scored against §3's ≤ ½ the flat floor rather than
   `dime-p2.md`'s weaker ≤ 0.10.
+
+---
+
+# BUCK r0 PROPOSALS
+
+> **Nothing in this section is in force.** It is the judge's report on the
+> first holistic pass over the **$1 note** (buck, round 0, 2026-08-14,
+> `coloringbook/judge/buck-r0.md`), written to the same standard as Appendices
+> P, Q and R. The note is the first subject this process has scored that is
+> **not a disc**, and most of what follows exists because the rubric quietly
+> reinterprets itself when the subject changes shape. A second judge ran on
+> the dime in parallel; where the two overlap that is corroboration.
+>
+> The transfer analysis — which of D1–D13 carry to a rectangle unchanged,
+> which need restating, and which are genuinely `N/A` — is in `buck-r0.md` §1
+> and in `buck-scorecard.json`'s `rubric_transfer_analysis`. It is not
+> repeated here; only the proposed edits are.
+
+### B1. §3 has an unstated assumption — the subject is a disc — and a rectangle silently reinterprets four of its thirteen rows
+
+D8 says "the field circle". D5 says "band radius". D2 says "motif" on a design
+whose motif sits on a bare field. D1 says "silhouette" of a bust. On the note
+none of those referents exist, and **nothing in the document says what to do**
+— so a judge either forces the row, skips it, or invents a restatement, and
+only the third is honest. All three look identical on a finished scorecard.
+
+This is not a note-only problem. It is why the same document produced
+`_x6dark.mjs` with a reverse-only `PAIRS` table (PY3) and `_jq10tier-v2.mjs`
+with `'quarter'` on line 64 (PY6): each was written against the subject in
+front of it and the rubric never asked what class of subject it was for.
+
+> **Proposed addition to §3:** every scorecard declares a **`subject_class`**,
+> and every dimension whose metric names a feature of that class carries an
+> explicit **`restated_as`** field when the class differs from `disc`. A row
+> scored on a subject whose class does not have the named feature, with no
+> `restated_as` and no `N/A` justification, is `UNTRUSTED`.
+>
+> And the concrete list, which cost this round two hours to establish: on a
+> rectangle, **D8's "field circle" becomes the printed border rectangle**,
+> **D5's "band radius" becomes cap-top and baseline Y in Cartesian units**
+> (PY2's two extremes), **D13's "field" becomes a statistic rather than a
+> place**, and **D2 splits per §18.4**. Two rows have to be *added* that no
+> disc needs: device **separation** and device **shape**, because a rectangle
+> has two independent scales and ours deliberately do not match the subject's.
+
+### B2. `N/A` is doing the work of two verdicts, and one of them is a FAIL
+
+§2.1: *"`N/A` — the metric has **no subject** on this side of this design."*
+On the note that sentence covers two very different situations:
+
+- **D7-reverse.** No path on that side is a fitted contour. The *metric* has
+  no subject. Correctly `N/A`.
+- **D5's three reverse legends.** The note carries THE UNITED STATES OF
+  AMERICA, IN GOD WE TRUST and ONE DOLLAR, plus four corner ONEs. **We draw
+  none of them.** The metric has a subject on the reference and none in our
+  drawing. That is not `N/A` — it is a missing feature, and the quarter's
+  round 0 recorded exactly this shape ("the reverse draws no lettering at all
+  at the size the app asks a child to name the coin") as a `FAIL`.
+
+The distinction matters because it is the difference between "nothing to
+measure" and "we did not draw it", and a one-sided gate cannot tell them
+apart: nickel r0's N5 showed a lettering ratio *improving* as the drawing
+emptied.
+
+> **Proposed addition to §2.1:** a new verdict, **`ABSENT`** — the metric's
+> subject exists on the target and **not in our drawing**. It fails like
+> `FAIL` and routes to a specialist. `N/A` is reserved for a metric with no
+> subject *on either side*. Every row carrying a presence flag reports it, and
+> a presence-false cell may never be recorded as a pass.
+
+### B3. A containment locus must be the TIGHTEST boundary the design declares, not the outermost
+
+D8 on the note reads **0.0000% outside the printed border, depth 0.0000, on
+both sides at all three tiers**, with a working response test and a
+cross-subject sanity check. It is a true statement and it is nearly useless,
+because on the same draw the **eagle is 10.474% outside its own roundel and
+4.840 units deep at the icon tier**. The device that a child is looking at is
+32% outside the circle it is supposed to sit in, and the dimension named
+"containment" passes.
+
+The mechanism is in the source and is honest about itself. `struck()`:
+
+> `rField` is the field circle this massing is being struck inside … **Omitted
+> where there is no field circle to respect (the $1 note).**
+
+So the note is the only subject in the set whose relief is authored against
+nothing — and the rubric, which asks about one boundary per side, cannot see
+it. Round 1 on the quarter found the mirror of this: `fieldRadius()` selecting
+the r-47 blank instead of the r-40.5 field, i.e. scoring against a boundary
+*too loose*. Same failure, different cause.
+
+> **Proposed edit to §3's D8 row:** D8 is scored against **every containment
+> boundary the drawing declares**, innermost first — the device's own field
+> circle or roundel, then the field, then the blank or paper edge — and the
+> verdict is the **worst** of them. A subject that declares no inner boundary
+> says so explicitly in the scorecard, and "this subject has no field circle"
+> is a finding to be recorded, not a reason to skip the row.
+
+### B4. An instrument's subject list is a TARGET. Hash it, audit it, and never let it be a comment
+
+`_x6lib.mjs:17`:
+
+```js
+export const IDS = ['penny', 'nickel', 'dime', 'quarter'];
+```
+
+**The $1 note has never been in the phase-6 matrix.** Every §17 number this
+project has ever published — the 0.0534 obverse minimum, the 0.0808/0.0794
+reverse minimum, the 1.49×–1.51× ratio against a 3.0× gate, method-doc §23's
+headline block, `discriminability.md` in full — is an **8-cell matrix over
+four denominations, in an app that ships five**. The measurement that §17 calls
+"the only thing in this repo that scores the product" has been missing 20% of
+the product since it was written.
+
+Nothing could have shown this. §3's per-side rule is about the scorecard; PY3
+made instrument coverage reportable; but a scorecard for `quarter` has no
+reason to mention that `buck` is absent, and there was no `buck` scorecard.
+
+The finding itself is benign — measured over five, the note's nearest
+different-denomination pair is **0.2344, 4.39× the set minimum**, and adding it
+changes no minimum at all. It is the most separable subject in the set, which
+is what a green rectangle among silver discs should be. But that is luck, not
+process: had the note been *close* to a coin, nobody would have known.
+
+> **Proposed addition to §4 (extending PY3):** an instrument's **subject list
+> is a frozen target** — hashed with the eval libraries, printed in its own
+> output, and **checked against the app's own enumeration** (`DENOMS`,
+> `COIN_SCALE`, whatever the product uses) on every run, with a loud failure
+> when the two differ. A set-level metric additionally publishes **the count
+> of subjects it covered and the count that exist**, side by side, in the
+> scorecard.
+
+### B5. After the third detector fails on one subject, stop building detectors
+
+This round's D5 spent two instruments and 180 detector cells — 5 darkness
+levels × 3 density levels × 2 references × 4 features, plus a prior pass —
+before concluding what the first result already implied: **a note is engraved
+edge to edge, so within any window the surrounding lathework is itself ink at
+any threshold that still admits the letters.** There is no background
+anywhere. Defeating exactly this separation is what banknote lathework is
+*for*.
+
+The same class of failure is now at **seven instruments across four subjects**:
+`_blseal.mjs`'s radial sweep (twice, both directions, bit-identical answers),
+`_rvcontain.mjs` on the coin reverses, four band finders on the cent and the
+quarter, and this round's two. Every one was correctly self-reported. Every
+one was then replaced by a picture with a ladder on it, which worked in
+minutes each time.
+
+§23.6 already names the rule — *when a motif sits on a bare field, measure
+density; when it is embedded in ornament, only an edge or curve measure can
+find its boundary* — and it is buried in a learnings section rather than being
+a step anybody follows.
+
+> **Proposed addition to §4.1 and to §4.3:** a round may declare a
+> **measurement class unavailable for a subject** after **two** independent
+> density-based instruments return a search bound, provided it records the
+> physical reason and provides the replacement reading from an overlay with a
+> published ladder. That is not a waiver and it is not `BLOCKED` — the value
+> still gets measured — it is permission to stop paying for detector three.
+> The judge writes down the class ("density-based extent finding on an
+> ornament-embedded feature") so the next subject does not pay for it again.
+
+### B6. A shared-constant audit that comes back CLEAN must be published as loudly as one that does not
+
+`EDGE[id].field = 41.0` has now been measured by three judges at 44.0, 44.33
+and 44.20, and six of the cent's failing rows sit behind it. That history makes
+"an unmeasured shared constant" read as "a wrong constant", and this round
+tested the note's analogue expecting the same.
+
+Our `noteSVG` frame is two nested rects, so it asserts a margin between the
+paper edge and the printed border. Measured: the note is **3.29% of its width
+and 7.62% of its height**; ours are **3.70% and 6.77%**. In our own units a
+note-correct border would sit at X 4.59–95.41 and Y 5.45–50.55, against the
+drawn 5–95 and 5–51 — **within half a viewBox unit on every side.**
+
+The constant is right. It had still never been checked, and the value of
+saying so out loud is that it corrects the prior: the house habit is not "every
+constant in this file is wrong", it is "**every constant in this file is
+unchecked**", and the two call for exactly the same audit and completely
+different repairs.
+
+> **Proposed addition to §6:** a shared-constant audit records its result
+> whichever way it comes out, with the artefact count that carried it. A clean
+> result is `ESCALATE` rather than `PASS` when fewer artefacts carry it than
+> subjects rely on it (PY1), and the scorecard says which. This one rests on a
+> single photograph and is recorded that way.
+
+### What the note's round 0 says should NOT change
+
+- **§4.1's null test**, for the second consecutive subject and by a wider
+  margin than any before: **180 detector cells returned their own bound and
+  every one was reported as a failure rather than as a value.** Without it
+  this round would have published five confident legend extents that are
+  nothing but the windows I chose.
+- **§4.3's overlay obligation.** It caught a wrong feature again — an
+  in-bounds, self-consistent 10-peak course count whose peaks land on the
+  **sea** below the pyramid. Two references agreed with each other about it.
+  Drawing it on the source took one minute.
+- **§3's D12 control, rendered first.** After nine sections of my own
+  arithmetic every prior I held was self-manufactured, which is exactly R6's
+  case. The control attributed the white bevel sliver to shared `struck()`
+  machinery and left the pale crescent inside the note's portrait oval
+  unattributed — and that crescent then turned out to be arithmetic I could
+  do on the drawn geometry rather than an impression.
+- **§6.1's rule that a locus may not be a function of the artefact under
+  test.** It decided a verdict here: D13's obverse window is centred on the
+  note's **measured** portrait centre, and it fails — while a window centred
+  on *our* portrait passes at two of three tiers. Ours is 16 units away from
+  the note's. A locus chosen from our own drawing would have scored that as
+  fine.
+- **§8's refusal to relax a gate.** Tested three times. D6-obverse is 21.46%
+  against a 0.00% gate and **all of it is one mark — the portrait vignette's
+  rim** — which §3's D6 row excludes generically by name and my gates file did
+  not; the honest move was to publish the FAIL and propose the clarification
+  for the next round. D4-reverse's "count error 0" cannot be met at any tier
+  the app draws (13 courses in 9.3 units is 2.8 device pixels each at the
+  largest draw), and is published as a miss with the re-derivation deferred.
+  And D8b was scored at 0.00% even though no gate for it existed before this
+  round's gates file was written — which is the only order in which it could
+  have been scored at all.

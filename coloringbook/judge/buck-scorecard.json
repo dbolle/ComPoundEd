@@ -3,6 +3,7 @@
   "subject_kind": "NOTE — a rectangle, the only non-disc subject in the set",
   "round": 0,
   "commit": "c0ff971",
+  "commit_note": "c0ff971 was HEAD when the gates and hashes were frozen. The concurrently-running dime judge committed fe55fa0 and 255b908 during this round and swept this round's instruments into them. `src/art/coins.js` is BYTE-IDENTICAL across all three (sha256 565d70716e42, re-checked at the end of the round), so every value here is attributable to one subject state. This judge committed nothing.",
   "date": "2026-08-14",
   "verdict": "FAIL",
   "tally": { "PASS": 8, "FAIL": 16, "UNMEASURED": 3, "N/A": 3, "BLOCKED": 0, "WAIVED": 0, "UNTRUSTED": 0, "ESCALATE": 2 },
