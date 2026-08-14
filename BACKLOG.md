@@ -185,6 +185,25 @@ reconsider after calibration.
      `PALETTE` is correctly flagged partially uniform (quarter = nickel =
      dime) — that one is the deliberate one-alloy accuracy decision and
      should stay, with the reason recorded rather than the flag silenced.
+   - 🔴 **DECISION OWED: `EDGE.field` is ~3.3 units too small on every coin.**
+     Two independent measurements by two unrelated methods now agree, and it is
+     blocking real gates on two coins:
+     - nickel round 0: **44.33**, sd 0.32, from four independent well-fitted
+       references (photometric);
+     - quarter round 4: **44.20**, from a polar unwrap of the legend band.
+     We draw **41.0** (full), i.e. 0.872 of the disc radius where the coins
+     show 0.940–0.943. **Our rim ring is 6.0 units wide where the real coins
+     show 2.7** — more than twice too thick.
+     Consequences already measured: the coins give their legends 7.5–7.7 units
+     of band and we give 4.6, so **D5-cap is unreachable behind D5-rim on both
+     the quarter and the nickel** — the quarter's legend cannot reach correct
+     height without crossing the field circle. Widening it would also **retire
+     the nickel's 1.47-unit D8 breach for free**.
+     Not changed unilaterally: `EDGE` is shared by all four coins, sets every
+     legend baseline, and moving it visibly thins the rim on all of them. It
+     is the exact "shared claim wearing per-coin clothes" that
+     `scripts/coin-shared-claims.mjs` was written to find, and it was that
+     script's first report. Wants the owner's eye, then a per-coin value.
    - Owed on the art, in priority order:
      - **The note's roundels are 1.80× too wide and 26% too close together**,
        and should be ellipses (ry/rx 1.314). "Fill the container rather than
