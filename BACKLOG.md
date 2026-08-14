@@ -204,6 +204,43 @@ reconsider after calibration.
      is the exact "shared claim wearing per-coin clothes" that
      `scripts/coin-shared-claims.mjs` was written to find, and it was that
      script's first report. Wants the owner's eye, then a per-coin value.
+   - ✅ **(2026-08-14) all five subjects judged; four scorecards added.**
+     Every denomination has now had a holistic pass. All five FAIL, which is
+     the expected and useful result — the point was to find what nobody had
+     scored. Scorecards, gates, histories and instruments in
+     `coloringbook/judge/` (tracked).
+     - 🔴 **`EDGE.field` is one wrong constant, settled.** Four judges, four
+       reference sets, four methods, deliberately not shown each other's
+       answers: cent **44.00**, nickel **44.33**, quarter **44.20**, dime
+       **43.75** → **44.07 ± 0.25**, range 0.58. We draw **41.0**. Preview
+       rendered (`coloringbook/judge/_edgesheet.mjs`): the rim goes 6.0 → 2.9
+       units where the coins show 2.7. Unblocks D5-cap/D5-rim on quarter and
+       nickel and retires the nickel's 1.47-unit D8 breach for free. **Not
+       applied — it visibly changes all four coins.**
+     - 🔴 **`_x6lib.mjs:17` has never contained `buck`.** Every phase-6
+       discriminability figure ever published, including the 1.487×/1.520×
+       set ratios quoted in four commits, was an 8-cell matrix over **four**
+       of five denominations. Re-derived over five, the conclusion survives —
+       the note is 4.39× the set minimum and contributes zero to it — but it
+       survived by luck, not coverage.
+     - 🔴 **The note draws the wrong pyramid.** The real one is truncated with
+       a detached capstone above a ray gap; ours is a pointed triangle with a
+       second triangle on top. Same class as the nickel's six columns.
+     - `REV_TEXT_MIN` has now stranded **three** coins at the naming size: the
+       cent and the dime still take the shared 135 while the quarter was
+       lowered to 84 in round 2.
+     - **D13-obverse had never been measured on any coin** — `_x6dark.mjs` is
+       reverse-only, so it was not a blank row but an absent subject. It is
+       the cent's worst number (−0.2537 at icon).
+     - **D8 is nearly useless on the note**: it passes at 0.0000% while the
+       eagle sits 10.474% outside its own roundel, 4.840 units deep, because
+       `struck()` passes `rField = 0` there by design.
+     - The dime's phase-2 numbers re-derived through the fixed rasteriser:
+       **0.0443 → 0.0399** (−9.9%), with the old path re-implemented and
+       reproducing 0.0443 to 5e-4 to prove the attribution.
+     - Seven instruments were caught returning confident wrong numbers, every
+       one by drawing the located feature and looking at it. Two judges
+       disclosed their own process violations unprompted.
    - Owed on the art, in priority order:
      - **The note's roundels are 1.80× too wide and 26% too close together**,
        and should be ellipses (ry/rx 1.314). "Fill the container rather than
