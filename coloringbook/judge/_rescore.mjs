@@ -26,9 +26,9 @@ import { existsSync, readFileSync } from 'node:fs';
 const HERE = new URL('.', import.meta.url).pathname;
 const ROOT = new URL('../../', import.meta.url).pathname;
 
-const run = (script, cwd = ROOT) => {
+const run = (script, cwd = ROOT, args = []) => {
   try {
-    return execFileSync('node', [script], { cwd, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+    return execFileSync('node', [script, ...args], { cwd, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
   } catch (e) {
     return `!! ${script} FAILED\n${(e.stdout || '') + (e.stderr || '')}`.slice(0, 4000);
   }
@@ -88,6 +88,29 @@ console.log(
     .filter((l) => /MINIMUM|RATIO|closest/.test(l))
     .join('\n')
 );
+
+// ── D10, added 2026-08-21 after it was missed ──────────────────────────────
+// v1.57.0 moved EDGE.field to 44.07 at full and mid and held icon at 42.5,
+// which put a 1.57-unit field step exactly at the 42->44 tier boundary — the
+// discontinuity D10 exists to measure. The round entry listed D5-rim, D8, D9,
+// D11 and D13 as re-derived and D10 was simply not in the set, so nobody
+// looked. It moved on all four coins, two better and two worse: cent
+// 5.44x -> 24.64x, quarter 6.36 -> 12.43, nickel 24.21 -> 9.12, dime
+// 5.56 -> 4.26.
+//
+// A dimension that is not in this file is a dimension nobody is watching.
+// That is the whole reason this file exists, and it took a specialist
+// re-deriving a brief to notice the omission.
+//
+// Appendix R2 is why the ABSOLUTE d(ink) prints beside every ratio: a ratio
+// improves if the denominator worsens, and only the numerator says whether
+// the drawing moved.
+console.log('\n=== D10 tier behaviour, obverse 42->44  [gate: boundary jump <= 4x the within-tier p90]');
+for (const id of ['penny', 'nickel', 'dime', 'quarter']) {
+  const out = run(`${HERE}_jp10tier.mjs`, ROOT, [id]);
+  const line = out.split('\n').find((l) => /42->44/.test(l)) || '(no 42->44 row)';
+  console.log(`  ${id.padEnd(8)} ${line.trim()}`);
+}
 
 console.log('\n--- not covered here, and still owed per round: the per-coin');
 console.log('--- reference fits (D1/D2/D3/D4/D5/D6/D7/D13), which carry their own');

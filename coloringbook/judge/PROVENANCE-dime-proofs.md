@@ -208,3 +208,43 @@ that exists to protect this project.
 (`flickr.com/photos/jsjgeology/53021775198/`). Not public domain either, but
 permissively licensed with attribution, recorded here so the attribution exists
 if it is ever needed.
+
+---
+
+## CORRECTION, same day: the nickel "new reference" is not a new reference
+
+I recorded `nickel-obv-unc2004.jpg` above as one of three replacements and
+called it *"the highest-resolution reference in the whole set"*. The second
+half is true. **The framing as a new, independent reference is false**, and the
+round-6 specialist caught it.
+
+Normalised cross-correlation at 256 px, re-derived by the judge:
+
+| pair | NCC |
+|---|---|
+| `nickel-obv-unc2004.jpg` vs `nickel-obv.jpg` | **0.9674** |
+| `nickel-obv-unc2004.jpg` vs `nickel-obv-5.JPG` | 0.2981 |
+| `nickel-obv.jpg` vs `nickel-obv-5.JPG` | 0.2817 |
+| control: unc2004 vs itself | 1.0000 *(at the bound — a check, not a value)* |
+
+0.9674 against 0.28–0.30 for genuinely different photographs. It is a
+**higher-resolution encode of the reference already in use**. `nickel-obv-5.JPG`
+remains the *only* independent struck reference that face has, which is exactly
+the condition that had D2 blocked on the dime.
+
+**The other two do survive the same test**, so the correction is the nickel's
+alone: dime obverse 0.3628 / 0.2955 against its incumbents, cent obverse
+−0.4619 and 0.6823, dime reverse 0.2474.
+
+### And it invalidates the screening number I quoted for that coin
+
+The plateau screen above reads *nickel obverse 0.070 → 0.179*, presented as one
+reference being cleaner than another. Both figures are **the same photograph at
+two resolutions**, so that 2.6× is measuring encode resolution, not field
+quality. The screen conflates the two and I did not notice, because I only ever
+ran it on pairs I had already assumed were different.
+
+The dime and cent rows stand — those pairs are genuinely different photographs —
+but the metric should be read as *"how well does p90 sit on a plateau in this
+file"* and never as *"this reference is better than that one"* without an
+independence check first. NCC before plateau, from now on.

@@ -1,0 +1,26 @@
+{
+ "nickel-obv-unc2004.jpg": {
+  "cx": 740.62,
+  "cy": 746.97,
+  "R": 701.95,
+  "via": "grey",
+  "p95resid_pctR": 0.71,
+  "ambiguous": false
+ },
+ "nickel-obv.jpg": {
+  "cx": 242.82,
+  "cy": 244.85,
+  "R": 230.49,
+  "via": "grey",
+  "p95resid_pctR": 0.78,
+  "ambiguous": false
+ },
+ "nickel-obv-5.JPG": {
+  "cx": 473.67,
+  "cy": 474.18,
+  "R": 474.23,
+  "via": "grey",
+  "p95resid_pctR": 0.15,
+  "ambiguous": false
+ }
+}

@@ -3,6 +3,58 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.61.1 — 2026-08-21
+
+**A round that changed no art, and found a regression I had shipped.**
+
+The cent obverse round was dispatched at D3 (tone) and D7 (curves). It
+returned 76 lines of comment and not one changed constant, having established
+that neither was repairable as scoped — and having found, while re-deriving
+the brief's figures, that **v1.57.0 moved D10 on every obverse and nobody
+measured it.**
+
+- **D10, the tier-boundary jump, at 42→44 px** — measured against the v1.56.0
+  art through the instrument's own `ART` override, so the drawing is the only
+  variable:
+
+  | coin | v1.56.0 | now |
+  |---|---|---|
+  | cent | 5.44× (d 0.0658) | **24.64× (d 0.1921)** |
+  | quarter | 6.36× (0.0504) | **12.43× (0.0855)** |
+  | nickel | 24.21× (0.1895) | **9.12× (0.0854)** |
+  | dime | 5.56× (0.0878) | **4.26× (0.0673)** |
+
+  It is not "v1.57.0 broke D10" — two coins got worse, two got better, and all
+  four failed the 4× gate before and after. What is squarely mine is that a
+  change I made moved a gated dimension on all eight faces in both directions,
+  and I published a round entry naming the dimensions I *had* checked without
+  noticing D10 was absent. The cause is specific: the field radius went to
+  44.07 at full and mid while **icon was deliberately held at 42.5**, which
+  puts a 1.57-unit step exactly at the boundary D10 measures. I made that call
+  and did not price it.
+- **D10 is now in the standing re-derivation set** (`_rescore.mjs`), where
+  D8/D9/D11 already were. A dimension not in that file is a dimension nobody
+  is watching.
+- **D3 on the cent cannot be repaired at the tone constants**, and the round
+  says why rather than shrugging: the four hair patches want values that the
+  two struck references *invert* between them (one says crown dark, the other
+  says crown light), so no flat fill can satisfy both — ours is already within
+  0.001 of the best any single value can do. The coat is the only large miss
+  the references agree on, and darkening it far enough costs seven times D13's
+  remaining margin at 44 px. Underneath both: our base tone is inverted, with
+  the device darker than the field where the coin has it lighter, so **D3 and
+  D13 pull in opposite directions on the same photograph**.
+- **D7 is four knots, not two** — and the two extra are invisible to the
+  scoring instrument, which never evaluates a closed path's closure knot. All
+  four are splices between a de-spiked fitted run and a hand-authored chain,
+  not oscillations in a fit; the target mask is smooth at one of them and does
+  not contain another. Declared as authored corners with the mask readings,
+  controls and photograph fans behind them, rather than smoothed.
+- Two settings that **scored better were refused**: a coat tone that breaks a
+  10-level separation rule written down before the sweep, and a flat fill over
+  forehead and temple that would reverse a documented decision the file
+  records being drawn, looked at, and removed for reading as a blindfold.
+
 ## v1.61.0 — 2026-08-21
 
 **The dime's jaw stops being a pen line, and a long-standing curve failure

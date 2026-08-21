@@ -213,6 +213,30 @@ export const COIN_SIDES = ['obverse', 'reverse'];
 //         what has to be read and a dark garment under a mid-tone face
 //         inverted the hierarchy: the cent looked like a mountain wearing a
 //         man
+//
+//         MEASURED against the photographs, and they disagree — but not about
+//         the coat. Against the CHEEK the cent's coat reads 0.769 on
+//         ref/penny-obv-3.jpg and 0.609 on the 1909-S where ours reads 1.141:
+//         outside the whole reference range, and the largest single term in the
+//         obverse tone vector (0.373 of a 0.1596 mean over eleven patches).
+//         Against the FIELD, though, ours reads 0.748 where those same two
+//         coins read 0.911 and 0.876 — already too DARK. Both are true at once
+//         because what is wrong is underneath them: the cheek against bare
+//         field is 1.185 and 1.438 on the two struck references and 0.656 here.
+//         On a struck coin the raised device catches the light and the sunken
+//         field does not, so the portrait is BRIGHTER than the field it sits
+//         on; this palette draws every device darker than its field, on all
+//         five subjects, because a coin on a screen has no light to catch and
+//         the shape has to read some other way.
+//         So the coat is not repairable AS A COAT. Taking `cloth` down to 0.818
+//         of the cheek — the darkest this palette can go without putting the
+//         coat below the bow tie and both seams, which are `deep` — moves the
+//         eleven-patch mean 0.1596 -> 0.1303 and costs the device-against-field
+//         figure 0.0427 at the 44px draw, where it has 0.0061 of margin left.
+//         Seven times the margin for a fifth of the tone error. Swept every
+//         three grey levels in coloringbook/judge/_jc5coat.mjs and
+//         _jc5d13sweep.mjs; the largest darkening that keeps the 44px draw
+//         inside its gate is THREE LEVELS, worth 0.0028. Left alone.
 //   ink   text and the few hairlines the full tier draws
 // The three silver coins share ONE palette, byte for byte. A real dime,
 // nickel and quarter are the same cupronickel: any brightness difference
@@ -1159,6 +1183,41 @@ const HAIR = {
   // the beard takes over. Outer edge shared with the head outline exactly —
   // the head's OWN knots, run backwards, not a second smoothing of the same
   // contour (that put the nickel's hair 1.2 units outside its own head).
+  //
+  // THE TWO CORNERS LINCOLN'S HAIR DECLARES. §4's turn-angle gate wants no knot
+  // over 75 degrees on a contour FITTED to a trace, because there a spike is an
+  // oscillation artefact. Measured on the emitted 380px obverse this path has
+  // two knots over it:
+  //
+  //     knot 16  local (-19.03, 11.99)  144.5 deg   the SIDEBURN TIP
+  //     knot  0  local ( 13.50, -27.05) 113.1 deg   the FOREHEAD HAIRLINE JUNCTION
+  //
+  // Neither is an oscillation, and the reason is structural: the path is TWO
+  // chains spliced together. The outer run is the head's own knots, which are
+  // de-spiked to 75 degrees by construction before they are ever emitted, so
+  // the fitted half cannot carry a spike; the rest is the hairline above, read
+  // off the photograph by hand. Both over-75 knots ARE the splices, and a
+  // splice between a fitted run and an authored one is an authored corner.
+  //
+  // The evidence rather than the argument. A chord estimator run over the
+  // frozen mask — smoothed 34 passes, the same chain the outline is fitted to,
+  // sampled at the 5-6 local units our knots actually sit at — reads 89.2 on a
+  // synthetic right angle, 0.0 on a synthetic straight run, and 25.6 AT THE
+  // SIDEBURN TIP. The silhouette is smooth there. All 144.5 degrees of that
+  // knot are contributed by the hairline turning back up.
+  //
+  // And a tip's turn angle is 180 minus its INCLUDED angle, so 144.5 is the
+  // claim "the sideburn tapers to about 35 degrees". A ray fan drawn on
+  // ref/penny-obv-3.jpg centred on the tip, every 15 degrees, puts the coin's
+  // own sideburn wedge at 40-45 degrees, i.e. a turn of 135-140. Rounding this
+  // knot to 75 would need an included angle of 105 and would leave a blunt stub
+  // where the coin has a point. Generators: coloringbook/judge/_jc5d7.mjs,
+  // _jc5corner.mjs, _jc5tip.mjs, _jc5maskover.mjs.
+  //
+  // Knot 0 is the CLOSURE, and an interior-knot turn walk never sees it: a
+  // closed path emits its start point twice and the walk skips both copies. It
+  // is declared here anyway, because a corner exempt by an off-by-one is not
+  // exempt.
   Lincoln: [
     'M 13.5 -27.05 C 13.58 -28.17 10.32 -29.9 8.69 -30.74',
     'C 7.3 -31.45 6.01 -31.55 4.46 -32.03',
@@ -1319,6 +1378,28 @@ const HAIR = {
 // Lincoln's beard gets the same treatment for the same reason: on the real
 // cent it is a separate, deeply cut mass, and drawing it in the skin tone
 // left his chin looking swollen rather than bearded.
+// It declares two corners, for the same reason and by the same construction as
+// HAIR.Lincoln above — the head's own de-spiked knots spliced to a hand-read jaw
+// line — and they are the two ends of that splice:
+//
+//     knot 7  local (-17.28,  8.63)   95.7 deg   the beard's REAR TIP, at the sideburn
+//     knot 0  local ( 15.15, 12.77)  122.2 deg   the beard's FRONT TIP, at the chin
+//
+// The rear tip is not on the frozen mask at all: the nearest mask vertex is 1.86
+// local units away, because the jaw is a boundary between two TONES and the mask
+// is a silhouette. There is no trace there for a fitted contour to have
+// oscillated against, so the 75-degree gate has no subject at this knot. The
+// front tip is the closure knot, which an interior-knot turn walk does not
+// visit; declared anyway.
+//
+// Ray fans drawn on ref/penny-obv-3.jpg at both points, every 15 degrees: at the
+// REAR tip the sideburn's dark band arrives from about 250 degrees and the jaw
+// boundary leaves toward about 350, an included angle near 100 — 95.7 is the
+// same corner within the width of a ray. At the FRONT tip the fan shows the
+// beard tuft's leading corner at the chin but its two edges are soft shadow
+// rather than a step, so the reading there is not tighter than "a corner, not a
+// smooth run"; it is declared on the construction (a splice), not on a measured
+// angle. Generators: coloringbook/judge/_jc5d7.mjs, _jc5corner.mjs, _jc5tip.mjs.
 const BEARD = [
   'M 15.15 12.77 C 15.64 13.62 13.67 16.33 12.3 17.51',
   'C 10.84 18.76 8.36 18.92 6.51 19.89 C 4.62 20.89 3.04 22.71 1.07 23.44',
@@ -2054,7 +2135,31 @@ export const OBVERSE = {
     },
   },
   nickel: {
-    who: 'Jefferson', dir: -1, bare: false, neck: 23, ear: [1.0, -16.6, -2.2],
+    // `hairLit` — THE WIG IS BRIGHTER THAN THE CHEEK, and until this pass we
+    // drew it darker, which is the same error §5 caught on the dime and the
+    // opposite of the object. MEASURED, at last: D3 had never been scored on
+    // this face because there was no `_tonepatches-nickel.json`; there is one
+    // now (13 patches, frozen by `judge/_jn6freezetone.mjs` before any value
+    // existed, overlay `judge/_jn6grid-nickel_obv_unc2004_jpg.png`). The three
+    // patches in the body of the wig are the only large relationship BOTH
+    // usable references corroborate — §5's rule, since the two disagree by
+    // 0.2605 overall and a single photograph's figure is never a target:
+    //
+    //          wig/cheek        unc2004 (2004-P)   nickel-obv-5.JPG (1945-P)
+    //   hairCrown                    1.207               1.269
+    //   hairMid                      1.224               1.388
+    //   hairBack                     1.264               1.149
+    //   ours, hair mass filled `hair`        0.846 – 1.000
+    //   ours, hair mass filled `cloth`       1.148 (cloth 171 / motif 149)
+    //
+    // 1.148 lands inside the band the two references bracket, where 0.846 is
+    // on the wrong side of 1.000 entirely. `cloth` is `full` tier only, so the
+    // icon draw — which is the whole of D11, and this face is half the set's
+    // closest pair — is byte-identical. No new colour: `cloth` is the coat
+    // tone this palette already carries. It does mean the wig and the collar
+    // are now the same tone where the dime could spend `cloth` on hair alone;
+    // they stay apart because the `deep` contour is drawn between them.
+    who: 'Jefferson', dir: -1, bare: false, neck: 23, ear: [1.0, -16.6, -2.2], hairLit: true,
     s: 0.95, cy: 43.7, cx: -6.4, iconS: 0.95, iconCy: 43.7, iconCx: -6.4,
     // Jefferson's back seam is almost entirely HIDDEN — the queue reaches
     // screen x 78.6 and the rim crossing is at 78.2 — so its bow is doing one

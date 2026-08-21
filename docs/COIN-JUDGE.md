@@ -325,9 +325,40 @@ D6 → D7 → D10. Structure before tone before ornament: a tone pass over a
 wrong silhouette is work thrown away, and this order is why the rhythm gate
 found the nickel's phantom columns before anyone tuned its greys.
 
-**One specialist at a time.** Non-negotiable on this box — 7.6 GB and 4
-cores, OOM-crashed twice by concurrent Chromium. It is also better process:
-two specialists editing one file cannot be attributed when a gate moves.
+**Up to three specialists, and only on disjoint faces** (amended 2026-08-21,
+owner-authorised). This rule used to read *"one specialist at a time,
+non-negotiable on this box — 7.6 GB and 4 cores, OOM-crashed twice by
+concurrent Chromium"*. Both halves needed correcting, and they were never the
+same constraint:
+
+- **The RAM figure was simply wrong.** `free -m` reports **15883 MB**, with
+  ~10 GB typically available, on 4 cores. What OOM-crashed this box twice was
+  **concurrent Chromium**, and a coin-art specialist drives no browser — it
+  rasterises a few hundred to ~2000 px through sharp, sequentially, and barely
+  registers. The heaviest thing here by far is the Playwright suite itself
+  (2 workers plus Chromium, ~45 minutes), and nothing else should run while
+  that is the gate.
+- **The real limit is ATTRIBUTION, and it survives.** *Two specialists editing
+  one file cannot be attributed when a gate moves* — that clause was the
+  load-bearing half all along. Parallelism is therefore allowed only under
+  conditions that keep the diffs disjoint:
+
+> Concurrent rounds must each own a **different coin's face**, and none may
+> edit a **shared helper** (`struck`, `reliefOff`, `spendOf`/`fitOff`,
+> `arcText`/`flatText`, `EDGE`, `PALETTE`, the tier logic). Depiction is
+> per-coin and may be edited; mechanism is shared and may not. The judge
+> merges the returned diffs **one at a time**, re-deriving after each, and a
+> diff that touches lines another round already moved is **void** and
+> re-dispatched rather than merged by hand.
+
+The check that makes this safe is one the process already runs every round:
+the **byte-identity partition** over emitted strings (§ every round's report —
+*"6 of 90 renders changed, all dime reverse"*). If three rounds return and the
+partition shows each touching only its own face, they are attributable; if any
+two overlap, the overlap is the bug and the later round is void.
+
+Nothing here relaxes a gate, and nothing here lets two specialists share a
+subject. It costs wall-clock time to serialise rounds that cannot collide.
 
 ### Termination
 

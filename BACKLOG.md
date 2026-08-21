@@ -279,6 +279,34 @@ reconsider after calibration.
      the fourth has inverted contrast, so D3/D13/D5-rim on the dime still
      rest on the single circulation photograph. **A plain business-strike
      dime reverse under diffuse light is the outstanding acquisition.**
+   - 🔴 **D10 fails on all four obverses, and v1.57.0 moved it in both
+     directions without anyone measuring.** At the 42→44 boundary: cent
+     5.44× → **24.64×**, quarter 6.36× → **12.43×**, nickel 24.21× →
+     **9.12×**, dime 5.56× → **4.26×** (gate ≤4×; absolute d(ink) beside
+     every ratio, per R2, so none of it is a denominator artefact). Cause:
+     the field radius went to 44.07 at full and mid while **icon was held
+     at 42.5**, putting a 1.57-unit step exactly at the boundary D10
+     measures. The candidate repair is to reconsider `EDGE.field.icon` —
+     which is a **shared constant across all four coins**, so it cannot go
+     in a parallel round and is queued as a serialised judge round.
+     D10 is now in `_rescore.mjs`'s standing set.
+   - 🔴 **Two D7 instrument faults, both silent, both affecting every coin.**
+     `_jqgeom.turns()` walks `i = 1 … K.length-2`, so a closed path's
+     **closure knot is never evaluated** — it exempts one knot on every
+     closed path in the file, in every round D7 has ever been scored, and on
+     the cent obverse alone it hides two knots over 75°. Separately
+     `_jp9edge.mjs`'s D7 half is a **null result** on the cent, because
+     `_jqgeom.mjs:179` truncates the tag to 200 characters and the `d="…"`
+     match then never closes.
+   - 🔴 **`PALETTE`'s base tone is inverted against the coins.** Measured on
+     the cent: our cheek/field is 0.656 where the two struck references read
+     1.185 and 1.438 — a struck coin's raised device catches light and its
+     sunken field does not, and this palette draws every device darker than
+     its field on all five subjects. **D3 and D13 pull in opposite
+     directions on the same photograph** because of it, which is why the
+     cent's coat is simultaneously too light against the cheek and too dark
+     against the field. Fixing it means moving `motif`, which is shared with
+     each coin's reverse.
    - Owed on the art, in priority order:
      - **The note's roundels are 1.80× too wide and 26% too close together**,
        and should be ellipses (ry/rx 1.314). "Fill the container rather than
