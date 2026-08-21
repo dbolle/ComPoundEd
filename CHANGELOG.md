@@ -3,6 +3,39 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.61.0 — 2026-08-21
+
+**The dime's jaw stops being a pen line, and a long-standing curve failure
+turns out to be a corner the die actually cuts.**
+
+- **The jaw was a `stroke-width="1.5"` mark** — width-variation ratio 1.000 by
+  construction — and its own comment called it "the only one drawn at full ink
+  weight". It is now a filled region tapering 2.90 → 1.80 viewBox units, ratio
+  1.505. The centreline is unchanged, so the geometry a previous pass measured
+  is preserved and only the mark type changed. D6 obverse: 0.2493 → **0.2145**
+  at 84px, 0.3517 → **0.3188** at 190.
+- **The photograph contradicted the brief, and won.** I specified a shadow
+  "deepest where the jaw overhangs most, thinning toward the chin". The
+  references say the reverse: widest and deepest **at the chin**, fading back,
+  with a second deepening at the angle under the ear. Every measured width is
+  at least 1.9× the 1.5 the stroke drew — the mark was not only uniform, it was
+  thin. Only a straight taper was drawn, because the three references agree to
+  1.12× at the chin and spread 2.2–2.3× further back; the photograph's rise in
+  the ear third sits inside that spread and was deliberately not drawn.
+- **D7 obverse now PASSES, without redrawing anything.** Its 111° knot was
+  located at the bust truncation, and the corner was measured *on the target*:
+  the frozen mask's own turn there is 99–122°, against 6.4–37.9° for a control
+  taken on the middle of the straight cut. The die cuts that corner, so it is
+  declared an authored corner (knot index 23) and exempt — which is what the
+  method's own appendix says to do, rather than smoothing a real feature to
+  move a number.
+- Two settings scored **better** on D3 and were refused: the chin tone patch's
+  median is bimodal, so those optima sit in a window ~0.05 units wide, while
+  the accepted setting sits on a broad plateau. Tuning to a step function is
+  not an improvement.
+- Unchanged and verified bit-identical: D1 (0.98063, still the best of the four
+  coins), D3, D8, D9, D11. 6 of 140 emitted strings changed, all dime obverse.
+
 ## v1.60.0 — 2026-08-21
 
 **Three lettering items cleared, and one of this project's own published

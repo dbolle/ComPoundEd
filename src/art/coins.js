@@ -1560,17 +1560,98 @@ const RELIEF = {
     // the brow over the eye, the nose over the lip, the lip over the chin,
     // the jaw over the neck. Drawn in `deep`, not `ink`: they are shadows in
     // silver, not lines in pencil.
-    // THE JAW, still the strongest dark on the coin and still the only one
-    // drawn at full `ink` weight, because on the photograph it is the deepest
-    // shadow on the obverse. Measured, the boundary runs from the chin back
-    // and slightly UP — (18, 20.5) → (10, 21.5) → (2, 18.6) → (−6, 15.4) —
-    // and ends in a defined ANGLE tucked under the ear lobe at about
-    // (−11, 13.6), where it turns up. The previous pass stopped a unit short
-    // of the angle, so the jaw trailed off into the neck instead of turning,
-    // and the whole lower head stayed one flat pentagon.
+    // THE JAW, still the strongest dark on the coin and still the only one at
+    // full `ink` weight, because on the photograph it is the deepest shadow on
+    // the obverse. Measured, the boundary runs from the chin back and slightly
+    // UP — (18, 20.5) → (10, 21.5) → (2, 18.6) → (−6, 15.4) — and ends in a
+    // defined ANGLE tucked under the ear lobe at about (−11, 13.6), where it
+    // turns up. The previous pass stopped a unit short of the angle, so the jaw
+    // trailed off into the neck instead of turning, and the whole lower head
+    // stayed one flat pentagon.
+    //
+    // IT IS A REGION NOW, AND IT IS THE LAST STROKE PHASE 2B SHOULD HAVE TAKEN.
+    // §14 names this mark by name: everything beside it — the throat, the two
+    // lit planes — became a filled shape in phase 2b, and this one stayed a
+    // `stroke-width` line, which has a width-variation ratio of exactly 1.000
+    // by construction. A die cannot cut a mark of constant width; light varies
+    // along a feature, so the drawn mark has to as well.
+    //
+    // THE CENTRELINE IS UNCHANGED — the coordinates above are still the
+    // coordinates below. That was re-checked rather than inherited: the drawn
+    // line was painted on all three usable obverse photographs, and on the two
+    // that carry the feature the run of dark sits on it (the overlay is
+    // `_jw4ridge-dime-obv-3-jpg.png`, where raking light isolates the jaw from
+    // the neck). On dime-obv-2, the 2015-W cameo proof, there is no measurable
+    // run at the line at all — 2 to 6 grey levels — because a frosted proof
+    // renders relief as texture rather than as shadow. Only the WIDTH is new.
+    //
+    // THE WIDTH IS MEASURED, per §14.2, as the full width at half depth of the
+    // dark run perpendicular to this line, in thirds of its length:
+    //
+    //     chin third   2.94    obv 2.85   obv-3 3.20   obv-2 no run
+    //     middle third 2.35    obv 3.30   obv-3 2.45   obv-2 1.50
+    //     ear third    2.58    obv 3.93   obv-3 2.38   obv-2 1.68
+    //     the tip      1.78    obv 1.75   obv-3 1.30   obv-2 2.45
+    //
+    // Two things in that table decide the shape. The chin third is the only one
+    // where the photographs agree (1.12× between them); the middle and the ear
+    // spread 2.2× and 2.3×, because on the warm-lit struck coin the whole neck
+    // plane is in shadow and the run merges into it. So the data support
+    // "wider at the chin than at the tip" and nothing finer, and a straight
+    // taper between the two ends is all of it: 2.90 → 1.80 viewBox units, which
+    // PREDICTS the middle third at 2.35 against a measured 2.35.
+    //
+    // And it is the opposite of the obvious guess. The shadow is not deepest in
+    // the middle where the jaw overhangs most; it is widest and deepest at the
+    // CHIN and fades back, with a second deepening right at the angle under the
+    // ear — depth 67/85 grey levels at the chin, 24/9 in the middle, 77/25 at
+    // the angle, on the two references that carry it.
+    //
+    // Every width above is at least 1.9× the 1.5 the stroke drew, so this mark
+    // was not only uniform, it was thin.
+    //
+    // AS DRAWN, measured back off the emitted path perpendicular to the
+    // centreline, it runs 2.69 at the chin to 1.78 at the tip — a width-
+    // variation ratio of 1.505. The chin end is 0.25 under the nominal 2.90
+    // because the cap is pulled back inside the silhouette (see below); it is
+    // still inside the two references' own 2.85–3.20.
+    //
+    // THE CHIN END IS PUSHED 0.8 UNITS DOWN, dying away over the first 11 units,
+    // and that is the one number here the photograph did not hand over on its
+    // own. Drawn symmetric about the centreline, the region's top edge clips the
+    // bottom of the frozen `chin` tone patch, whose brightest level held 54.3 %
+    // of it — a 4.3-point margin on a MEDIAN — so a 17 % overlap flipped it from
+    // 202 to 149 and took phase 2's score from 0.0399 to 0.0589, past its own
+    // gate, on that one patch. The bias is what keeps the region out of it, and
+    // it is inside the photographs' own disagreement: over the chin third the
+    // measured centre of the dark run is −1.46 on the struck reference and
+    // +0.89 on the proof, pooled −0.28, and this draws −0.39.
+    //
+    // The two cap corners are then pulled back along the normal until they are
+    // 0.15 units inside the HEAD contour. A `fill="none"` stroke that overhung
+    // the silhouette cost nothing, because it had no area; a REGION that
+    // overhangs paints ink on bare field, which is the fault that put 25.1 % of
+    // the cent's lapel outside its coat and was invisible to IoU. Without the
+    // clamp the lower corner sat 0.34 units outside.
+    //
+    // What it costs is the light band below. The clearance to the throat region
+    // is 0.08 local units where `shade`'s front tip reaches up under the chin,
+    // against the 0.60 the 1.5 stroke had — the two darks now touch at that one
+    // point. On the photograph they do not: the throat's own dark run sits 3–4
+    // units below this line, and `shade` as drawn starts 1.3–2.3 below it, so
+    // the squeeze is the throat region's top edge, not this one's width. That
+    // edge is phase 2b's and is left alone here.
     dark:
-      '<path d="M 19.4 21.4 C 17.6 21.4 14.2 21.4 11 21.2 C 7 21 3.4 19.4 0.4 18.2' +
-      ' C -3.2 16.8 -7.4 15 -10.4 13.6 C -11.4 13 -12.2 12.4 -12.6 11.6" fill="none" stroke-width="1.5"/>',
+      '<path d="M 19.4 20.86' + // the chin end, butted against the profile
+      ' C 17.61 20.58 14.23 20.41 11.07 20.04' + // the face side of the run,
+      ' C 7.31 19.75 3.83 18.25 0.84 17.11' + // offset from the centreline
+      ' C -2.78 15.78 -6.98 14.05 -9.99 12.71' + // by the tapering half-width
+      ' C -10.83 12.23 -11.51 11.76 -11.77 11.19' +
+      ' C -12.06 10.6 -13.72 11.43 -13.43 12.01' + // round the tip, 1.8 wide
+      ' C -12.89 13.04 -11.97 13.77 -10.9 14.44' + // and back along the neck
+      ' C -7.82 15.95 -3.62 17.82 -0.02 19.29' + // side, which is where the
+      ' C 2.97 20.55 6.69 22.25 10.92 22.74' + // light band before the throat
+      ' C 14.15 23.23 17.58 23.49 19.4 22.94 Z" stroke="none"/>',
     // THE THROAT SHADOW, and it is a REGION, not a line — the one thing phase 2
     // left on the table and called unreachable.
     //

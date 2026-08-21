@@ -284,10 +284,32 @@ reconsider after calibration.
        and should be ellipses (ry/rx 1.314). "Fill the container rather than
        fit the design" has now been found four times — it is a house habit,
        not a coin habit, and worth a sweep of every motif.
-     - **The jaw line on the dime is a `stroke-width="1.5"` stroke** while
-       every neighbouring mark became a filled region in phase 2b. Tone and
-       position were right and the metric is blind to edge quality. §14 now
-       specifies the check; the redraw itself is still owed.
+     - ✅ **DONE v1.61.0 — the dime's jaw line.** Now a filled region
+       tapering 2.90 → 1.80 units (ratio 1.505, was 1.000 by construction);
+       centreline unchanged. D6 obverse 0.2493 → 0.2145 @84. The
+       photograph contradicted the brief and won: the shadow is widest and
+       deepest **at the chin**, not at the overhang. **D7 obverse also
+       passes now** — its 111° knot is at the bust truncation and the
+       frozen mask's own turn there is 99–122° against a straight-cut
+       control at 6.4–37.9°, so it is a corner the die cuts and is declared
+       exempt (knot 23) rather than smoothed.
+       ⚠️ **Left owed by that round:** the throat region `shade`'s top edge
+       looks 1–2 units too high (its own dark run sits 3–4 units below the
+       jaw on `dime-obv-2`), and jaw-to-throat clearance is now 0.08 units
+       where the photograph shows a gap.
+     - 🔴 **A frozen target, not the photograph, is the binding constraint
+       on the dime's chin.** The `chin` tone patch is correctly sited, but
+       in our flat-palette raster it spans two palette steps, so its median
+       crosses on a ~4 % area change and |Δ| jumps 0.073 → 0.081 → 0.121 →
+       0.229 → 0.282 with nothing in between. A repair had to be biased 0.8
+       units to stay off a step. Worth a judge round: a median over a
+       two-step raster is not a tone measurement.
+     - 🔧 **`_jd9d7.mjs` mislabels every path in its secondary table.**
+       `marks()` returns no `d` field, so the authored-vs-fitted test
+       evaluates against `''` and prints "AUTHORED (M/L/Z only)" on paths
+       that are all cubics; the offending knot prints `(?)` because
+       `turns()` returns `at`, not `p`. The headline FITTED HEAD figure is
+       computed separately and is correct, which is why it survived.
      - ✅ **DONE v1.58.0.** MONTICELLO and E PLURIBUS UNUM (dime, quarter)
        are drawn; caps went from 0.40–0.79 of the references to ~0.97 and
        spans to within 0.1°; per-coin presence floors put a legend on all
