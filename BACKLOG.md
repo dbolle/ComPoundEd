@@ -295,14 +295,39 @@ reconsider after calibration.
        blank discs. The round also retracted three D5-band PASSes that had
        compared disjoint bands (bottom-legend baselines are the band's
        OUTER edge — see the retraction in the histories).
-       **Still owed, found during that round:** E PLURIBUS UNUM is on the
-       **cent** reverse too and we do not draw it — a fourth missing legend
-       nobody had listed; FIVE CENTS is an arc on the nickel and we draw it
-       flat; the cent's reverse reads "UNITED STATES **of** AMERICA" with a
-       lowercase "of" and we set it all caps; and `INS_REST_MIN = 110`
-       still withholds every secondary obverse line (dates, second mottoes)
-       at the naming size — those floors have no frozen target to derive
-       from yet.
+   - ✅ **v1.60.0 cleared three of those four, and RETRACTED the fourth.**
+     E PLURIBUS UNUM is now drawn on the **cent** reverse (the fourth
+     missing legend, previously absent at every size) — as **two straight
+     lines**, not two arcs: a free-centre circle fit returns a best radius
+     of 1002 units, 33× the coin, and the concentric model is 1.41×/1.76×
+     worse. FIVE CENTS is now an **arc** on the nickel (baseline r 31.67 —
+     the brief's "r ≈ 28" was the band *midline* where the convention needs
+     the outer edge, which would have sat it 3.5 units too far inboard).
+     🔴 **RETRACTED: the cent does NOT read "UNITED STATES *of* AMERICA".**
+     Both letters are capitals, simply set smaller than the surrounding
+     legend — checked on two references by the specialist and then directly
+     by the judge on a 3× crop. This was published in v1.58.0 on a round-1
+     incidental observation that nobody opened the reference to confirm.
+     What *is* true and now replaces it: we do not reproduce the **size
+     contrast** on OF, and `arcText` applies one size per call. Also found
+     while verifying: the coin sets **E·PLURIBUS with a raised dot** and we
+     emit a plain space.
+     Still owed: `INS_REST_MIN = 110` withholds every secondary obverse
+     line (dates, second mottoes) at the naming size — those floors have no
+     frozen target to derive from yet.
+   - 🔴 **D5-HF on the quarter obverse (2.0089× against ≤1.50×) is NOT
+     repairable by lettering geometry, and the real miss is elsewhere.**
+     Measured rather than tuned: the coin's obverse band is r 36.6–43.5 with
+     cap 6.9 (cross-checked — that 6.9 matches the frozen *reverse* legend's
+     cap to a tenth); ours is r 36.09–40.18 with cap 4.09, so the baseline is
+     right and **the cap is 41 % short**. Drawing the coin's own cap makes
+     HF *worse* at 84px (2.0089 → 2.6300) while helping at 190px, because the
+     photograph's HF collapses 0.6254 → 0.1578 as relief blurs out while ours
+     only falls 0.7465 → 0.3170 — vector edges stay hard. **The owed item is
+     D5-cap-obverse at −41 %**, which is unmeasured and has no frozen target
+     (`_jq4band.json` holds reverse legends only, and rules the obverse proof
+     plates out at ±2–4.5 units of scale error). Freezing an obverse band
+     target is the next judge task on this coin.
      - Dime reverse leaf count is **low confidence** and the dime has only
        **one** reference (its two files are the same photograph).
      - The quarter's scale confidence is the weakest of the four at ±3%.

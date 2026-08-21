@@ -775,8 +775,10 @@ function arcText(text, r, size, fill, opacity, centre = 270, rev = false, advF =
 
 // Straight text, for the words a real obverse does NOT arc — LIBERTY on the
 // cent, IN GOD WE TRUST on the dime and the quarter, three of the four dates,
-// and the two interior legends the coins set flat across the middle of a
-// reverse (MONTICELLO on the nickel, E PLURIBUS UNUM on the dime).
+// and the interior legends the coins set flat across the middle of a reverse:
+// MONTICELLO on the nickel, and E PLURIBUS UNUM on the dime and on the CENT,
+// where it is two straight lines above the memorial rather than the two arcs
+// it was taken for — measured in round 3, see `REV_TEXT.penny`.
 //
 // `ls` is letter-spacing in viewBox units, and those two interior legends are
 // why it exists: measured off `_jl1grid-nkrev-monti.png`, MONTICELLO runs
@@ -3392,13 +3394,38 @@ const INSCRIPTION = {
     // the baseline exactly one unit above the crown and the size comes down to
     // keep the cap tops inside the field circle.
     //
-    // UNTOUCHED by round 1's lettering pass, deliberately: the quarter obverse
-    // is the one face with NO frozen band or cap target (D5-band-obverse is
-    // UNMEASURED — the σ-plateau detector locked onto the bust edge), so there
-    // is nothing here to fit to. Its D5-HF also runs 2.01× against a 1.5×
-    // gate, i.e. ours is already too textured at the locus, and growing the
-    // type is the wrong direction for it. Leaving it alone keeps the round's
-    // one open obverse attributable to a target, not to this edit.
+    // UNTOUCHED by rounds 1 AND 3, deliberately, and round 3 measured what
+    // round 1 could only say was unmeasured. The quarter obverse is still the
+    // one face with no frozen band or cap target — `judge/_jq4band.json` holds
+    // `top_legend` and `bottom_legend` and both are the REVERSE, and its own
+    // `_why_not_the_proofs` note rules the two obverse proof plates out for
+    // band work at ±2 to ±4.5 units of scale error. So the following is a
+    // WORKING measurement, not a target, and no constant on this line moved:
+    //
+    //   read off a half-unit arc ladder at the E of LIBERTY on
+    //   `quarter-obv-2.jpg` (`judge/_jl3over-qobv-liberty-ladder.png`, disc fit
+    //   quoted from `_jq5letter-v2.mjs`'s own REFS), the COIN's obverse band is
+    //   r 36.6..43.5, CAP 6.9. Ours is r 36.09..40.18, ink cap 4.09.
+    //   The baseline is right to half a unit. THE CAP IS 41% SHORT.
+    //   6.9 is also, to a tenth, the frozen cap of the reverse's top legend,
+    //   which is the cross-check that the ladder read is not fantasy.
+    //
+    // Growing it is still the wrong move, and that is now a number rather than
+    // a prior. `judge/_jl3probe.mjs` scores generated copies at the frozen
+    // locus without touching this file: at the coin's own 6.9 cap D5-HF at
+    // 84px goes 2.0089× → 2.6300×, and at a half-way 5.5 cap → 2.5506×. Both
+    // are further from the 1.50× gate. At 190px the same change helps —
+    // 1.1935× → 1.1071× — so the two tiers want opposite things.
+    //
+    // What the 84px row is actually made of: at that size only this line is
+    // drawn (7 glyphs; the date and IN GOD / WE TRUST start at 110), so "too
+    // many marks in the band" is not the cause — at 190px, with 13 glyphs, the
+    // ratio PASSES. The move is on the reference side: the photograph's HF at
+    // r 38.9 falls 0.6254 → 0.1578 between the 190px and 84px reductions
+    // because relief blurs out, while ours only falls 0.7465 → 0.3170 because
+    // vector edges stay hard. The ratio at 84px is largely measuring our
+    // sharpness against photographic blur, which is COIN-JUDGE.md §8's
+    // "whether the reference is any good", not something a letterform can fix.
     main: { kind: 'arc', text: 'LIBERTY', size: 5.6, centre: 270, rOff: 0.55 },
     rest: [
       { kind: 'flat', text: 'IN GOD', x: 20, y: 61, size: 4.0 },
@@ -3425,9 +3452,12 @@ const INS_REST_MIN = 110;
 // Mint struck it.
 //
 // The nickel is the odd one out and is drawn odd: E PLURIBUS UNUM over the
-// top, FIVE CENTS flat below the building, UNITED STATES OF AMERICA round
-// the bottom. The other three put the country on top and the denomination
-// underneath. That arrangement is one more true, checkable difference.
+// top, FIVE CENTS in its own arc below the building, UNITED STATES OF AMERICA
+// round the bottom. The other three put the country on top and the
+// denomination underneath. That arrangement is one more true, checkable
+// difference — and so is the fact that this coin carries THREE arcs round its
+// bottom half rather than one, which is what makes the nickel's reverse read
+// as busy beside the dime's.
 //
 // ─────────────────────────────────────────────────────────────────────────
 // A TOP LEGEND'S BASELINE IS ITS INNER EDGE. A BOTTOM LEGEND'S IS ITS OUTER.
@@ -3494,6 +3524,70 @@ const REV_TEXT = {
   // set solid (cond 1): 7 advances over 136° at r 41.3 is 10.48 units each
   // against a 10.4 cap. The cent spaces its denomination out; the quarter and
   // the nickel condense theirs. Both are measured, neither is a style.
+  //
+  // E PLURIBUS UNUM is on this reverse too, above the memorial, and had never
+  // been drawn. It is set FLAT — two straight lines of upright capitals, not
+  // arcs — and that is worth the paragraph, because the round-3 brief called
+  // them "two arcs at r ≈ 29..35" and the photograph says otherwise:
+  //
+  //   · fitted on `penny-rev-2.png` with the arc centre free
+  //     (`judge/_jl3fit.mjs`), the best circle through the top line's cap
+  //     edge has radius 1002 units — 33 times the coin's own — and its
+  //     residual, 1.0405, is the STRAIGHT model's 1.0410 to four figures.
+  //     A concentric arc fitted to the same points is 1.41x worse. On the
+  //     lower line the concentric model is 1.76x worse.
+  //   · glyph by glyph, the cap edge sits at cartesian y 19.40..19.65 across
+  //     the whole word. A concentric arc at r 30.6 would run from y 19.4 at
+  //     the middle to y 22.6 at the E — a 3.2-unit sag that is not there.
+  //   · and the overlay says it plainly: `_jl3over-pyrev-epu-STRAIGHT-vs-ARC.png`
+  //     draws both models on the photograph, and the two horizontal lines
+  //     land on the letters' feet and caps while the arc crosses the word.
+  //
+  // Radii, for the record, because "r 29..35" is not wrong so much as
+  // meaningless for a flat line: the top line's ink runs r 25.6 at the centre
+  // to r 34.5 at the E, which is what a straight chord does.
+  //
+  // The numbers (`judge/_jl3ink.mjs`, then `judge/_jl3derive.mjs`):
+  //   top     E PLURIBUS, ink x 35.05..64.35, cap edge 19.42, foot 23.55
+  //   bottom  UNUM,       ink x 41.75..57.80, cap edge 24.50, foot 28.60
+  // Caps 4.13 and 4.10, used AS MEASURED. The instrument was checked against
+  // the frozen hand reads first and reproduces them — MONTICELLO's cap 3.88
+  // against a frozen 3.89 and its right edge 78.60 against 78.7, the nickel's
+  // top band inner edge 36.813 against 36.8, this coin's 35.498 against 35.6.
+  // The one number it disagrees with is this coin's top legend CAP, 7.24
+  // against a frozen 6.6, whose outer edge is confounded with the rim relief;
+  // taking the ratio to that instead would give 3.76, which is 8.5% smaller
+  // and inside the ±15% gate either way. Recorded, not applied.
+  //
+  // WHAT IS FORCED, and it is not the flank. `flatText` cannot condense —
+  // `arcText` squeezes with `scale(cond 1)` and a straight line has no
+  // equivalent — and our face's glyph ink is 0.85 of its cap where this legend
+  // is 0.74 of its. At the coin's cap the word is 15% too wide, so cap and
+  // extent cannot both be held. Holding the cap and letting the extent run
+  // costs +21% of extent, outside the gate; holding the extent costs about 9%
+  // of cap, inside it. So the extent is held, and `size` is the largest that
+  // does not run the glyphs together — judged by rendering it, not by
+  // arithmetic (`judge/_jl3check-penny-epu.png`).
+  //
+  // `ls` is NEGATIVE here, and it is the first legend in this file that needs
+  // it. MONTICELLO and the dime's E PLURIBUS UNUM are both set LOOSER than our
+  // face; the cent's is TIGHTER — glyph ink 3.05 units on a 3.02-unit advance,
+  // letters practically touching. librsvg honours negative spacing exactly
+  // (`judge/_jl3ls.mjs`: ink width falls by (n−1)×|ls| at −5, −10, −19, −25
+  // and −40 with no clamp), and the result is checked rather than computed:
+  // `judge/_jl3check.mjs` renders these two rows through the same pipeline and
+  // gets 29.300 and 16.050 units against the photograph's 29.30 and 16.05,
+  // caps 4.150 and 4.075 against 4.13 and 4.10.
+  //
+  // The first pass at those spacings was 0.6 units too negative because it
+  // assumed `flatText` advances at the shared NAT_ADV 0.7706 em. It does not —
+  // `arcText` forces a uniform advance, `flatText` uses the face's own
+  // PROPORTIONAL ones, and "E PLURIBUS" contains a space and an I. The natural
+  // ink widths are therefore measured per string, not derived.
+  //
+  // `min` 120 is the dime's floor for the same words, inherited rather than
+  // tuned: at 120 box pixels a 4.13 cap is 5.0 device pixels, where the dime's
+  // 3.50 cap is 4.2. Below that §16 says draw nothing, and nothing is drawn.
   penny: {
     top: 'UNITED STATES OF AMERICA',
     bottom: 'ONE CENT',
@@ -3502,6 +3596,10 @@ const REV_TEXT = {
     bs: 13.87,
     bOff: 2.77, // 44.07 − 2.77 = 41.30, the coin's OUTER edge = its baseline
     badv: 1.0099, // 7 advances at r 41.30 -> 136.0°, the coin's 136°
+    flats: [
+      { text: 'E PLURIBUS', x: 49.7, y: 23.55, size: 5.49, ls: -0.6789, min: 120 },
+      { text: 'UNUM', x: 49.77, y: 28.6, size: 5.49, ls: -0.6414, min: 120 },
+    ],
     min: 65,
   },
   // ── the nickel ────────────────────────────────────────────────────────
@@ -3513,10 +3611,50 @@ const REV_TEXT = {
   // flat, baseline y 66.35, cap top 62.47, ink from x 22.8 to x 78.7 — 5.87
   // units per advance on a 3.89 cap, so it is spaced out across the coin
   // rather than set solid, which is what `ls` is for.
-  // FIVE CENTS is left flat and left alone. On the photograph it is an ARC at
-  // r ≈ 28 centred at six o'clock, not a straight line, and that is a real
-  // miss — but it is a shape change with no frozen target, where everything
-  // else in this round is a measured number against one.
+  // FIVE CENTS was drawn flat at y 74.5 and it is an ARC on the coin — the
+  // one legend on these four reverses that curves the OPPOSITE way to a rim
+  // legend's reading direction and still hugs the coin's own centre. It is now
+  // drawn as one, and the target it was missing is measured here.
+  //
+  // Concentricity is the whole question, and it is not asserted. Per glyph on
+  // `nickel-rev-2.png` (`judge/_jl3ink.mjs`) the outer edge of the ink sits at
+  // r 31.62 and 31.67 for the two words and 30.90..31.67 for the seven
+  // separated glyph runs — a spread of 0.68 units over 86° of arc, and 0.05
+  // between the two whole-word runs. A straight line through the same letters
+  // would swing the outer edge by four units. The polar unwrap says the same
+  // thing as a picture: in `judge/_jl3unwrap-nkrev-five.png` the word's cap and
+  // foot are two horizontal lines, which is what a concentric arc IS.
+  //
+  //   band       r 26.13..31.67, CAP 5.54
+  //   baseline   31.67 — a BOTTOM legend's baseline is its band's OUTER edge,
+  //              which is why `bOff` is 12.40 and not the 16.0-odd that
+  //              reading r ≈ 28 off the middle of the band would give. The
+  //              round-3 brief's "r ≈ 28" is the band's MIDLINE; handing it to
+  //              `arcText` would sit the whole legend 3.5 units too far in.
+  //   ink extent 46.79°..133.20° = 86.41°, centred 89.99° — six o'clock to
+  //              within a hundredth of a degree, which is the check that the
+  //              frozen disc fit and the legend agree.
+  //   span       79.32° centre-to-centre over 9 advances, from the ink extent
+  //              less one glyph box (`judge/_jl3derive.mjs`, fixed point).
+  //
+  // Cross-checked on the second reference: `nickel-rev.jpg` gives band
+  // 26.63..32.67 and ink extent 80.66° centred 88.7°. It is a 231-pixel
+  // circulated coin against a 476-pixel proof and the two disagree by about a
+  // unit of radius and 7% of span — inside the ±15% span gate and the ±1.5
+  // band gate either way, but recorded rather than averaged away.
+  //
+  // The cap 5.54 is the least certain number in this round and is stated raw.
+  // Unlike the cent's, it has no frozen legend of comparable size on its own
+  // reference to take a ratio against — the nickel's two rim legends both run
+  // into the coin's edge relief before their outer edge resolves. What the
+  // reference does support is a calibration of the instrument itself: measured
+  // against MONTICELLO, whose cap and ink extent round 1 froze at 3.89 and
+  // x 22.8..78.7, `_jl3ink.mjs` returns cap 3.88 and a right edge of 78.60,
+  // with the whole band shifted +0.31 in y. So on this reference it does not
+  // inflate a cap; it may place a band a third of a unit low.
+  //
+  // MONTICELLO is untouched. It keeps its own baseline, size and letterspacing
+  // and its own reading — the two legends are independent and only one moved.
   nickel: {
     top: 'E PLURIBUS UNUM',
     bottom: 'UNITED STATES OF AMERICA',
@@ -3525,8 +3663,12 @@ const REV_TEXT = {
     bs: 7.73,
     bOff: 1.55, // 44.07 − 1.55 = 42.52, the coin's OUTER edge
     badv: 0.5591, // 23 advances at r 42.52 -> 134.0°, the coin's ~134°
+    arcs: [
+      // rev, because at six o'clock the glyphs must be flipped to read the
+      // right way up — the same reason the bottom rim legend passes it.
+      { text: 'FIVE CENTS', off: 12.4, size: 7.39, centre: 90, rev: true, adv: 0.6595 },
+    ],
     flats: [
-      { text: 'FIVE CENTS', x: 50, y: 74.5, size: 5.2 },
       { text: 'MONTICELLO', x: 50.75, y: 66.35, size: 5.19, ls: 1.87 },
     ],
     min: 73,
@@ -3623,9 +3765,20 @@ const REV_TEXT_MIN = 135;
 // them five to nine units inboard of where the coins have them.
 //
 // `arcs` and `flats` are the legends that are not on the rim band at all —
-// MONTICELLO, and E PLURIBUS UNUM on the dime and the quarter. Each carries
-// its own optional `min`, defaulting to the coin's, because their caps are a
-// third to a half of the band legends' and they stop resolving sooner.
+// MONTICELLO and the nickel's FIVE CENTS, and E PLURIBUS UNUM on the dime, the
+// quarter and the cent. Each carries its own optional `min`, defaulting to the
+// coin's, because their caps are a third to a half of the band legends' and
+// they stop resolving sooner. FIVE CENTS is the exception and keeps the coin's
+// own floor: its cap is 5.54, within a quarter-unit of the two rim legends it
+// shares the coin with, so it resolves exactly when they do.
+//
+// Which of the two a legend goes in is a MEASUREMENT, not a layout preference,
+// and round 3 moved one each way. The cent's E PLURIBUS UNUM was believed to
+// be two arcs and is two straight lines; the nickel's FIVE CENTS was drawn as
+// a straight line and is an arc. Both were settled by fitting a circle with a
+// free centre to the ink edge (`judge/_jl3fit.mjs`) and looking at the overlay,
+// and the answers are not close: the cent's best-fit radius is 33x the coin's,
+// the nickel's outer edge holds to 0.05 units across 86° of arc.
 function inscriptionOf(id, side, rField, p, boxW) {
   if (side === 'reverse') {
     const t = REV_TEXT[id];

@@ -3,6 +3,46 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.60.0 — 2026-08-21
+
+**Three lettering items cleared, and one of this project's own published
+findings retracted.**
+
+- **E PLURIBUS UNUM is now drawn on the cent reverse** — a fourth missing
+  legend, previously absent at every size. It is **two straight lines**,
+  not two arcs as planned: fitting a circle with a free centre to the ink
+  returns a best radius of 1002 viewBox units (33× the coin), with the
+  concentric model 1.41× and 1.76× worse than the straight one.
+- **FIVE CENTS is now an arc on the nickel**, where we drew it flat.
+  Baseline r 31.67 — and the planned "r ≈ 28" was the band *midline*, where
+  this file's convention needs the band's **outer** edge for a bottom-of-coin
+  legend. Using 28 would have sat the whole legend 3.5 units too far inboard,
+  which is the exact error v1.58.0's retraction exists to prevent.
+- 🔴 **RETRACTED: the cent does not read "UNITED STATES *of* AMERICA".**
+  v1.58.0 published that on a round-1 incidental observation. Both letters
+  are **capitals**, simply set smaller than the surrounding legend — checked
+  on two references and then directly, on a 3× crop: the O has no x-height
+  and the F's top aligns with it rather than rising above. No art changed and
+  none should. What replaces it as the true finding: we don't reproduce the
+  **size contrast** on OF, since `arcText` applies one size per call. And,
+  noticed while verifying, the coin sets **E·PLURIBUS with a raised dot**
+  where we emit a space.
+- **The quarter obverse's D5-HF (2.0089× against ≤1.50×) was investigated and
+  deliberately not touched.** The coin's obverse band is r 36.6–43.5 with cap
+  6.9; ours is r 36.09–40.18 with cap 4.09, so the baseline is right and the
+  cap is **41 % short**. But drawing the coin's own cap makes HF *worse* at
+  84px (2.0089 → 2.6300) — the photograph's high-frequency energy collapses
+  as relief blurs out at small reductions while vector edges stay hard. The
+  owed item is D5-cap-obverse, which is unmeasured and has no frozen target.
+  Tuning constants until the ratio dropped was the one move available and the
+  one the method forbids.
+- Fixed: `_jq8contain-v2.mjs`'s selftest asserted a field radius of 40.5 and
+  so printed **FAIL on clean art from v1.57.0 until now**. It now checks the
+  rule it exists to guard — no coin may pick the blank, the blank must be
+  seen and *rejected* — instead of copying a number.
+- Unchanged and used as controls: quarter, dime and the $1 note, byte-identical
+  at every tier. 6 of 90 renders changed.
+
 ## v1.59.0 — 2026-08-21
 
 **The dime's reverse fills its field the way the coin does — and the metric

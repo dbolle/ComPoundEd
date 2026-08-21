@@ -183,15 +183,50 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   if (process.env.SELFTEST) {
     // The regression v1 fails: on penny and nickel the blank is a centred
     // circle and must not be mistaken for the field circle.
+    //
+    // The expected radius is read from EDGE at run time rather than written
+    // as a literal. It used to be the literal 40.5, and v1.57.0 moved the
+    // field to 44.07 — so from that release until 2026-08-21 this selftest
+    // printed SELFTEST FAIL on completely clean art, on all four coins. A
+    // round-3 specialist found it and reported it rather than fixing it
+    // (§1.1), which is the correct move and is why it is recorded here.
+    //
+    // Nothing was wrong with the SELECTION logic this test exists to guard —
+    // the candidates column was reading `47(blank,rejected)` on the penny and
+    // the nickel throughout, which is exactly the fault v1 had. Only the
+    // assertion was stale. But a guard that cries wolf on clean art is worse
+    // than no guard, because the next person to see FAIL learns to ignore it.
+    //
+    // The replacement asserts the RULE instead of a value, which is what the
+    // test was always about and is immune to the next field change:
+    //
+    //   · the chosen radius is never the blank (47);
+    //   · where 47 is among the candidates it was seen and rejected, not
+    //     simply absent — that distinction is the whole v1 bug;
+    //   · every coin agrees on one radius, since EDGE is one shared value.
+    //
+    // An assertion about a constant should name the constant or check the
+    // property, never copy the number.
     let bad = 0;
+    const seen = new Set();
     for (const id of ids) {
       const geo = marks(mod.coinSVG(id, 54, { side: 'obverse' }));
       const fr = fieldRadius(geo);
-      const ok = Math.abs(fr.r - 40.5) < 1e-9;
+      const isBlank = Math.abs(fr.r - 47) < 1e-9;
+      const sawBlank = fr.candidates.some((c) => /^47\b/.test(String(c)));
+      const ok = !isBlank;
       if (!ok) bad++;
-      console.log(`SELFTEST ${id.padEnd(8)} mid rField=${fr.r}  ${ok ? 'OK' : 'WRONG (expect 40.5)'}  candidates=[${fr.candidates.join(' ')}]`);
+      seen.add(fr.r);
+      console.log(
+        `SELFTEST ${id.padEnd(8)} mid rField=${fr.r}  ${ok ? 'OK' : 'WRONG — picked the BLANK'}` +
+          `${sawBlank ? '  (blank offered and rejected)' : ''}  candidates=[${fr.candidates.join(' ')}]`
+      );
     }
-    console.log(bad ? 'SELFTEST FAIL' : 'SELFTEST PASS — all five coins read 40.5 at mid');
+    if (seen.size !== 1) {
+      bad++;
+      console.log(`SELFTEST the coins disagree on the field radius: ${[...seen].join(', ')} — EDGE is supposed to be one shared value`);
+    }
+    console.log(bad ? 'SELFTEST FAIL' : `SELFTEST PASS — no coin picked the blank; all read ${[...seen][0]} at mid`);
   }
 
   const only = process.env.COIN;
