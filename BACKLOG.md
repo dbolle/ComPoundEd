@@ -259,11 +259,21 @@ reconsider after calibration.
        every neighbouring mark became a filled region in phase 2b. Tone and
        position were right and the metric is blind to edge quality. §14 now
        specifies the check; the redraw itself is still owed.
-     - Three reverses carry legends we do not draw at all (MONTICELLO, and
-       E PLURIBUS UNUM on dime and quarter); our legend cap height is
-       two-thirds of measured. The field-circle blocker is gone (v1.57.0)
-       — what remains is the type redraw itself: sizes up ~1.5×, with
-       `tadv`/`badv` spans re-tuned against the photographs.
+     - ✅ **DONE v1.58.0.** MONTICELLO and E PLURIBUS UNUM (dime, quarter)
+       are drawn; caps went from 0.40–0.79 of the references to ~0.97 and
+       spans to within 0.1°; per-coin presence floors put a legend on all
+       eight faces at the 84px naming draw, where three reverses had been
+       blank discs. The round also retracted three D5-band PASSes that had
+       compared disjoint bands (bottom-legend baselines are the band's
+       OUTER edge — see the retraction in the histories).
+       **Still owed, found during that round:** E PLURIBUS UNUM is on the
+       **cent** reverse too and we do not draw it — a fourth missing legend
+       nobody had listed; FIVE CENTS is an arc on the nickel and we draw it
+       flat; the cent's reverse reads "UNITED STATES **of** AMERICA" with a
+       lowercase "of" and we set it all caps; and `INS_REST_MIN = 110`
+       still withholds every secondary obverse line (dates, second mottoes)
+       at the naming size — those floors have no frozen target to derive
+       from yet.
      - Dime reverse leaf count is **low confidence** and the dime has only
        **one** reference (its two files are the same photograph).
      - The quarter's scale confidence is the weakest of the four at ±3%.

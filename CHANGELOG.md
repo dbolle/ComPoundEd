@@ -3,6 +3,46 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.58.0 — 2026-08-21
+
+**Every coin now carries its legends at the size a child is asked to name
+it, and the legends are the size the coins draw them.** This is the round
+v1.57.0's field radius unblocked: the caps could not grow while the field
+circle sat at 41.0 without becoming a containment breach.
+
+- **Three of the four reverses were blank discs at the naming draw.**
+  `money.js` asks the recognition question with `coinRow(q.coins, 84)` —
+  one coin, alone, nothing to compare it against — and at that size the
+  cent, nickel and dime reverses drew **no lettering at all** (measured on
+  the emitted SVG: 0 glyphs → 28, 36 and 28). One shared floor
+  (`REV_TEXT_MIN = 135`) was four different rules, because each coin gets a
+  different box from the same `size`: the quarter 84 px, the nickel 73.4,
+  the cent 66.0, the dime 62.0. Floors are now per coin, derived from the
+  reference reduced to the same device pixel count.
+- **MONTICELLO is drawn for the first time**, at any size. So is E PLURIBUS
+  UNUM on the dime and on the quarter.
+- **Cap heights and spans now match the coins.** Every arced legend was
+  between 0.40 and 0.79 of its reference cap height; all are now ~0.97.
+  Spans ran from −53.7 % to +11.0 %; all now land within 0.1° of the
+  reference. Sizes and advances are per legend, off the photographs.
+- **Retracted: three D5-band PASSes that compared disjoint bands.**
+  `arcText` rotates a bottom-of-coin legend so its caps point at the
+  centre, which makes the baseline radius that band's **outer** edge — and
+  three round-0 scorecards compared our outer edge against the reference's
+  inner edge. The quarter's reverse band ran 30.4–35.6 where the coin's
+  runs 37.0–43.7, with no overlap, and it was published PASS. Retracted
+  beside the original entries, never over them; the frozen target keeps its
+  hash and its mislabelling is recorded rather than edited.
+- Unchanged and used as the control: the **quarter obverse**, byte-identical
+  at every size. D8, D9 and D11 are bit-identical to the pre-round baseline.
+- Fixed in the judge's own tooling: `_jl1look.mjs` defaulted its "before"
+  revision to a path in the shared checkout, so once a round was applied
+  there it compared the new art with itself — the contact sheet showed the
+  new legends in the BEFORE row and the control passed by construction. It
+  now requires an explicit revision and refuses to run on two identical ones.
+- Still not wired into anything kid-facing: store, wallet and cointray draw
+  CSS discs.
+
 ## v1.57.0 — 2026-08-21
 
 **The rim is now the measured rim.** `EDGE.field` moves from 41.0 to

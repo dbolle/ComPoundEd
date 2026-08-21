@@ -723,8 +723,43 @@ function outlineOf(id, boxW) {
 // spans ~170° of arc and QUARTER DOLLAR ~94°; at 0.82 the same strings, drawn
 // at the cap height the coin has, span 187° and 125°. It defaults to 0.82, so
 // every call that does not pass it emits byte-for-byte what it emitted before.
+//
+// ─────────────────────────────────────────────────────────────────────────
+// WHY THE GLYPHS ARE SQUEEZED, AND WHY IT IS NOT A STYLE CHOICE
+// ─────────────────────────────────────────────────────────────────────────
+// Cap height and angular span are two gates and they cannot both be met by a
+// normal-width face. The arithmetic, all of it measured rather than assumed:
+//
+//   · our face (rasterised through the same pipeline that draws the coin —
+//     `coloringbook/judge/_jl1font.mjs`) has a cap of 0.7300 em on flat-topped
+//     capitals and a mean capital advance of 0.7706 em. So it advances
+//     1.056 × its own cap height.
+//   · the COINS advance about 0.75 × theirs. The quarter's frozen band target
+//     is the clean case: 24 characters over 170° at r 40 is 5.16 units per
+//     advance against a 6.9-unit cap. The nickel's E PLURIBUS UNUM gives
+//     0.751, its UNITED STATES OF AMERICA 0.695, the cent's top legend 0.752.
+//     Coin legends are set in a CONDENSED face; ours is not.
+//
+// Consequence: at the coin's cap height, the same string set at our natural
+// advance spans about 40% more arc than the coin gives it — the quarter's top
+// legend wants 170° and would take 257°. Pulling `advF` down to hold the span
+// then overlaps the glyphs by up to 30%, which looks like a printing fault.
+//
+// So the glyph is CONDENSED by exactly the amount the letterspacing was
+// tightened: `cond = advF / 0.7706`, clamped at 1 so a legend set LOOSER than
+// natural (the cent's IN GOD WE TRUST, at 1.34 em, really is that airy on the
+// coin) is never stretched. One number sets both, which is the point — a
+// legend cannot be given tight spacing and wide glyphs by accident.
+//
+// `scale()` after `rotate()` squeezes along the arc, not radially, so the cap
+// height is untouched and D5-cap and D5-span stay independent. Every legend
+// still on the 0.82 default emits `cond = 1` and no `scale()` at all, so its
+// string is byte-for-byte what it was.
+const NAT_ADV = 0.7706; // measured, _jl1font.mjs method A over 22 capitals
 function arcText(text, r, size, fill, opacity, centre = 270, rev = false, advF = 0.82) {
   const advance = size * advF; // rounded sans, caps, at the letter-spacing below
+  const cond = Math.min(1, advF / NAT_ADV);
+  const sq = cond > 0.999 ? '' : ` scale(${n2(cond)} 1)`;
   const perGlyph = ((advance / r) * (180 / Math.PI)) * (rev ? -1 : 1);
   const start = centre - (perGlyph * (text.length - 1)) / 2;
   let out = `<g font-family="${FONT}" font-size="${size}" font-weight="700" fill="${fill}" opacity="${opacity}" text-anchor="middle">`;
@@ -733,17 +768,34 @@ function arcText(text, r, size, fill, opacity, centre = 270, rev = false, advF =
     if (ch === ' ') continue;
     const deg = start + perGlyph * i;
     const a = (deg * Math.PI) / 180;
-    out += `<text transform="translate(${n2(50 + r * Math.cos(a))} ${n2(50 + r * Math.sin(a))}) rotate(${n1(deg + (rev ? -90 : 90))})">${ch}</text>`;
+    out += `<text transform="translate(${n2(50 + r * Math.cos(a))} ${n2(50 + r * Math.sin(a))}) rotate(${n1(deg + (rev ? -90 : 90))})${sq}">${ch}</text>`;
   }
   return `${out}</g>`;
 }
 
 // Straight text, for the words a real obverse does NOT arc — LIBERTY on the
-// cent, IN GOD WE TRUST on the dime and the quarter, and three of the four
-// dates.
-function flatText(text, x, y, size, fill, opacity) {
+// cent, IN GOD WE TRUST on the dime and the quarter, three of the four dates,
+// and the two interior legends the coins set flat across the middle of a
+// reverse (MONTICELLO on the nickel, E PLURIBUS UNUM on the dime).
+//
+// `ls` is letter-spacing in viewBox units, and those two interior legends are
+// why it exists: measured off `_jl1grid-nkrev-monti.png`, MONTICELLO runs
+// 22.8..78.7 with a 3.89-unit cap — 5.87 units per advance against a face that
+// advances 4.00 at that size. The word is spaced out across the coin, not set
+// solid, and drawing it solid would make it 40% too short. librsvg honours
+// `letter-spacing` (checked: 710px → 1070px on a 10-glyph string at spacing
+// 40); it does NOT honour `textLength`, which was the first thing tried.
+//
+// One renderer difference, measured and accepted rather than compensated:
+// librsvg centres the INK (ink midpoint stayed put for ls 0/20/40/60,
+// `coloringbook/judge/_jl1ls.mjs`), while a browser adds the spacing after
+// the last glyph too and so centres a box half a space too wide. The
+// disagreement is ls/2 — 0.94 units on MONTICELLO, 0.26 on the dime, under
+// one device pixel at every tier that draws either — and shifting `x` to suit
+// one renderer would move it the wrong way in the other.
+function flatText(text, x, y, size, fill, opacity, ls = 0) {
   return `<text x="${x}" y="${y}" text-anchor="middle" font-family="${FONT}"
-    font-size="${size}" font-weight="700" fill="${fill}" opacity="${opacity}">${text}</text>`;
+    font-size="${size}" font-weight="700" fill="${fill}" opacity="${opacity}"${ls ? ` letter-spacing="${ls}"` : ''}>${text}</text>`;
 }
 
 // ──────────────────────────────────────────────────────────── the portrait
@@ -3097,33 +3149,97 @@ function valueText(id, p, halo) {
 // shrunk — a blurred word reads as damage to the coin, which is worse than
 // no word. The MAIN line survives to a much smaller coin than the secondary
 // ones, because the main line is where most of the layout signal is.
+//
+// ─────────────────────────────────────────────────────────────────────────
+// `rOff` AND `adv` ON AN OBVERSE ARC — the two numbers D5 gates
+// ─────────────────────────────────────────────────────────────────────────
+// The baseline of an obverse arc is `rField − size·0.85 − 3.77 + rOff`, which
+// ties it to the type size: grow the letters and the line walks INBOARD.
+// That is the same trap `bOff` was pinned to escape on the quarter reverse, so
+// every line whose size moved this round carries an `rOff` that puts its
+// baseline back on the radius the photograph shows, and the comment beside it
+// states the resulting baseline rather than the offset.
+// `adv` is `arcText`'s per-advance fraction; it sets the ANGULAR SPAN and, via
+// `arcText`'s condensation rule, the glyph width with it. Undefined = 0.82,
+// so every line that did not move is byte-identical.
 const YEAR = '1985';
 const INSCRIPTION = {
   penny: {
-    // `rOff` pushes this line OUT. The measured crown reaches r = 36.6 and the
-    // default baseline is 36.05, so two glyphs of WE sat on the hair. It is
-    // undefined on the other three coins, so their strings are byte-identical.
-    main: { kind: 'arc', text: 'IN GOD WE TRUST', size: 4.8, centre: 270, rOff: 1.15 },
+    // Cap height was the one D5-cap row that already passed (3.75 measured
+    // against the coin's 3.8, −1.3%), so the 4.8 is deliberately UNCHANGED —
+    // a passing row is not worth re-opening for the 2% a different cap model
+    // would buy. The band and the span were the failures:
+    //   band  the coin puts the motto's inner edge at r 39.4 (penny-obv-3.jpg,
+    //         frozen in the scorecard's D5-band). Ours sat at 37.11, −2.29
+    //         against a ±1.5 gate. `rOff` 3.47 puts the baseline at 39.69, so
+    //         the inner edge lands on 39.40. It used to be 1.15, which was
+    //         only ever "far enough out to clear the crown at r 36.6" — still
+    //         true, with three more units of clearance.
+    //   span  130° on the coin, 88.8° here. At the baseline's new radius that
+    //         is 6.43 units per advance on a 4.8 face — `adv` 1.34, the widest
+    //         letterspacing on any coin in this file, and the photograph shows
+    //         exactly that: the cent spreads IN GOD WE TRUST right across the
+    //         top from about 205° to 335°.
+    main: { kind: 'arc', text: 'IN GOD WE TRUST', size: 4.8, centre: 270, rOff: 3.47, adv: 1.34 },
     rest: [
       { kind: 'flat', text: 'LIBERTY', x: 20, y: 53, size: 5.2 },
       { kind: 'flat', text: YEAR, x: 78, y: 68, size: 5.4 },
     ],
   },
   nickel: {
-    main: { kind: 'arc', text: 'LIBERTY', size: 5.6, centre: 332 },
+    // The nickel's two obverse legends are the same height on the coin — cap
+    // 5.7 for both (nickel scorecard D5-cap obverse, three references) — where
+    // this file drew 4.03 and 3.60, 71% and 63% of it. 7.6 puts the ink cap at
+    // 5.55, and the bands go back where the photograph has them: LIBERTY's
+    // inner edge at 36.85 and IN GOD WE TRUST's at 37.18 (D5-band, per-
+    // reference spread 0.55 and 0.28), which is what the two `rOff`s buy.
+    // Spans are hand-read off `_jl1grid-nkobv-liberty.png` and
+    // `_jl1grid-nkobv-igwt.png` — the L of LIBERTY sits at 312° and the Y at
+    // 352°, so 40°; the I of IN at 133° and the last T of TRUST at 226°, so
+    // 93°. Neither has ever been in a scorecard; they are new measurements and
+    // the overlays they were read off are named so they can be re-read.
+    // The date takes LIBERTY's size and letterspacing because it is the SAME
+    // inscription line on the coin — LIBERTY·1945 runs down the right rim in
+    // one size — and leaving it at 5.2 beside a 7.6 LIBERTY is a mismatch the
+    // photograph does not have.
+    //
+    // `rev` IS GONE FROM IN GOD WE TRUST, and that is a correction, not a
+    // preference. `arcText`'s note says rev exists "so text up the LEFT side
+    // reads upward (as IN GOD WE TRUST does on a nickel)" — and applied here it
+    // did the opposite of both halves of that sentence. With `rev` the glyphs
+    // run from 228° DOWN to 136° (the coin runs 133° up to 226°) and each one
+    // is turned so its cap points at the CENTRE (the coin points every one at
+    // the rim). Compare `_jl1grid-nkobv-igwt.png` with
+    // `_jl1ours-nickel-obverse-380-after.png`: the photograph starts at IN in
+    // the lower left and climbs; the drawing started at IN in the UPPER left
+    // and fell. It matters to D5 and not only to the eye — an inward-growing
+    // legend puts its band at 31.8..37.7 where the coin's is 37.2..42.9, which
+    // is a whole cap height of band error on top of the flip.
+    main: { kind: 'arc', text: 'LIBERTY', size: 7.6, centre: 332, rOff: 3.01, adv: 0.5642 },
     rest: [
-      { kind: 'arc', text: 'IN GOD WE TRUST', size: 5.0, centre: 182, rev: true },
-      { kind: 'arc', text: YEAR, size: 5.2, centre: 18 },
+      { kind: 'arc', text: 'IN GOD WE TRUST', size: 7.6, centre: 182, rOff: 3.34, adv: 0.5672 },
+      { kind: 'arc', text: YEAR, size: 7.6, centre: 18, rOff: 3.01, adv: 0.5642 },
     ],
   },
   // The dime's LIBERTY was arcing over the TOP-LEFT SHOULDER at 236°. On the
   // photograph it runs DOWN THE LEFT RIM: the L sits at 170° (just below the
   // nine-o'clock line) and the Y at 241°, so the word is centred at about
-  // 206° and reads UPWARD. It is also much bigger than this file had it —
-  // measured cap height is 6.9 units on a 100-unit coin, where 5.8 was
-  // giving 4.2 — and the letters nearly touch the rim.
+  // 206° and reads UPWARD.
+  //
+  // Size: round 0 measured the coin's cap at 7.92 over three references
+  // (7.79 / 8.18 / 7.79) and ours at 5.93, −25.1%. 10.56 puts the ink cap at
+  // 7.71. The earlier note said "6.9 units where 5.8 was giving 4.2" — that
+  // was an eye estimate from before the band was fitted, and the fitted figure
+  // is the one used here.
+  // Band: the frozen band is r 34.33..42.25 and ours was 33.46..39.39, so the
+  // outer edge was 2.86 units short — the letters did NOT nearly touch the rim.
+  // `rOff` 3.64 puts the baseline at 34.96, inner edge 34.33, cap top 42.6.
+  // Span: 82° on the reference against 70.7 here, the one D5-span row that
+  // passed. It is held at 82 — `adv` 0.7897 is very close to the face's own
+  // 0.7706, so the glyphs are barely condensed at all (cond 1.00): the dime
+  // sets LIBERTY nearly solid where the reverses set theirs tight.
   dime: {
-    main: { kind: 'arc', text: 'LIBERTY', size: 7.6, centre: 206 },
+    main: { kind: 'arc', text: 'LIBERTY', size: 10.56, centre: 206, rOff: 3.64, adv: 0.7897 },
     // …and the three small lines were each a few units out once the two
     // faces could be laid over one another: the motto sits further left and
     // a little higher, tight under the truncation, and the date rides up to
@@ -3141,8 +3257,15 @@ const INSCRIPTION = {
     // bottom bar clears the crown arc by about one local unit — they very
     // nearly touch, which is a real feature of this design — so `rOff` puts
     // the baseline exactly one unit above the crown and the size comes down to
-    // keep the cap tops inside the field circle. `rOff` is undefined on the
-    // nickel and the dime, so their strings are byte-identical.
+    // keep the cap tops inside the field circle.
+    //
+    // UNTOUCHED by round 1's lettering pass, deliberately: the quarter obverse
+    // is the one face with NO frozen band or cap target (D5-band-obverse is
+    // UNMEASURED — the σ-plateau detector locked onto the bust edge), so there
+    // is nothing here to fit to. Its D5-HF also runs 2.01× against a 1.5×
+    // gate, i.e. ours is already too textured at the locus, and growing the
+    // type is the wrong direction for it. Leaving it alone keeps the round's
+    // one open obverse attributable to a target, not to this edit.
     main: { kind: 'arc', text: 'LIBERTY', size: 5.6, centre: 270, rOff: 0.55 },
     rest: [
       { kind: 'flat', text: 'IN GOD', x: 20, y: 61, size: 4.0 },
@@ -3173,114 +3296,217 @@ const INS_REST_MIN = 110;
 // the bottom. The other three put the country on top and the denomination
 // underneath. That arrangement is one more true, checkable difference.
 //
-// The default floor is 135px of coin; below it the words are deleted rather
-// than shrunk, because a blurred word reads as damage to the coin.
+// ─────────────────────────────────────────────────────────────────────────
+// A TOP LEGEND'S BASELINE IS ITS INNER EDGE. A BOTTOM LEGEND'S IS ITS OUTER.
+// ─────────────────────────────────────────────────────────────────────────
+// This is the single fact that decides every radius below, and getting it
+// backwards is worth a paragraph because it hid a six-unit error for a round.
+// `arcText` places the BASELINE at `r` and grows the glyphs along the local
+// "up", which at 270° points AWAY from the centre and at 90° (with `rev`)
+// points TOWARDS it. So:
 //
-// That floor used to be shared by all four "so a row drawn at one `size` never
-// shows the words on the quarter and not on the dime", and it is now a
-// DEFAULT with a per-coin override, because the shared number was not derived
-// from any coin's own legend — it was the worst case of the four (the nickel's
-// 15-character E PLURIBUS UNUM), applied to the other three by fiat.
-// COIN-ART-METHOD §16.1 says the floor is found empirically, per legend:
-// render it, and compare the band's along-band high-frequency energy with the
-// reference photograph reduced to the SAME device pixel count.
+//     top     band = [r, r + cap]      baseline is the INNER edge
+//     bottom  band = [r − cap, r]      baseline is the OUTER edge
 //
-// Measured for the QUARTER's reverse legend, sector 250..290°, r 38.9, ours ÷
-// reference at the same device pixel count:
+// Every reverse-bottom target in the round-0 scorecards is stated as the
+// band's INNER edge — the cent's `coin_rInner 30.9`, the nickel's `coin
+// 36.72` — and every "ours" beside it is our BASELINE, i.e. our OUTER edge.
+// On the nickel that compared 36.35 against 36.72 and read as −0.37, PASS,
+// while the two bands (ours 31.1..36.6, the coin's 36.7..42.5) do not overlap
+// at all. The radii below are therefore taken from the reference's OUTER edge
+// for bottom legends and its INNER edge for top ones, and each says which.
 //
-//     boxW    44     54     62     70     76     84     96    120    136    190
-//     ratio  0.66x  0.52x  0.56x  0.62x  0.74x  0.62x  1.04x  1.03x  0.99x  0.96x
+// ─────────────────────────────────────────────────────────────────────────
+// THE PRESENCE FLOOR — `min`, in BOX PIXELS, per coin
+// ─────────────────────────────────────────────────────────────────────────
+// Below `min` the words are deleted rather than shrunk, because a blurred word
+// reads as damage to the coin. The number is compared against `box.w`, NOT
+// against the `size` argument, and those differ by the coin's own diameter:
+// `coinRow(q.coins, 84)` — the draw where a child is asked to name ONE coin,
+// alone — gives the quarter 84 box pixels but the nickel 73.4, the cent 66.0
+// and the dime 62.0. A single shared floor is therefore not one rule, it is
+// four different rules, and the shared 135 stranded three of the four coins
+// with NO reverse legend at the naming size.
 //
-// The reference at 84 device pixels is NOT a smooth grey band — the legend is
-// still a chain of separated marks there (0.5135 of HF energy against 0.0000
-// for a coin that draws no letters at all), so §16's "below the floor draw the
-// tone the letters make" does not yet apply at 84: the tone the letters make
-// at 84px IS a row of letter-sized marks. The quarter's floor therefore comes
-// down to 84 — the box the quarter gets when `money.js` draws a row at
-// `size` 84 and asks a child which coin this is. That is the same rule that
-// already sets the OBVERSE floor at 62 (the box the DIME gets at that same
-// draw): the main line is present at exactly the size the recognition
-// question is asked at, and absent below it.
+// So each coin's floor is one unit below its own box at that draw — 84 / 73 /
+// 65 / 61 — the unit of slack being there so a rounding change in `coinPx`
+// can never strand a coin by a tenth of a pixel. The rule is the one round 4
+// wrote for the quarter and for the obverse's 62: the legend is present at
+// exactly the size the recognition question is asked at, and absent below it.
 //
-// The other three keep 135 deliberately. This round measured the quarter, and
-// a floor is a per-legend empirical number: the nickel's E PLURIBUS UNUM is 15
-// characters at size 4.5 where QUARTER DOLLAR is 14 at 5.3 — 1.18x the cap
-// height over a shorter word — and nobody has rendered the nickel's legend
-// against its own photograph yet.
+// COIN-ART-METHOD §16.1 says a floor is empirical, so it was measured rather
+// than argued (`coloringbook/judge/_jl1floor.mjs`): the reference photograph
+// reduced to that same box, sampled along the frozen band, against the same
+// reference at the same reduction in a LETTER-FREE sector. At each coin's own
+// floor the reference legend still carries more along-band HF than its own
+// bare field — quarter 1.58×, nickel 1.23× (E PLURIBUS UNUM) and 1.77×
+// (UNITED STATES OF AMERICA), cent 1.18× — so §16's "below the floor draw the
+// tone the letters make" does not apply there: at those sizes the tone the
+// letters make IS a row of letter-sized marks. What had made OUR marks
+// unreadable was not the size, it was the cap height: at the naming draw this
+// file used to give the dime's top legend 2.0 device pixels of cap. It now
+// gives it 4.9.
+//
+// The interior legends are different and keep their own, higher floors — see
+// `flats`/`arcs` below.
 const REV_TEXT = {
-  penny: { top: 'UNITED STATES OF AMERICA', bottom: 'ONE CENT', bs: 6.6 },
+  // ── the cent ──────────────────────────────────────────────────────────
+  // top     UNITED STATES OF AMERICA, band inner 35.6, CAP 6.6, span 168°
+  // bottom  ONE CENT, band 30.9..41.3, CAP 10.4 — the largest legend on any
+  //         of the four coins, and it was drawn at 5.15, half of it, sitting
+  //         6.4 units too far inboard because the target's `rInner` was read
+  //         as a baseline. `bOff` 2.77 puts the baseline on the coin's 41.3
+  //         and the caps reach in to 30.9.
+  // `badv` 1.0099 is LOOSER than the face's natural 0.7706, so ONE CENT is
+  // set solid (cond 1): 7 advances over 136° at r 41.3 is 10.48 units each
+  // against a 10.4 cap. The cent spaces its denomination out; the quarter and
+  // the nickel condense theirs. Both are measured, neither is a style.
+  penny: {
+    top: 'UNITED STATES OF AMERICA',
+    bottom: 'ONE CENT',
+    ts: 8.8,
+    tadv: 0.5273, // 23 advances at r 36.40 -> 168.0°, the coin's 168°
+    bs: 13.87,
+    bOff: 2.77, // 44.07 − 2.77 = 41.30, the coin's OUTER edge = its baseline
+    badv: 1.0099, // 7 advances at r 41.30 -> 136.0°, the coin's 136°
+    min: 65,
+  },
+  // ── the nickel ────────────────────────────────────────────────────────
+  // top     E PLURIBUS UNUM, band inner 36.8, CAP 5.8, span 88°
+  // bottom  UNITED STATES OF AMERICA, band inner 36.72 + cap = OUTER 42.52,
+  //         CAP 5.8, span 134°
+  // MONTICELLO had never been drawn at any size on any tier, and it is the
+  // one word that names this reverse. Read off `_jl1grid-nkrev-monti.png`:
+  // flat, baseline y 66.35, cap top 62.47, ink from x 22.8 to x 78.7 — 5.87
+  // units per advance on a 3.89 cap, so it is spaced out across the coin
+  // rather than set solid, which is what `ls` is for.
+  // FIVE CENTS is left flat and left alone. On the photograph it is an ARC at
+  // r ≈ 28 centred at six o'clock, not a straight line, and that is a real
+  // miss — but it is a shape change with no frozen target, where everything
+  // else in this round is a measured number against one.
   nickel: {
     top: 'E PLURIBUS UNUM',
     bottom: 'UNITED STATES OF AMERICA',
-    bs: 4.5,
-    flat: { text: 'FIVE CENTS', x: 50, y: 74.5, size: 5.2 },
+    ts: 7.73,
+    tadv: 0.5164, // 14 advances at r 36.40 -> 88.0°, the coin's ~88°
+    bs: 7.73,
+    bOff: 1.55, // 44.07 − 1.55 = 42.52, the coin's OUTER edge
+    badv: 0.5591, // 23 advances at r 42.52 -> 134.0°, the coin's ~134°
+    flats: [
+      { text: 'FIVE CENTS', x: 50, y: 74.5, size: 5.2 },
+      { text: 'MONTICELLO', x: 50.75, y: 66.35, size: 5.19, ls: 1.87 },
+    ],
+    min: 73,
   },
-  dime: { top: 'UNITED STATES OF AMERICA', bottom: 'ONE DIME', bs: 6.6 },
-  // THE QUARTER'S REVERSE LETTERS ARE THE ONLY ONES THAT HAVE BEEN MEASURED,
-  // so it is the only coin carrying overrides (`t.min ?? SHARED` is the house
-  // idiom; the other three emit byte-for-byte what they emitted before).
-  //
+  // ── the dime ──────────────────────────────────────────────────────────
+  // top     UNITED STATES OF AMERICA, band 34.2..42.4, CAP 8.2, span 200°
+  // bottom  ONE DIME, same band, baseline = its OUTER edge 42.4, span 122°
+  // The dime is the only coin whose top legend cannot keep the shared 7.67
+  // offset: the reference puts its inner edge at 34.2, which is 2.2 units off
+  // the shared 36.40 and outside the ±1.5 band gate. Hence `tOff`.
+  // 200° over 23 advances at r 34.2 is 5.19 units per advance on an 8.2 cap —
+  // the most condensed legend in the file (cond 0.62), and the photograph
+  // agrees: the dime wraps the country name almost two thirds of the way
+  // round its rim in tall narrow letters.
+  // E PLURIBUS UNUM is set FLAT across the middle of this reverse, through the
+  // torch, not on the rim — read off `_jl1grid-dmrev-epu.png`: baseline y 67.1,
+  // cap top 63.6, ink x 21.1..81.6. It gets its own, higher floor because its
+  // 3.5-unit cap is half the band legends' and lands under 2.2 device pixels
+  // at the naming draw, which is the case §16 says to draw nothing for.
+  dime: {
+    top: 'UNITED STATES OF AMERICA',
+    bottom: 'ONE DIME',
+    ts: 10.93,
+    tOff: 9.87, // 44.07 − 9.87 = 34.20, the coin's INNER edge
+    tadv: 0.4747, // 23 advances at r 34.20 -> 200.0°, the reference's 200°
+    bs: 10.93,
+    bOff: 1.67, // 44.07 − 1.67 = 42.40, the coin's OUTER edge
+    badv: 1.1796, // 7 advances at r 42.40 -> 122.0°, the reference's 122°
+    flats: [{ text: 'E PLURIBUS UNUM', x: 50.8, y: 67.1, size: 4.67, ls: 0.51, min: 120 }],
+    min: 61,
+  },
+  // ── the quarter ───────────────────────────────────────────────────────
   // Round 4's frozen band target (`judge/_jq4band.json`, read off a polar
-  // unwrap of `quarter-rev-2.png` and `quarter-rev-3.jpg`) says the coin's
-  // reverse legends are TWICE the height this file drew them:
+  // unwrap of `quarter-rev-2.png` and `quarter-rev-3.jpg`):
   //
   //     top    baseline r 36.5, cap top 43.4, CAP HEIGHT 6.9, span ~170°
-  //     bottom baseline r 37.0, cap top 43.7, CAP HEIGHT 6.7, span ~94°
-  //     ours (before)  3.2 and 3.8 — 46% and 57% of the coin's
+  //     bottom band 37.0..43.7, CAP HEIGHT 6.7, span ~94°
+  //     ours (before)  4.44 and 5.15 — 64% and 77% of the coin's
   //
-  // WHAT IS DRAWN HERE IS NO LONGER THE CEILING. The cap box of an arced
-  // glyph reaches r = hypot(baseline + 0.72·size, 0.31·size), and while the
-  // field circle stood at 41.0 that arithmetic was a wall: with the baseline
-  // held at the frozen 36.40 the field was hit at size 6.32 (cap 4.49), and
-  // the bottom of the ±15% cap gate (5.87) needed r 42.34 — 1.34 units
-  // OUTSIDE the field, a D8 breach at every tier. D5-cap and D8 could not
-  // both be met. The field now sits at the measured 44.07 (the EDGE note),
-  // which is what the wall turned out to be: the same baseline takes size up
-  // to ~10.6 before touching the field, and the coin's own caps (6.9 / 6.7)
-  // fit with more than a unit to spare.
+  // The wall that held those at 64%/77% was `EDGE.field` at 41.0, and it is
+  // gone: with the field at the measured 44.07 the same baseline takes size up
+  // to ~10.6 before the glyph box touches it. 9.20 and 8.93 put the ink caps
+  // at 6.72 and 6.52, and the outermost glyph-box corners at 43.07 and 43.49.
   //
-  // The sizes below are still the OLD ceiling — 6.25 and 7.25, cap 4.44 and
-  // 5.15, 64% and 77% of the coin's — because growing them is not a number
-  // edit: `tadv`/`badv` hold the spans to the coin's ~170° and ~94°, and a
-  // 1.5× cap re-tunes both against the photograph. That redraw is the owed
-  // D5-cap fix; the wall in front of it is gone.
+  // The bottom baseline is pulled 0.80 units INBOARD of the coin's 43.70, to
+  // 42.90 — inside its own ±1.5 gate, and the reason is D8, not taste: the box
+  // `textMarks()` scores runs to `hypot(baseline + 0.06·size, 0.31·size)`, and
+  // at 43.70 that is 44.29, over the 44.07 field circle at every tier. The
+  // containment gate wins over the last 0.8 of a band gate that is already met.
+  //
+  // E PLURIBUS UNUM is on this reverse too, in two short arcs above the eagle,
+  // and had never been drawn. Measured off `_jl1grid-qtrev-epu.png`: E PLURIBUS
+  // centred 269° with its inner edge at r 34.0, UNUM centred 270° at r 28.3,
+  // cap about 2.1 units on both — a THIRD of the top legend's. At 84 box pixels
+  // that is 1.8 device pixels of cap, which is §16's "draw the tone the letters
+  // make, and draw nothing else there", so it carries its own floor of 190 and
+  // appears only on the largest draw.
   quarter: {
     top: 'UNITED STATES OF AMERICA',
     bottom: 'QUARTER DOLLAR',
-    ts: 6.25,
-    tadv: 0.751, // 23 advances at r 36.40 -> 170.0°, the coin's ~170°
-    bs: 7.25,
+    ts: 9.2,
+    tadv: 0.5104, // 23 advances at r 36.40 -> 170.0°, the coin's ~170°
+    bs: 8.93,
     // The bottom baseline is normally derived from the size (`bs*0.9 + 3.67`),
-    // which would drag it to 33.9 and out of its own ±1.5 gate as the letters
-    // grow. Held as a literal so the size and the radius are independent:
-    // 44.07 − 8.44 = 35.63, the exact radius the round-4 target froze us at.
-    bOff: 8.44,
-    badv: 0.62, // 13 advances at r 35.63 -> 94.0°, the coin's ~94°
+    // which would drag it inboard as the letters grow. Held as a literal so
+    // size and radius are independent: 44.07 − 1.17 = 42.90.
+    bOff: 1.17,
+    badv: 0.606, // 13 advances at r 42.90 -> 94.0°, the coin's ~94°
+    arcs: [
+      { text: 'E PLURIBUS', off: 10.07, size: 2.8, centre: 269, adv: 0.93, min: 190 },
+      { text: 'UNUM', off: 15.77, size: 2.8, centre: 270, adv: 1.37, min: 190 },
+    ],
     min: 84,
   },
 };
+// Kept as the fallback for a denomination that has no measured floor of its
+// own. All four coins now override it; it is the number a fifth would inherit
+// until somebody rendered its legend against its own photograph.
 const REV_TEXT_MIN = 135;
 
 // EVERY OFFSET BELOW CARRIES THE 3.07-UNIT MOVE OF THE FIELD CIRCLE
-// (41.0 → 44.07, the EDGE note above). The baselines were authored and
-// judged against the old field — the quarter's top sat at 36.40 and its
-// bottom at 35.63, both inside D5's ±1.5 band gate — and the TYPE has not
-// grown yet, so when the field moved out the offsets grew by the same 3.07
-// to hold every baseline where the photographs put it. The rim got true;
-// the letters did not move (except at `mid`, which used to dock the field
-// 0.5 below `full` and now shares one radius — its legends ride out 0.5,
-// a third of the ±1.5 gate). The band this opened between the cap tops
-// (~40.9) and the new field circle is exactly the headroom the owed
-// cap-height fix spends; when that fix lands, these offsets are re-derived
-// per coin from the reference, not adjusted again.
+// (41.0 → 44.07, the EDGE note above). The baselines were authored and judged
+// against the old field — the quarter's top sat at 36.40 and its bottom at
+// 35.63, both inside D5's ±1.5 band gate — so when the field moved out in
+// v1.57.0 the offsets grew by the same 3.07 to hold every baseline where the
+// photographs put it: the rim got true and the letters did not move.
+//
+// This round SPENDS that headroom, which is what it was opened for. The
+// offsets are no longer one shared literal plus the quarter: 7.67 stays as the
+// top-legend default (the cent, the nickel and the quarter all sit inside the
+// ±1.5 band gate on it — +0.80, −0.40, −0.10), while the dime needs 9.87 and
+// every BOTTOM legend is pinned per coin, because a bottom legend's baseline
+// is its band's OUTER edge and the derived `bs*0.9 + 3.67` puts all four of
+// them five to nine units inboard of where the coins have them.
+//
+// `arcs` and `flats` are the legends that are not on the rim band at all —
+// MONTICELLO, and E PLURIBUS UNUM on the dime and the quarter. Each carries
+// its own optional `min`, defaulting to the coin's, because their caps are a
+// third to a half of the band legends' and they stop resolving sooner.
 function inscriptionOf(id, side, rField, p, boxW) {
   if (side === 'reverse') {
     const t = REV_TEXT[id];
-    if (!t || boxW < (t.min ?? REV_TEXT_MIN)) return '';
+    const floor = t ? t.min ?? REV_TEXT_MIN : 0;
+    if (!t || boxW < floor) return '';
     return (
-      arcText(t.top, rField - 7.67, t.ts ?? 4.5, p.ink, 0.6, 270, false, t.tadv ?? 0.82) +
+      arcText(t.top, rField - (t.tOff ?? 7.67), t.ts ?? 4.5, p.ink, 0.6, 270, false, t.tadv ?? 0.82) +
       arcText(t.bottom, rField - (t.bOff ?? t.bs * 0.9 + 3.67), t.bs, p.ink, 0.66, 90, true, t.badv ?? 0.82) +
-      (t.flat ? flatText(t.flat.text, t.flat.x, t.flat.y, t.flat.size, p.ink, 0.6) : '')
+      (t.arcs ?? [])
+        .map((a) => (boxW < (a.min ?? floor) ? '' : arcText(a.text, rField - a.off, a.size, p.ink, 0.6, a.centre, a.rev, a.adv ?? 0.82)))
+        .join('') +
+      (t.flats ?? [])
+        .map((f) => (boxW < (f.min ?? floor) ? '' : flatText(f.text, f.x, f.y, f.size, p.ink, 0.6, f.ls)))
+        .join('')
     );
   }
   const spec = INSCRIPTION[id];
@@ -3289,7 +3515,7 @@ function inscriptionOf(id, side, rField, p, boxW) {
   return lines
     .map((l) =>
       l.kind === 'arc'
-        ? arcText(l.text, rField - l.size * 0.85 - 3.77 + (l.rOff || 0), l.size, p.ink, 0.62, l.centre, l.rev)
+        ? arcText(l.text, rField - l.size * 0.85 - 3.77 + (l.rOff || 0), l.size, p.ink, 0.62, l.centre, l.rev, l.adv ?? 0.82)
         : flatText(l.text, l.x, l.y, l.size, p.ink, 0.62)
     )
     .join('');
