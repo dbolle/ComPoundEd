@@ -1214,6 +1214,21 @@ const HAIR = {
   // where the coin has a point. Generators: coloringbook/judge/_jc5d7.mjs,
   // _jc5corner.mjs, _jc5tip.mjs, _jc5maskover.mjs.
   //
+  // BUT 35.5 IS NOT THE ANGLE THIS PATH DRAWS, and the difference is the whole
+  // of the apparent 35.5-vs-40-45 gap. `turns()` walks the KNOT POLYGON, and
+  // the knots either side of this tip are ~5 local units away, so the number is
+  // the corner of a coarse polygon, not of the curve. On the DRAWN outline
+  // (dense flatten, chord angles at 0.5/1/2/3/4/6/8 local units) the same tip
+  // reads 76.9 / 56.7 / 42.8 / 38.3 / 35.4 / 40.2 / 40.6 degrees included — and
+  // 40.6 at 8 units is the radius `_jc5tip.mjs`'s own fan reads the photograph
+  // at (R = 0.46 x 820 px over 45.6 px per local unit = 8.27), where the coin is
+  // 40-45. The two handles at the knot are nearly collinear, so the tangent
+  // limit is 149.5 and the rendered bottom of the sideburn is a rounded U
+  // 0.47 local units across, not a point. Widening the knot polygon to make
+  // `turns()` print 40-45 was tried and REJECTED: it would open the drawn wedge
+  // past the coin's, i.e. make the drawing worse to make one instrument's number
+  // better. Generator: coloringbook/judge/_jh8ours.mjs.
+  //
   // Knot 0 is the CLOSURE, and an interior-knot turn walk never sees it: a
   // closed path emits its start point twice and the walk skips both copies. It
   // is declared here anyway, because a corner exempt by an off-by-one is not
@@ -1382,7 +1397,7 @@ const HAIR = {
 // HAIR.Lincoln above — the head's own de-spiked knots spliced to a hand-read jaw
 // line — and they are the two ends of that splice:
 //
-//     knot 7  local (-17.28,  8.63)   95.7 deg   the beard's REAR TIP, at the sideburn
+//     knot 7  local (-18.85,  4.00)   85.0 deg   the beard's REAR TIP, at the sideburn
 //     knot 0  local ( 15.15, 12.77)  122.2 deg   the beard's FRONT TIP, at the chin
 //
 // The rear tip is not on the frozen mask at all: the nearest mask vertex is 1.86
@@ -1394,22 +1409,62 @@ const HAIR = {
 //
 // Ray fans drawn on ref/penny-obv-3.jpg at both points, every 15 degrees: at the
 // REAR tip the sideburn's dark band arrives from about 250 degrees and the jaw
-// boundary leaves toward about 350, an included angle near 100 — 95.7 is the
-// same corner within the width of a ray. At the FRONT tip the fan shows the
-// beard tuft's leading corner at the chin but its two edges are soft shadow
-// rather than a step, so the reading there is not tighter than "a corner, not a
-// smooth run"; it is declared on the construction (a splice), not on a measured
-// angle. Generators: coloringbook/judge/_jc5d7.mjs, _jc5corner.mjs, _jc5tip.mjs.
+// boundary leaves toward about 350, an included angle near 100. At the FRONT tip
+// the fan shows the beard tuft's leading corner at the chin but its two edges are
+// soft shadow rather than a step, so the reading there is not tighter than "a
+// corner, not a smooth run"; it is declared on the construction (a splice), not
+// on a measured angle.
+//
+// THE REAR TIP MOVED, and both the reason and the new number are measured.
+// §20.8 of COIN-ART-METHOD says of this coin, in the doc's own words, that the
+// beard "tapers to a point at the sideburn, and its top edge starts level with
+// the bottom of the ear, not eight units lower". The drawing did not do that:
+// `ear(0.86, -11.7, -5.9)` puts the ear helix at local x -16.0..-9.1,
+// y -10.2..+2.7 — which the frozen ear literal, drawn as a box on all three
+// references, lands on exactly — and the beard's top edge under the ear ran at
+// y +10.6, i.e. 7.9 units lower. Point-in-polygon put the old rear tip
+// (-17.28, 8.63) OUTSIDE the hair mass, 0.841 local units clear of it, so a
+// wedge of cheek tone sat between two masses the photographs show as one.
+// The tip is now (-18.85, 4.00), 0.345 units INSIDE the hair, and the top edge
+// runs 0.4-0.9 units below the ear's own lower bound.
+//
+// The 85.0 is the knot-polygon turn `_jqgeom.turns()` reports (included 95.0).
+// Measured on the DRAWN outline instead — the dense flattened curve, chord
+// angles at 0.5/1/2/3/4/6/8 local units — the tip reads 98.7 / 100.2 / 99.2 /
+// 91.0 / 85.4 / 79.6 / 75.1 degrees included, against the fan's ~100 on the
+// photograph; before the reshape the same ladder read 129.4 / 106.1 / 84.6 /
+// 72.1 / 64.8 / 56.9 / 52.9, sharper than the coin at every span past 2 units.
+// Generators: coloringbook/judge/_jc5d7.mjs, _jc5corner.mjs, _jc5tip.mjs,
+// _jh8ours.mjs, _jh8over.mjs, _jh8ladder.mjs.
+//
+// WHAT IS STILL WRONG HERE, MEASURED AND LEFT ALONE. Read off a 1-unit local
+// grid drawn on ref/penny-obv-2.jpg (a cameo proof — excluded from anything
+// photometric by penny-gates.md, but §20.3's best SHAPE reference), the coin's
+// whisker field runs well above this top edge across the middle of the jaw:
+// ours 4.9 / 7.3 / 9.8 / 11.8 / 12.9 at local x -8 / -4 / 0 / +4 / +8 against
+// the photograph's ~0 / -3 / 0 / +4 / +8 — a lens-shaped shortfall peaking near
+// 10 local units at x = -4..0. It is NOT closed here. Closing it was tried
+// (top edge lifted to y 1.5 under the ear and 5.0 at x = +1) and reverted for
+// two measured reasons: it draws a HUMP the coin has no trace of, because the
+// coin's boundary is monotone and ours would have to dive back to the chin
+// closure at (15.15, 12.77); and it cost D13-obverse at 44 px -0.0464 ->
+// -0.0487 against a +-0.05 gate, i.e. all but 0.0013 of the margin on the
+// dimension this coin is already weakest on. At 190 px it left almost no bare
+// cheek at all. The shortfall is a real fidelity gap and it needs its own
+// brief, its own regression budget, and probably a tone patch in the mid-jaw —
+// the frozen set in _tonepatches-penny.json has none between `cheek`
+// (8.5, -1.5) and `beardJaw` (-4, 17.5), which is exactly the region in
+// dispute.
 const BEARD = [
   'M 15.15 12.77 C 15.64 13.62 13.67 16.33 12.3 17.51',
   'C 10.84 18.76 8.36 18.92 6.51 19.89 C 4.62 20.89 3.04 22.71 1.07 23.44',
   'C -0.86 24.16 -3.1 24.78 -5.16 24.28',
   'C -7.57 23.7 -10.53 21.19 -12.31 19.33',
   'C -13.79 17.79 -14.7 16.08 -15.53 14.3',
-  'C -16.35 12.52 -17.71 9.36 -17.28 8.63 C -17.08 8.28 -16.56 8.31 -16 8.37',
-  'C -14.81 8.49 -12.5 9.97 -10.67 10.64',
-  'C -8.8 11.33 -6.84 11.99 -4.88 12.43 C -2.93 12.87 -0.93 13.22 1.06 13.3',
-  'C 3.05 13.39 4.91 13.03 7.06 12.94 C 9.55 12.84 14.56 11.75 15.15 12.77 Z',
+  'C -16.35 12.52 -17.84 7.14 -18.85 4 C -18.02 3.65 -17.2 2.95 -16.6 3.05',
+  'C -15 3.05 -13 3.3 -11.2 3.6',
+  'C -9.2 4.3 -7.2 5.6 -5.2 6.9 C -3.1 8.1 -1.1 9.3 0.9 10.2',
+  'C 2.95 11.2 5 12.3 7.06 12.94 C 9.55 12.84 14.56 11.75 15.15 12.77 Z',
 ].join(' ');
 
 // What hangs off the back of the head, in the same dark tone as the hair —
@@ -1715,13 +1770,24 @@ const RELIEF = {
     // the cent's lapel outside its coat and was invisible to IoU. Without the
     // clamp the lower corner sat 0.34 units outside.
     //
-    // What it costs is the light band below. The clearance to the throat region
-    // is 0.08 local units where `shade`'s front tip reaches up under the chin,
-    // against the 0.60 the 1.5 stroke had — the two darks now touch at that one
-    // point. On the photograph they do not: the throat's own dark run sits 3–4
-    // units below this line, and `shade` as drawn starts 1.3–2.3 below it, so
-    // the squeeze is the throat region's top edge, not this one's width. That
-    // edge is phase 2b's and is left alone here.
+    // WHAT IT COST WAS THE LIGHT BAND BELOW, AND THE THROAT'S EDGE HAS SINCE
+    // BEEN MOVED TO PAY IT BACK. Widening this mark into a region squeezed the
+    // gap to `shade` down to 0.062 local units (re-derived as the minimum
+    // Euclidean distance between the two filled outlines; the 0.08 recorded here
+    // before was the gap measured along one perpendicular station), against the
+    // 0.60 the 1.5-unit stroke had. The two darks touched at that one point.
+    // `shade`'s top edge was then dropped 0.30 units onto the place the
+    // photograph puts it and the gap is 0.270 — see the throat's own comment for
+    // the measurement. Nothing in THIS mark changed to buy that.
+    //
+    // One number in the old note was a category error and is worth keeping as a
+    // warning: it said "the throat's own dark run sits 3–4 units below this
+    // line, and `shade` starts 1.3–2.3 below it", and concluded the throat's
+    // edge was 1–2 units too high. Both figures reproduce. But 3–4 is the run's
+    // TROUGH — the darkest station across it — and 1.3–2.3 is an EDGE. Measured
+    // like against like, the run's half-depth top edge on dime-obv-2 is 2.01
+    // units below this line and `shade` started 1.73 below it: the error was
+    // 0.30, not 1–2. Comparing a centre with a boundary overstated it sixfold.
     dark:
       '<path d="M 19.4 20.86' + // the chin end, butted against the profile
       ' C 17.61 20.58 14.23 20.41 11.07 20.04' + // the face side of the run,
@@ -1759,11 +1825,53 @@ const RELIEF = {
     // behind it. §7's own list of permitted darks already has this one — "the
     // jaw over the neck" — it had simply never been drawn.
     //
-    // Filled ink at the modelling group's own 0.28 renders at 0.791 of the face
+    // Filled ink at the modelling group's own 0.28 renders at 0.799 of the face
     // against the coin's 0.806: the worst patch in the whole set, 0.194, becomes
-    // 0.015. Its top edge sits about three units BELOW the jaw stroke, because
-    // the photograph puts light on the underside of the jaw before the shadow
-    // starts, and closing that gap merges the two into one dark bar.
+    // 0.007. (Phase 2b wrote 0.791/0.015 here; the patch is re-derived at every
+    // round and this is where it stands.)
+    //
+    // ITS TOP EDGE IS MEASURED NOW, AND IT MOVED DOWN 0.30 LOCAL UNITS.
+    //
+    // Phase 2b placed it "about three units below the jaw stroke, because the
+    // photograph puts light on the underside of the jaw before the shadow
+    // starts". The three units were right about the run's CENTRE and wrong as a
+    // rule for an EDGE, and a flat fill has only edges. The frame is the jaw's
+    // own pre-round-4 centreline, frozen as a literal so it cannot move when the
+    // art does; t is the perpendicular, +t toward the face, −t down the neck.
+    //
+    // Measured on dime-obv-2 as the FULL-WIDTH-AT-HALF-DEPTH crossing of the
+    // throat's dark run — the same convention §14.2 uses for the jaw's width —
+    // the run's top edge lies at
+    //
+    //     s      6     8    10    12    14    16    18    20    22    24
+    //     t  -1.90 -2.00 -2.10 -2.00 -2.20 -2.20 -2.35 -2.45 -1.80 -1.35
+    //
+    // mean −2.01, against a drawn edge that ran −1.45 to −2.03, mean −1.73. Mean
+    // error −0.30, and that single constant is the whole change: the top edge and
+    // the front corner are 0.30 lower, which cuts the mean |error| from 0.32 to
+    // 0.15 and the RMS from 0.37 to 0.18. The REAR corner at (−5.6, 17.2) did not
+    // move — it already sat at −1.43 against a measured −1.50 — so the taper of
+    // the correction is 0.30 at the chin dying to nothing at the ear.
+    //
+    // WHICH PHOTOGRAPH, and this is the part that constrains everything above.
+    // Only dime-obv-2 can measure this edge, and it is the reference on which the
+    // JAW has no measurable run at all (see the jaw's comment). The two struck
+    // references are the mirror image: on dime-obv-3 the neck beside the chin is
+    // blown to 255 by the raking light and only 1 of 17 stations returns a value
+    // rather than the search bound; on dime-obv.jpg the jaw and the throat are
+    // ONE dark run, and its top edge sits at or ABOVE the jaw line at 6 of the 8
+    // stations that carry it, so it cannot say where the throat starts either.
+    // One reference measures the throat, a different one measures the jaw, and
+    // neither measures both.
+    //
+    // AND THE LIT BAND BETWEEN JAW AND THROAT IS NOT ON EVERY REFERENCE. Phase
+    // 2b's reason for the gap — "the photograph puts light on the underside of
+    // the jaw" — holds on dime-obv-3, where a ridge stands 8 to 31 grey levels
+    // proud at t ≈ −1.7 to −2.35. On dime-obv-2 there is no ridge at all: the
+    // profile falls monotonically from the lit chin into the throat, so on the
+    // proof the two darks are one dark. The gap is drawn because one reference
+    // has it and because two adjacent flat fills that touch read as a bar, not
+    // because all three photographs agree that it is there.
     // THE TWO LIT PLANES, and they are the other half of the same argument.
     //
     // Phase 2 read forehead 1.159 and lips 1.112 against our flat 1.000 and
@@ -1827,13 +1935,13 @@ const RELIEF = {
       ' C 18.7 16 18.8 14 18.8 12' + // up to the contour stroke
       ' C 18.9 10.6 19.1 9.2 19.4 8.4 Z"/>',
     shade:
-      '<path d="M 14.2 23.2 C 12.6 25.2 10.6 26.4 8.4 27.1' + // out to the
+      '<path d="M 14.2 23.5 C 12.6 25.2 10.6 26.4 8.4 27.1' + // out to the
       ' C 5.6 27.9 2.8 28.6 1.7 29.3' + // contour, all the way down the throat
       ' C 0.9 28.5 -0.8 27.6 -2.6 26.8' +
       ' C -4.6 25.8 -6.2 23.6 -6.6 21.4' + // UP the muscle's lit front edge
       ' C -6.9 19.6 -6.4 18 -5.6 17.2' + // and under the ear
-      ' C -3.2 18.4 -0.4 20 2.2 21.2' + // forward again just below the jaw
-      ' C 5.6 22 9.8 22.8 14.2 23.2 Z"/>',
+      ' C -3.2 18.7 -0.4 20.3 2.2 21.5' + // forward again just below the jaw
+      ' C 5.6 22.3 9.8 23.1 14.2 23.5 Z"/>',
     // and the FACE, at about two thirds of the jaw's weight. Every mark here
     // is a place where one form OVERHANGS another — the brow over the eye,
     // the nose over the lip, the lip over the chin — which is the only kind
@@ -1921,6 +2029,16 @@ const RELIEF = {
     // front by the profile, behind by the hairline (the wig draws after this
     // and covers that edge) and below by the brow ridge. One free edge, and it
     // ends on drawn lines at both ends (§13.5).
+    //
+    // DECLARED CORNER (P2), knot 3, local (17.2, -10.2): tangent turn 81.9 deg,
+    // where the region reaches the profile and reverses back along the brow
+    // ridge. It is the corner a region MUST have if it is to run out to the
+    // contour and not draw a second profile line beside it, which is what the
+    // paragraph above says it is for. The traced outline is straight there
+    // (mask turn 5.1-9.0 deg over arms of 2..6, against 0.5-6.3 on the
+    // straight-cut control), so this is not the silhouette turning; it is the
+    // region's own free edge meeting the silhouette. Rounding it would pull the
+    // fill off the profile and open exactly the second edge it exists to avoid.
     plane:
       '<path d="M 8.2 -25.2 C 9.8 -23.4 11.2 -21.4 12.5 -19.6' +
       ' C 14.2 -17.6 15.2 -15.4 16.2 -12.8' +   // OUT to the contour stroke, so
@@ -1936,6 +2054,15 @@ const RELIEF = {
     // from x = 0 out to x = 16, and the scan down x = 12 reads 0.84 0.77 0.55
     // 0.20 0.34 from y = 14 to 22, so the dark zone is about ten units wide and
     // four deep with hard edges on all four sides.
+    //
+    // DECLARED CORNERS (P2), knots 2 and 3, local (6.8, 20.0) and (6.6, 17.2):
+    // tangent turns 71.8 and 80.4 deg. They are the two BACK corners of that
+    // step, and the sentence above is their justification, measured before this
+    // round: the scan across y = 18 falls 0.61 -> 0.37 -> 0.20 in four units and
+    // the scan down x = 12 falls 0.55 -> 0.20 in two. A shadow whose edges the
+    // photograph puts at 0.3 of the cheek per two units is a step, and a step
+    // has corners. Neither is on the traced outline (3.1 and 5.4 units away),
+    // so neither is a contour fit and neither is scored as one.
     shade:
       '<path d="M 17.8 16.4 C 16.6 17.6 14.8 18.6 12.6 19.1' +
       ' C 10.4 19.6 8.4 19.9 6.8 20.0' +
@@ -1960,10 +2087,55 @@ const RELIEF = {
     // THE DEEPEST CUTS, in the same group as the eye: the jaw's own line, the
     // folds of the queue and the loops of the ribbon, which measure 0.610 and
     // 0.720 of the cheek where the wig fill renders 0.846.
+    //
+    // ONE OF THE FOUR QUEUE FOLDS IS A REGION AND THE OTHER THREE ARE STILL
+    // STROKES, and that asymmetry is the measurement, not an oversight. §14
+    // says a real coin has no uniform-width marks; the question a stroke poses
+    // is what width to taper it TO, and on this face the photographs answer it
+    // for exactly one mark. Measured perpendicular to each drawn centreline on
+    // three references — `quarter-obv-2.jpg` (the frozen target of record),
+    // `quarter-obv-1932ngc.jpg` and `quarter-obv-4.jpg` — per third of each
+    // mark's length, 25 of the 26 stroke-rendered marks on this face have their
+    // first-third and third-third width medians separated by LESS than the
+    // between-reference interquartile range. Their widths are not uniform; they
+    // are unresolved, and a taper drawn through that is taste with a number
+    // stuck on it. The second queue fold is the one that clears it: 0.80 ->
+    // 1.60 -> 2.60 viewBox units on the target of record over 26 of 28
+    // stations, 0.80 -> 2.80 on the 1932, 0.40 -> 1.30 on the 1994 — three
+    // references agreeing in SIGN, disagreeing 7x in the middle third, so a
+    // STRAIGHT taper and nothing finer, which then predicts that middle third
+    // at 1.65 against a pooled median of 1.60.
+    //
+    // Drawn 0.77 -> 1.30 in local units, ratio 1.688. The measured bottom is
+    // 2.50 local and it is CLAMPED, for the same reason round 4 clamped the
+    // dime's jaw cap inside the head contour: at the bottom of the queue the
+    // four folds converge, so a perpendicular profile down there is reading the
+    // whole tail's shadow rather than this one fold, and a 2.50-wide region
+    // would paint over both its neighbours. The limit is our own geometry —
+    // fold 1 ends 1.9 units away at half-width 0.80, fold 3 ends 1.6 away at
+    // 0.75 — and at 1.30 the worst edge-to-edge clearance is 0.150 to fold 3
+    // and 0.365 to fold 1, which is round 4's own 0.15 margin.
+    //
+    // `stroke="none"` is all it takes to become a region: this group is emitted
+    // `fill="${p.ink}" stroke="${p.ink}"`, so a path that switches off its
+    // stroke is filled in exactly the tone the line had, at the same 0.42. The
+    // outline is generated by `coloringbook/judge/_jq7gen.mjs`, which carries
+    // the reference-by-reference numbers and the clearance check.
+    //
+    // THE FOOT IS FIVE SHORT SEGMENTS, not one `Q`, and that is a D7 fix to
+    // this repair's own first attempt. A cap turns through 180 degrees however
+    // it is drawn; one quadratic put the whole of it into two knots, at 92.6
+    // and 92.0 degrees, and D7's gate is zero knots over 75. Split over five
+    // segments the largest knot on the cap is 36.0 degrees. A D6 repair that
+    // buys its number by breaking D7 is a regression, not a fix.
     dark:
       '<path d="M 15.4 18.0 C 13.6 18.5 11.6 18.9 9.6 19.1" fill="none" stroke-width="1.6"/>' +
       '<path d="M -15.4 15.8 q -0.9 3.4 -1.6 6.6" fill="none" stroke-width="1.6"/>' +
-      '<path d="M -17.6 16.2 q -0.8 3.6 -1.3 6.8" fill="none" stroke-width="1.6"/>' +
+      '<path d="M -17.98 16.12 L -18.28 17.3 L -18.56 18.46 L -18.83 19.6' +
+      ' L -19.09 20.72 L -19.32 21.82 L -19.54 22.9' + // down the outer edge
+      ' L -19.48 23.3 L -19.19 23.58 L -18.8 23.64 L -18.44 23.46 L -18.26 23.1' +
+      ' L -18.13 22.02 L -17.98 20.92 L -17.82 19.8' + // and back up the inner
+      ' L -17.64 18.65 L -17.44 17.48 L -17.22 16.28 Z" stroke="none"/>' +
       '<path d="M -19.6 17.0 q -0.6 3.4 -0.9 6.4" fill="none" stroke-width="1.5"/>' +
       '<path d="M -20.2 18.4 q -0.4 3.0 -0.6 5.2" fill="none" stroke-width="1.4"/>' +
       '<path d="M -23.6 25.4 q 1.4 2.8 1.0 5.6" fill="none" stroke-width="1.5"/>' +
@@ -4080,10 +4252,24 @@ function discSVG(id, box, attrs, tier, side, withValue, size) {
 //   SIZE        a real note is 155.96mm ≈ 589 CSS px wide; this one is
 //               size × 1.24, so it stays under 75% (442px) for any `size`
 //               below 356. The app's largest draw is 190 → 236px, 40%.
-//   NOT A COPY  the aspect ratio is 1.79:1 against a real note's 2.61:1,
-//               the palette is a stylised sage and cream rather than the
-//               note's grey-green, and every ornament is a drawn wave, not
-//               an engraved guilloche. It is a Paw Buck, not a dollar.
+//   NOT A COPY  the aspect ratio is 1.79:1 (100/56) against a real note's
+//               2.35:1 (6.14 in / 2.61 in) — and 1.96:1 for our inner frame
+//               rect (90/46) against the PRINTED BORDER's measured 2.572:1,
+//               the mean of independent fits to `bill-rev.jpg` (2.5610) and
+//               `bill-rev-2.jpg` (2.5827). The palette is a stylised sage and
+//               cream rather than the note's grey-green, and every ornament is
+//               a drawn wave, not an engraved guilloche. It is a Paw Buck, not
+//               a dollar.
+//               Corrected 2026-08-21: this line used to read "against a real
+//               note's 2.61:1". 2.61 is the note's HEIGHT IN INCHES, not a
+//               ratio. Buck r0's gate R1 flagged it as a documentation defect
+//               and it is fixed here rather than carried; the four numbers
+//               above are r0's own, unchanged.
+//               The consequence is the one everything below depends on: the
+//               map from the note's own coordinates into this box stretches
+//               height against width by 2.572 / 1.9565 = 1.3145, so a CIRCLE
+//               on the note is an ELLIPSE here. That is deliberate and it is
+//               part of what makes this a non-copy.
 function noteSVG(box, attrs, tier, side, withValue) {
   const p = PALETTE.buck;
   const small = tier === 'icon';
@@ -4103,34 +4289,114 @@ function noteSVG(box, attrs, tier, side, withValue) {
   const corner = (x, y) =>
     `<text x="${x}" y="${y}" text-anchor="middle" font-family="${FONT}" font-size="10"
        font-weight="800" fill="${p.ink}" opacity="0.85">1</text>`;
+  // FOUR corner numerals, because the note has four. This used to be
+  // `corner(12,17) + corner(88,47)` — top-left and bottom-right only, and
+  // diagonally opposite, which reads as an omission rather than as a design;
+  // the rhythm count was 2 against 4. Read off the rectified obverse at a
+  // 1-unit ladder (`_jk9-obv-whole.png`, generator `_jb6crop.mjs`), the four
+  // numeral CENTRES sit at X 8.8 / 90.4 and Y 12.0 / 42.1. These are baselines,
+  // so each is its centre plus half a 10-unit cap height.
+  //
+  // CAVEAT, and it is the judge's own: the obverse has NO printed-border
+  // fiducial — both obverse border fits land on blank paper — so this
+  // registration is the paper box and the two obverse photographs' paper
+  // ratios differ by 5.9%. A count of 4 does not turn on that; the positions
+  // carry it.
+  const CORNERS = [[8.8, 15.6], [90.4, 15.6], [8.8, 45.7], [90.4, 45.7]];
   const frame = `<rect x="1.4" y="1.4" width="97.2" height="53.2" rx="5" fill="${p.body}"/>
     ${small ? '' : `<path d="${wave(8, 2.2, 10)}" fill="none" stroke="${p.rim}" stroke-width="1" opacity="0.75"/>
        <path d="${wave(48, 2.2, 10)}" fill="none" stroke="${p.rim}" stroke-width="1" opacity="0.75"/>`}
     <rect x="5" y="5" width="90" height="46" rx="3.5" fill="none" stroke="${p.rim}" stroke-width="${sw(1.6, 0.8, box.w)}"/>
     <rect x="1.4" y="1.4" width="97.2" height="53.2" rx="5" fill="none" stroke="${p.rim}" stroke-width="${sw(2.6, 1.0, box.w)}"/>
-    ${small ? '' : corner(12, 17) + corner(88, 47)}`;
+    ${CORNERS.map(([x, y]) => corner(x, y)).join('')}`;
 
   if (!reverse) {
     // OBVERSE: the portrait in an oval, the word ONE beside it. Washington's
     // wig is the widest silhouette in the set, so it survives the shrink to
     // a 30px note better than any of the others would.
     //
-    // THE SCALE AND THE CENTRE MOVED with the measured head (§11.6: a correct
-    // head breaks everything sized around a wrong one). The old outline was
-    // 62.8 local units tall with its centre at y = 1.0; the measured one is
-    // 71.4 tall, because it now carries the bust's real TRUNCATION, and its
-    // centre is at y = 8.0. At the old 0.55 the portrait hung out of the
-    // bottom of the oval. 0.50 puts the head at 86% of the oval's height and
-    // translate y 24 re-centres it.
+    // THE VIGNETTE IS MEASURED, NOT PLACED. It used to be
+    // `<ellipse cx="34" cy="28" rx="17" ry="21">` — left of centre and 1.74x
+    // too wide, scoring region IoU 0.1496 against the note's own portrait
+    // vignette (gate 0.95), 16.05 units of centre error, which is 16.5% of the
+    // note's width. On the note the portrait is DEAD CENTRE; ours was in the
+    // left third because that is where a rectangle divided in half puts it.
+    //
+    // The four numbers are the buck r0 judge's frozen D1 locus, read off the
+    // rectified obverse at a 1-unit ladder on a 3840px source, +-0.5 units:
+    // cx 50.05 cy 30.30 rx 9.75 ry 14.00. An independent second read this
+    // round off `_jk9-portrait-obv2.png` gave 50.95 / 30.45 / 9.95 / 14.95 —
+    // agreeing within about a unit on every one.
+    //
+    // CAVEAT: the obverse has no printed-border fiducial (both obverse border
+    // fits land on blank paper), so this is registered on the PAPER box, whose
+    // two photographs disagree by 5.9%. The 16-unit centre error it replaces
+    // survives that by an order of magnitude; sub-unit precision here does not.
+    //
+    // THE SCALE AND THE CENTRE FOLLOW THE OVAL (§11.6: a correct head breaks
+    // everything sized around a wrong one). The measured outline is 71.4 local
+    // units tall with its centre at y = 8.0. The old 0.50 put the head at 86%
+    // of the old oval's height with `translate y 24` re-centring it; the
+    // height carries across by the oval's own ry ratio 14/21 = 0.6667, giving
+    // 0.3333 and `translate y 27.63`.
+    //
+    // THE CENTRE MOVED WITH IT, and it is not the oval's centre. `HEAD`'s own
+    // bbox is not symmetric about its origin — it runs local x -30.2..+22.5,
+    // because Washington faces left — so `translate x = cx` hung the head 0.77
+    // units out of the left of the new, narrower oval while leaving 2.7 units
+    // of slack on the right. 51.5 centres the DRAWING in the oval rather than
+    // the drawing's ORIGIN, and every copy including the bevel then sits
+    // inside at every tier (X 41.43..58.99 against an oval 40.30..59.80).
+    // 0.35 at icon rather than 0.38 for the same reason: the bevel offset is a
+    // viewBox constant per box width and is 1.7 local units there.
+    //
+    // An ANISOTROPIC scale was tried first and rejected — 0.30 x 0.3333, from
+    // the same 1.3145 registration anisotropy that makes the roundels below
+    // ellipses. It is arguably the more correct transform (`HEAD.Washington`
+    // is traced off a COIN, a disc, and the note's frame is not one), and it
+    // renders as a narrow blob: the wig is the one silhouette in this set that
+    // survives 47px, and 10% of its width is most of what makes it a wig.
+    //
+    // `box.w * 0.37` replaces `box.w * 0.55` by the scale's own ratio: it
+    // holds the bevel offset at ~0.45 viewBox units at `full`, where it was,
+    // rather than letting a smaller local scale shrink it away.
+    //
+    // WHAT THIS COSTS, said out loud because it is a real loss: the head is
+    // now 23.8 viewBox units tall where it was 35.7, which at the icon tier
+    // (a 47px note) is 11 device pixels rather than 17. Fidelity to the
+    // photograph and legibility at 47px pull in opposite directions here and
+    // this change chooses the photograph; the judge owns that call.
+    //
+    // ONE MOVED 72 -> 77.5 AND SHRANK 13 -> 11, and only because the vignette
+    // moved: a centred portrait reaches X 59.8, and the panel the word lives
+    // in went from 43 units wide to 35. Its ink extent is MEASURED, not
+    // estimated from a font advance — `_jk9text.mjs` renders the note twice,
+    // with the glyph and without, and diffs the pixels: at 13pt the ink runs
+    // 62.60..95.00 and crosses the printed border by 0.80 units; at 11pt it
+    // runs 63.40..91.30 and clears the vignette by 3.60 and the border by
+    // 2.90. Its lower rule moves to 61..87 to clear the new bottom-right
+    // corner numeral. It is still not a legend the note carries in that
+    // position — that is where the Treasury seal sits — and that remains D5's
+    // row, not this round's.
+    //
+    // 61..87 rather than 63..87 for a reason worth writing down: the rule is
+    // one of the marks §3's D6 row excludes BY NAME as "the scallop border
+    // wave", but `_jb8geom.mjs` has to identify it geometrically and does so
+    // as "a path wider than 25 units and shorter than 4". At 63..87 it is 24
+    // units wide, falls out of that class, and is scored as a device mark —
+    // D6-obverse reads 26.77% with it and 21.46% without, on identical
+    // drawings. The mark is the same mark either way; this keeps it on the
+    // side of the line §3 puts it on. The brittleness is the instrument's and
+    // is reported rather than fixed.
     return `<svg viewBox="0 0 100 56" width="${box.w}" height="${box.h}" ${attrs} xmlns="http://www.w3.org/2000/svg">
       ${frame}
-      <ellipse cx="34" cy="28" rx="17" ry="21" fill="${p.field}" stroke="${p.rim}" stroke-width="${sw(1.4, 0.8, box.w)}"/>
-      <g transform="translate(34 24) scale(${small ? 0.57 : 0.50})" fill="${small ? p.deep : p.motif}">
-        ${struck(`<path d="${HEAD.Washington}"/>${TAIL.Washington || ''}`, p, tier, box.w * 0.55)}</g>
-      <ellipse cx="34" cy="28" rx="17" ry="21" fill="none" stroke="${p.rim}" stroke-width="${sw(1.4, 0.8, box.w)}"/>
-      ${small || withValue ? '' : `<text x="72" y="33" text-anchor="middle" font-family="${FONT}" font-size="13"
+      <ellipse cx="50.05" cy="30.3" rx="9.75" ry="14" fill="${p.field}" stroke="${p.rim}" stroke-width="${sw(1.4, 0.8, box.w)}"/>
+      <g transform="translate(51.5 27.63) scale(${small ? 0.35 : 0.3333})" fill="${small ? p.deep : p.motif}">
+        ${struck(`<path d="${HEAD.Washington}"/>${TAIL.Washington || ''}`, p, tier, box.w * 0.37)}</g>
+      <ellipse cx="50.05" cy="30.3" rx="9.75" ry="14" fill="none" stroke="${p.rim}" stroke-width="${sw(1.4, 0.8, box.w)}"/>
+      ${small || withValue ? '' : `<text x="77.5" y="33" text-anchor="middle" font-family="${FONT}" font-size="11"
           font-weight="800" letter-spacing="1.6" fill="${p.ink}" opacity="0.8">ONE</text>
-        <path d="${wave(41, 1.6, 5, 58, 86)}" fill="none" stroke="${p.rim}" stroke-width="1" opacity="0.7"/>`}
+        <path d="${wave(41, 1.6, 5, 61, 87)}" fill="none" stroke="${p.rim}" stroke-width="1" opacity="0.7"/>`}
       ${withValue ? valueNote(p) : ''}
     </svg>`;
   }
@@ -4138,19 +4404,81 @@ function noteSVG(box, attrs, tier, side, withValue) {
   // REVERSE: the Great Seal, both halves of it — the unfinished pyramid
   // under its eye on the left, the eagle on the right, ONE between them.
   // GESTURE: two roundels flanking a word, which is a shape no coin has.
-  const pyramid = small
-    ? '<path d="M 22 36 L 30 20 L 38 36 Z"/>'
-    : `<path d="M 21.5 37 L 30 21.5 L 38.5 37 Z"/>
-       <path d="M 26 27 L 30 19 L 34 27 Z"/>`;
+  //
+  // THE TWO ROUNDELS ARE MEASURED, NOT CHOSEN. They used to be
+  // `<circle cx="30|70" cy="28" r="15|16">` — a shape drawn to fill the half
+  // of the box it was given, which is the same "fill the container rather than
+  // fit the design" habit the cent's coat and the quarter's eagle carried.
+  // Against the seals' own rims that read IoU 0.394 and 0.429 (gate 0.95),
+  // 1.80x too wide, 25.6% too close together and the wrong shape by 23.9%.
+  //
+  // These eight numbers are the mean of an ellipse fitted independently to
+  // `bill-rev.jpg` and `bill-rev-2.jpg` — `coloringbook/judge/_jb4target.json`,
+  // the buck r0 judge's frozen D2 target; worst two-reference spread 2.8% on
+  // the pyramid's semi-axes and 15.2% on the eagle's rx. The two photographs
+  // are independent (NCC 0.4626 against a 0.97 same-photograph threshold,
+  // `_blindep.mjs`), and the fitted ellipses were drawn back onto both
+  // sources and looked at (`_jk9-fit-rev1.png`, `_jk9-eagle-rev1.png`).
+  //
+  // A CIRCLE ON THE NOTE MUST BE AN ELLIPSE HERE. Our box deliberately does
+  // not carry the note's aspect ratio (31 CFR 411 non-copy, above), so the
+  // border-normalised map into this viewBox is anisotropic by 2.5718/1.9565 =
+  // 1.3145 and a drawn circle is wrong by exactly that factor. The two rims
+  // come out ry/rx 1.281 and 1.394: they are not the same shape as each other
+  // on the note either, which is why each carries its own ry.
+  const PYR = { cx: 23.13, cy: 27.88, rx: 8.88, ry: 11.38 };
+  const EAG = { cx: 76.88, cy: 27.75, rx: 8.88, ry: 12.38 };
+  const roundel = (r) =>
+    `<ellipse cx="${r.cx}" cy="${r.cy}" rx="${r.rx}" ry="${r.ry}" fill="${p.field}" stroke="${p.rim}" stroke-width="${sw(1.4, 0.8, box.w)}"/>`;
+
+  // THE PYRAMID IS TRUNCATED AND ITS CAPSTONE IS DETACHED, which is the single
+  // most recognisable thing about the device and was not drawn at all: this
+  // used to be a pointed triangle with a second triangle overlapping its apex.
+  // Same class of error as the nickel's phantom columns — a confident drawing
+  // of something the object does not do.
+  //
+  // Measured off the rectified reference through the printed-border fiducial,
+  // two independent photographs (`_jk9edge.mjs`, and by hand off the published
+  // ladders `_jk9-pyr-rev1-zoom.png` / `_jk9-cap-rev1.png` / `_jk9-basecheck.png`):
+  //
+  //   base       Y 33.20 / 33.30   truncated top  Y 23.94 / 23.90
+  //   right slope dx/dY 0.315 / 0.310, x(33) 27.16 / 27.04
+  //   capstone   apex Y 19.4, base Y 22.7, half-width 1.35 — the same width as
+  //              the truncation below it, with a 1.25-unit ray gap between
+  //
+  // The LEFT slope is deliberately mirrored from the right rather than fitted.
+  // Both line fits agreed across the two references to 0.12 units, but the
+  // overlay showed the left one tracking the pyramid's cast shadow where it
+  // spills left of the masonry near the base (§4.3), so it read 0.400 against
+  // the right's 0.315 and pulled the axis 0.9 units off the seal's own centre.
+  // The axis used here is the seal's measured centre, 23.13.
+  const PY = { axis: 23.1, baseY: 33.25, topY: 23.95, baseHW: 4.0, topHW: 1.35, capY: 22.7, apexY: 19.4 };
+  const pyramid =
+    `<path d="M ${PY.axis - PY.baseHW} ${PY.baseY} L ${PY.axis - PY.topHW} ${PY.topY} L ${PY.axis + PY.topHW} ${PY.topY} L ${PY.axis + PY.baseHW} ${PY.baseY} Z"/>
+     <path d="M ${PY.axis} ${PY.apexY} L ${PY.axis + PY.topHW} ${PY.capY} L ${PY.axis - PY.topHW} ${PY.capY} Z"/>`;
+  // The courses. The note carries THIRTEEN between Y 23.95 and Y 33.25, which
+  // is 0.72 units each — 1.7 device pixels at the largest size this app draws
+  // (190 -> a 236px note) and 0.5 at `mid`. Buck r0 escalated the "count error
+  // 0" gate as unmeetable at any tier the app draws and deferred the
+  // re-derivation to a round that does not also measure it; this draws SEVEN
+  // courses (six lines), which is the most the medium carries, and the miss is
+  // published rather than the gate moved (§8). The lines follow the trapezoid
+  // instead of being three fixed `h` runs at widths the pyramid never had.
+  const COURSES = 7;
+  const courseLine = (i) => {
+    const y = PY.topY + ((PY.baseY - PY.topY) * i) / COURSES;
+    const hw = PY.topHW + ((PY.baseHW - PY.topHW) * i) / COURSES;
+    return `<path d="M ${n2(PY.axis - hw + 0.25)} ${n2(y)} h ${n2(2 * hw - 0.5)}"/>`;
+  };
   const pyramidCut = small
     ? ''
-    : `<g fill="none" stroke="${p.field}" stroke-width="1" opacity="0.75">
-         <path d="M 24.6 33.5 h 10.8"/><path d="M 26.3 30.3 h 7.4"/><path d="M 25.4 25.4 h 9.2"/></g>
-       <circle cx="30" cy="24.6" r="1.5" fill="${p.field}"/>`;
+    : `<g fill="none" stroke="${p.field}" stroke-width="${sw(0.45, 0.5, box.w)}" opacity="0.75">
+         ${Array.from({ length: COURSES - 1 }, (_, i) => courseLine(i + 1)).join('')}</g>
+       <circle cx="${PY.axis}" cy="21.55" r="0.55" fill="${p.field}"/>`;
   // The Great Seal's eagle: wings RAISED, which is the pose that tells it
   // from the quarter's spread-wing eagle at a glance, and a shield on its
   // chest. At icon size everything but the shield and a raised chevron goes.
-  const seal = small
+  const sealArt = small
     ? '<path d="M 70 17 C 72.4 17 73.6 18.6 73.4 20.8 L 66.6 20.8 C 66.4 18.6 67.6 17 70 17 Z"/><path d="M 56 17.5 C 61.5 19.5 65 23 66.6 27 L 73.4 27 C 75 23 78.5 19.5 84 17.5 C 82.5 25 77.5 30 70 31.5 C 62.5 30 57.5 25 56 17.5 Z"/><path d="M 65.6 26 h 8.8 c 0.8 6.6 -1.8 11.4 -4.4 13.8 c -2.6 -2.4 -5.2 -7.2 -4.4 -13.8 Z"/>'
     : `<path d="M 70 16.5 C 72.7 16.5 74 18.4 73.7 20.9 L 73.4 22.6 L 66.6 22.6 L 66.3 20.9 C 66 18.4 67.3 16.5 70 16.5 Z"/>
        <path d="M 66.4 18.8 L 62 20.2 L 66.5 21.6 Z"/>
@@ -4158,16 +4486,49 @@ function noteSVG(box, attrs, tier, side, withValue) {
        <path d="M 83.5 17 C 78.5 19 74.6 22.4 72.6 26.4 L 73.8 28.6 C 77.4 24.4 81 21.6 84.5 20.6 Z"/>
        <path d="M 66.6 22 L 73.4 22 C 74.2 24.4 74.4 26 74.2 27.6 L 65.8 27.6 C 65.6 26 65.8 24.4 66.6 22 Z"/>
        <path d="M 65.6 27 h 8.8 c 0.8 6.4 -1.8 11.2 -4.4 13.6 c -2.6 -2.4 -5.2 -7.2 -4.4 -13.6 Z"/>`;
+  // THE EAGLE IS FITTED TO ITS ROUNDEL, WHICH NOTHING IN THE PIPELINE DOES FOR
+  // IT. `struck()` is passed `rField = 0` on this subject by design (there is
+  // no field circle on a note), so the note is the only subject in the set
+  // whose relief is authored against nothing, and the containment dimension —
+  // which asks about ONE boundary per side — reads 0.0000% while the eagle
+  // hangs 154.8% beyond the measured rim of the roundel it is supposed to sit
+  // in (13.7 units at the widest, `_jk9fitseal.mjs`). The eagle was authored
+  // to fill an r-16 circle 32 units across; the seal it stands for is 17.8
+  // units across and 24.8 tall in this box.
+  //
+  // 0.5154 is the largest UNIFORM scale that inscribes this massing's 29.0 x
+  // 24.1 box in the 17.75 x 24.75 ellipse, and it is chosen over the fit the
+  // measurement asks for, with the reason written down rather than buried.
+  //
+  // The measurement asks for an anisotropic map. On the photograph the eagle's
+  // wings span 0.604 of the rim's width and the bird 0.756 of its height, so
+  // the honest transform is roughly scale(0.37 0.76) — and rendered, that is
+  // not a bird. Our wing paths were authored to span an r-16 circle, so
+  // squashing them to 0.37 of their width collapses them into two slivers
+  // either side of a dart (`_jk9-eagle-variants.png`, candidate A: every
+  // number right, the picture wrong — §4.3 in its strongest form).
+  //
+  // So: the eagle now FITS ITS ROUNDEL, which is the thing that could be fixed
+  // by moving it, and its SHAPE is still wrong, which cannot be fixed by any
+  // affine map of these paths. It fills 0.858 of the rim's width against the
+  // note's 0.604 and 0.513 of its height against 0.756 — it is too wide and
+  // too short, and it needs redrawing, not rescaling. That is left undone and
+  // said so.
+  const SEAL_FIT = 'translate(40.797 13.035) scale(0.5154)';
+  const seal = `<g transform="${SEAL_FIT}">${sealArt}</g>`;
   // The shield's stripes and the pyramid's courses are CUTS, not massing, so
   // they go on after the bevel rather than being printed three times with it.
+  // The shield cuts ride the same transform as the massing they cut into, so
+  // their stroke width is pre-divided by it — otherwise the cut thins with the
+  // shape and stops reading. 0.9 / 0.5154 = 1.75.
   const sealCut = small
     ? ''
-    : `<g fill="none" stroke="${p.field}" stroke-width="0.9" opacity="0.85">
-         <path d="M 66 30.4 h 8"/><path d="M 67 33.6 h 6"/><path d="M 70 27.6 v 4"/></g>`;
+    : `<g transform="${SEAL_FIT}"><g fill="none" stroke="${p.field}" stroke-width="1.75" opacity="0.85">
+         <path d="M 66 30.4 h 8"/><path d="M 67 33.6 h 6"/><path d="M 70 27.6 v 4"/></g></g>`;
   return `<svg viewBox="0 0 100 56" width="${box.w}" height="${box.h}" ${attrs} xmlns="http://www.w3.org/2000/svg">
     ${frame}
-    <circle cx="30" cy="28" r="${small ? 15 : 16}" fill="${p.field}" stroke="${p.rim}" stroke-width="${sw(1.4, 0.8, box.w)}"/>
-    <circle cx="70" cy="28" r="${small ? 15 : 16}" fill="${p.field}" stroke="${p.rim}" stroke-width="${sw(1.4, 0.8, box.w)}"/>
+    ${roundel(PYR)}
+    ${roundel(EAG)}
     <g${withValue ? ' opacity="0.42"' : ''}>${struck(`${pyramid}${seal}`, p, tier, box.w, `${pyramidCut}${sealCut}`)}</g>
     ${small || withValue ? '' : `<text x="50" y="32" text-anchor="middle" font-family="${FONT}" font-size="9"
         font-weight="800" letter-spacing="0.6" fill="${p.ink}" opacity="0.8">ONE</text>`}

@@ -290,6 +290,46 @@ reconsider after calibration.
      which is a **shared constant across all four coins**, so it cannot go
      in a parallel round and is queued as a serialised judge round.
      D10 is now in `_rescore.mjs`'s standing set.
+   - 🔴 **D7 is ESCALATED: its metric has never measured curvature.**
+     `_jqgeom.turns()` takes the angle between *chords* joining consecutive
+     on-curve knots, which is a property of knot spacing. Verified: a
+     G1-continuous join of two half-circles returns **90.0°**, and **116.6°**
+     sampled coarsely; a tangent estimator returns 0.0°. It survived because
+     the gate's own response test ("a known 90° corner reports 90 ± 1")
+     passes on **both** estimators and cannot tell them apart. This
+     invalidates every D7 verdict across four rounds, **including the dime
+     PASS in v1.61.0**. The per-knot *declarations* survive as relative
+     statements (ours vs the target's chord turn at the same place, with a
+     straight control — like against like); the absolute gate does not.
+     **Queued serialised repair:** re-state D7 on tangent discontinuity,
+     re-derive on every coin and side, retract every published figure.
+     `_jqgeom.mjs` is shared with D6 and D8.
+   - 🔴 **D13-obverse has no runnable instrument at all.** `_r3d13.mjs`
+     imports `./_rvnorm.mjs` from `judge/` where the file lives one level up,
+     so it throws on a clean checkout; `_x6dark.mjs` covers only the four
+     reverses. Every published D13-obverse figure came from something that
+     does not execute. (`judge/_jd13v2.mjs`, written this session, does cover
+     both sides — but its own normaliser is the one proven unsound.)
+   - ✅ **v1.62.0 — quarter obverse D6 21.29% → 20.50%**, one mark of 26
+     converted. That restraint *is* the finding: 23 of 26 have their
+     first/third-third width medians separated by **less** than the
+     between-reference IQR. The wig grooves (62 % of all uniform length) were
+     measured against the coin — its roll pitch is 0.95–1.75 units and cut
+     width 0.25–0.55, while we draw grooves at 2.4–2.6, **wider than the
+     coin's entire roll pitch**. Narrowing them is a tone change, not a taper.
+   - ✅ **v1.62.0 — the cent's beard now meets the hair.** §20.8 has said
+     since it was written that the top edge "starts level with the bottom of
+     the ear, not eight units lower"; it ran **7.9 units lower**, and the rear
+     tip sat **0.841 units outside the hair mass**, leaving a wedge of cheek
+     tone between two masses the photographs show as one. Tip moved to
+     (−18.85, 4.00), 0.345 inside; junction closed. D1 bit-identical — the
+     mutation test confirms `HAIR`/`BEARD` are outside D1's locus, which is
+     free work on a coin with 0.00378 of margin.
+     ⚠️ **Left owed:** the coin's whisker field runs well above our top edge
+     across the mid-jaw — a lens-shaped shortfall peaking near **10 local
+     units** at x = −4..0. It needs its own round, its own D13 budget, and
+     probably a mid-jaw tone patch, because **the frozen patch set has a hole
+     exactly there** (nothing between `cheek` and `beardJaw`).
    - 🔴 **Two D7 instrument faults, both silent, both affecting every coin.**
      `_jqgeom.turns()` walks `i = 1 … K.length-2`, so a closed path's
      **closure knot is never evaluated** — it exempts one knot on every

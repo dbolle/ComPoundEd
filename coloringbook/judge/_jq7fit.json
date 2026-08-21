@@ -1,0 +1,26 @@
+{
+ "quarter-obv-1932ngc.jpg": {
+  "cx": 999.52,
+  "cy": 999.49,
+  "R": 999.37,
+  "kept": 706,
+  "dropped": 8,
+  "spreadPc": 0.1
+ },
+ "quarter-obv-2.jpg": {
+  "cx": 374.51,
+  "cy": 374.5,
+  "R": 373.7,
+  "kept": 671,
+  "dropped": 1,
+  "spreadPc": 0.4
+ },
+ "quarter-obv-4.jpg": {
+  "cx": 1000.25,
+  "cy": 1001.81,
+  "R": 985.89,
+  "kept": 710,
+  "dropped": 0,
+  "spreadPc": 1.37
+ }
+}

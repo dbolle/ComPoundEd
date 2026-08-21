@@ -3,6 +3,129 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.62.0 — 2026-08-21
+
+**Two obverse rounds landed, and D7 joins the escalated list — its metric
+returns 90° for a perfectly smooth curve.**
+
+### D7's gate has never measured curvature
+
+`_jqgeom.turns()` takes the angle between *chords* joining consecutive
+on-curve knots, which is a property of how far apart the knots are, not of
+whether the curve kinks. Verified independently: a G1-continuous join of two
+half-circles returns a worst chord turn of **90.0°**, and **116.6°** when the
+same smooth curve is sampled coarsely. A tangent estimator returns 0.0° on it.
+
+It survived because the gate's own response test is *"a synthetic path with a
+known 90° corner reports 90 ± 1"* — and **both** estimators pass that, so it
+cannot tell them apart. A response test every candidate passes is not a
+discriminator.
+
+This invalidates every D7 verdict across four rounds, **including the dime's
+D7 PASS in v1.61.0**. What survives is the per-knot *declarations*: each
+compared our chord turn against the target mask's chord turn at the same
+place, with a known-straight control — like against like, same estimator both
+sides. What does not survive is the absolute gate. D7 is escalated on all four
+coins, alongside D13 and D2.
+
+### The quarter obverse, D6: one mark of 26 converted, and that is the result
+
+23 of 26 marks have their first-third and third-third width medians separated
+by **less** than the between-reference interquartile range — the photographs
+do not support a taper on them. The wig grooves, 62 % of all uniform length,
+were measured against the coin directly: its roll pitch is 0.95–1.75 viewBox
+units and its cut width 0.25–0.55, while we draw grooves at 2.4–2.6 — **wider
+than the coin's entire roll pitch**. Narrowing them is a tone change, not a
+taper. D6 obverse 21.29 % → **20.50 %**.
+
+A first attempt at the one conversion put two new 92° knots into the drawing
+and was refused: a D6 repair that buys its number by breaking D7 is a
+regression.
+
+### Three errors of mine it caught
+
+- **The D6 gate of ≤ 0.50 I put in the brief does not exist** for this coin.
+  `quarter-gates.md` states D6 under the superseded metric; there was no gate
+  to inherit, and I presented one as if there were.
+- **The 1932 quarter's disc is R 999.37, not the 903 I published** — my
+  background-differencing fitter under-measured it by 9.6 %.
+- I repeated that the quarter's 102° knot was "confirmed by eye as a visible
+  kink". Its tangent discontinuity is **0.4°**. Another instance of a described
+  artefact being found by an eye that went looking for it.
+
+### The cent's beard now meets the hair
+
+`COIN-ART-METHOD` §20.8 has said since it was written that this beard's top
+edge *"starts level with the bottom of the ear, not eight units lower."* It ran
+**7.9 units lower**, and its rear tip sat **0.841 units outside the hair mass**
+— a wedge of cheek tone between two masses the photographs show as one. The tip
+moves to (−18.85, 4.00), 0.345 units inside, and the junction closes.
+
+D1 is bit-identical, which is the point: a mutation test (replace either path
+with a triangle) leaves all four D1 counters unchanged, so `HAIR` and `BEARD`
+are outside its locus — free work on the coin with the tightest margin in the
+set, 0.00378.
+
+**And it overturned half the brief I wrote.** I claimed the sideburn was too
+sharp: ours 35.5° against the coin's 40–45°. Those were never the same
+measurement — mine read the knot polygon, the coin's was a ray fan at radius
+8.27 units, and the knots either side of that tip are ~5 units apart. Measured
+on the drawn outline at matched radii the sideburn already read **40.6°**.
+There was no gap. That is the same chord-versus-curve fault that escalated D7,
+surfacing independently inside a brief of mine.
+
+It refused the tempting fix — widening the knot polygon so the metric would
+print 40–45 — as *"a worse drawing for a better number"*, and reverted an
+iteration that chased the coin's mid-jaw and drew a hump the coin has no trace
+of. One cost, disclosed: D13-obverse at 44 px loses 0.0025, leaving 0.0036 of
+margin.
+
+### Also found: D13-obverse has no runnable instrument
+
+`_r3d13.mjs` imports `./_rvnorm.mjs` from `judge/`, where the file lives one
+directory up, so it throws on a clean checkout. `_x6dark.mjs` covers only the
+four reverses. Every published D13-obverse figure came from something that
+does not execute.
+
+
+**The nickel's wig was drawn darker than the cheek; the coin draws it
+brighter.** One property changed — `hairLit: true` on the nickel — and the
+emitted diff is six characters.
+
+- **D3 had never been scored on this face**, because no `_tonepatches-nickel.json`
+  existed. There is one now: 13 patches placed on anatomy *before any scorer
+  was written*, the writer verified to refuse overwrite, every patch checked
+  wholly inside the head mask. First value: **0.2426 → 0.2137** against a
+  0.1166 gate. Before the change the drawing was **worse than a flat fill**
+  (the flat-drawing floor is 0.2332); it is now below the floor and still 1.8×
+  the gate.
+- The repair is the one relationship both usable references corroborate: the
+  body of the wig reads 1.207–1.388 of the cheek on the photographs and we drew
+  it 0.846–1.000 — the wrong side of 1.0 entirely. `hairLit` renders it at
+  1.148, inside the band the references bracket. It is full-tier only, so the
+  icon draw — all of D11, where this face is half the set's closest pair — is
+  byte-identical.
+- **A cost this round created and reported unprompted:** the mid→full boundary
+  d(mean) rose 0.0051 → 0.0342, 6.7×, because the wig's tone now steps at
+  74→76. D10's gate is on ink, which is binary and cannot see it. The dime
+  carries the identical construction.
+- **D10 was not touched, and the round found a trap in it.**
+  `EDGE.nickel.field.icon = 42.5` is currently *masking* half the defect: that
+  ring stroke falls inside D10's sampling disc and contributes 0.0674 of icon
+  ink, where at 44.07 it would fall outside. The true bust discontinuity is
+  0.1528, not the published 0.0854 — so **fixing D5-rim by making the icon
+  field continuous would double D10 with no drawing change.** That is the
+  queued shared-constant round, and it now has a price on it.
+- **A setting that scored better was refused**: an icon-trio candidate cut the
+  ink numerator by 90 % and comfortably met the gate, while nearly tripling the
+  boundary d(mean) — satisfying the statistic the gate reads by worsening the
+  discontinuity the dimension is named for.
+- Corrected, mine: `nickel-obv-unc2004.jpg` is **not** an independent
+  reference. NCC 0.9674 against the file already in use, where different
+  photographs read 0.28–0.30 — it is a higher-resolution encode of the same
+  image, and my plateau screen for that coin was measuring resolution, not
+  field quality.
+
 ## v1.61.1 — 2026-08-21
 
 **A round that changed no art, and found a regression I had shipped.**
