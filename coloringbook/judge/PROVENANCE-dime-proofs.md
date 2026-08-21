@@ -155,3 +155,56 @@ cannot serve D5 and its resolution rules it out for D1 or D3 anyway.
 
 **A diffuse-lit, business-strike, pre-1999 Washington quarter obverse is the
 outstanding acquisition.**
+
+### The quarter obverse: found, but weaker than the other three — and a licence flag
+
+The statehood quarter found first was rejected and never saved: it is the
+post-1999 arrangement, which moved UNITED STATES OF AMERICA and QUARTER DOLLAR
+onto the obverse, while we draw LIBERTY arced above and IN GOD WE TRUST flat at
+the left. Same portrait, different lettering.
+
+Five correct pre-1999 candidates were then screened as above (disc fitted by
+background differencing; plateau = fraction of the interior within 3 grey
+levels of p90; toning = mean |R−B| over the interior, which a greyscale
+pipeline turns into a non-uniform grey shift):
+
+| candidate | disc R | plateau | toning | read |
+|---|---|---|---|---|
+| current `quarter-obv-2.jpg` | ~374 | 0.017 | — | the incumbent |
+| 1932 (NGC) | **903** | 0.040 | **25.9** | best shape by far, worst toning |
+| 1994-P | 356 | 0.017 | 17.9 | no better than the incumbent |
+| 1963 (CC BY) | 424 | **0.029** | **3.8** | best tone of the five, modestly |
+| 1944-S | 370 | 0.016 | 7.7 | no better |
+| 1998 | 112 | 0.071 | 0.0 | greyscale and far too small |
+
+**Kept two, for different jobs:**
+
+- `quarter-obv-1932ngc.jpg` — **shape only** (D1, D7). At R 903 against the
+  incumbent's ~374 it is much the best silhouette reference the quarter has.
+  Its toning of 25.9 makes it useless for D3/D13.
+- `quarter-obv-1963ccby.jpg` — **tone**, and only a modest gain: plateau
+  0.017 → 0.029, against the nickel's new 0.179. The quarter obverse remains
+  the weakest tone reference of the four, and a diffuse-lit, untoned, pre-1999
+  business strike is still worth having if one turns up.
+
+**Licence flag, and it matters to this project specifically.**
+Commons tags `1932 Washington quarter obverse.jpg` **public domain** on the
+grounds that it "depicts a unit of currency issued by the United States" and is
+"solely a work of the United States Government". Its stated source and author
+are **NGC (Numismatic Guaranty Corporation)**, a private grading service. That
+rationale applies a *currency-depiction* argument to a *photograph*, and
+`src/art/coins.js` says the opposite in its own words: *a photograph of a coin
+is a SEPARATE copyright from the design, and the Mint's own photographs are
+reserved by its contractor* — which is why every curve in that file is
+hand-placed rather than traced.
+
+**So it is recorded here as a third-party photograph, NOT as public domain**,
+and treated like the Coin World / Stacks Bowers / PCGS references: private
+measurement only, never redistributed, never traced. Accepting the Commons tag
+at face value would have laundered a questionable claim into the one document
+that exists to protect this project.
+
+`quarter-obv-1963ccby.jpg` is **CC BY 2.0**, by **James St. John** via Flickr
+(`flickr.com/photos/jsjgeology/53021775198/`). Not public domain either, but
+permissively licensed with attribution, recorded here so the attribution exists
+if it is ever needed.
