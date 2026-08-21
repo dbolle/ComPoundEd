@@ -3,6 +3,45 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.59.0 — 2026-08-21
+
+**The dime's reverse fills its field the way the coin does — and the metric
+that sent us there turns out to be measuring the photograph's lighting.**
+
+- The olive and oak branches were narrow columns that stopped 12 viewBox
+  units short of the torch that the coin's foliage reaches. Leaves now
+  alternate inboard/outboard off the reference's own ladder, the olive blade
+  is the coin's 18.6 long rather than 10.5, and the torch's collar, shaft
+  and foot are at their measured widths. The clearest evidence is the
+  icon-tier ink profile: two dead bands either side of the torch, at 0.00
+  where the coin reads 0.73 and 0.87, are now 0.33 and 0.33.
+- **D13 improved 13 % at icon and 25 % at mid/full — and is still 3× its
+  gate, so it is ESCALATED rather than called progress.** The reason is an
+  instrument fault the judge verified rather than accepted: D13 normalises
+  by the p90 of the disc interior, which is a *field* level only if the
+  brightest tenth of the interior is field. On the dime it is the specular
+  highlight on the torch. Measured, with the patches drawn on the source and
+  looked at: the coin's own bare field reads 27–165 grey against an ink
+  threshold of 181, so **the reference's field is counted as ink on three of
+  the four reverses** (dime 0.514 of p90, quarter 0.677, cent 0.757; only
+  the nickel is clean at 0.949). Our flat SVG field sits at its own p90 and
+  can never be ink, so the comparison is biased by the photograph's lighting
+  rather than by our drawing. Fixing it needs a device/field segmentation —
+  which is exactly what D2 is blocked on. Two dimensions, one missing thing.
+- **A regression, costed and recorded rather than waived:** D11's reverse
+  minimum went 0.0812 → 0.0797 (−1.8 %) and the set ratio 1.52 → 1.49. The
+  dime's own two faces lost 16 %. Accepted on the same terms the quarter's
+  round 1 accepted −1.54 %, and for consistency: this judge declined to bank
+  1.49 → 1.52 as progress when the field radius moved it, so it cannot treat
+  the reverse move as decisive.
+- Two gated rows improved as a side effect: **D10's tier jump went from FAIL
+  to PASS** (5.37× → 3.80×, with the absolute numerator falling, so not a
+  denominator artefact) and **D6 improved to 0.2317**. D6 was earned the hard
+  way — a parallel-sided stem at exactly 2.00 units is a uniform-width mark,
+  and six copies of it had pushed D6 to 0.3965 before it was tapered.
+- Lettering is untouched: 9 of 72 renders changed, all dime reverse, zero
+  lettering changes.
+
 ## v1.58.0 — 2026-08-21
 
 **Every coin now carries its legends at the size a child is asked to name

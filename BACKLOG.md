@@ -250,6 +250,35 @@ reconsider after calibration.
      - Seven instruments were caught returning confident wrong numbers, every
        one by drawing the located feature and looking at it. Two judges
        disclosed their own process violations unprompted.
+   - 🔴 **ESCALATED (v1.59.0): D13's normaliser measures the photograph's
+     lighting, not the field.** D13 divides by the p90 of the disc interior,
+     which is a field level only when the brightest tenth of the interior is
+     field. On the dime it is the specular highlight on the torch. Bare-field
+     patches, drawn on the source and looked at, read 27–165 grey against an
+     ink threshold of 181 — so **the reference's own field counts as ink on
+     three of four reverses** (dime 0.514 of p90, quarter 0.677, cent 0.757;
+     nickel clean at 0.949). Our flat SVG field sits at its own p90 and can
+     never be ink, so |Δ mean/field| ≤ 0.05 is very likely unreachable on
+     those three however the art is drawn. **Do not relax the gate** (§8).
+     The fix is a device/field segmentation — the same thing **D2 is BLOCKED
+     on**, so the two dimensions share one blocker, which nobody knew.
+   - 🔴 **D2 is not unblocked by more photographs, and now we know why.** The
+     owner supplied four independent dime reverse references (1960/1968/2010
+     proofs + a 2015 special strike; provenance in
+     `coloringbook/judge/PROVENANCE-dime-proofs.md`). With verified disc fits
+     their thresholded masks agree at only **IoU 0.36–0.53** against a 0.95
+     gate; a tighter legend-free locus gets 0.43–0.53. The quarter hit the
+     same wall in round 0 (0.47–0.69). Two coins now say the same thing about
+     the **rubric**: thresholding a photograph of struck metal records
+     lighting as shape. The constructive path the acquisition DID open is the
+     one §2.1 already allows — **a hand annotation is a legitimate frozen
+     target**, and that needs a traceable reference, which
+     `dime-pcgs2015-pair.jpg` at ~870px finally is. Tracing is a judgment
+     task: owner or a dedicated judge session, not a specialist.
+   - ⚠️ **The proofs cannot help the tone side.** Three are cameo proofs and
+     the fourth has inverted contrast, so D3/D13/D5-rim on the dime still
+     rest on the single circulation photograph. **A plain business-strike
+     dime reverse under diffuse light is the outstanding acquisition.**
    - Owed on the art, in priority order:
      - **The note's roundels are 1.80× too wide and 26% too close together**,
        and should be ellipses (ry/rx 1.314). "Fill the container rather than

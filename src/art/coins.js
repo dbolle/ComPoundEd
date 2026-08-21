@@ -2711,27 +2711,126 @@ function torch(tier, p, boxW) {
   // coin draws in 58.5 (20.0 .. 78.5) — 23% too tall — and its FOOT was 18
   // units wide against a measured 6.6. An 18-unit foot is a lamp base; the
   // dime's torch ends in a small turned knob.
-  //   flame  20.0 .. 33.0, 43.5 .. 57.0 wide
-  //   head   33.0 .. 38.5, 44.5 .. 55.4
-  //   shaft  38.5 .. 69.6, 45.6 .. 54.0   (bands at 40.5 and 53.4)
-  //   foot   69.6 .. 78.4, 6.8 wide at its widest
+  //
+  // RE-READ 2026-08-21 on the gridded, disc-normalised crops
+  // `judge/_jl1grid-jt2-flame.png` (x 38..64 by y 8..45 at 3000px) and
+  // `judge/_jl1grid-jt2-torch.png` (x 38..64 by y 15..85), which put every
+  // vertical band 1.0 to 1.3 units NARROW and the flame 2 units short at the
+  // top. The numbers below are the coin's; the drawing now uses them.
+  //
+  //            the coin                       drawn here    was
+  //   flame    y 18.0 .. 33.1, 15.2 wide      15.2 wide     14.1, top at 20.0
+  //   head     y 33.4 .. 39.2, 45.0 .. 56.7   11.7 wide     10.9
+  //   shaft    y 39.2 .. 69.4, 46.4 .. 55.9    9.4 wide      8.4
+  //   stalk    y 71.7 .. 74.2, 48.7 .. 53.8    5.0 wide      3.4
+  //   foot     y 74.2 .. 77.3, 47.1 .. 55.9    8.7 wide      6.8
+  //
+  // The photograph puts the flame's own centre at 51.9 rather than 50, and that
+  // is NOT copied: it is one photograph, the coin is a symmetric die, and a
+  // 1.9-unit shift of the one element on the axis is the kind of thing a tilt
+  // or an off-centre light does. The widths are believed; the asymmetry is not.
   const flame =
-    '<path d="M 50 20 C 52.09 22.52 53.22 24.3 53.54 25.77' +
-    ' C 54.34 24.82 54.82 23.78 54.82 22.73 C 56.75 25.14 57.07 27.86 55.79 29.96' +
-    ' C 54.66 31.84 52.41 33 50 33 C 47.59 33 45.34 31.84 44.21 29.96' +
-    ' C 42.93 27.86 43.25 25.14 45.18 22.73 C 45.18 23.78 45.66 24.82 46.46 25.77' +
-    ' C 46.78 24.3 47.91 22.52 50 20 Z"/>';
-  // Where the leaves sit on the stem. Shared by the icon tier and the two
-  // larger ones so there is exactly ONE description of this branch in the
-  // file: `i` of `n` leaves, from the foot of the stem upward.
-  const leafAt = (i, n) => {
+    '<path d="M 50 18 C 52.25 21.15 53.46 23.16 53.81 24.82' +
+    ' C 54.67 23.75 55.18 22.57 55.18 21.39 C 57.26 24.11 57.6 27.19 56.22 29.56' +
+    ' C 55 31.69 52.59 33 50 33 C 47.41 33 45 31.69 43.78 29.56' +
+    ' C 42.4 27.19 42.74 24.11 44.82 21.39 C 44.82 22.57 45.33 23.75 46.19 24.82' +
+    ' C 46.54 23.16 47.75 21.15 50 18 Z"/>';
+  // Where the leaves sit on the stem, and WHICH SIDE of it each one is on.
+  // Shared by the icon tier and the two larger ones so there is exactly ONE
+  // description of this branch in the file: `i` of `n` leaves, from the foot of
+  // the stem upward.
+  //
+  // THE LEAVES ALTERNATE ABOUT THE STEM, and until this pass all of them hung
+  // off its outboard side. The comment that put them there said "Leaves belong
+  // OUTBOARD of the stem, pointing up and away", which was a correction to a
+  // worse state (every leaf inboard, angled DOWN, reading as a centipede) and
+  // it over-corrected: it made each branch a narrow column and left a bare
+  // gutter between the branch and the torch. Measured at the icon tier, the
+  // 5-unit X bands either side of the torch carried ink fraction 0.00 where the
+  // coin carries 0.73 and 0.87 (`judge/_jt2ink.mjs`).
+  //
+  // MEASURED on `coloringbook/ref/dime-rev-2.jpg` through the judge's own
+  // frozen disc fit, on the gridded viewBox-space crops
+  // `judge/_jl1grid-jt2-olive.png` (x 15..48 by y 20..68 at 3000px) and
+  // `judge/_jt2relief-T40.png`. Distances are offsets from the coin's vertical
+  // axis, so they mirror:
+  //
+  //   the coin's stem        offset 13.5 .. 15.5, near straight (X 34.5..36.5)
+  //   the coin's foliage     offset  4.0 .. 29.5 (X 20.5 .. 46.0) — the leaves
+  //                          reach the torch on one side and r 30 on the other
+  //   the coin's olive blade 18.6 long by 5.5 wide, e.g. the top blade running
+  //                          (30.6, 44.0) to (38.6, 27.2)
+  //   ours before this pass  offset 16.3 .. 30.3, blade 10.5 by 5.1 — the outer
+  //                          reach was right and the inner reach was 12 units
+  //                          short, which is the whole of the gutter
+  //
+  // So: alternate the sides, put the stem where the coin has it, and lengthen
+  // the olive blade to the coin's.
+  //
+  // TWO BOUNDS ON THE TOP OF THE LADDER, both read off the same photograph and
+  // both learnt the hard way in this pass:
+  //   · THE COIN'S FOLIAGE STOPS AT r 33.5, which is the inner edge of UNITED
+  //     STATES OF AMERICA (34.20) less half a leaf width. Every olive tip on
+  //     `dime-rev-2.jpg` is inside r 31: the outermost is (20.5, 45) at r 29.9
+  //     and the topmost is (38.6, 27.2) at r 25.5. Lengthening the blade to the
+  //     coin's 18.6 without touching the ladder threw the topmost OUTBOARD leaf
+  //     to r 41.6 — across the whole legend band — and `fitOff` then clamped
+  //     the lit offset copy from 1.7 units to 0.58 at icon, which is 0.03 above
+  //     the width at which `reliefOff` says a bevel vanishes. So the outboard
+  //     offset CLOSES as the leaf climbs, `dO - 2.4t`, and the ladder tops out
+  //     at ay 30 rather than 29. The drawn massing now reaches r 34.7, the lit
+  //     copy 37.16, against a field circle of 42.5 at icon and 44.07 at mid.
+  //   · THE TOPMOST LEAF POINTS UP AND IN, not up and out. The coin's is the
+  //     blade running (30.6, 44.0) to (38.6, 27.2) — inboard of its own stem.
+  //     Hence `i % 2 === 1`: with the bottom leaf inboard, the top one is too,
+  //     and the widest reach lands at mid height where the coin puts it.
+  const leafAt = (i, n, [dO, dI]) => {
     const t = i / (n - 1);
+    const out = i % 2 === 1;
     return {
-      ay: 62 - 33 * t, // up the stem
-      ax: 15.4 + 3.4 * Math.sin(t * 2.4), // following its bow
+      ay: 62 - 32 * t, // up the stem
+      // the stem itself, at the coin's 14.6..15.8, plus this leaf's own offset
+      ax: 14.6 + 1.2 * Math.sin(t * 2.4) + (out ? dO - 2.4 * t : dI),
       rot: 30 + 28 * t, // rising as it climbs
+      out,
     };
   };
+  // How far off the stem each leaf hangs at the FOOT of the branch, [outboard,
+  // inboard]. Measured tips, as offsets from the coin's axis: olive 4.0 .. 29.5,
+  // oak 5.0 .. 33.0 (`judge/_jl1grid-jt2-olive.png`,
+  // `judge/_jl1grid-jt2-oak.png`). With the stem at 14.6 and a leaf 2h long the
+  // span comes out at 2.4 + d + 2h, so the oak — whose leaf is 11.8 units long
+  // against the olive blade's 18.6 — needs 1.5 units more `d` to cover 1.5
+  // units more span. The inboard offset is −2.4 rather than −8.0 because the
+  // coin's stem is not in the middle of its own foliage: it reaches 15 units
+  // outboard and 10.5 inboard.
+  //
+  // Two rejected attempts, both looked at on the overlay:
+  //   d 11.5 with the oak leaf left at the coin's own size split the branch
+  //   into two disjoint chains with a 14-unit hole down the middle of it;
+  //   d 8.0 with the oak scaled 1.75 UNIFORMLY closed the hole and turned the
+  //   lobed leaves into 7.7-unit blobs — at 380px it read as a grape cluster,
+  //   which is worse than the gutter it fixed. It also measured BETTER: the two
+  //   were scored against each other before the ladder above was bounded, and
+  //   the blobs won D13 at 84px by +0.1621 to +0.1701. They were still the
+  //   wrong drawing.
+  const SPREAD = { olive: [8.0, -2.4], oak: [9.5, -2.4] };
+  // THE STEM, one description for all three tiers. Near straight, at the coin's
+  // own offset 13.0 .. 15.8 (X 34.2 .. 37.0 read off the gridded crop). It used
+  // to bow out to offset 22 at mid height, which put it through the middle of
+  // its own foliage instead of along the inboard edge of it, and cost the
+  // branch the 12 units of reach the leaves now have.
+  //
+  // AND IT TAPERS, 2.6 units at the foot to 1.3 at the tip, because a branch
+  // does. The first straightened version of this path was parallel-sided at
+  // exactly 2.00 units, and D6 caught it: `_jp9edge.mjs dime` scored it as a
+  // uniform-width mark at width-variation ratio 1.003, and six copies of it
+  // (two branches x the three `struck()` passes) pushed the reverse's
+  // ratio-1.000 length from 655 to 1179 units and the D6 fraction from 0.2685
+  // to 0.3965 against a 0.50 gate. §14 is right that a real coin has no
+  // uniform-width marks; a straight stem is no excuse for drawing one.
+  const stem = (x) => `<path d="M ${x(13.0)} 66 C ${x(14.6)} 54 ${x(15.0)} 41 ${x(14.5)} 27.2
+        L ${x(15.8)} 27.2 C ${x(17.0)} 41 ${x(17.2)} 54 ${x(15.6)} 66 Z"/>`;
   if (tier === 'icon') {
     // THE BRANCHES ARE DRAWN AT ICON TIER, and until this pass they were not.
     // The comment above this function said "at icon size the branches go
@@ -2761,25 +2860,33 @@ function torch(tier, p, boxW) {
       const x = (v) => n2(50 + f * v);
       let g = '';
       for (let i = 0; i < 5; i++) {
-        const L = leafAt(i, 5);
-        g += `<g transform="translate(${x(L.ax + 6.2)} ${n2(L.ay - 1.6)}) rotate(${n1(-f * L.rot)})">` +
-          '<ellipse cx="0" cy="0" rx="5.93" ry="2.9"/></g>';
+        const L = leafAt(i, 5, SPREAD.olive); // one ellipse serves both plants here
+        // `rx 9.3` is the coin's own blade half-length, the same 18.6 the olive
+        // draws at mid and full; it was 5.93, i.e. 64% of it.
+        g += `<g transform="translate(${x(L.ax)} ${n2(L.ay - 1.6)})` +
+          ` rotate(${n1((L.out ? -f : f) * L.rot)})">` +
+          '<ellipse cx="0" cy="0" rx="9.3" ry="2.9"/></g>';
       }
-      return `<path d="M ${x(13.0)} 65 C ${x(18.4)} 54 ${x(19.2)} 41 ${x(14.6)} 27.5
-        L ${x(17.2)} 27.2 C ${x(22.0)} 41 ${x(21.2)} 55 ${x(15.8)} 66 Z"/>${g}`;
+      return `${stem(x)}${g}`;
     };
     return {
-      solid: `${flame}<rect x="44.5" y="32.6" width="11" height="6" rx="1.5"/>
-        <rect x="45.6" y="38" width="8.8" height="32"/>
-        <rect x="46.6" y="69.4" width="6.8" height="9" rx="1.6"/>
+      solid: `${flame}<rect x="44.15" y="32.6" width="11.7" height="6" rx="1.5"/>
+        <rect x="45.3" y="38" width="9.4" height="32"/>
+        <rect x="45.65" y="69.4" width="8.7" height="9" rx="1.6"/>
         ${iconBranch(false)}${iconBranch(true)}`,
       detail: '',
     };
   }
   const full = tier === 'full';
   const fine = full && boxW >= 130;
+  // An olive leaf is a long narrow BLADE, not a pip. Measured on
+  // `coloringbook/ref/dime-rev-2.jpg` through the frozen disc fit, the coin's
+  // top-left blade runs (30.6, 44.0) to (38.6, 27.2) — 18.6 viewBox units long
+  // by 5.5 wide. `rx 7.6` at `k` 1.22 is 18.5 by 5.1; the previous `rx 4.3` was
+  // 10.5 by 5.1, i.e. the right width and 56% of the length, which is most of
+  // why each branch read as a column rather than a spray.
   const olive = (x, y, rot, k) =>
-    `<g transform="translate(${x} ${n2(y)}) rotate(${n1(rot)})"><ellipse cx="0" cy="0" rx="${n2(4.3 * k)}" ry="${n2(2.1 * k)}"/></g>`;
+    `<g transform="translate(${x} ${n2(y)}) rotate(${n1(rot)})"><ellipse cx="0" cy="0" rx="${n2(7.6 * k)}" ry="${n2(2.1 * k)}"/></g>`;
   // An oak leaf is the same footprint with three bites taken out of each
   // side. It costs one path and it is the difference between "two branches"
   // and "the dime's two branches". Kept to three lobes and one decimal
@@ -2789,60 +2896,86 @@ function torch(tier, p, boxW) {
     'M -4.3 0.1 C -3.6 -1.3 -2.4 -1.1 -1.8 -0.2 C -1.2 -1.9 0.4 -2 1.1 -0.8' +
     ' C 2.6 -1.6 4.3 -0.8 4.3 0.1 C 4.3 1 2.6 1.8 1.1 1' +
     ' C 0.4 2.2 -1.2 2.1 -1.8 0.4 C -2.4 1.3 -3.6 1.5 -4.3 0.1 Z';
-  const oak = (x, y, rot, k) =>
-    `<g transform="translate(${x} ${n2(y)}) rotate(${n1(rot)}) scale(${n2(k)})"><path d="${OAK}"/></g>`;
+  // Scaled along its LENGTH and its width separately: the coin's oak leaf is
+  // 11.8 units by 5.5 and the authored path is 8.6 by 4.2, so one uniform
+  // factor cannot hit both. Scaling uniformly far enough to reach the coin's
+  // radial span made the leaf 7.7 wide, which reads as fruit, not foliage.
+  const oak = (x, y, rot, kx, ky) =>
+    `<g transform="translate(${x} ${n2(y)}) rotate(${n1(rot)}) scale(${n2(kx)} ${n2(ky)})"><path d="${OAK}"/></g>`;
   // OLIVE LEFT, OAK RIGHT — the way round the real dime has them; the
   // previous layout had it backwards, and it also hung every leaf off the
   // INSIDE of its stem at a downward angle, which packed them into each
-  // other and came out as a centipede. Leaves belong OUTBOARD of the stem,
-  // pointing up and away, and spaced further apart than they are long.
+  // other and came out as a centipede. Leaves point up and away from the
+  // stem, and they ALTERNATE about it — see `leafAt` for the measurement that
+  // moved them off one side.
   const branch = (mirror) => {
     const f = mirror ? -1 : 1;
     const x = (v) => n2(50 + f * v);
     // Seven leaves, big and OVERLAPPING. Overlap was never the problem — a
     // real branch overlaps — the problem was direction; five small ones
     // spaced clear of each other only turned the centipede into a fern.
-    // MEASURED: each branch occupies y 27..63 and reaches 33 units out from
-    // the centre line, where the previous parameterisation ran y 31..72 and
-    // reached only 27 — it hung down past the foot of the torch and into the
-    // space E PLURIBUS UNUM occupies on the coin, and it stopped short at the
-    // rim end. Seven leaves a side, which is what the one reference shows,
-    // with the count flagged LOW CONFIDENCE in reverses.md.
+    // MEASURED: each branch occupies y 27..63. It now also reaches the coin's
+    // full RADIAL span — offsets 4.0..31 rather than 16.3..30.3 — which is the
+    // `leafAt` alternation plus `SPREAD`. Seven leaves a side, which is what
+    // the one reference shows, with the count flagged LOW CONFIDENCE in
+    // reverses.md. The count is NOT touched here: D4 on this face is BLOCKED
+    // on a second photograph, so the way to cover a denser spray than seven
+    // glyphs can draw is bigger leaves, not more of them.
     const leaves = full ? 7 : 5;
-    const k = full ? 1.22 : 1.38;
+    // `mid` draws 5 leaves where `full` draws 7, so its leaves are the larger
+    // ones; the 1.13 ratio is the old 1.38/1.22, unchanged by this pass.
+    const K = full ? 1 : 1.13;
     let g = '';
     for (let i = 0; i < leaves; i++) {
-      const { ay, ax, rot } = leafAt(i, leaves);
+      const { ay, ax, rot, out } = leafAt(i, leaves, mirror ? SPREAD.olive : SPREAD.oak);
+      const px = x(ax), rr = (out ? -f : f) * rot;
       g += mirror
-        ? olive(x(ax + 6.2), ay - 1.6, rot, k)
-        : oak(x(ax + 6.2), ay - 1.6, -rot, k);
+        ? olive(px, ay - 1.6, rr, 1.22 * K)
+        : oak(px, ay - 1.6, rr, 1.68 * K, 1.42 * K);
     }
-    return `<path d="M ${x(13.0)} 65 C ${x(18.4)} 54 ${x(19.2)} 41 ${x(14.6)} 27.5
-      L ${x(17.2)} ${n2(27.2)} C ${x(22.0)} 41 ${x(21.2)} 55 ${x(15.8)} 66 Z"/>${g}`;
+    return `${stem(x)}${g}`;
   };
   const solid = `${flame}
-    <rect x="44.5" y="33" width="10.9" height="5.5" rx="1.5"/>
-    <rect x="45.6" y="38.5" width="8.4" height="31.1"/>
-    <rect x="45.8" y="69.6" width="8.4" height="3" rx="1"/>
-    <rect x="48.3" y="72.6" width="3.4" height="4"/>
-    <rect x="46.6" y="76" width="6.8" height="2.4" rx="1"/>
+    <rect x="44.15" y="33" width="11.7" height="5.5" rx="1.5"/>
+    <rect x="45.3" y="38.5" width="9.4" height="31.1"/>
+    <rect x="45.3" y="69.6" width="9.4" height="3" rx="1"/>
+    <rect x="47.5" y="72.6" width="5" height="4"/>
+    <rect x="45.65" y="76" width="8.7" height="2.4" rx="1"/>
     ${branch(false)}${branch(true)}`;
   // THE INTERIOR. A flat bar is a chimney; the real torch is a fluted
   // cylinder with two collars, and the fluting is what makes it metal.
   const detail =
-    `<g fill="#ffffff" opacity="0.45"><rect x="46.4" y="38.9" width="0.8" height="30.3"/>
-       <rect x="52.4" y="38.9" width="0.8" height="30.3"/>
-       <rect x="44.9" y="33.6" width="0.8" height="4.4"/></g>` +
-    // the two BANDS the coin actually cuts, at the measured 40.5 and 53.4
-    `<g fill="${p.deep}" opacity="0.5"><rect x="45.6" y="40.1" width="8.4" height="1.0"/>
-       <rect x="45.6" y="53.0" width="8.4" height="1.0"/>
-       <rect x="44.5" y="36.9" width="10.9" height="1.0"/></g>` +
+    `<g fill="#ffffff" opacity="0.45"><rect x="46.1" y="38.9" width="0.8" height="30.3"/>
+       <rect x="53.0" y="38.9" width="0.8" height="30.3"/>
+       <rect x="44.55" y="33.6" width="0.8" height="4.4"/></g>` +
+    // the two BANDS the coin actually cuts, at the measured 40.5 and 53.4.
+    // Their widths follow the shaft and the collar, which grew to the coin's
+    // measured 9.4 and 11.7 in this pass; a band narrower than the thing it
+    // cuts across would read as a nick.
+    `<g fill="${p.deep}" opacity="0.5"><rect x="45.3" y="40.1" width="9.4" height="1.0"/>
+       <rect x="45.3" y="53.0" width="9.4" height="1.0"/>
+       <rect x="44.15" y="36.9" width="11.7" height="1.0"/></g>` +
     (fine
       ? `<g fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.42" stroke-linecap="round">
-           <path d="M 50 21.6 C 51.2 23.7 51.6 25.9 51.0 28.0"/>
-           <path d="M 47.3 24.8 C 46.6 26.6 46.6 28.4 47.3 29.9"/></g>`
+           <path d="M 50 19.8 C 51.29 22.2 51.72 24.7 51.08 27.0"/>
+           <path d="M 47.6 24.4 C 46.9 26.4 46.9 28.4 47.6 30.0"/></g>`
       : '');
-  return { solid, detail };
+  // ONE TONE AT EVERY TIER, the same move and the same reasoning the eagle
+  // carries (see `mass: p.deep` at the end of `eagle()`): `struck()` masses the
+  // icon tier in `deep` and every larger tier in `motif`, a 36-grey-level step
+  // at the tier boundary that belongs to the palette rather than to the
+  // drawing. Measured through `_x6dark.mjs` on `ref/dime-rev-2.jpg` at 19/32/62
+  // device pixels, the coin's own device-against-field reading FALLS with size
+  // — 0.727 / 0.687 / 0.648 — and before this pass ours ROSE, 0.900 / 0.917 /
+  // 0.881, so the two curves ran the wrong way relative to each other. With
+  // `deep` at every tier and this pass's extents, ours is 0.878 / 0.860 /
+  // 0.821, which at least falls. It is still 0.15 to 0.17 too light, and the
+  // decomposition in `judge/_jt2ink.mjs` says why: inside the legend-free part
+  // of the coin our ink AREA is now within 0.08 to 0.17 of the coin's, and the
+  // remaining error is DEPTH — our ink pixels average 0.72 of our field where
+  // the coin's average 0.55, because `deep` is the darkest tone this palette
+  // gives a motif and the lit offset copy pays some of that back.
+  return { solid, detail, mass: p.deep };
 }
 
 // Quarter — the heraldic eagle of the 1932–1998 reverse, redrawn off
