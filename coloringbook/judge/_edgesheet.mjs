@@ -1,6 +1,6 @@
 import sharp from 'sharp';
-import * as NOW  from '../src/art/coins.js';
-import * as WIDE from '../src/art/_edge_preview.js';
+import * as NOW  from '../../src/art/coins.js';
+import * as WIDE from '../../src/art/_edge_preview.js';
 const IDS=['penny','nickel','dime','quarter'], SIDES=['obverse','reverse'];
 const CELL=150,PAD=10,LAB=104,HEAD=52;
 const up=async(m,id,side,px)=>{

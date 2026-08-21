@@ -185,13 +185,14 @@ reconsider after calibration.
      `PALETTE` is correctly flagged partially uniform (quarter = nickel =
      dime) — that one is the deliberate one-alloy accuracy decision and
      should stay, with the reason recorded rather than the flag silenced.
-   - 🔴 **DECISION OWED: `EDGE.field` is ~3.3 units too small on every coin.**
+   - ✅ **RESOLVED v1.57.0 (2026-08-21): `EDGE.field` was ~3.3 units too
+     small on every coin.**
      Two independent measurements by two unrelated methods now agree, and it is
      blocking real gates on two coins:
      - nickel round 0: **44.33**, sd 0.32, from four independent well-fitted
        references (photometric);
      - quarter round 4: **44.20**, from a polar unwrap of the legend band.
-     We draw **41.0** (full), i.e. 0.872 of the disc radius where the coins
+     We drew **41.0** (full), i.e. 0.872 of the disc radius where the coins
      show 0.940–0.943. **Our rim ring is 6.0 units wide where the real coins
      show 2.7** — more than twice too thick.
      Consequences already measured: the coins give their legends 7.5–7.7 units
@@ -203,7 +204,11 @@ reconsider after calibration.
      legend baseline, and moving it visibly thins the rim on all of them. It
      is the exact "shared claim wearing per-coin clothes" that
      `scripts/coin-shared-claims.mjs` was written to find, and it was that
-     script's first report. Wants the owner's eye, then a per-coin value.
+     script's first report. Got the owner's eye 2026-08-21 ("I like the new
+     thinner edge", off the `_edgesheet` preview) and was applied at
+     **44.07** as ONE shared value, not per-coin: four blind per-coin
+     measurements agree within 0.58, so this is the PALETTE treatment —
+     genuinely shared, reason recorded at the constant.
    - ✅ **(2026-08-14) all five subjects judged; four scorecards added.**
      Every denomination has now had a holistic pass. All five FAIL, which is
      the expected and useful result — the point was to find what nobody had
@@ -212,11 +217,15 @@ reconsider after calibration.
      - 🔴 **`EDGE.field` is one wrong constant, settled.** Four judges, four
        reference sets, four methods, deliberately not shown each other's
        answers: cent **44.00**, nickel **44.33**, quarter **44.20**, dime
-       **43.75** → **44.07 ± 0.25**, range 0.58. We draw **41.0**. Preview
+       **43.75** → **44.07 ± 0.25**, range 0.58. We drew **41.0**. Preview
        rendered (`coloringbook/judge/_edgesheet.mjs`): the rim goes 6.0 → 2.9
        units where the coins show 2.7. Unblocks D5-cap/D5-rim on quarter and
-       nickel and retires the nickel's 1.47-unit D8 breach for free. **Not
-       applied — it visibly changes all four coins.**
+       nickel and retires the nickel's 1.47-unit D8 breach for free.
+       **✅ Applied in v1.57.0**, owner-approved by eye: 44.07 at full/mid,
+       icon holds 42.5 (a true 2.93-unit ring is sub-pixel on a 26px chip);
+       legend offsets absorbed the 3.07-unit move so every judged baseline
+       held (quarter 36.40/35.63 exact); the specular arc rode out 43.4 →
+       45.5 to stay in the rim band.
      - 🔴 **`_x6lib.mjs:17` has never contained `buck`.** Every phase-6
        discriminability figure ever published, including the 1.487×/1.520×
        set ratios quoted in four commits, was an 8-cell matrix over **four**
@@ -252,8 +261,9 @@ reconsider after calibration.
        specifies the check; the redraw itself is still owed.
      - Three reverses carry legends we do not draw at all (MONTICELLO, and
        E PLURIBUS UNUM on dime and quarter); our legend cap height is
-       two-thirds of measured, blocked by the field circle radius rather
-       than the type size.
+       two-thirds of measured. The field-circle blocker is gone (v1.57.0)
+       — what remains is the type redraw itself: sizes up ~1.5×, with
+       `tadv`/`badv` spans re-tuned against the photographs.
      - Dime reverse leaf count is **low confidence** and the dime has only
        **one** reference (its two files are the same photograph).
      - The quarter's scale confidence is the weakest of the four at ±3%.

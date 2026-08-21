@@ -3,6 +3,41 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.57.0 — 2026-08-21
+
+**The rim is now the measured rim.** `EDGE.field` moves from 41.0 to
+**44.07**, the value four judges measured blind on four reference sets
+(cent 44.00, nickel 44.33, quarter 44.20, dime 43.75 → 44.07 ± 0.25).
+Owner-approved off the `_edgesheet` preview. Our rim ring was 6.0 viewBox
+units where the real coins show ~2.7; it is now 2.93.
+
+- Applied at `full` and `mid`. `icon` keeps 42.5 — a true-width ring is
+  0.76 device px on a 26px wallet chip, below a pixel, so the smallest
+  tier keeps a ring that exists (the old comment's reasoning, reversed).
+- **Legends did not move.** Every baseline was judged against the old
+  field, so the inscription offsets grew by the same 3.07 units the field
+  did; the quarter's frozen 36.40/35.63 baselines hold exactly. The band
+  this opens under the field circle is the headroom for the owed
+  cap-height fix — the quarter's real caps (6.9/6.7) now fit with more
+  than a unit to spare, where 41.0 made D5-cap and D8 mathematically
+  incompatible.
+- The specular highlight arc **stays at 43.4**, and therefore stops being
+  "furniture outside the field circle" — it now sits 0.67 units inside it.
+  Moving it out to the new rim band's middle (45.5) was tried and measured
+  first: its stroke is 5.38 units wide at 26px against a 2.93-unit rim, so
+  on the *reeded* coins it rides over the tooth valleys and lays white ink
+  outside the blank (dime 8183 sub-pixels at 26px, quarter 4206; smooth
+  penny and nickel zero; every coin zero at 84px). Instrument, with each
+  coin controlled against its own 43.4 revision:
+  `coloringbook/judge/_edgespill.mjs`.
+- Fixed: `judge/_edgesheet.mjs` imported `../src/art/…` from `judge/` and
+  could never have run as committed. A preserved generator that does not
+  execute is not evidence (COIN-JUDGE.md §4.3).
+- Retired for free: the nickel's 1.47-unit D8 bevel breach (head lit copy
+  at 41.97 vs the old 40.5/41.0 field) — no drawing changed.
+- Coin art still ships unwired (store/wallet/cointray draw CSS discs), so
+  nothing kid-facing changes yet.
+
 ## v1.56.0 — 2026-08-13
 
 **Every coin is now measured on both sides — and the most important number

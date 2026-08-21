@@ -315,14 +315,15 @@ const reliefOff = (boxW) => n2(Math.min(1.7, Math.max(0.55, 118 / boxW)));
 // drawn at all — it is the same shape moved, and moving a shape up-left by
 // `o` carries its upper-left extremity `o·√2` further from the centre.
 //
-// Measured 2026-08-13: the eagle's left wing reaches 39.41 and the field
-// circle at `mid` is 40.5, so the 1.7-unit offset laid 1.10 units of white
+// Measured 2026-08-13, when the field at `mid` stood at 40.5: the eagle's
+// left wing reaches 39.41, so the 1.7-unit offset laid 1.10 units of white
 // out on the rim — 0.7505% of the quarter reverse's drawn length outside the
 // field at `mid`, 0.1629% at 76px and 0.1161% at 84px. The same mechanism put
 // the dime's topmost oak leaf 0.60 units out, 0.1343% at `mid`. Note the
 // shape of the bug: `118 / boxW` GROWS as the coin shrinks, so the offset
-// gets bigger in viewBox units exactly as the field circle gets smaller
-// (42.5 at `icon`, 40.5 at `mid`), and `mid` is where the two curves cross.
+// gets bigger in viewBox units exactly as the field circle gets smaller —
+// which then meant `mid` (40.5 against `icon`'s 42.5); with the field at its
+// measured 44.07 and `icon` still 42.5, the squeeze lands entirely on `icon`.
 //
 // §8 of docs/COIN-ART-METHOD.md forbids a clipPath, and rightly: a clip hides
 // a breach rather than fixing it, and the document then stops describing the
@@ -618,18 +619,33 @@ function bayCentres(x0, x1, n, gapAtCentre = 0) {
 // cap at one end and fog at the other.
 //
 // `field` is the radius of the raised inner circle, and therefore the rim
-// width. It is now the SAME on all four coins, because it is the same on all
+// width. It is the SAME on all four coins, because it is the same on all
 // four real coins: an earlier version gave the nickel a broad flat rim and
 // the penny none at all, which told OUR discs apart and would tell a child
-// nothing about the change in their hand. It widens a little at icon tier
-// because a 6-unit ring on a 20px disc is a pixel of mud.
+// nothing about the change in their hand.
+//
+// 44.07 is a MEASURED number, not a styled one: four judges, four reference
+// sets, four methods, blind to each other's answers — cent 44.00, nickel
+// 44.33, quarter 44.20, dime 43.75 → 44.07 ± 0.25 (coloringbook/judge/,
+// owner-approved 2026-08-21 off the `_edgesheet` preview). Against the r-47
+// disc that is a 2.93-unit rim where the coins show ~2.7. The 41.0 this file
+// drew for three releases made the rim more than TWICE as wide as the real
+// one and compressed every legend band to 4.6 units where the coins give
+// 7.5–7.7 — the single constant behind D5-cap/D5-rim on the quarter and the
+// nickel, and the nickel's 1.47-unit D8 bevel breach.
+//
+// `icon` keeps the old, wider ring: a true 2.93-unit rim is 0.76 device px
+// on a 26px wallet chip — below a pixel — so the smallest tier trades a
+// little fidelity for a ring that exists. Note the reasoning has FLIPPED
+// direction: icon used to widen the FIELD because a 6-unit ring was a pixel
+// of mud; now it narrows it because a true-width ring would vanish.
 const REEDED = { dime: true, quarter: true };
 
 const EDGE = {
-  penny: { field: { full: 41.0, mid: 40.5, icon: 42.5 } },
-  nickel: { field: { full: 41.0, mid: 40.5, icon: 42.5 } },
-  dime: { field: { full: 41.0, mid: 40.5, icon: 42.5 } },
-  quarter: { field: { full: 41.0, mid: 40.5, icon: 42.5 } },
+  penny: { field: { full: 44.07, mid: 44.07, icon: 42.5 } },
+  nickel: { field: { full: 44.07, mid: 44.07, icon: 42.5 } },
+  dime: { field: { full: 44.07, mid: 44.07, icon: 42.5 } },
+  quarter: { field: { full: 44.07, mid: 44.07, icon: 42.5 } },
 };
 
 // Tooth count and depth for a disc `boxW` px across. Count is capped at 64
@@ -2818,11 +2834,12 @@ function torch(tier, p, boxW) {
 // WHERE WE KNOWINGLY DIFFER FROM THE COIN, and why: the reference's outer
 // wing edge reaches r 37.5 at nine and three o'clock, OUTBOARD of its own
 // legend baseline (36.5) — on the coin the wingtips and the letters very
-// nearly touch. Ours stops at 35.4, because our field circle is 41.0 where
-// the coin's rim seats at 44.2, so our whole legend band is compressed into
-// 4.6 units instead of 7.7 and taller letters now occupy 36.4..40.9. That is
-// D5-rim, it is shared with three unmeasured coins, and it is reported
-// rather than fixed here.
+// nearly touch. Ours stops at 35.4. When this was drawn the field circle
+// stood at 41.0 against the coin's 44.2 and the whole legend band was
+// squeezed into 4.6 units — that was D5-rim. The field now sits at the
+// measured 44.07, the letters hold their old size and baseline, and the
+// wing has room to reach the coin's 37.5; reaching it belongs to the same
+// owed redraw that grows the caps, not to a constant edit.
 //
 // The other three corrections, all from the same photographs:
 //   · the head is SMALL and set on a slender neck, with a hooked beak, and
@@ -3211,47 +3228,58 @@ const REV_TEXT = {
   //     bottom baseline r 37.0, cap top 43.7, CAP HEIGHT 6.7, span ~94°
   //     ours (before)  3.2 and 3.8 — 46% and 57% of the coin's
   //
-  // WHAT IS DRAWN HERE IS THE CEILING, NOT THE TARGET, AND THE ARITHMETIC IS
-  // WORTH READING BEFORE ANYONE "FINISHES" THIS. The cap box of an arced glyph
-  // reaches r = hypot(baseline + 0.72·size, 0.31·size). With the baseline held
-  // at the frozen 36.40 the field circle (41.0) is hit at size 6.32 — cap 4.49.
-  // A cap of 5.87, the bottom of the ±15% gate, needs r 42.34: 1.34 units
-  // OUTSIDE the field circle, which is a D8 containment breach at every tier.
-  // Even at the far edge of the baseline's own ±1.5 gate (35.00) the ceiling is
-  // cap 5.84, still short. The two gates cannot both be met while
-  // `EDGE.quarter.field.full` is 41.0, because the coin seats its rim at 44.2
-  // and gives the legend 7.7 units of band where we have 4.6. That is D5-rim,
-  // it is shared with three coins nobody has measured, and it is reported
-  // rather than fixed here.
+  // WHAT IS DRAWN HERE IS NO LONGER THE CEILING. The cap box of an arced
+  // glyph reaches r = hypot(baseline + 0.72·size, 0.31·size), and while the
+  // field circle stood at 41.0 that arithmetic was a wall: with the baseline
+  // held at the frozen 36.40 the field was hit at size 6.32 (cap 4.49), and
+  // the bottom of the ±15% cap gate (5.87) needed r 42.34 — 1.34 units
+  // OUTSIDE the field, a D8 breach at every tier. D5-cap and D8 could not
+  // both be met. The field now sits at the measured 44.07 (the EDGE note),
+  // which is what the wall turned out to be: the same baseline takes size up
+  // to ~10.6 before touching the field, and the coin's own caps (6.9 / 6.7)
+  // fit with more than a unit to spare.
   //
-  // So: 6.25 and 7.25, the largest sizes that keep 0.0000% outside the field
-  // circle at every tier with room to spare for `n2()`'s two decimal places
-  // (measured max r 40.954 and 40.920 against 41.0), giving cap 4.44 and 5.15
-  // — 64% and 77% of the coin's, up from 46% and 57%.
+  // The sizes below are still the OLD ceiling — 6.25 and 7.25, cap 4.44 and
+  // 5.15, 64% and 77% of the coin's — because growing them is not a number
+  // edit: `tadv`/`badv` hold the spans to the coin's ~170° and ~94°, and a
+  // 1.5× cap re-tunes both against the photograph. That redraw is the owed
+  // D5-cap fix; the wall in front of it is gone.
   quarter: {
     top: 'UNITED STATES OF AMERICA',
     bottom: 'QUARTER DOLLAR',
     ts: 6.25,
     tadv: 0.751, // 23 advances at r 36.40 -> 170.0°, the coin's ~170°
     bs: 7.25,
-    // The bottom baseline is normally derived from the size (`bs*0.9 + 0.6`),
-    // which would drag it to 33.8 and out of its own ±1.5 gate as the letters
+    // The bottom baseline is normally derived from the size (`bs*0.9 + 3.67`),
+    // which would drag it to 33.9 and out of its own ±1.5 gate as the letters
     // grow. Held as a literal so the size and the radius are independent:
-    // 41.0 − 5.37 = 35.63, the exact radius the round-4 target froze us at.
-    bOff: 5.37,
+    // 44.07 − 8.44 = 35.63, the exact radius the round-4 target froze us at.
+    bOff: 8.44,
     badv: 0.62, // 13 advances at r 35.63 -> 94.0°, the coin's ~94°
     min: 84,
   },
 };
 const REV_TEXT_MIN = 135;
 
+// EVERY OFFSET BELOW CARRIES THE 3.07-UNIT MOVE OF THE FIELD CIRCLE
+// (41.0 → 44.07, the EDGE note above). The baselines were authored and
+// judged against the old field — the quarter's top sat at 36.40 and its
+// bottom at 35.63, both inside D5's ±1.5 band gate — and the TYPE has not
+// grown yet, so when the field moved out the offsets grew by the same 3.07
+// to hold every baseline where the photographs put it. The rim got true;
+// the letters did not move (except at `mid`, which used to dock the field
+// 0.5 below `full` and now shares one radius — its legends ride out 0.5,
+// a third of the ±1.5 gate). The band this opened between the cap tops
+// (~40.9) and the new field circle is exactly the headroom the owed
+// cap-height fix spends; when that fix lands, these offsets are re-derived
+// per coin from the reference, not adjusted again.
 function inscriptionOf(id, side, rField, p, boxW) {
   if (side === 'reverse') {
     const t = REV_TEXT[id];
     if (!t || boxW < (t.min ?? REV_TEXT_MIN)) return '';
     return (
-      arcText(t.top, rField - 4.6, t.ts ?? 4.5, p.ink, 0.6, 270, false, t.tadv ?? 0.82) +
-      arcText(t.bottom, rField - (t.bOff ?? t.bs * 0.9 + 0.6), t.bs, p.ink, 0.66, 90, true, t.badv ?? 0.82) +
+      arcText(t.top, rField - 7.67, t.ts ?? 4.5, p.ink, 0.6, 270, false, t.tadv ?? 0.82) +
+      arcText(t.bottom, rField - (t.bOff ?? t.bs * 0.9 + 3.67), t.bs, p.ink, 0.66, 90, true, t.badv ?? 0.82) +
       (t.flat ? flatText(t.flat.text, t.flat.x, t.flat.y, t.flat.size, p.ink, 0.6) : '')
     );
   }
@@ -3261,7 +3289,7 @@ function inscriptionOf(id, side, rField, p, boxW) {
   return lines
     .map((l) =>
       l.kind === 'arc'
-        ? arcText(l.text, rField - l.size * 0.85 - 0.7 + (l.rOff || 0), l.size, p.ink, 0.62, l.centre, l.rev)
+        ? arcText(l.text, rField - l.size * 0.85 - 3.77 + (l.rOff || 0), l.size, p.ink, 0.62, l.centre, l.rev)
         : flatText(l.text, l.x, l.y, l.size, p.ink, 0.62)
     )
     .join('');
@@ -3301,16 +3329,37 @@ function discSVG(id, box, attrs, tier, side, withValue, size) {
   //   · every reverse MASSING is authored inside the field circle, and its
   //     lit copy is held there by `fitOff` above — measured, not asserted;
   //   · `coat()` closes on the field circle by construction (§ its own note);
-  //   · the blank, the two field circles and the specular arc are the coin's
-  //     own furniture and sit outside the field circle on purpose.
+  //   · the blank and the two field circles are the coin's own furniture and
+  //     sit outside the field circle on purpose;
+  //   · the specular arc used to be furniture too, and since v1.57.0 it is
+  //     not: at 43.4 it now sits 0.67 units INSIDE the field circle. That is
+  //     deliberate and it was measured, not assumed. Moving it out to 45.5
+  //     (the middle of the new 44.07–47 rim band) looks right and is wrong —
+  //     its stroke is `sw(3, 1.4)`, i.e. 5.38 units wide at 26px against a
+  //     2.93-unit rim, so on the REEDED coins it rides over the tooth
+  //     valleys (r 43.8) and lays white ink OUTSIDE the blank. Measured at
+  //     1200px on transparent, white ink beyond r 47.05, each coin
+  //     controlled against its own 43.4 revision
+  //     (`coloringbook/judge/_edgespill.mjs`):
   //
-  // Not guaranteed, and known false at the time of writing: the OBVERSE
-  // bevel. `bust()` offsets `HEAD` by the same `reliefOff` with no such
-  // bound, and the nickel's head reaches 40.64 with its lit copy at 41.97
-  // against a field circle of 40.5 at `mid` and 41.0 at `full`. The head
-  // itself is over the line there, so bounding the light would not fix it —
-  // it is a drawing to re-measure, not an offset to clamp, and it is written
-  // down here rather than quietly clipped.
+  //         26px   quarter 0 -> 4206   dime 27 -> 8183   penny/nickel 0 -> 0
+  //         44px   quarter 0 ->  144   dime  0 -> 2292   penny/nickel 0 -> 0
+  //         84px   every coin 0 -> 0
+  //
+  //     Reeded-only and small-tier-only, which is the signature of a stroke
+  //     riding over the tooth notches — and invisible at the sizes anyone
+  //     renders while working. Staying put also costs nothing: the tallest legend cap
+  //     tops out at 40.9 and the arc's inner edge is 41.9, so it crosses no
+  //     lettering at any tier that draws any.
+  //
+  // Not guaranteed, only currently true: the OBVERSE bevel. `bust()` offsets
+  // `HEAD` by the same `reliefOff` with no such bound. The nickel's head
+  // reaches 40.64 with its lit copy at 41.97, which BREACHED the field for
+  // the three releases it stood at 40.5 (`mid`) / 41.0 (`full`) — the
+  // measured 44.07 retired that breach without touching the drawing, and
+  // even `icon`'s 42.5 keeps 0.53 units of clearance. Nothing ENFORCES the
+  // bound: a head redrawn past ~42 would breach `icon` again, silently, so
+  // the near-miss stays written down here rather than quietly clipped.
   return `<svg viewBox="0 0 100 100" width="${box.w}" height="${box.h}" ${attrs} xmlns="http://www.w3.org/2000/svg">
     ${outline} fill="${p.body}" stroke="${p.rim}" stroke-width="${sw(2.6, 1.0, box.w)}" stroke-linejoin="round"/>
     <circle cx="50" cy="50" r="${rField}" fill="${p.field}"/>
