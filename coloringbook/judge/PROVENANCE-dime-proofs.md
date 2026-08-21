@@ -107,3 +107,51 @@ frozen patch centres land on leaves on this design
 centres the overlay confirms are bare. This is the same wrong-feature failure
 round 2 hit with the same class of instrument, which is the argument for not
 using hand-placed patches at all — see below.
+
+---
+
+## 2026-08-21, later still: OBVERSE tone references, three of four found
+
+The owner's direction is that the obverse portraits are the remaining work. The
+obverse tone numbers (D13, all four coins FAIL, all too dark and carrying ~2×
+the reference's ink at icon) rest on references with the same defect the dime
+reverse had — a p90 that is a specular highlight rather than a field. Searching
+public-domain sources produced three replacements:
+
+| file | source | licence | subject |
+|---|---|---|---|
+| `dime-obv-unc2005.png` | Commons `File:2005-Dime-Obv-Unc-P.png`, U.S. Mint | **PD-USGov** | 2005 uncirculated Roosevelt obverse, 738×734 |
+| `penny-obv-unc2005.png` | Commons `File:2005_Penny_Obv_Unc_D.png`, U.S. Mint | **PD-USGov** | 2005-D uncirculated Lincoln Memorial obverse, 945×955 |
+| `nickel-obv-unc2004.jpg` | Commons `File:Jefferson-Nickel-Unc-Obv.jpg`, **U.S. Mint Historical Image Library** | **PD-USGov** | 2004 uncirculated Jefferson obverse (classic Schlag), **1523×1500** — the highest-resolution reference in the whole set |
+
+### The screening test, and what it does and does not show
+
+No per-design literals: fit the disc by background differencing, then measure
+the fraction of the disc interior lying within 3 grey levels of p90. A real
+field is a broad plateau; a specular highlight is a thin tail.
+
+| coin | current reference | new reference |
+|---|---|---|
+| dime obverse | 0.027 | **0.076** |
+| cent obverse | 0.026 | **0.053** |
+| nickel obverse | 0.070 | **0.179** |
+| quarter obverse | 0.017 | *(none found)* |
+
+**This is a RELATIVE screen, not a gate.** The ±3-level window is narrow for a
+noisy JPEG, so the absolute numbers mean little and would all rise with a wider
+window; what is meaningful is that each new reference is 2–3× better than the
+one it would replace, measured identically. Only the nickel's is unambiguously
+a plateau. I invented the 0.12 cut while writing this and it has no derivation
+behind it, so it is quoted as a reading rather than a threshold.
+
+### Still missing: a quarter obverse
+
+`State hood quarter Obv Unc.JPG` was the only uncirculated Washington obverse
+found and it is **rejected twice over**: 230×220, and it is the post-1999
+statehood arrangement, which moved UNITED STATES OF AMERICA and QUARTER DOLLAR
+onto the obverse. We draw the pre-1999 layout — LIBERTY over the head, IN GOD
+WE TRUST at the left. The portrait is the same; the lettering is not, so it
+cannot serve D5 and its resolution rules it out for D1 or D3 anyway.
+
+**A diffuse-lit, business-strike, pre-1999 Washington quarter obverse is the
+outstanding acquisition.**
