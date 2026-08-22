@@ -2296,6 +2296,56 @@ const RELIEF = {
     // coin's 1.421 instead of the fill's 0.846. The crown carries NO cut
     // between its rolls, because the coin's crown is unbroken light — the cuts
     // start where the mass turns over, at about y = -18.
+    //
+    // THESE WIDTHS WERE PUT UP FOR NARROWING AND THE NARROWING WAS REFUSED.
+    // Round 9 narrowed the dark cuts and drafted a "variant B" that also took
+    // every roll here to 0.92, reporting it as ridge duty closer to the coin.
+    // Round 10 was sent to verify that and could not: it is the wrong sign.
+    //
+    // RIDGE DUTY — the fraction of a line across the wig that lies inside a lit
+    // band — is the light half of the same quantity round 9 balanced on the
+    // dark half, and it is measured by `_wr3roll.mjs` with the arithmetic that
+    // set `groove` (w = duty x span / n over centreline crossings, `_jw14gen`).
+    // Against the coin's 0.350 / 0.409 / 0.443 on the three references, these
+    // widths give 0.3619 at 190px and up (three lines) and 0.3499 at 84px (two
+    // lines — the third crosses only one roll once `fine` is off, and is
+    // excluded and counted rather than averaged in). That is inside the band at
+    // 190, and 0.0001 under its lower edge at 84. Variant B gives 0.293 and
+    // 0.249: it does not approach the coin, it leaves the band by 0.057 and
+    // 0.101, and it is further away under every subset of the references —
+    // including the 1932 alone, the only same-design high-resolution one.
+    // (Ours is an authored-width duty and the coin's a half-prominence one;
+    // `_wr4censor.mjs` measures the bridge between them at 0.90x-1.53x on the
+    // bands it can read, so the LEVELS above carry that much slack. The sign
+    // does not — a positive multiplier cannot flip it, and the photometric
+    // sweep falls monotonically with width wherever it can see the rolls.)
+    // Narrowing the LIT bands takes light out of the wig exactly as narrowing
+    // the cuts would have taken the dark out, and pitch is not a free parameter,
+    // so width and duty are still different targets and duty still wins.
+    // Matching the coin's individual band FWHP instead (0.45u) would read duty
+    // 0.147 — a third of the coin's.
+    //
+    // Two things variant B really does, neither of them a reason to take it:
+    // it makes the 190px wig finer-grained to look at — while making the 84px
+    // one flatter and greyer, the light going out of it, which is the duty
+    // arithmetic showing up in the eye (`_wr5look.mjs`, control rows first, and
+    // both sizes are on the sheet) — and it moves wigCrown 1.332 -> 1.239
+    // against the coin's 1.113 / 1.116 / 0.925, wigMid and wigBack staying
+    // bit-identical. That second one is a TONE gate being bought with
+    // the wrong lever — the same trade round 9 diagnosed in reverse, where
+    // oversized cuts were cancelling a wig fill about 0.16 too light. Making
+    // the wig the right tone for the wrong reason is what put the tone round on
+    // the queue; spending the light to do it again would take it back off.
+    //
+    // `_jn13d6.mjs` reads 20.50% / 25.94% for variant B and for these widths
+    // alike, to the decimal, on the same drawn length — D6 cannot see any of
+    // this. `_jq1iou.mjs` reads D1 0.96530 either way, which is the mutation
+    // test that says these rolls are outside D1's locus. Nor can the
+    // PHOTOMETRIC ridge finder see it: these bands are flat-topped plateaus,
+    // which its extrema pass splits into co-equal maxima of zero prominence, so
+    // not one of the five contributes a kept ridge at any width from 1.1 to 1.9
+    // (`_wr4censor.mjs`). That is why the arithmetic above is done on
+    // centrelines, and it is the likeliest reason variant B looked closer.
     base:
       '<path d="M -8.6 -22.8 C -6 -23.6 -3 -23.7 3.3 -22.6" fill="none" stroke-width="1.9"/>' +
       '<path d="M -13.4 -21 C -10 -21.9 -6 -21.9 0.9 -20.5" fill="none" stroke-width="1.9"/>' +

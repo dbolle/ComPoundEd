@@ -3,6 +3,77 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.72.0 — 2026-08-22
+
+**A refusal, and the instrument that made the refused change look attractive
+turns out never to have measured its subject.**
+
+### Variant B is refused, on measurement
+
+Narrowing the quarter's lit rolls to 0.92 moves ridge duty **away** from the
+coin, not toward it: 0.3619 → 0.293 at 190 px, and 0.3499 → **0.249** at 84 px,
+against the coin's 0.350–0.443. Robust to reference selection — tested against
+all three references, against dropping the state quarter, against dropping the
+low-resolution file round 9 itself excluded, and against the 1932 alone.
+**Further from the coin in all four.**
+
+Round 9's claim that variant B put "ridge duty closer to the coin" does not
+reproduce even by its own instrument, which reads 0.348 → 0.344 — *down*.
+
+### RETRACTION: the ridge-duty figure was never about the lit rolls
+
+**A lit roll is a flat-topped plateau.** A top wider than the prominence
+window yields co-equal maxima, the "minimum" between them has the same grey,
+prominence is exactly **0.0**, and the whole roll is discarded. Judge-verified
+by running the round's own selection test: **of the six kept ridge candidates,
+zero sit on any of the five `base` rolls** — the subject of the round. Three of
+nine candidates are bare wig between cuts.
+
+The signature is the one §4 names: set every roll to 1.9, then to 1.1 — a 1.7×
+change on marks the transects demonstrably cross — and ridge duty is
+**bit-identical** at 0.369 / 0.348 / 0.312, while *cut* duty on the same two
+renders moves 0.316 → 0.322.
+
+**So the published "ridge duty 0.348 against the coin's 0.350–0.443" is
+computed over the two `fine` rolls and bare wig.** It came from round 9, and
+the judge repeated it in two specialist briefs and in both BACKLOG and
+CHANGELOG. It is retracted here by the party that propagated it.
+
+The round also refused to compare an authored width against a half-prominence
+duty without measuring the bridge between them: it is **not 1.0** but
+0.90×–1.53×, median 1.43×, because half prominence is taken against whatever
+shoulder the band has. Levels carry that slack; the **sign** cannot.
+
+### A fourth D6 mode, and the cleanest statement yet of the first fault
+
+D6 reads 20.50 % / 25.94 % with numerator 228.8 / 310.8 **identical to the
+decimal** for variant B and for the shipped widths — across a 2× width change.
+Δnumerator = Δdenominator = **0**. Alongside 100 %-numerator, 100 %-denominator,
+and Δnum = Δden ≠ 0, that is a fourth mode, and it is the sharpest restatement
+yet of D6 being blind to stroke width.
+
+### What it refused that scored better, and why
+
+Variant B moves `wigCrown` 1.332 → 1.239 against the coin's 1.113/1.116/0.925 —
+a genuine D3 improvement. Refused because it is bought with the wrong lever:
+round 9 diagnosed that oversized cuts had been cancelling a wig fill about 0.16
+too light, and taking this would make the wig the right tone for the wrong
+reason **again**, removing the reason the tone round is queued.
+
+At 190 px variant B is finer-grained and it is easy to see why round 9 liked
+it. **At 84 px — the recognition draw — it is visibly flatter and greyer, the
+light going out of the wig.** The round said plainly that the 190 px preference
+is taste under §8 and is explicitly *not* the ground for the refusal.
+
+### A judge error the round caught
+
+The frozen hash file it was handed lists five instruments that **do not exist
+at its dispatch commit** — the set was generated from a later tree than the one
+dispatched from, so a fresh worktree could not pass the integrity check at all.
+The round hashed them in place, confirmed every digest matched, and reported it
+rather than waiving the check. Frozen sets must be generated from the committed
+dispatch tree.
+
 ## v1.71.0 — 2026-08-22
 
 **The nickel's wig becomes one hair mass instead of two combs crossing — and a

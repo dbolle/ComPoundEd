@@ -120,6 +120,28 @@ reconsider after calibration.
   61.2° was over 15 of 18 available samples; with all 18 it is ≈55.0°. Also:
   `_jn2indep.mjs`'s file list does not include `nickel-obv-unc2004.jpg`, the
   file the entire strand direction field is measured on.
+- 🔴 **RETRACTED: the quarter's "ridge duty" was never a measurement of the lit
+  rolls.** `_jw14cross.mjs` discards a lit roll entirely, because a roll is a
+  **flat-topped plateau**: a top wider than the prominence window gives
+  co-equal maxima, the minimum between them has the same grey, prominence is
+  exactly 0.0. Judge-verified: **of six kept ridge candidates, ZERO sit on any
+  of the five `base` rolls**; three are bare wig between cuts. The §4 tell is
+  clean — a 1.7× width change leaves ridge duty bit-identical while cut duty on
+  the same renders moves. **The figure "ridge duty 0.348 against 0.350–0.443"
+  came from round 9 and the judge repeated it in two briefs and in both docs.
+  It is retracted.** Any future statement about the lit rolls needs an
+  instrument that can see a plateau.
+- ⚠️ **A FOURTH D6 mode: Δnumerator = Δdenominator = 0 across a 2× width
+  change.** The list is now: 100 %-numerator (honest ornament); 100 %-denominator
+  (a shorter, more correct outline — no regression chargeable); Δnum = Δden ≠ 0
+  (less stroke length — not an improvement); and Δnum = Δden = 0 (blind
+  entirely). **R2 needs clauses for the last two.**
+- 🔴 **Frozen sets must be generated from the COMMITTED dispatch tree.** A
+  specialist was handed a hash file listing five instruments that did not exist
+  at its dispatch commit, because the judge generated the set from a later
+  working tree. A fresh worktree could not pass §1 at all. The round hashed
+  them in place, confirmed the digests and reported it rather than waiving the
+  check — but the next one might waive it.
 - ⚠️ **A THIRD kind of D6 movement, and it is not an improvement.** v1.71.0's
   D6 fell 17.86 % → 13.91 % with the numerator moving — so R2 is satisfied on
   its face — but **Δnumerator equals Δdenominator exactly**, because every mark
@@ -176,23 +198,28 @@ reconsider after calibration.
 - ⚠️ **`ref/penny-obv-4.png` is unusable for texture**: a hashed obverse
   reference with a frozen disc fit whose entire bust is uniform granulation
   with no strands anywhere. Wants a line in `REFERENCES.md`.
-- 🟢 **THE QUARTER'S n=1 PROBLEM MAY ALREADY BE SOLVED, AND NOTHING NEEDS
-  ACQUIRING.** `coloringbook/ref/quarter-obv-1963ccby.jpg` is a **1963 struck
-  business-strike Washington quarter obverse** — the correct 1932–1998 design,
-  under **flat diffuse light** on a plain background, 2.7 MB — and it is
-  **CC BY 2.0** (James St. John via Flickr), the cleanest licence in the pool.
-  It was acquired *for tone*. **It is not in `_qtlib.DISCS`**, the D3 candidate
-  set, which instead carries a state quarter and a duplicated photograph.
-  Verified by eye by the judge; it is exactly the "second struck business-strike
-  quarter obverse under diffuse light" the acquisition list below asks for.
-  ⚠️ **Not yet measured for independence** — `_jq42indep.mjs`'s `QOBV` list
-  omits it, and extending it means editing a frozen artefact, which would void
-  the two rounds in flight. It also keeps its comparison helpers private, so a
-  new instrument cannot reuse them without a second implementation. **Do this
-  first when the slots are free:** export the helpers or extend `QOBV`, run the
-  independence check on the extended pool, and if it is independent and
-  same-design, put it in the D3 set. That single change could take the quarter
-  obverse from n=1 to n=2 without acquiring anything.
+- 🔴 **The quarter's n=1 problem is NOT solved, and the judge's earlier
+  optimism here is withdrawn.** `coloringbook/ref/quarter-obv-1963ccby.jpg` is a
+  1963 **struck** business-strike Washington quarter obverse under flat diffuse
+  light, CC BY 2.0, absent from the D3 candidate set — and the judge flagged it
+  as likely to take this face from n=1 to n=2. **It does not.**
+  Measured with `judge/_jq43ccby.mjs`, which runs `_jq42indep.mjs`'s own
+  imported comparison on an extended file list and **reproduces four of its
+  published figures exactly** before reporting anything new (the first version
+  of that file failed the check — my mask ignored `SPAN` — and it refused to
+  report, which is the only reason the result is trustworthy):
+  - at the standard bounds, design NCC **0.0787–0.1630** against every file,
+    with **7 of 8 comparisons riding the registration bound**. That is a §4.1
+    non-answer, not a "different design" verdict — the coin in the photograph
+    is visibly tilted and the ±8° search cannot reach it.
+  - **widened to ±30° and ±0.09R it still cannot be placed**: best 0.1888
+    against a design floor of 0.2402, argmax *still* on a bound.
+  **Verdict: UNMEASURED.** The coin is the right design by eye, but the
+  instrument cannot corroborate it, and "the instrument cannot look here" is
+  not "the answer is no". It is not added. The acquisition below is still open.
+  ⚠️ The lesson is the session's recurring one and this time it was the judge:
+  I saw the right coin under the right light and reported it as a likely fix
+  before measuring whether the pipeline could use it.
 - ⚖️ **JUDGE RULING (2026-08-22): the quarter obverse D3 candidate set is four
   files that are really ONE piece of usable evidence.** Re-derived by the judge
   with the project's own frozen `_jq42indep.mjs`, whole matrix printed:
