@@ -61,6 +61,36 @@ reconsider after calibration.
 - ⚠️ **`ref/penny-obv-4.png` is unusable for texture**: a hashed obverse
   reference with a frozen disc fit whose entire bust is uniform granulation
   with no strands anywhere. Wants a line in `REFERENCES.md`.
+- ⚖️ **JUDGE RULING (2026-08-22): the quarter obverse D3 candidate set is four
+  files that are really ONE piece of usable evidence.** Re-derived by the judge
+  with the project's own frozen `_jq42indep.mjs`, whole matrix printed:
+  - `quarter-obv-4.jpg` is a **DIFFERENT DESIGN** against every other file —
+    design NCC 0.2460 / 0.2507 / 0.2576 / 0.2881 / 0.2920 against a 0.2318
+    floor. It is the 1999+ state-quarter obverse. **RULED OUT of the D3
+    candidate set.**
+  - `quarter-obv.jpg` and `quarter-obv-2.jpg` score **0.9959** against each
+    other. **One photograph. They count as one reference, not two.**
+  - Three files ARE independent and same-design and are **absent from the
+    table**: `qp1963-obv-pad.png`, `qp1964-obv-pad.png`,
+    `quarter-proof-ebay.jpg` — but all three are **proofs**, which §20.3 calls
+    the worst possible tone reference.
+  **So after de-duplicating and removing the wrong coin, the quarter obverse's
+  D3 rests on a single struck photograph (n=1)** — the same position the cent
+  is in. That materially weakens the case for chasing the D3 miss and
+  strengthens the decision not to revert round 9: we would be tuning tone to
+  one photograph. ⚠️ The edit to `_qtlib.DISCS` is **deferred** — it is a
+  frozen artefact and three rounds are in flight; changing it now would void
+  them. Apply when the slots are free, and re-hash.
+  **Outstanding acquisition, now concrete: a second STRUCK (business-strike)
+  quarter obverse under diffuse light.**
+- ⚖️ **JUDGE RULING OWED, not yet made: where corner declarations live.**
+  Appendix P2 says an authored polygon "declares its corners in the scorecard,
+  by index", and **no coin in this project has ever done so** — the dime's own
+  scorecard says as much. The dime round showed why it matters: its two
+  surviving over-75 knots are *exactly* the two seams where the fitted outer
+  run meets the hand-authored run, which is where P2 says a declaration
+  belongs. Indices owed: `HEAD.Roosevelt` 23, `HAIR.Roosevelt` 0 and 16,
+  `BEARD` 7. Until this is ruled, D7 reports genuine corners as failures.
 - 🔴 **D3-obverse on the QUARTER is failing, and round 9 caused it.**
   0.1447 → **0.1927** against a gate of ≤0.1791 with no regression permitted.
   Judge-re-derived with the frozen `_jq3tone.mjs` at both revisions. Round 9
