@@ -3,6 +3,113 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.74.0 — 2026-08-22
+
+**The gates now serve the objective, and the first thing the new primary gate
+found was that it could only see half the coins.**
+
+### The objective, restated by the owner, and what it superseded
+
+> "Creating artistic renderings of US currency that will teach a child to
+> recognize real US currency." … "Distinguishing our renderings from each other
+> is not the point, learning to identify real currency is."
+
+`docs/COIN-JUDGE.md` **§0** rebuilds the gate set around that. **T1 transfer**
+is primary — at 38/48/84 px, is each face nearer the *correct* denomination's
+photographs than any other's? Five gates remain (well-formedness, containment,
+counts, lettering presence, looking at it with a pinned control **at the sizes
+the app draws**). Seven dimensions are demoted to **advisory: reported, never
+gating**. **D11 is retired** — it measured our art against our own other art,
+which the owner ruled is not the point.
+
+### The icon tier was throwing away the information
+
+At 38 px — `coinRow(opt.coins, 38)`, the size a child sees counting a **pile** —
+our penny and quarter both read as **nickels**.
+
+The cause was a house-invented rule contradicting a measurement in the same
+file. At `icon`, `bust()` dropped the neck and coat and **enlarged the head to
+fill the disc**: the cent at `iconS 1.253` against its full-tier `0.78`, sixty
+percent bigger. Line 2644 of that file records the real cent's head as **~49 %
+of the disc, the smallest in the set, high in the field over a big coat**. The
+icon rule made it the *biggest* head in the set, low in the disc — which is
+what a nickel looks like. All four obverses became near-identical blobs.
+
+The fix is four lines and derived rather than fitted: the only thing that
+genuinely differs at icon is the field circle, so the measured full-tier
+placement carries over scaled by `k = 42.5/44.07`. Penny 0.084 → **0.317**,
+quarter 0.115 → **0.332**. D10 improved as a consequence — the quarter went
+11.55× to **1.83×, passing** — because icon and mid finally agree. A 108-cell
+sweep found better-scoring cells at `iconS 0.90` and they were **refused**: no
+derivation, only a better number.
+
+### And 38 px was never too small
+
+The owner offered to raise the app's minimum display size. Measured instead
+(`judge/_jt2floor.mjs`), two sweeps over one size ladder:
+
+| size | real photographs | our art |
+|---|---|---|
+| 16 px | **4/4** | 1/4 |
+| 38 px | **4/4** | 3/4 |
+| 44 px | **4/4** | **4/4** |
+
+**Real coins remain separable down to 16 px.** The physical floor is far below
+anything the app draws, so no size change was warranted — the art was
+discarding the information, and raising the size would have hidden that.
+
+### The primary gate could not see five of the ten faces
+
+`_jt1transfer.mjs` rendered `side: 'obverse'` only, and its reference pool held
+only `*-obv-*` files. It was promoted to primary in §0 **while structurally
+incapable of seeing any reverse**. The dime/nickel reverse round found it: T1
+was byte-identical across a 163-line redraw, which looks like a pass and is a
+blind spot.
+
+That is the same locus fault this project has now documented three times — D11
+scored at a size the app never draws, `_jb14d1` never importing the art,
+`_jb3seal` freezing our own geometry — and this one was committed by the judge,
+in the instrument the judge had just promoted.
+
+Fixed, and the result is worse and more useful: **obverse 12/12, reverse 7/12,
+overall 19/24.** The penny reverse reads as a **nickel** at 38 and 48 px — two
+neoclassical buildings — which is precisely the 1¢-vs-5¢ confusion the app
+exists to teach against. The dime reverse reads as a penny; the quarter reverse
+as a dime at 84 px.
+
+### Two motifs the coins do not have
+
+**The nickel's dome sprang below its own pediment apex** — base chord at y 38.0
+against an apex at 34.5, so the gable was entirely swallowed and the silhouette
+showed one shallow mound. Both references put the springing *above* the apex
+and bracket the amount (−2.0 and −1.0); drawn was **+3.5, the wrong sign**. Now
+−1.9. The drum the references clearly show was missing altogether. The icon
+tier already had this right, so this closes a tier discontinuity.
+
+**The dime's oak was not an oak.** The outline never came within 0.85 of its
+half-width of the midrib — three beads on a stem. Re-authored from the real
+leaf at 34.9 px/unit with sinuses cutting 45–55 % to the midrib, in the **same
+±4.3 × ±2.1 box** so footprint and reach are untouched. And the acorn the
+file's own header has always claimed is finally there.
+
+Both rounds refused changes that measured better: the references read the
+nickel's dome at 39..61 and it drew 41..59 anyway, because at the wider value
+the drum's cornice hangs over bare field and reads worse at 73 px.
+
+### Reported and not fixed
+
+**Neither reverse carries any lettering at icon or mid** — 38 and 48 px, two of
+the three sizes the app draws. Pre-existing and byte-identical to baseline, and
+plausibly a large part of the reverse transfer gap: every photograph has a
+peripheral ring of lettering energy and ours has none below 84 px.
+
+### The library
+
+**174 instruments retired** into `judge/retired/` — moved, never deleted, not a
+byte edited. Verified: 606 stayers byte-identical in place, all 174
+byte-identical at the new path, 25 sampled survivors run clean, 20 produce
+byte-identical output before and after.
+
 ## v1.73.0 — 2026-08-22
 
 **The dollar's portrait was the quarter's profile, shrunk.**

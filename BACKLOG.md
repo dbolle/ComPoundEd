@@ -403,6 +403,31 @@ reconsider after calibration.
      step: lock the 134 ids against the fixture, lock the payouts, drop
      `/money` from `BETA_ROUTES`, drop `isBeta` from `moneyVisible`, and
      decide explicitly whether preview progress is kept or cleared.
+   - 🔴 **T1 REVERSE IS 7/12 — the weak half, and the gate could not see it
+     until v1.74.0.** Obverse is 12/12; overall **19/24**. Confusions, at the
+     sizes the app draws:
+     - **penny reverse reads as a NICKEL at 38 and 48 px.** Two neoclassical
+       buildings. This is the 1¢-vs-5¢ confusion the app exists to teach
+       against, and it is the highest-value defect open.
+     - dime reverse reads as a penny at 38 and 48 px.
+     - quarter reverse reads as a dime at 84 px.
+   - 🔴 **NEITHER REVERSE CARRIES LETTERING AT ICON OR MID** — 38 and 48 px,
+     two of the three sizes the app draws (`discSVG` emits no inscription when
+     `tier === 'icon'`). Pre-existing. Every reference photograph has a
+     peripheral ring of lettering energy and ours has none below 84 px; that is
+     plausibly a large part of the reverse transfer gap above. The line is in
+     shared code affecting all four coins, so it is a **serialised judge
+     round**, not a specialist one.
+   - ✅ **The resolution floor was measured, and no display-size change is
+     warranted.** The owner authorised raising the app's minimum size.
+     `judge/_jt2floor.mjs` sweeps a size ladder twice: real photographs sort
+     **4/4 at every size down to 16 px**, while our art needed **44 px**. The
+     physical floor is far below anything the app draws — the art was
+     discarding the information, and raising the size would have hidden that.
+     Re-run this before ever proposing a size change.
+   - ⚠️ **The nickel obverse still carries the OLD icon trio.** Its 38 px margin
+     is 0.018 and its 48 px margin 0.020 — passing, but by a tenth of what the
+     penny and quarter now clear. The same `k = 42.5/44.07` correction applies.
    - 📌 **OWNER DECISIONS, 2026-08-22 — these supersede where they conflict.**
      1. **"DONE" IS A TRANSFER CRITERION.** Verbatim: *"No remaining wrong in
         kind defects AND a child can identify a photo based on only learning

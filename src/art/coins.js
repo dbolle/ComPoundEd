@@ -2623,11 +2623,20 @@ const CURLS_JEFFERSON =
 //                   the crown clears the inscription band and the jaw sits
 //                   about two thirds of the way down the field.
 //   iconS / iconCy / iconCx
-//                   at icon tier the neck and coat are dropped entirely, so
-//                   the head has to be re-centred and re-scaled to fill the
-//                   disc on its own. These are the values that put each
-//                   man's whole mass — beard, queue and all — centred in the
-//                   field at about 86% of its diameter.
+//                   the head's placement at `icon` tier. This USED to say
+//                   these values "fill the disc on its own ... at about 86% of
+//                   its diameter", and that rule is now retired on three of the
+//                   four coins, because `judge/_jt1transfer.mjs` failed on it:
+//                   at 38px — `coinRow(opt.coins, 38)`, the pile a child counts
+//                   with — an 86%-of-the-disc head is a NICKEL, whatever man is
+//                   drawn in it, and the cent and the quarter both sorted as
+//                   one. The rule now is the dime's: the icon placement is the
+//                   full tier's measured-optimal placement, scaled about the
+//                   disc centre by k = EDGE.field.icon / EDGE.field.full
+//                   = 42.5/44.07 = 0.96437, which is the only thing that
+//                   actually differs between the tiers. The nickel still
+//                   carries the old numbers (they happen to equal its full-tier
+//                   trio) and is out of scope for this round.
 //   neck            where the collar crosses, in local units below the
 //                   origin. On the cent it sits BELOW the beard: at 15 the
 //                   coat ate the beard whole and the cent lost the one
@@ -2661,12 +2670,39 @@ export const OBVERSE = {
     // x −14.5..−8.7 and y −7.5..+2.9, which is SMALLER and four units HIGHER
     // than the shared glyph was placed. `eye` likewise: the coin's is at
     // x 9.3..13.0, y −11.2..−9.2, where the shared mark sits at x 2.6..9.4,
-    // y −6.6..−2.6. iconS/iconCy/iconCx are recomputed from the new path's
-    // bounding box, to the same rule the old ones claimed — the head's mass
-    // centred in the icon field at 86% of its diameter.
+    // y −6.6..−2.6.
+    //
+    // THE "86% OF THE FIELD" RULE IS RETIRED HERE, AND IT WAS THE CENT'S
+    // WHOLE T1 FAILURE. iconS/iconCy/iconCx used to enlarge the head to fill
+    // the icon disc on its own (1.253 against the full tier's 0.78 — sixty
+    // percent bigger). `src/screens/money.js` draws a pile at `coinRow(...,38)`,
+    // which is `icon`, so that enlargement IS the coin a child counts with, and
+    // `judge/_jt1transfer.mjs` scored it NEARER REAL NICKEL PHOTOGRAPHS THAN
+    // REAL CENT ONES: 0.084 cent against 0.165 nickel. A 1c-for-5c error in the
+    // exact task this app teaches.
+    //
+    // The reason is the object, not the metric. This file measures the real
+    // cent's head at ~49% of the disc — the SMALLEST head in the set, high in
+    // the field over a big coat. Blowing it up to 86% makes it the BIGGEST, and
+    // a big head low in a disc is what a nickel looks like. The rule was
+    // house-invented ("fill the disc") and contradicted the measurement sitting
+    // twenty lines above it.
+    //
+    // DERIVED, NOT FITTED. The icon tier's only real difference is that its
+    // field circle is EDGE.penny.field.icon = 42.5 where full/mid is 44.07, so
+    // the placement that is measured-optimal at full tier is carried over
+    // scaled about the disc centre by k = 42.5/44.07 = 0.96437:
+    //     iconS  = 0.78 * k               = 0.7522
+    //     iconCy = 50 + (40.0 - 50) * k   = 40.3563
+    //     iconCx = 3.88 * k               = 3.7418
+    // That is the same rule the dime already follows (icon == full placement),
+    // with the one correction the dime does not need because it was written
+    // before the field circles diverged. T1 at 38px goes 0.084 -> 0.292 for
+    // the cent's own photographs and 0.165 -> 0.153 for the nickel's, i.e. the
+    // numerator moved (R2) and the coin sorts correctly with margin +0.087.
     who: 'Lincoln', dir: 1, bare: false, neck: 25, ear: [0.86, -11.7, -5.9],
-    eyeMark: EYE_LINCOLN,
-    s: 0.78, cy: 40.0, cx: 3.88, iconS: 1.253, iconCy: 56.11, iconCx: 5.68,
+    eyeMark: EYE_LINCOLN, iconBust: true,
+    s: 0.78, cy: 40.0, cx: 3.88, iconS: 0.7522, iconCy: 40.3563, iconCx: 3.7418,
     // The coat, measured off the frozen bust mask — see coat() below for what
     // these are and coloringbook/shoulder-fix.md for the sweep that set them.
     // `back`/`front` are the two rim crossings in degrees from straight down;
@@ -2781,9 +2817,37 @@ export const OBVERSE = {
     // what is there is a cluster of rolled curls, with bare cheek below. The
     // shared glyph was drawing a helix on open skin, which is §7's "do not add
     // anatomy the coin does not have". `earMark` carries the curls instead.
+    //
+    // ICON PLACEMENT, and it failed T1 for the same reason the cent's did. The
+    // shipped trio ENLARGED the head (1.02 against the full tier's 0.98) and
+    // pushed it 3.6 units back (cx -4.0 against -0.4), which is precisely the
+    // direction of the nickel: Jefferson's head sits further back in the field
+    // than Washington's. `judge/_jt1transfer.mjs` scored the result nearer real
+    // NICKEL photographs than real quarter ones at 38px — the pile size —
+    // 0.115 quarter against 0.276 nickel.
+    //
+    // DERIVED, NOT FITTED, by the same k as the cent above: `icon`'s field
+    // circle is 42.5 where full/mid is 44.07, so the measured-optimal full-tier
+    // placement carries over scaled about the disc centre by k = 0.96437:
+    //     iconS  = 0.98 * k               = 0.9451
+    //     iconCy = 50 + (41.8 - 50) * k   = 42.0921
+    //     iconCx = -0.4 * k               = -0.3857
+    // `cut: true` is what makes this work at icon: Washington's truncation is
+    // part of HEAD.Washington, so unlike the other three heads this one still
+    // carries its bust down the field at a tier where bust() draws no neck and
+    // no coat. T1 at 38px goes 0.115 -> 0.332 against the quarter's own
+    // photographs and 0.276 -> 0.219 against the nickel's — numerator moved
+    // (R2) — and it sorts correctly with margin +0.113.
+    //
+    // WHAT I DID NOT TAKE. A grid sweep (108 cells, S 0.86-1.06 x cy 38-46 x
+    // cx -4..1.5, whole set printed in the round report) has cells reaching
+    // margin 0.265 at iconS 0.90. They are NOT taken: 0.90 has no derivation
+    // behind it, only a better score, and §8/rule 4 says a number whose only
+    // argument is its own score is refused. 0.9451 is where the geometry puts
+    // it and it passes.
     who: 'Washington', dir: -1, bare: true, cut: true, neck: 17, hairLit: true,
     eye: [8.7, -2.7], earMark: CURLS_WASHINGTON,
-    s: 0.98, cy: 41.8, cx: -0.4, iconS: 1.02, iconCy: 41.8, iconCx: -4.0,
+    s: 0.98, cy: 41.8, cx: -0.4, iconS: 0.9451, iconCy: 42.0921, iconCx: -0.3857,
   },
 };
 
@@ -3067,7 +3131,14 @@ function bust(id, tier, p, dim, boxW) {
   // …except on the dime, where `cut` says the neck is already part of the
   // head path, ends in its own angled truncation and never reaches the rim.
   const strokeW = sw(1.15, 0.9, boxW);
-  const below = icon || o.cut
+  // `iconBust` is a PER-COIN opt-in and only the cent sets it, so the other
+  // three heads emit byte for byte the string they emitted before — the same
+  // idiom `beard`, `hairLit` and `cut` already use. See OBVERSE.penny for the
+  // measurement: the cent is the coin with the SMALLEST head and the BIGGEST
+  // coat, and dropping the coat at `icon` deleted the larger half of what a
+  // child sees in a pile. The other three really are bare-necked or truncated
+  // at the rim, so there is nothing there for them to opt into.
+  const below = (icon && !o.iconBust) || o.cut
     ? ''
     : `<g fill="${head}" stroke="${p.deep}" stroke-width="${strokeW}" stroke-linejoin="round">
          ${bareNeck(rIn, o.dir, s, cx, cy)}</g>` +
@@ -3330,11 +3401,31 @@ function lincolnMemorial(tier, p, boxW) {
 //           three openings, a plain one either side of a CENTRE DOOR under
 //           its own little pediment, and drawing those openings as columns
 //           is exactly how a colonnade acquires phantom members.
-//   BANDS   dome 30.5..38.0 · pediment apex 34.5, base 41.5 · wing roofline
-//           40.8 with the balustrade from 39.0 · cornices 43.3 and 45.4 ·
-//           building foot 58.5 · terrace 60.4.
-//   WIDTHS  dome 41..59 · pediment 33..67 · portico 35..65 · main block
-//           18..82 · ends 12.8..86.1 · terrace 11.5..88.5.
+//   BANDS   dome 26.2..32.8 · drum 32.0..35.2 · pediment apex 34.5, base
+//           41.5, with the roof behind it at 37.4 · wing roofline 40.8 with
+//           the balustrade from 39.0 · cornices 43.3 and 45.4 · building
+//           foot 58.5 · terrace 60.4.
+//           THE DOME SPRINGS ABOVE THE PEDIMENT APEX, and the order that
+//           puts it there is the whole point of the motif — see the block
+//           in `solid` for the re-measurement that moved it. The previous
+//           table recorded "dome 30.5..38.0 · pediment apex 34.5" side by
+//           side without noticing that 38.0 is below 34.5.
+//   WIDTHS  dome 41..59 · drum cornice 39.6..60.4 · pediment 34.5..65.5 ·
+//           portico 35..65 · main block 18..82 · ends 12.8..86.1 · terrace
+//           11.5..88.5. The references read the dome WIDER than this, at
+//           ~39..61; it is drawn at the icon tier's 41..59 so that the drum
+//           lands inside the gable rather than hanging over field, which at
+//           73 px matters more than the extra unit a side. Reported, not
+//           hidden.
+//
+//   STILL OPEN, reported and NOT acted on this round (out of scope, and
+//   both would move D4-gated or review-blessed geometry):
+//     · the wings' roofline reads at y ~35.5-36.2 on both references, not
+//       40.8, so the wing/portico step is compressed. The ORDER is right,
+//       which is what the review credited; the spacing is not measured here.
+//     · the drum on the references is ~38.5..61.5 with three arched dormers
+//       in it. Only the band is drawn; the dormers are below the 84 px
+//       resolution the app draws at.
 function monticello(tier, p, boxW) {
   if (tier === 'icon') {
     // §15.4 again: three field-coloured slots at 23px are stripes, not a
@@ -3368,13 +3459,61 @@ function monticello(tier, p, boxW) {
   // the levels run, lowest first: end pavilions → wings → portico cornice →
   // pediment → dome. Five steps up to the middle, five back down.
   const solid =
-    // the dome — SHALLOW, sitting behind the pediment. A half-ball on a
-    // drum is a mosque; this is a saucer with its bottom hidden. Measured
-    // 41..59 wide, top 30.5, base 38.0.
-    '<path d="M 41 38 A 9 7.5 0 0 1 59 38 Z"/>' +
-    '<rect x="43" y="37" width="14" height="3"/>' +
-    // the pediment (apex 34.5, base 41.5, 33..67) and the portico cornice
-    '<path d="M 50 34.5 L 67 41.5 L 33 41.5 Z"/>' +
+    // THE DOME, AND WHY IT MOVED (round 27). The previous version sprang at
+    // y 38.0 while the pediment apex is 34.5 — the dome's base chord was
+    // 3.5 units BELOW the gable it is supposed to stand behind, so the arc
+    // cut clean across the gable and the two fused into one shallow mound.
+    // Nothing peaked; the "five steps up to the middle" the comment above
+    // promises were three, and the gable the child is meant to read simply
+    // was not in the picture. That is a wrong-in-kind defect: the building
+    // does not do this.
+    //
+    // RE-MEASURED by overlaying this geometry on the photographs at the
+    // frozen disc fits and looking (`_pv/rv3/overlay.mjs`; sheets
+    // nk-ov-{proof,rev2}-*.png). Both references put the springing ABOVE
+    // the apex, and they bracket the amount:
+    //
+    //             dome apex   springing   pediment apex   springing - apex
+    //   rev2         25.6        32.0          34.0            -2.0
+    //   proof        26.5        33.4          34.4            -1.0
+    //   drawn (old)  30.5        38.0          34.5            +3.5   WRONG SIGN
+    //   drawn (new)  26.2        32.6          34.5            -1.9
+    //
+    // The icon tier already had this right — it springs at 33.0 with the
+    // apex at 33.0 and its dome tops out at 26.6 — so this also closes a
+    // tier discontinuity rather than opening one.
+    //
+    // An automated silhouette scan was tried first and is NOT the source of
+    // these numbers: `_pv/rv3/domescan.mjs` returns values sitting on its own
+    // search bounds on both references (specks in the proof's black field,
+    // and no usable threshold at all on the matte photograph), which by its
+    // own null test is a failure report. The numbers above are read off the
+    // overlay sheets.
+    '<path d="M 41 32.8 A 9 6.6 0 0 1 59 32.8 Z"/>' +
+    // THE DRUM the dome actually stands on, which was missing. The old
+    // `rect 43,37,14x3` sat below the old springing, i.e. buried inside the
+    // pediment where nothing could see it. Both references show a distinct
+    // overhanging cornice with a short drum under it, and the cornice ends
+    // project past the gable's slopes over bare field — the little scrolls
+    // at (37.5, 32.5) in rev2. That overhang is the real building, not a
+    // drawing error, and the icon tier's dome does the same thing.
+    '<rect x="39.6" y="32.0" width="20.8" height="1.4"/>' +
+    '<rect x="40.4" y="33.4" width="19.2" height="1.8"/>' +
+    // THE ROOF BEHIND THE GABLE, which is what stops the drum floating. A
+    // wide element standing on a triangle's apex ALWAYS leaves a notch of
+    // bare field either side; the coin does not have that notch because the
+    // pediment there is relief applied to a block, not a silhouette. The
+    // block's top reads at y ~36 on both references. Drawn at 37.4 so the
+    // gable still breaks the roofline by 2.9 units — the peak is what
+    // separates this motif from the cent's flat Memorial roof, and the
+    // reference only gives it 2.0. Measured against the drum: the remaining
+    // notch is 3.2 wide by 2.2 deep, where the references read ~4.5 by ~3.5.
+    '<rect x="34.5" y="37.4" width="31" height="4.1"/>' +
+    // The pediment (apex 34.5, base 41.5) now sits ON its own cornice
+    // instead of overhanging it: 34.5..65.5 against the cornice's 34..66 and
+    // the portico block's 35..65. The old 33..67 put the gable 2 units wider
+    // than the columns holding it up, which is not a thing a portico does.
+    '<path d="M 50 34.5 L 65.5 41.5 L 34.5 41.5 Z"/>' +
     '<rect x="34" y="41.5" width="32" height="1.8"/>' +
     '<rect x="35" y="43.3" width="30" height="15.2"/>' +
     // the wings, a step lower: roofline 40.8, cornice 43.3, block 18..82
@@ -3424,12 +3563,37 @@ function monticello(tier, p, boxW) {
           .map((x) => `<rect x="${x}" y="39" width="1" height="1.8"/>`)
           .join('')}</g>` +
         `<path d="M 47.9 41.5 A 2.1 2.1 0 0 1 52.1 41.5 Z" fill="${p.deep}" opacity="0.6"/>` +
+        // two lit meridian ribs on the dome. These follow the dome, so they
+        // moved with it: the old pair ran 31.0..36.6, which is now the drum
+        // and the gable rather than the dome's face.
         `<g fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.3">
-           <path d="M 49.2 31.0 C 46.4 32.0 44.2 34.2 43.0 36.6"/>
-           <path d="M 50.8 31.0 C 53.6 32.0 55.8 34.2 57.0 36.6"/></g>` +
+           <path d="M 49.0 26.6 C 46.4 27.8 43.9 29.9 42.5 32.4"/>
+           <path d="M 51.0 26.6 C 53.6 27.8 56.1 29.9 57.5 32.4"/></g>` +
         `<g fill="#ffffff" opacity="0.4">${[22, 30.5, 69.5, 78]
           .map((x) => `<rect x="${n2(x - 1.9)}" y="48.3" width="3.8" height="0.6"/>`)
           .join('')}</g>`
+      : '') +
+    // THE RAKING CORNICES. `ledge` only draws horizontals, so the two sloping
+    // edges of the gable had no lit edge of their own and the pediment read as
+    // a plain wedge. Gated on `full` and not on `fine`: at the sizes money.js
+    // draws, the nickel's box is 73.4 / 42 / 33.2 px, so `fine` (>=130) is
+    // NEVER true in the app — anything put behind it is invisible to a child.
+    // A 0.7-unit stroke is 0.51 px at 84 and 0.29 px at 48, so `mid` would
+    // only haze; `full` is where it earns its place.
+    (full
+      ? // The roof BEHIND the gable, shaded so the gable stands proud of it.
+        // Drawn as the two corners the pediment does not cover rather than as
+        // a line on the pediment: a white chevron stroke was tried first and
+        // read as a scratch across a flat panel, because a lit line needs
+        // something darker beside it to be an edge. These two quads are that
+        // darker thing, and they are also the truth — the roof behind is a
+        // lower plane than the pediment in front of it.
+        `<g fill="${p.deep}" opacity="0.38"><path d="M 34.5 37.4 L 43.58 37.4 L 34.5 41.5 Z"/>` +
+        `<path d="M 65.5 37.4 L 56.42 37.4 L 65.5 41.5 Z"/></g>` +
+        // the drum's cornice, lit along its top so the dome reads as sitting
+        // ON something rather than growing out of the roof
+        ledge(39.6, 60.4, 32.0) +
+        shade(40.4, 59.6, 35.2, p, 0.4)
       : '') +
     ledge(34, 66, 41.5) +
     ledge(19, 81, 40.8) +
@@ -3637,15 +3801,61 @@ function torch(tier, p, boxW) {
   // why each branch read as a column rather than a spray.
   const olive = (x, y, rot, k) =>
     `<g transform="translate(${x} ${n2(y)}) rotate(${n1(rot)})"><ellipse cx="0" cy="0" rx="${n2(7.6 * k)}" ry="${n2(2.1 * k)}"/></g>`;
-  // An oak leaf is the same footprint with three bites taken out of each
-  // side. It costs one path and it is the difference between "two branches"
-  // and "the dime's two branches". Kept to three lobes and one decimal
-  // place on purpose: the whole branch is printed three times by struck(),
-  // so every character in this path is paid for six more times over.
+  // AN OAK LEAF IS LOBED, AND THE PREVIOUS PATH WAS NOT (round 27).
+  //
+  // What it drew: three shallow bumps a side on a 2.4:1 body, with the
+  // outline never coming closer to the midrib than 0.85 of its own half
+  // width. At 1200 px that renders as THREE BEADS STRUNG ON A STEM, and at
+  // the 62 px the app gives this coin it renders as a caterpillar. It was
+  // the only thing in the file distinguishing this branch from the olive
+  // one, and it did not distinguish it.
+  //
+  // What an oak leaf is, read off `coloringbook/ref/dime-rev-unc2005.png`
+  // through a fitted disc (cx 642.5, cy 638, R 636 — fitted here by row and
+  // column profiles at threshold 225, because no published fit for this file
+  // exists anywhere in `judge/`; that is a gap, not a claim) and blown up on
+  // `_pv/rv3/dm-oak-ref.png` at 34.9 px per viewBox unit:
+  //
+  //   · a broad blade with DEEP SINUSES — the notches cut 45-55% of the way
+  //     back to the midrib, where these cut 15%
+  //   · lobes that are rounded and point away from the midrib, growing
+  //     larger toward the tip, then a rounded terminal lobe
+  //   · four lobes a side on the leaves big enough to count them on
+  //
+  // Authored in the SAME ±4.3 by ±2.1 box as the path it replaces, so the
+  // leaf's footprint — which was measured and is right — does not move and
+  // neither do `SPREAD`, the ladder bounds, or the reach the leaves have.
+  // Only the outline changed. It costs ~290 more characters, paid 21 times
+  // over at full tier (7 leaves x 3 struck() passes, oak branch only).
   const OAK =
-    'M -4.3 0.1 C -3.6 -1.3 -2.4 -1.1 -1.8 -0.2 C -1.2 -1.9 0.4 -2 1.1 -0.8' +
-    ' C 2.6 -1.6 4.3 -0.8 4.3 0.1 C 4.3 1 2.6 1.8 1.1 1' +
-    ' C 0.4 2.2 -1.2 2.1 -1.8 0.4 C -2.4 1.3 -3.6 1.5 -4.3 0.1 Z';
+    'M -4.3 0 C -3.9 -.55 -3.5 -.85 -3.1 -.85 C -2.8 -.85 -2.6 -.6 -2.45 -.4' +
+    ' C -2.15 -1.2 -1.85 -1.6 -1.45 -1.6 C -1.1 -1.6 -.85 -1.05 -.7 -.75' +
+    ' C -.35 -1.6 0 -2.1 .35 -2.1 C .75 -2.1 1.1 -1.35 1.25 -1' +
+    ' C 1.6 -1.6 2.05 -1.95 2.4 -1.95 C 3.1 -1.95 4.3 -1.15 4.3 0' +
+    ' C 4.3 1.15 3.1 1.95 2.4 1.95 C 2.05 1.95 1.6 1.6 1.25 1' +
+    ' C 1.1 1.35 .75 2.1 .35 2.1 C 0 2.1 -.35 1.6 -.7 .75' +
+    ' C -.85 1.05 -1.1 1.6 -1.45 1.6 C -1.85 1.6 -2.15 1.2 -2.45 .4' +
+    ' C -2.6 .6 -2.8 .85 -3.1 .85 C -3.5 .85 -3.9 .55 -4.3 0 Z';
+  // AND OAKS CARRY ACORNS. The header of this function has claimed since it
+  // was written that "oak leaves are lobed and carry acorns"; `grep -n acorn`
+  // returned that sentence and nothing else. There is one on the coin,
+  // plainly, at the fork of the branch — a smooth nut in a scaly cup,
+  // measured at 4.4 by 4.9 units centred near (68, 45)
+  // (`_pv/rv3/dm-acorn.png`, 83 px per unit). One is drawn, at the coin's
+  // size, at full tier only.
+  //
+  // STATED PLAINLY: at the sizes money.js draws, the dime's box is 62 / 35 /
+  // 28 px, so this acorn is 3.0 px tall at best and contributes a blob, not
+  // a readable acorn. It is drawn because the file asserts it and because it
+  // reads at the preview sizes, NOT because a child will see an acorn at
+  // 62 px. The lobes above are the change that does work at 62 px.
+  const ACORN =
+    'M 0 2.45 C -1 1.9 -1.6 .9 -1.6 -.2 C -1.6 -.9 -.8 -1.2 0 -1.2' +
+    ' C .8 -1.2 1.6 -.9 1.6 -.2 C 1.6 .9 1 1.9 0 2.45 Z' +
+    'M -2.1 -1.15 C -2.1 -2.15 -1.1 -2.6 0 -2.6 C 1.1 -2.6 2.1 -2.15 2.1 -1.15' +
+    ' C 2.1 -.55 1.1 -.35 0 -.35 C -1.1 -.35 -2.1 -.55 -2.1 -1.15 Z';
+  const acorn = (x, y, rot) =>
+    `<g transform="translate(${n2(x)} ${n2(y)}) rotate(${n1(rot)})"><path d="${ACORN}"/></g>`;
   // Scaled along its LENGTH and its width separately: the coin's oak leaf is
   // 11.8 units by 5.5 and the authored path is 8.6 by 4.2, so one uniform
   // factor cannot hit both. Scaling uniformly far enough to reach the coin's
@@ -3683,6 +3893,8 @@ function torch(tier, p, boxW) {
         ? olive(px, ay - 1.6, rr, 1.22 * K)
         : oak(px, ay - 1.6, rr, 1.68 * K, 1.42 * K);
     }
+    // the acorn, oak branch only, on the stem at the height the coin has it
+    if (!mirror && full) g += acorn(x(18), 45, -22);
     return `${stem(x)}${g}`;
   };
   const solid = `${flame}

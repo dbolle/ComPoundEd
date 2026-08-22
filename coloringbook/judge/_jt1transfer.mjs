@@ -72,16 +72,16 @@ const DESIGN_MASK = (() => {
 const ROT = []; for (let d = -8; d <= 8; d += 2) ROT.push(d);
 const TR = []; for (let t = -0.03; t <= 0.0301; t += 0.015) TR.push(+t.toFixed(3));
 const featCache = new Map();
-async function featOfRef(file) {
+export async function featOfRef(file) {
   if (!featCache.has(file)) featCache.set(file, await energyGrid(file, await discOf(file), 0.02));
   return featCache.get(file);
 }
-async function featOfOurs(id, px) {
-  const key = `OURS:${id}:${px}`;
+export async function featOfOurs(id, px) {
+  const key = `OURS:${SIDE}:${id}:${px}`;
   if (featCache.has(key)) return featCache.get(key);
   // Render at the app's size, then upsample with NEAREST so the descriptor sees
   // exactly the device pixels a child sees — no invented detail.
-  const png = await sharp(Buffer.from(coinSVG(id, px, { side: 'obverse' })))
+  const png = await sharp(Buffer.from(coinSVG(id, px, { side: SIDE })))
     .resize(px, px, { fit: 'contain', background: '#ffffff' })
     .resize(900, 900, { kernel: 'nearest' }).flatten({ background: '#ffffff' }).png().toBuffer();
   // WRITING INTO ref/ WAS A FAULT AND THE IMAGE REVIEW CAUGHT IT MID-RUN.
@@ -90,7 +90,7 @@ async function featOfOurs(id, px) {
   // which is the exact `_x6mat.mjs` fault this project already documents. A
   // crashed run leaves them behind. Own subdirectory instead: still resolvable,
   // never mistaken for a reference.
-  const name = `_scratch/${id}-${px}.png`;
+  const name = `_scratch/${SIDE}-${id}-${px}.png`;
   mkdirSync(new URL('../ref/_scratch/', import.meta.url).pathname, { recursive: true });
   writeFileSync(new URL('../ref/' + name, import.meta.url).pathname, png);
   TEMPS.push(name);
@@ -98,22 +98,51 @@ async function featOfOurs(id, px) {
   featCache.set(key, g);
   return g;
 }
-const designSim = (a, b) => bestReg(a, b, DESIGN_MASK, ROT, TR).ncc;
+export const designSim = (a, b) => bestReg(a, b, DESIGN_MASK, ROT, TR).ncc;
 
-const N = 128;                       // comparison grid; small on purpose
-const SIZES = [38, 48, 84];          // what src/screens/money.js actually draws
+export const N = 128;                       // comparison grid; small on purpose
+export const SIZES = [38, 48, 84];          // what src/screens/money.js actually draws
 const DISCS = JSON.parse(readFileSync(new URL('./_jp1discs.json', import.meta.url).pathname, 'utf8'));
 const REF = new URL('../ref/', import.meta.url).pathname;
 
-// Reference photographs per denomination and face. Obverse only for now: it is
-// the face the naming draw shows and the one every reference pool covers.
-const POOL = {
-  penny: ['penny-obv.jpg', 'penny-obv-2.jpg', 'penny-obv-3.jpg', 'penny-obv-4.png'],
-  nickel: ['nickel-obv.jpg', 'nickel-obv-4.jpg', 'nickel-obv-5.JPG'],
-  dime: ['dime-obv-2.jpg', 'dime-obv-3.jpg'],
-  quarter: ['quarter-obv.jpg', 'quarter-obv-3.png'],
+// Reference photographs per denomination, PER FACE.
+//
+// v2 OF THIS FILE TESTED OBVERSES ONLY, and it was made the primary gate in
+// §0 while structurally incapable of seeing five of the ten faces. The motif
+// round on the dime and nickel REVERSES found it: T1 was byte-identical before
+// and after a 163-line redraw, which looks like a pass and is a blind spot.
+// That is the same locus fault this project has now documented in D11
+// (measured at a size the app never draws), _jb14d1 (never imports the art)
+// and _jb3seal — committed by the judge, in the instrument the judge had just
+// promoted to primary.
+//
+// A child sees both faces. Both are tested.
+// Excluded with reasons: penny-rev-artwork.jpg is a plaster model with no
+// fittable disc (the project's own EXCLUDED list); quarter-rev-6.jpg is a 2006
+// Nebraska state quarter; quarter-rev-5.jpg is the same photograph as
+// quarter-rev.jpg at design NCC 0.9950, so it would count one image twice.
+export const POOL_BY_SIDE = {
+  obverse: {
+    penny: ['penny-obv.jpg', 'penny-obv-2.jpg', 'penny-obv-3.jpg', 'penny-obv-4.png'],
+    nickel: ['nickel-obv.jpg', 'nickel-obv-4.jpg', 'nickel-obv-5.JPG'],
+    dime: ['dime-obv-2.jpg', 'dime-obv-3.jpg'],
+    quarter: ['quarter-obv.jpg', 'quarter-obv-3.png'],
+  },
+  reverse: {
+    penny: ['penny-rev.jpg', 'penny-rev-2.png', 'penny-rev-1991d.png'],
+    nickel: ['nickel-rev.jpg', 'nickel-rev-2.png', 'nickel-rev-proof.png'],
+    dime: ['dime-rev.jpg', 'dime-rev-2.jpg', 'dime-rev-unc2005.png'],
+    quarter: ['quarter-rev-2.png', 'quarter-rev-3.jpg'],
+  },
 };
-const IDS = Object.keys(POOL);
+export let SIDE = 'obverse';
+export const setSide = (s) => { SIDE = s; };
+export const POOL = new Proxy({}, {
+  get: (_, k) => POOL_BY_SIDE[SIDE][k],
+  ownKeys: () => Reflect.ownKeys(POOL_BY_SIDE[SIDE]),
+  getOwnPropertyDescriptor: () => ({ enumerable: true, configurable: true }),
+});
+export const IDS = Object.keys(POOL_BY_SIDE.obverse);
 
 const grey = async (buf) => {
   const { data, info } = await sharp(buf).greyscale().raw().toBuffer({ resolveWithObject: true });
@@ -149,7 +178,7 @@ const corr = (a, b) => {
 
 // fit a disc on a rendered SVG: it is centred by construction
 async function oursAt(id, px) {
-  const g = await grey(Buffer.from(coinSVG(id, px, { side: 'obverse' })));
+  const g = await grey(Buffer.from(coinSVG(id, px, { side: SIDE })));
   return sampleDisc(g, g.w / 2, g.h / 2, Math.min(g.w, g.h) / 2 * 0.94);
 }
 
@@ -171,66 +200,83 @@ async function refAt(file, px) {
   return sampleDisc(g, g.w / 2, g.h / 2, g.w / 2 * 0.94);
 }
 
-// ── CONTROL FIRST. v1 ran the control last and published a headline number
-// that its own control then invalidated. The control now gates everything: if
-// the test cannot sort real PHOTOGRAPHS by denomination, it reports that and
-// exits without saying anything about our art.
-console.log('CONTROL FIRST — can the test sort real PHOTOGRAPHS by denomination?');
-console.log('descriptor: registered NCC on blurred gradient energy (the same one');
-console.log('_jq42indep.mjs uses), not raw greyscale — v1 used raw greyscale and');
-console.log('scored 3/12 on this control.\n');
-let cpass = 0, ctot = 0;
-for (const id of IDS) {
-  if (POOL[id].length < 2) { console.log(`${id.padEnd(9)} only ${POOL[id].length} reference — cannot hold one out`); continue; }
-  const held = POOL[id][0];
-  const h = await featOfRef(held);
-  const sc = [];
-  for (const t of IDS) {
-    const others = POOL[t].filter((f) => f !== held);
-    const vs = [];
-    for (const f of others) vs.push(designSim(h, await featOfRef(f)));
-    sc.push(Math.max(...vs));
-  }
-  const best = IDS[sc.indexOf(Math.max(...sc))];
-  const ok = best === id; ctot++; if (ok) cpass++;
-  console.log(`${id.padEnd(9)} ` + sc.map((v) => v.toFixed(3).padStart(9)).join('') + `   ${ok ? 'OK' : '!! sorted as ' + best}`);
-}
-console.log(`\nCONTROL: ${cpass}/${ctot} photographs sorted correctly.`);
-if (cpass < ctot) {
-  console.log('  !! THE TEST CANNOT SORT REAL COINS. Reporting nothing about our art —');
-  console.log('     that would be a measurement of the instrument, not of the drawing.');
-  process.exit(1);
-}
-console.log('  The test can sort real coins, so a failure below is about our ART.\n');
+// Only run the report when invoked directly; _jt2floor.mjs imports the
+// validated pieces above and must not re-run it.
+if (process.argv[1] && process.argv[1].endsWith('_jt1transfer.mjs')) {
+  // BOTH FACES. v2 tested obverses only while being the primary gate.
+  let grandPass = 0, grandTotal = 0;
+  for (const side of ['obverse', 'reverse']) {
+    setSide(side);
+    console.log(`\n${'='.repeat(64)}\n${side.toUpperCase()}\n${'='.repeat(64)}`);
 
-console.log('TRANSFER TEST — is our drawing nearer the RIGHT coin than any other?');
-console.log('at the sizes src/screens/money.js actually draws: ' + SIZES.join(', ') + ' px');
-console.log('(D11 is scored at 26px, a size the app never renders)\n');
-
-let pass = 0, total = 0;
-for (const px of SIZES) {
-  console.log(`=== ${px}px ===`);
-  console.log('our art  ->  ' + IDS.map((i) => i.padStart(9)).join('') + '     verdict');
-  for (const id of IDS) {
-    const o = await featOfOurs(id, px);
-    const sc = [];
-    for (const t of IDS) {
-      const vs = [];
-      for (const f of POOL[t]) vs.push(designSim(o, await featOfRef(f)));
-      sc.push(Math.max(...vs));
+    // ── CONTROL FIRST. v1 ran the control last and published a headline number
+    // that its own control then invalidated. The control now gates everything: if
+    // the test cannot sort real PHOTOGRAPHS by denomination, it reports that and
+    // exits without saying anything about our art.
+    console.log('CONTROL FIRST — can the test sort real PHOTOGRAPHS by denomination?');
+    console.log('descriptor: registered NCC on blurred gradient energy (the same one');
+    console.log('_jq42indep.mjs uses), not raw greyscale — v1 used raw greyscale and');
+    console.log('scored 3/12 on this control.\n');
+    let cpass = 0, ctot = 0;
+    for (const id of IDS) {
+      if (POOL[id].length < 2) { console.log(`${id.padEnd(9)} only ${POOL[id].length} reference — cannot hold one out`); continue; }
+      const held = POOL[id][0];
+      const h = await featOfRef(held);
+      const sc = [];
+      for (const t of IDS) {
+        const others = POOL[t].filter((f) => f !== held);
+        const vs = [];
+        for (const f of others) vs.push(designSim(h, await featOfRef(f)));
+        sc.push(Math.max(...vs));
+      }
+      const best = IDS[sc.indexOf(Math.max(...sc))];
+      const ok = best === id; ctot++; if (ok) cpass++;
+      console.log(`${id.padEnd(9)} ` + sc.map((v) => v.toFixed(3).padStart(9)).join('') + `   ${ok ? 'OK' : '!! sorted as ' + best}`);
     }
-    const best = IDS[sc.indexOf(Math.max(...sc))];
-    const ok = best === id; total++; if (ok) pass++;
-    const margin = Math.max(...sc) - Math.max(...sc.filter((_, k) => IDS[k] !== id));
-    console.log(`${id.padEnd(9)}    ` + sc.map((v) => v.toFixed(3).padStart(9)).join('')
-      + `     ${ok ? `OK   margin ${margin.toFixed(3)}` : '!! CONFUSED WITH ' + best}   n=${POOL[id].length}`);
+    console.log(`\nCONTROL: ${cpass}/${ctot} photographs sorted correctly.`);
+    if (cpass < ctot) {
+      console.log('  !! THE TEST CANNOT SORT REAL COINS. Reporting nothing about our art —');
+      console.log('     that would be a measurement of the instrument, not of the drawing.');
+      process.exit(1);
+    }
+    console.log('  The test can sort real coins, so a failure below is about our ART.\n');
+
+    console.log('TRANSFER TEST — is our drawing nearer the RIGHT coin than any other?');
+    console.log('at the sizes src/screens/money.js actually draws: ' + SIZES.join(', ') + ' px');
+    console.log('(D11 is scored at 26px, a size the app never renders)\n');
+
+    let pass = 0, total = 0;
+    for (const px of SIZES) {
+      console.log(`=== ${px}px ===`);
+      console.log('our art  ->  ' + IDS.map((i) => i.padStart(9)).join('') + '     verdict');
+      for (const id of IDS) {
+        const o = await featOfOurs(id, px);
+        const sc = [];
+        for (const t of IDS) {
+          const vs = [];
+          for (const f of POOL[t]) vs.push(designSim(o, await featOfRef(f)));
+          sc.push(Math.max(...vs));
+        }
+        const best = IDS[sc.indexOf(Math.max(...sc))];
+        const ok = best === id; total++; if (ok) pass++;
+        const margin = Math.max(...sc) - Math.max(...sc.filter((_, k) => IDS[k] !== id));
+        console.log(`${id.padEnd(9)}    ` + sc.map((v) => v.toFixed(3).padStart(9)).join('')
+          + `     ${ok ? `OK   margin ${margin.toFixed(3)}` : '!! CONFUSED WITH ' + best}   n=${POOL[id].length}`);
+      }
+      console.log('');
+    }
+    console.log(`TRANSFER: ${pass}/${total} correct across ${SIZES.length} sizes.`);
+    console.log(pass === total
+      ? '  Every denomination is nearer its own photographs than any other, at every size the app draws.\n  That is the owner\'s definition of done, met.'
+      : '  A confusion at a size the app draws is a REAL defect against the owner\'s definition of done.');
+    grandPass += pass; grandTotal += total;
   }
-  console.log('');
+  console.log(`\n${'='.repeat(64)}`);
+  console.log(`T1 OVERALL: ${grandPass}/${grandTotal} across both faces and ${SIZES.length} sizes.`);
+  console.log(grandPass === grandTotal
+    ? '  Every face is nearer its own denomination than any other, at every size the app draws.'
+    : '  A confusion at a size the app draws is a real defect against the objective.');
 }
-console.log(`TRANSFER: ${pass}/${total} correct across ${SIZES.length} sizes.`);
-console.log(pass === total
-  ? '  Every denomination is nearer its own photographs than any other, at every size the app draws.\n  That is the owner\'s definition of done, met.'
-  : '  A confusion at a size the app draws is a REAL defect against the owner\'s definition of done.');
 
 // clean up the renders written into ref/
 for (const t of TEMPS) { try { unlinkSync(new URL('../ref/' + t, import.meta.url).pathname); } catch {} }
