@@ -37,6 +37,60 @@ reconsider after calibration.
   button that could never appear. Fixed in v1.66.0 by cleaning the id before
   the test as well as after; verified against a deliberately poisoned server
   (9.3s pass, where the real failure was a 2.0m timeout). No assertion weakened.
+- 🔴🔴 **D7-TANGENT IS ESCALATED: it measures AUTHORSHIP, not curvature — and
+  this undermines the D7 re-score shipped in v1.66.0.** `crToBezier`
+  (`coloringbook/_nkbuild.mjs`) builds each knot's incoming and outgoing
+  controls from the **same** centripetal neighbour formula, so every unedited
+  path is **C1 by construction** and reads tangent ≈ 0 however sharply the
+  drawn outline turns. Verified by reading the generator, not inferred from
+  data. Five for five: quarter `HAIR.Washington` chord 102.0 → tangent **1.2**;
+  cent `HAIR.Lincoln` chord 144.5 → **1.0**. `BEARD` is the only hand-edited
+  path and the only one that registers.
+  **The ladder that settles it:** chord turn of the *flattened, drawn* outline
+  at 0.5–8 unit spans puts the shipped beard tip at 81.7…103.7 and the
+  **as-fitted version of the same corner** at 47.9…126.8 — harder at every span
+  ≥ 2, **and it passes**. D7 ranks two revisions of one tip in the opposite
+  order to the drawing.
+  v1.66.0's "almost every published D7 failure was the metric" is **true but
+  for the wrong reason**: those paths pass because they are unedited
+  Catmull-Rom output, not because anything showed them smooth. **Any D7 repair
+  must score the drawn outline at a declared span, not knot tangents.** That is
+  now the fourth proven rubric fault, alongside D6-blind-to-width,
+  D7-chord-never-curvature, and D6/D8 worsening on a shorter correct outline.
+- ⚖️ **RULED: `BEARD` knot 7 is a declared corner (Appendix P2), no geometry
+  changed.** Three candidates reach a clean D7 pass and all three round the
+  point off. The photographs **cannot resolve it**: the best reference gives
+  16.35 px per local unit so the disputed rung is 2–8 source pixels, and all
+  three show one continuous lock-and-whisker relief with **no beard/hair
+  boundary** — the coin has no exposed corner there because it is a junction
+  between two masses we draw and the die strikes as one.
+  ⚠️ Still owed: **where declarations live.** The content currently sits beside
+  the constant, which is this file's convention; P2 says the scorecard, by
+  index. Indices: `HEAD.Roosevelt` 23, `HAIR.Roosevelt` 0 and 16, `BEARD` 7.
+- 🔴 **`BEARD` is no longer a fitted contour, and the scorecard still says it
+  is.** The frozen fitter output has 13 knots; the shipped path has 14, and
+  knots 7–13 have all moved (4.89–13.70 units) while 0–6 are byte-identical.
+  The half that moved is the jaw half, which was never fitted — a hand-typed
+  polyline. The penny scorecard's D7 `locus` still reads "the three paths
+  `_pybuild.mjs` fits from the frozen mask".
+- 🔴 **The judge's own tooling has two live traps.**
+  (a) **Symlinked instruments measure the wrong tree.** `coloringbook/*` is
+  gitignored except `judge/**`, so specialists symlink the rest in — and a
+  symlinked `.mjs` resolves its **relative imports against the main checkout**.
+  `_x6dark.mjs` measured somebody else's tree and printed identical numbers
+  before and after an 860-character change. Only `_x6dark`/`_rvnorm`/`_rvdisc`
+  are symlinks and only `_x6dark` reads `src/`; every `judge/*` file is real.
+  (b) **`_jb11d11.mjs json` and `_jb10d13.mjs json` overwrite frozen hashed
+  artefacts** from a documented CLI flag, with no guard and no warning. A
+  specialist can void a round by typing an argument.
+- 🔴 **The quarter reverse device boundary is unmeasurable with what we hold.**
+  Two instruments failed in four configurations — a connected component that
+  bridges wingtip to legend at *every* threshold and survives 1.2 units of
+  opening, and a ray scan riding its bound on 97/180 rays. The only
+  device-separating references are cameo proofs, already recorded as oblique to
+  p95 4.8–11.1 % of R, which is **bigger than the feature**. That is nine
+  instruments across five subjects failing this way, each replaced in minutes
+  by a ladder overlay. **D2-reverse stays UNMEASURED.**
 - 🔴 **THREE FACES NOW REST ON n=1, and that is the project's real blocker.**
   Not a rubric problem and not a drawing problem — an evidence problem:
   - **cent** whisker boundary: only `penny-obv-2.jpg` supports it; the other

@@ -3,6 +3,96 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.70.0 — 2026-08-22
+
+**The quarter's eagle stops being a bat, and D7 turns out to measure who typed
+the coordinates rather than how hard the curve turns.**
+
+### D7's tangent measure is blind on the art it was built to score
+
+This is the fourth proven rubric fault and the most serious, because it
+undermines the D7 re-score shipped two versions ago.
+
+`crToBezier` builds each knot's incoming and outgoing control points from the
+**same** centripetal-Catmull-Rom neighbour formula, so the tangent is
+continuous at every knot **by construction**. Any path still equal to its
+fitter output therefore reads a tangent discontinuity of ~0 *no matter how
+sharply the drawn outline turns*. Verified structurally by reading the
+generator, not inferred from the data.
+
+Five for five, that is exactly what happens — the quarter's `HAIR.Washington`
+turns a chord of 102.0° and reads **tangent 1.2**; the cent's `HAIR.Lincoln`
+turns 144.5° and reads **1.0**. The cent's `BEARD` is the only path
+hand-edited after fitting, and it is the only one that registers anything.
+
+**The ladder that settles it.** Measuring the chord turn of the *flattened,
+drawn* outline at spans of 0.5 to 8 local units puts the shipped beard tip at
+81.7°…103.7° and the **as-fitted version of the same corner** at 47.9°…126.8°.
+The fitted version turns **harder at every span ≥ 2 units — and passes D7.**
+The dimension ranks two revisions of one tip in the opposite order to the
+drawing.
+
+So v1.66.0's headline — "almost every published D7 failure was the metric, not
+the drawing" — is true, but not for the reason given. Those paths pass because
+they are unedited Catmull-Rom output, not because anything showed them to be
+smooth. **D7-tangent is escalated.**
+
+`BEARD` knot 7 is accepted as a **declared corner** under Appendix P2, with no
+geometry changed. Three candidates take it to a clean pass and all three round
+the point off — the drawn turn at 0.5 units goes 81.7° → 29.2° / 7.0° / 17.0°.
+None taken.
+
+Reported alongside: **`BEARD` is not a fitted contour at all any more.** The
+frozen fitter output has 13 knots, the shipped path has 14, and knots 7–13 have
+all moved. The half that moved is the jaw half, which was never fitted — it is
+a hand-typed polyline — while the scorecard's D7 locus still describes this
+path as one the fitter produces.
+
+### The eagle
+
+It read as a bat beside the other seven faces: unbroken dark membrane wings,
+no feather separation, a head too small for the spread. Now the trailing edge
+is five scallops instead of one sweep, the primaries are four grooves anchored
+on the notches instead of five strokes floating in a 5-unit sliver, the coverts
+go from two rows to four, and the head is a traced outline with a hooked bill.
+
+**The restraint is what makes it safe.** D2 is unmeasured on this face, so the
+round refused to *move* the silhouette it could not score: the five scallops
+are placed on the old curve's own nodes, and at the midpoints of that same
+curve, so the outline runs where it always ran to within a 0.85-unit sagitta.
+
+**My brief was over-pessimistic and the round corrected it.** I warned the
+reference pool was contaminated and that "only one usable reference" was a
+likely finding. It is the **healthiest pool in the project — four mutually
+independent same-design references.** Correctly discarded: a 2006 Nebraska
+state quarter, a duplicate pair that is one photograph, and a posterised
+*rendering* that the design test cannot distinguish from another denomination.
+
+D6 rises honestly (numerator +33.8 against a denominator that moved 0.4 %), D13
+improves at every tier, and **D10-reverse regresses** — 42→44 `d(ink)` 0.0502 →
+0.0544 absolute — which the round reported rather than optimised away. It
+explicitly declined to re-tune the icon head scale, which would have reduced
+that numerator, because that is choosing a head size to move a gate. It also
+rejected its own first head, which hit every measured extent and rendered as a
+seal.
+
+**It could not measure the device boundary, and said so.** Two instruments
+failed in four configurations — a connected component that bridges wingtip to
+legend at *every* threshold and survives 1.2 units of opening, and a ray scan
+that rides its bound on 97 of 180 rays. Both kept as failure reports with **no
+number quoted from either**. That is nine instruments across five subjects
+failing the same way, each time replaced in minutes by a ladder overlay.
+
+### A trap worth knowing about the judge's own tooling
+
+`coloringbook/*` is gitignored except `judge/**`, so a specialist working in a
+worktree symlinks the rest in — and **a symlinked `.mjs` resolves its relative
+imports against the main checkout**. `_x6dark.mjs` therefore measured somebody
+else's tree, printing identical numbers before and after an 860-character
+change. Also: two instruments overwrite frozen hashed artefacts from a
+documented CLI flag, with no guard — a specialist can void a round by typing an
+argument.
+
 ## v1.69.0 — 2026-08-22
 
 **Jefferson's wig gets strand detail across the front, and a third face in a row

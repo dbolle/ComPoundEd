@@ -1550,6 +1550,69 @@ const HAIR = {
 // Also unclosed: at x = -4 there are still 16.75 units of bare cheek between
 // HAIR's lower edge and BEARD's upper edge, because HAIR's front lower boundary
 // climbs to y -12.25 there and only HAIR can bring it down.
+//
+// ─────────────────────────────────────────────────────────────────────────
+// DECLARED CORNER — knot 7, the rear tip (-18.85, 4.00). D7 reports an 85.0
+// degree tangent discontinuity there and this path keeps it deliberately.
+// Appendix P2: "a path authored as a polygon declares its corners... and those
+// knots are exempt." Four measurements say this is that case, all re-derived
+// this round by coloringbook/judge/_sb7tan.mjs, _sb7cand.mjs and _sb7d1.mjs.
+//
+// 1. THIS IS NOT A FITTED CONTOUR ANY MORE, so D7's fitted restriction does not
+//    reach it as written. The frozen fitter output `coloringbook/_pyout.json`
+//    has 13 knots; the shipped path has 14, and knots 7..13 have ALL moved,
+//    by 4.89 / 5.35 / 7.06 / 13.70 / 12.40 / 6.74 units. Knots 0..6 — the outer
+//    run taken from the head mask's own knots — are byte-identical. The half
+//    that moved is the JAW half, which `_pybuild.mjs` never fitted either: it
+//    is a hand-typed polyline read off ref/penny-obv-3.jpg.
+//
+// 2. THE TANGENT MEASURE IS BLIND ON CATMULL-ROM OUTPUT, so 85.0 is a statement
+//    about AUTHORSHIP, not about how hard the curve turns. `crToBezier` is C1
+//    by construction, so every knot of every fitted path on this coin reads
+//    0.1-1.0 degrees whatever the drawing does — including this very knot
+//    before it was moved (fitted: tangent 0.8, knot-polygon chord 95.7), and
+//    including HAIR.Lincoln's two chord turns over 75 (worst 144.5, tangent
+//    1.0). Only a hand-edited knot can register at all. Five for five, against
+//    the fitters' own frozen outputs: quarter HEAD/HAIR.Washington and cent
+//    HEAD/HAIR.Lincoln all still EQUAL `_qtout.json` / `_pyout.json` and read
+//    tangent 1.2 / 1.2 / 0.7 / 1.0 while their chord corners run to 144.5;
+//    `BEARD` is the one path that no longer equals its fit, and the one path
+//    D7 flags.
+//
+// 3. ON THE DRAWN OUTLINE — the measure that IS commensurable between a fitted
+//    knot and an authored one — this tip is the third or fourth sharpest turn
+//    on this face, not the first. Chord turn of the flattened curve at spans
+//    0.5/1/2/3/4/6/8 local units:
+//        BEARD knot 7 shipped     81.7  79.9  80.5  88.7  93.9 100.4 103.7
+//        BEARD knot 7 AS FITTED   47.9  71.4  93.8 106.5 114.4 122.9 126.8
+//        BEARD knot 10 sideburn   29.6  54.1  83.9  99.4 107.5 108.3  93.9
+//        HAIR.Lincoln knot 16    101.8 120.9 135.6 141.6 144.6 140.4 139.1
+//    The fitted version of this same corner turns the drawn outline HARDER at
+//    every span from 2 units up and scores tangent 0.8 (a pass); knot 10 and
+//    HAIR's cusp both turn harder and score 0.0 and 1.0. D7 ranks the two
+//    revisions of this tip in the opposite order to the drawing.
+//
+// 4. EVERY WAY OF MEETING THE GATE ROUNDS THE POINT OFF, and three were tried
+//    (_sb7cand.mjs). Rotating either flanking control into collinearity, or
+//    splitting the difference, takes the break to 0.00 — and takes the drawn
+//    turn at 0.5 units from 81.7 to 29.2 / 7.0 / 17.0. Candidate B also swings
+//    the rear-edge control to (-21.89, 5.28), three units BEHIND the tip, and
+//    adds 9.81 sq units of mass. A gate met by deleting the feature is the
+//    change COIN-JUDGE §8 forbids, so none was taken.
+//
+// WHAT THE PHOTOGRAPHS CAN AND CANNOT SAY. The tip is 0.332 local units INSIDE
+// the HAIR outline (re-derived; v1.62.0 published 0.345, and 0.840 outside for
+// the old tip against its published 0.841). All three references show one
+// continuous lock-and-whisker relief there with no beard/hair boundary at all,
+// so the coin has no exposed corner to measure — the corner is a JUNCTION
+// between two masses we draw and the coin strikes as one, and burying it is
+// what closed the cheek-tone wedge. And the scale the dispute lives at is below
+// what the artefacts carry: penny-obv-3 is 16.35 source px per local unit,
+// penny-obv-2 7.40, penny-obv.jpg 4.13, so the 0.5-unit rung is 2-8 source
+// pixels. It is below what the APP carries too — the largest penny the app ever
+// draws is a 66 css px box (money.js coinRow at 84), where one local unit is
+// 0.515 css px and that rung is 0.257.
+// ─────────────────────────────────────────────────────────────────────────
 const BEARD = [
   'M 15.15 12.77 C 15.64 13.62 13.67 16.33 12.3 17.51',
   'C 10.84 18.76 8.36 18.92 6.51 19.89 C 4.62 20.89 3.04 22.71 1.07 23.44',
@@ -3653,29 +3716,125 @@ function eagle(tier, p, boxW) {
   // THE WING. `v` is distance from the coin's vertical axis, so one authored
   // path mirrors exactly; the sweep flag flips with `f` because a mirrored
   // arc runs the other way round.
+  //
+  // THE OUTER ARC IS RIGHT AND WAS RE-CHECKED BEFORE ANYTHING ELSE MOVED.
+  // Read off a radius ladder drawn on the disc-normalised references
+  // (`coloringbook/judge/_sq8zoom.mjs`): at 34 px per viewBox unit over the
+  // whole wing (`_sq8-zoomb-quarter_rev_2_png.png`,
+  // `_sq8-zoomb-qp1963_rev_pad_png.png`) and at 48 px per unit across the nine
+  // o'clock tip (`_sq8-zoomt-quarter_rev_3_jpg.png`), the wing's outer boundary
+  // is a groove-and-ridge pair sitting ON the r 36 ring from y 22 through y 56,
+  // with the blades stepping inboard at r 34, 32, 30 and 28. `WING_R = 35.4` is
+  // 0.6 units inside that, so the silhouette's outer edge is NOT this round's
+  // defect and is not touched. What is wrong is everything happening INSIDE it.
+  //
+  // Recorded because it cost an hour: read off a whole-coin overlay at 880 px
+  // (`_sq5-over-after.png`) the same edge looks like r 30, five units in. It is
+  // not; the coin is 47 units of radius in 431 px there and the reeded rim and
+  // the legend swamp the wingtip. The high-magnification ladder is the evidence
+  // and the whole-coin overlay is not, on this feature.
+  //
+  // THE TRAILING EDGE IS A ROW OF FEATHER TIPS, NOT A SMOOTH CURVE, and that
+  // is the "bat" the judge saw. On both proofs and on `quarter-rev-2.png` the
+  // wing's lower boundary is scalloped: five blunt primary tips, each ending in
+  // a notch, and the notches are what the eye counts. Drawn as two long `C`
+  // curves the whole lower boundary was one unbroken sweep from the wingtip to
+  // the body — a membrane, which is exactly what a bat has and a bird does not.
+  //
+  // T0..T5 are NOT new geometry: T0, T3 and T5 are the old curve's own on-path
+  // nodes and T1, T2, T4 are that same curve evaluated at t = 1/3, 2/3 and 1/2.
+  // So the trailing edge runs where it always ran, to within the 0.85-unit
+  // scallop depth, and the change is an edge TREATMENT rather than a new
+  // outline. That matters because the outline is the one thing here no
+  // instrument can gate: D2 is UNMEASURED on this face and the references
+  // cannot settle it (see the round report), so a silhouette this round cannot
+  // measure is a silhouette this round does not move.
+  const TRAIL = [[32.59, 63.83], [28.03, 61.27], [23.5, 59.05],
+    [19, 57.5], [12.13, 55.79], [6, 54]];
+  // quadratic scallops rather than `A`: the control point is offset along the
+  // chord's normal, so the bulge direction is decided by arithmetic that
+  // mirrors with `f` instead of by a sweep flag that has to be reasoned about
+  // twice. `n = (dy, -dv)` points away from the wing interior because the
+  // traversal runs from the tip inward (dv < 0).
+  const SAG = 0.85;
+  const scallops = (f) => TRAIL.slice(1).map(([v1, y1], i) => {
+    const [v0, y0] = TRAIL[i];
+    const dv = v1 - v0, dy = y1 - y0, len = Math.hypot(dv, dy);
+    const cv = (v0 + v1) / 2 + (dy / len) * 2 * SAG;
+    const cy = (y0 + y1) / 2 + (-dv / len) * 2 * SAG;
+    return `Q ${x(f, cv)} ${n2(cy)} ${x(f, v1)} ${n2(y1)}`;
+  }).join(' ');
   const wing = (f) => `<path d="M ${x(f, 3.5)} 34.2
       C ${x(f, 7)} 35.2 ${x(f, 9.6)} 34.6 ${x(f, 11)} 33
       C ${x(f, 13.6)} 30.6 ${x(f, 16.6)} 25.6 ${x(f, 18.76)} 19.98
       A ${WING_R} ${WING_R} 0 0 ${f > 0 ? 1 : 0} ${x(f, 32.59)} 63.83
-      C ${x(f, 28)} 61.2 ${x(f, 23.5)} 58.6 ${x(f, 19)} 57.5
-      C ${x(f, 14)} 56.4 ${x(f, 10)} 55.2 ${x(f, 6)} 54
+      ${scallops(f)}
       C ${x(f, 4.6)} 46 ${x(f, 3.9)} 40 ${x(f, 3.5)} 34.2 Z"/>`;
-  // HEAD, NECK, BODY, LEGS. The head measures 11.5 units across and 6 tall on
-  // `quarter-rev-2.png` — an ellipse, not the circle this used to draw — with
-  // the crown at y 23.6 and the beak tip out at (40.6, 28.4). It sits LEFT of
-  // the axis, at cx 47.6, because the bird faces left.
+  // HEAD, NECK, BODY, LEGS.
+  //
+  // SUPERSEDED, kept beside its replacement rather than deleted (COIN-JUDGE
+  // §1.1, "retract beside; never rewrite"): "The head measures 11.5 units
+  // across and 6 tall on `quarter-rev-2.png` — an ellipse, not the circle this
+  // used to draw — with the crown at y 23.6 and the beak tip out at
+  // (40.6, 28.4). It sits LEFT of the axis, at cx 47.6, because the bird faces
+  // left." Re-read this round on a 40 px-per-unit ladder it is 10.8 by 6.9 with
+  // the crown at y 23.1 and the beak tip at X 43.0, and the shape is not an
+  // ellipse — see below. The bird does still face left.
   //
   // The icon head is scaled UP, as it has been since the first pass — a
   // 3-unit feature is under one device pixel at 26px and a head is what makes
   // an animal. 1.30 rather than the old 1.18 for a MEASURED reason: it is also
   // the icon/mid tier boundary's largest lever, and swept 1.00/1.18/1.30/1.45
-  // the boundary d(ink) reads 0.0988 / 0.0957 / 0.0895 / 0.0895. D10 is quoted
+  // the boundary d(ink) read 0.0988 / 0.0957 / 0.0895 / 0.0895. D10 is quoted
   // here in ABSOLUTE d(ink), never in the ratio, because the ratio's
   // denominator is a property of this drawing.
+  //
+  // That sweep was run on the ELLIPSE head and its numbers do not transfer to
+  // the outline below; 1.30 is carried over unchanged rather than re-tuned,
+  // because re-tuning it would be choosing a head size to move a gate. The
+  // measured cost of this round at the same boundary is d(ink) 0.0502 ->
+  // 0.0544 absolute (ratio 2.44x -> 2.74x against a 4x gate), reported rather
+  // than optimised away — `_jq10tier-v2.mjs`, reverse, sizes 26..120.
+  //
+  // RE-READ THIS ROUND, because "the head is small relative to the spread" was
+  // the judge's second named symptom. On a radius/grid ladder over
+  // `quarter-rev-2.png` at 40 px per viewBox unit
+  // (`_sq8-zoomh-quarter_rev_2_png.png`, generator `_sq8zoom.mjs`) the head
+  // runs X 43.0 (beak tip) to X 53.8 (back of the skull) and Y 23.1 (crown) to
+  // Y 30.0 (jaw) — 10.8 by 6.9, with the eye at (47.6, 24.5).
+  //
+  // Ours was 43.3..51.9 by 23.5..29.7 — 8.6 by 6.2 of skull — with the beak
+  // running a further 2.5 units out to X 40.8. So the head was NOT too small
+  // overall: it was too NARROW at the back and too LONG at the front, which is
+  // the profile of a gull rather than an eagle, and against a 70-unit wingspan
+  // a 2.4-unit deficit in skull width is most of what "small head" means.
+  // The skull grows to the measured width, the beak comes back to the measured
+  // tip, and the whole head shifts 0.6 right so the centre lands where the
+  // photograph puts it. Height moves 0.7, the smallest of the three.
+  //
+  // AND IT IS NOT AN ELLIPSE PLUS A NUB. The first attempt this round kept the
+  // ellipse and only moved its radii to the measured 10.8 x 6.9; rendered at
+  // 380px (`_sqA-head-s3.png`) that reads as a SEAL — a round skull with a
+  // triangular stub in front of it — which is worse than the too-narrow head it
+  // replaced. §8 cuts both ways and the render is the evidence, so the ellipse
+  // is gone and the outline below is traced off the ladder instead: a flat
+  // crown, a skull that falls away at the back into the nape, and a HOOKED BILL
+  // whose tip is the lowest-front point. The hook is the whole difference
+  // between a bird of prey and a duck at 84px.
+  //
+  // `hp` scales about the head's own centre so the icon tier's 1.30 still lands
+  // on the same feature, without a transform group that `struck()` would have
+  // to carry through three passes.
   const hs = tier === 'icon' ? 1.3 : 1;
-  const anatomy = `<ellipse cx="47.6" cy="26.6" rx="${n2(4.3 * hs)}" ry="${n2(3.1 * hs)}"/>
-    <path d="M 44.6 25.4 L ${n2(50 - 9.2 * hs)} 27.9 C 42.9 28.9 43.6 29.6 44.2 30
-      L 46.6 29.4 Z"/>
+  const HC = [48.2, 26.6];
+  const hp = (px, py) => `${n2(HC[0] + hs * (px - HC[0]))} ${n2(HC[1] + hs * (py - HC[1]))}`;
+  const anatomy = `<path d="M ${hp(42.9, 27.6)}
+      C ${hp(43.1, 26.4)} ${hp(43.3, 25.6)} ${hp(43.9, 25.1)}
+      C ${hp(44.4, 23.9)} ${hp(46.4, 23.1)} ${hp(48.6, 23.15)}
+      C ${hp(50.8, 23.2)} ${hp(52.6, 24)} ${hp(53.4, 25.4)}
+      C ${hp(54, 26.5)} ${hp(53.9, 28.2)} ${hp(53.2, 29.3)}
+      C ${hp(51.6, 30)} ${hp(49, 29.9)} ${hp(47.2, 29.2)}
+      C ${hp(46.2, 28.8)} ${hp(45.6, 28.4)} ${hp(45, 28)} Z"/>
     <path d="M 45.6 28.4 C 45.4 31 45.8 33 46.2 34.4 L 53.8 34.4
       C 53.6 32.6 53.2 30.4 52.6 28.2 Z"/>
     <path d="M 46.2 32.5 L 53.8 32.5 C 55.6 40 57 49.4 57.4 58.6
@@ -3762,15 +3921,37 @@ function eagle(tier, p, boxW) {
   // placement ran them from (20, 31) clear across to (33, 62) and at 380px
   // they read as five struts holding the wing up — the same failure mode as
   // the horizontal body bands that once made this bird a moth.
+  //
+  // WHAT CHANGED THIS ROUND, AND WHY IT IS NOT A NEW COUNT. The five blades
+  // used to be five free-floating strokes packed into a sliver v 21..26 wide,
+  // and at 380px they overlap into one dark smear — visible in
+  // `_sqA-wing-s1.png` before this edit, where the whole set reads as a single
+  // sliver at v 24..27. They are now the FOUR SEPARATIONS between the five
+  // scalloped tips the trailing edge cuts, so the visible feather count is
+  // still five, tied to a silhouette feature rather than floating free.
+  // Two shapes that meet in a photograph must overlap in a drawing (the $1
+  // note's tuning fork); here each groove lands exactly on its own notch.
+  //
+  // DIRECTION, MEASURED not assumed: on `_sq8-zoomb-quarter_rev_2_png.png` and
+  // `_sq8-zoomb-qp1963_rev_pad_png.png` the outer blades run from about
+  // (30, 30) to (17, 52) in viewBox units — top-RIGHT to bottom-LEFT on the
+  // left wing, i.e. (dv, dy) proportional to (13, 22). That unit vector is
+  // BLADE below. The old strokes ran the same way, which is why the direction
+  // is unchanged and only the extent and the anchoring move.
+  //
+  // The lengths TAPER toward the body because the inboard notches sit closer
+  // to the axis: at a common length the innermost groove crosses the breast
+  // (L = 22 puts it at v 0.95, inside a body whose edge is at v ~5). The four
+  // lengths are the largest that keep every start clear of the body outline.
+  const BLADE = [13 / Math.hypot(13, 22), 22 / Math.hypot(13, 22)];
+  const GROOVE_LEN = [22, 20, 17, 10];
   const primaries = tier !== 'icon'
-    ? [0, 1, 2, 3, 4]
-        .map((i) => {
-          const t = i / 4;
+    ? TRAIL.slice(1, 5)
+        .map(([v1, y1], i) => {
+          const L = GROOVE_LEN[i];
+          const v0 = v1 - L * BLADE[0], y0 = y1 - L * BLADE[1];
           return [1, -1]
-            .map(
-              (f) =>
-                `<path d="M ${x(f, 24 + 5 * t)} ${n2(37 + 10 * t)} L ${x(f, 33 - 2 * t)} ${n2(56 + 6 * t)}"/>`
-            )
+            .map((f) => `<path d="M ${x(f, v0)} ${n2(y0)} L ${x(f, v1)} ${n2(y1)}"/>`)
             .join('');
         })
         .join('')
@@ -3779,12 +3960,23 @@ function eagle(tier, p, boxW) {
   // them at `fine` (130px) meant the 84px recognition draw carried one and not
   // the other — an asymmetry with nothing in the object behind it. They now
   // follow the primaries.
+  //
+  // FOUR, NOT TWO, and this is the other half of "no feather separation". On
+  // the references the inner wing is SHINGLED: rows of short scallops running
+  // upper-left to lower-right — the opposite slope to the primaries, which is
+  // the tell that they are a different feather group and not more of the same.
+  // Two strokes across a mass 30 units deep left the whole upper wing bare, so
+  // the eye had one uninterrupted grey field from the leading edge to the
+  // blades. The two existing rows are unchanged; two more are interleaved
+  // between them on the same family of curves.
   const coverts = tier !== 'icon'
     ? [1, -1]
         .map(
           (f) =>
             `<path d="M ${x(f, 6)} 36 C ${x(f, 11)} 33.5 ${x(f, 15)} 30 ${x(f, 17.6)} 25"/>` +
-            `<path d="M ${x(f, 8)} 41 C ${x(f, 14)} 38 ${x(f, 19)} 34 ${x(f, 22.6)} 29"/>`
+            `<path d="M ${x(f, 7)} 38.5 C ${x(f, 12.5)} 35.8 ${x(f, 17)} 32 ${x(f, 20.1)} 27"/>` +
+            `<path d="M ${x(f, 8)} 41 C ${x(f, 14)} 38 ${x(f, 19)} 34 ${x(f, 22.6)} 29"/>` +
+            `<path d="M ${x(f, 9.4)} 43.6 C ${x(f, 15.8)} 40.4 ${x(f, 21)} 36.2 ${x(f, 25)} 31.2"/>`
         )
         .join('')
     : '';
@@ -3807,7 +3999,9 @@ function eagle(tier, p, boxW) {
     ? // ONE DARK DOT, and it is worth more than any other mark on this
       // motif: an eye is what turns a silhouette into an animal, and a child
       // finds it before they find the wings.
-      `<circle cx="46.6" cy="26.1" r="1" fill="${p.ink}" opacity="0.8"/>` +
+      // moved with the skull: the ladder puts the coin's eye at (47.6, 24.5)
+      // and the old (46.6, 26.1) sat below and in front of the widened head.
+      `<circle cx="47.4" cy="25.4" r="1" fill="${p.ink}" opacity="0.8"/>` +
       `<g fill="none" stroke="${p.ink}" stroke-linecap="round" opacity="0.45">
          <g stroke-width="1.1">${primaries}</g>
          <g stroke-width="1">${coverts}</g>
