@@ -429,6 +429,34 @@ reconsider after calibration.
      skips `judge/`, so `_rescore.mjs` reports UNMEASURED for the whole set. Any
      frozen-set claim made from a worktree needs the two-part check the penny
      round used (in-tree hashes plus direct hashes against main).
+   - 🟢🔴 **DRAW BIG AND SCALE DOWN BEATS THE TIER SYSTEM: T1 32/32 vs 24/32.**
+     The owner asked what the small sizes would look like if they were simply
+     the large drawing scaled down instead of tiers dropping detail. Measured
+     with `judge/_nk14scaletest.mjs`, both arms ending at the same device pixels
+     through T1's own descriptor and fitted registration:
+     - **SCALED wins 31 of 32 cells** (the single exception is the nickel
+       reverse at 84 px, by 0.005).
+     - **Every one of the eight reverse confusions disappears.** The penny
+       reverse goes from −0.063 to **+0.244** at 38 px; the quarter reverse from
+       −0.078 to +0.144 at 48 px.
+     - It also closes the two thinnest obverse margins, which the nickel round
+       had reported as unfixable without touching shared code: nickel 48 px
+       0.014 → **0.187**, 54 px 0.024 → 0.187.
+     **The tier system is costing recognition, not protecting it.** It was built
+     on the theory that sub-pixel detail is noise; the measurement says the
+     detail it discards — reeding, legends, interior modelling — is most of what
+     makes a coin identifiable at small size.
+     ⚠️ **This is an architecture change and has NOT been made.** The owner has
+     authorised rewriting the module to a spec rather than forcing fidelity at a
+     resolution that cannot support it. Open questions before acting: file size
+     and render cost of always emitting full detail; whether SVG at 38 px in a
+     real browser resamples as cleanly as Lanczos here; and whether `struck()`'s
+     bevel and the min-pixel stroke floor still behave when never simplified.
+     ⚠️ **Instrument note:** two earlier versions of this test rasterised the
+     tiers arm at natural size and then resampled, which handicapped it by ~0.03
+     of own-score and reported TIERS 22/32. **It was caught because it did not
+     reconcile with the official gate's 24/32.** A new instrument that argues
+     against an existing one must reproduce the existing one first.
    - 🔴 **NO COIN CARRIES ANY LETTERING AT MID (48 and 54 px)** — `INS_MAIN_MIN`
      is 62 — while every photograph plainly does at 48 px. Together with the
      min-pixel stroke floor (`sw(1.15, 0.9, boxW)`, which draws the silhouette
