@@ -248,3 +248,48 @@ The dime and cent rows stand — those pairs are genuinely different photographs
 but the metric should be read as *"how well does p90 sit on a plateau in this
 file"* and never as *"this reference is better than that one"* without an
 independence check first. NCC before plateau, from now on.
+
+## Cent obverse, added 2026-08-22 — TWO PROOFS, and neither closes the open gap
+
+Both supplied by the owner. Both measured with `judge/_jp3usmint.mjs`, which
+runs `_jp2indep.mjs`'s own imported comparison on an extended file list rather
+than editing its hashed `POBV`.
+
+- **`penny-obv-usmint.png` / `penny-obv-usmint-flat.png`** — US Mint pressroom,
+  2014-02-10, via commons.wikimedia.org/wiki/File:US_One_Cent_Obv.png.
+  **PD-USGov-Treasury: public domain**, and the **only reference in this pool
+  that is not third-party copyright**. 2000×2000, straight-on, diffuse,
+  background cut out (corner alpha 0). **Preprocessing declared:** the cut-out
+  is flattened onto neutral `#808080`; compositing onto black would invent a
+  hard black rim the coin does not have and bias both the disc fit and every
+  tone reading. Disc fit R 951.89.
+- **`penny-obv-proof2021.jpg`** — profilecoins.com, a commercial dealer.
+  **THIRD-PARTY COPYRIGHT: private measurement only, never redistributed,
+  never traced into shipped art.** 1200×1200, deep cameo.
+
+**Independence (design floor 0.3048, from `penny-obv-2.jpg` vs a quarter):**
+
+| | vs penny-obv | vs -2 | vs -3 | vs -4 | vs each other |
+|---|---|---|---|---|---|
+| US Mint 2013-S | 0.5863 | 0.7072 | 0.7863 | 0.8069 | — |
+| 2021-S | 0.4940 | 0.6576 | 0.5629 | 0.7223 | **0.7215** |
+
+All above the floor; raw NCC −0.14…0.37 so none is a duplicate; **no bound
+riding after widening the translation search to ±0.09R**. Both are independent
+of everything held, and of each other.
+
+**SHAPE ONLY — D1, D2, D7. Never D3 or D13.** Both carry an "S" mintmark, and
+since 1974 the San Francisco mint has struck **no business-strike cents**, so
+both are proofs. §20.3: a frosted proof is the best possible shape reference
+and the worst possible tone reference.
+
+⚠️ **So the cent's open problem is NOT closed by these.** What still rests on a
+single photograph is the **whisker boundary**, a texture/tone reading — only
+`penny-obv-2.jpg` supports it, and on the other struck references the
+discriminator has no contrast. **The outstanding acquisition is unchanged: a
+third STRUCK BUSINESS-STRIKE cent obverse.**
+
+✅ **What they do open:** the cent obverse now has **two independent deep-cameo
+proofs** — the same configuration that let the dime reverse get a traced D2
+target in v1.66.0. The cent obverse has never had a D2 target and could now
+get one by the same route.
