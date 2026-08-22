@@ -37,6 +37,41 @@ reconsider after calibration.
   button that could never appear. Fixed in v1.66.0 by cleaning the id before
   the test as well as after; verified against a deliberately poisoned server
   (9.3s pass, where the real failure was a 2.0m timeout). No assertion weakened.
+- 🔴 **D3-obverse on the QUARTER is failing, and round 9 caused it.**
+  0.1447 → **0.1927** against a gate of ≤0.1791 with no regression permitted.
+  Judge-re-derived with the frozen `_jq3tone.mjs` at both revisions. Round 9
+  reported a per-patch tone cost and the judge read it as local — **nobody
+  converted it into the aggregate, which is where the gate lives.** Not
+  reverted: shapes come before tone by owner decision and round 9 fixed a real
+  shape defect. The real repair is **groove duty at the patch scale**
+  (`RELIEF.Washington` pitch/opacity) — its own round, and it is the one that
+  actually closes this. ⚠️ Turning `hairLit` off would clear the gate
+  (0.1390) and was **refused**: the target cannot decide it (seven photographs
+  span ~3× the effect, and the two reading "wig darker" are one photograph at
+  design NCC 0.9959), it contradicts the owner's cross-coin palette decision,
+  and with the flag off the quarter drops out of family at 84px.
+- 🔴 **No corner declaration exists for any coin.** Appendix P2 says an
+  authored polygon declares its corners in the scorecard by index; none does.
+  The dime round showed its two surviving over-75 knots are **exactly the two
+  seams where the fitted outer run meets the hand-authored run** — which is
+  where P2 says a declaration belongs. Indices owed: `HEAD.Roosevelt` 23,
+  `HAIR.Roosevelt` 0 and 16, `BEARD` 7. **Judge ruling owed, not specialist
+  work.**
+- 🔴 **Two harness collisions found by running three rounds at once.**
+  (a) `deploy/sync-server.mjs` self-starts during every `npm test` — its guard
+  is `import.meta.url.endsWith(argv[1].split('/').pop())`, and when
+  `tests/server.mjs` imports it that basename is `server.mjs`, which
+  `sync-server.mjs` ends with. Every suite binds `0.0.0.0:8092` for a listener
+  the tests never use, so concurrent suites die on `EADDRINUSE`. Needs a
+  distinct `PORT` as well as `TEST_PORT` until the guard is fixed.
+  (b) Fresh git worktrees check out an **old default commit** (`be6cb73`,
+  v1.54.0) rather than the dispatch commit, and contain no `coloringbook/` or
+  `node_modules`. Both specialists had to reset and symlink before measuring —
+  a specialist that did not notice would silently measure v1.54.0.
+- ⚠️ **The frozen-hash convention has a wrinkle:** `*-history.jsonl` files are
+  **append-only evidence** and are in the hashed set, so recording a verdict
+  makes the next check report them as CHANGED. Exclude history logs when
+  regenerating the frozen set; they are a log, not a target.
 - **v1.66.0**, schema v19 (saves v19), full suite green on both CI
   lanes, deployed
   on LAN (https://compounded.lan + :8091) + GitHub Pages (CI-gated);

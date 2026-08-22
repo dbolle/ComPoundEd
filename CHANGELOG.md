@@ -3,6 +3,81 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.67.0 — 2026-08-22
+
+**A dime curve that was never drawn, a quarter round that correctly refused its
+own brief, and a D3 regression the judge had already accepted.**
+
+### The dime's front lock had a spur nobody authored
+
+`HAIR.Roosevelt`'s last segment ended at `(10, -28.4)` — **0.516 units short of
+its own `M` at `(10.37, -28.04)`** — so `Z` synthesised a straight line back to
+the start, at the one place the outline is meant to be a corner.
+
+**Two of the four "kinks" on this face were that spur**, not drawing decisions:
+knot 30 (84.8°) was the spur itself and knot 0 (156.3°, a near fold-back) was
+where it rejoined the crown. It also rendered as a visible white pinch in the
+stroke at the front lock. Ending the curve on its own start point removes both.
+`HAIR.Roosevelt` goes 31 knots → 30, tangent worst **156.3° (3 over) → 146.8°
+(2 over)**.
+
+**The other three corners were kept, because the coin has them.** The round
+showed this from overlays registered through the frozen disc fits: the bust
+truncation's forward point is an unmistakable hard V on two independent
+references, and for the front lock's tip *half the wedge is measured rather
+than eyeballed* — a device/field boundary walk on the cameo proof puts the
+crown edge leaving that vertex at **−157 ± 2°** against the −159.5° we draw.
+
+**Two changes that scored better were built, measured, and refused.** Curving
+the bust truncation takes D7 to a **clean PASS** (111.2° → 59.4°, 0 over) and
+draws the bust ending in a soft rounded U where the coin has a hard V. Swinging
+the nape round removes another over-75 and draws a barb no reference shows.
+
+### The quarter's `hairLit` round was dispatched to do something already done
+
+`OBVERSE.quarter.hairLit` has been `true` since **thirty-nine commits ago**.
+The brief told a specialist to set it. That was the judge relaying an earlier
+round's prose as if it were a measurement — the exact failure this project has
+a standing rule against, committed by the person who wrote the rule into the
+brief. Round 9's "hairLit true gives wigMid 0.880 / wigBack 0.876" describes a
+hairLit-**off** render; ours with the flag on is 1.148.
+
+**And it surfaced a regression that had already shipped.** D3-obverse on the
+quarter went **0.1447 → 0.1927** in round 9, against a gate of ≤0.1791 with no
+regression permitted. Re-derived independently by the judge with the frozen
+instrument at both revisions. Round 9 *did* report a per-patch tone cost, and
+the judge read it as local — nobody converted it into the **aggregate**, which
+is where the gate lives. A cost reported per-patch and a gate stated as a mean
+are not the same quantity.
+
+Round 9 flipped the *sign* of the wig-fill response: at round 0, turning
+`hairLit` off made D3 worse; now it makes it better, because removing the
+oversized dark cuts removed what had been holding the light fill down.
+
+**Not reverted, and not waived.** Shapes come before tone by owner decision, and
+round 9 fixed a real shape defect — our wig was a stripe pattern our own
+instrument could not measure. The regression is recorded with its cause named.
+The real repair is groove *duty* at the patch scale, which is its own round.
+
+**The refusal was right on four independent legs**, and the strongest is that
+the target cannot decide it: seven same-design photographs put the wig/cheek
+ratio at 0.737–1.508, a spread roughly three times the 0.30 effect — and the
+two references reading "wig darker" turn out to be **one photograph**, scoring
+0.9959 against each other on the project's own independence check.
+
+### The check that enforces every round could not run
+
+`_rescore.mjs`'s §1 frozen-artefact check ran `sha256sum` from the wrong
+directory, so it exited non-zero against every hash file this project
+generates — and it sat at module top level with **no `try`/`catch`**, so that
+failure took D9, D8, D11 and D10 down with it. A broken *check* silently
+suppressed every *measurement*.
+
+Fixed, with both tests it should always have had: corrupting a hash file now
+reports 710 changed and **VOID**, and naming a missing file reports
+**UNMEASURED — this is a failure report, not a pass** while the measurements
+still run.
+
 ## v1.66.0 — 2026-08-21
 
 **Three more obverse rounds, the $1 note's eagle redrawn, and a version-numbering

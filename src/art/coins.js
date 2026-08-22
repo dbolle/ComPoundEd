@@ -1366,7 +1366,22 @@ const HAIR = {
     'C -0.7 -12.1 0.1 -13.5 0.8 -15.1', // and up to a tall bare forehead
     'C 1.6 -16.6 2.3 -18.4 3.2 -20',
     'C 4.1 -21.6 5 -23.5 6.1 -24.9',
-    'C 7.2 -26.3 9.3 -27.8 10 -28.4 Z',
+    // CLOSE ON THE START POINT. This used to end at (10, -28.4), which is 0.516
+    // units short of the `M` at (10.37, -28.04), so `Z` synthesised a straight
+    // spur back to it: a 0.52-unit line at the one place the outline is a
+    // corner. It rendered as a white pinch in the stroke at the front lock and
+    // it put TWO knots in D7 that the drawing never meant to have — 84.8 deg at
+    // the spur and 156.3 deg (a near fold-back) at the closure. Ending the
+    // curve on its own start point removes both. The tip STAYS a corner,
+    // because the coin has one: the front lock projects over the forehead and
+    // ends in a point. Half of that wedge is measured rather than eyeballed —
+    // `judge/_sd7edge.mjs` walks the device/field boundary on the cameo proof
+    // and puts the crown edge leaving this vertex at -157 +-2 deg against the
+    // -159.5 deg we draw — and the hairline half, which is device against
+    // device and cannot be segmented, reads 163 deg on dime-obv-2.jpg and
+    // 172 deg on dime-obv-3.jpg off `judge/_sd7fan.mjs`'s protractor. That is a
+    // wedge of 40 and 27 deg either side of the 33.1 deg this closure draws.
+    'C 7.2 -26.3 9.3 -27.8 10.37 -28.04 Z',
   ].join(' '),
   // WASHINGTON'S WIG, and it is the hair mass, the queue AND the ribbon bow
   // in ONE shape, because on the coin they are one continuous form (§11.6:

@@ -40,23 +40,40 @@ const run = (script, cwd = ROOT, args = []) => {
 // meaningless if a target was edited.
 const hashFile = process.env.HASHES;
 if (hashFile && existsSync(hashFile)) {
-  const want = readFileSync(hashFile, 'utf8').trim().split('\n');
-  const files = want.map((l) => l.split(/\s+/).slice(1).join(' '));
-  const got = execFileSync('sha256sum', files, { cwd: `${ROOT}coloringbook`, encoding: 'utf8' })
-    .trim()
-    .split('\n')
-    .sort();
-  const changed = [];
-  const byName = new Map(got.map((l) => [l.split(/\s+/).slice(1).join(' '), l.split(/\s+/)[0]]));
-  for (const line of want) {
-    const [h, ...rest] = line.split(/\s+/);
-    const name = rest.join(' ');
-    if (byName.get(name) !== h) changed.push(name);
-  }
-  console.log(`\n=== §1 frozen artefacts: ${want.length} checked, ${changed.length} CHANGED`);
-  if (changed.length) {
-    console.log('!!! ROUND IS VOID — a hashed target or instrument was edited:');
-    changed.forEach((c) => console.log('    ' + c));
+  // TWO FAULTS, both found by the dime D7 round, both fixed here.
+  //
+  // 1. The cwd was `${ROOT}coloringbook`, but every hash file in this project
+  //    records paths relative to the REPO ROOT (`coloringbook/_headmask.json`).
+  //    They resolved to `coloringbook/coloringbook/...`, sha256sum exited
+  //    non-zero, and the check §1 calls "enforcement, mechanically" could not
+  //    be run by the tool built to run it.
+  // 2. It sat at module top level with no try/catch, so that non-zero exit
+  //    took D9, D8, D11 and D10 down with it — a broken CHECK silently
+  //    suppressed every MEASUREMENT. An instrument that cannot run must report
+  //    UNMEASURED and get out of the way, not delete the rest of the round.
+  try {
+    const want = readFileSync(hashFile, 'utf8').trim().split('\n');
+    const files = want.map((l) => l.split(/\s+/).slice(1).join(' '));
+    const got = execFileSync('sha256sum', files, { cwd: ROOT, encoding: 'utf8' })
+      .trim()
+      .split('\n')
+      .sort();
+    const changed = [];
+    const byName = new Map(got.map((l) => [l.split(/\s+/).slice(1).join(' '), l.split(/\s+/)[0]]));
+    for (const line of want) {
+      const [h, ...rest] = line.split(/\s+/);
+      const name = rest.join(' ');
+      if (byName.get(name) !== h) changed.push(name);
+    }
+    console.log(`\n=== §1 frozen artefacts: ${want.length} checked, ${changed.length} CHANGED`);
+    if (changed.length) {
+      console.log('!!! ROUND IS VOID — a hashed target or instrument was edited:');
+      changed.forEach((c) => console.log('    ' + c));
+    }
+  } catch (e) {
+    console.log('\n=== §1 frozen artefacts: UNMEASURED — the check itself failed to run');
+    console.log('    This is a FAILURE REPORT, not a pass. The round is unverified.');
+    console.log('    ' + String(e.message).split('\n')[0]);
   }
 } else {
   console.log('\n=== §1 frozen artefacts: NOT CHECKED (set HASHES=... to check)');
