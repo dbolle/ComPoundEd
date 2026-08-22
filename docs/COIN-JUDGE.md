@@ -421,6 +421,42 @@ So every dimension carries a mandatory `locus` field — the region, radius
 band, patch set or path list the metric is evaluated over — and **the locus
 is frozen with the target**, not chosen at measuring time.
 
+#### 6.1.1 The locus is WHERE you look, not WHAT you find there
+
+**Freezing the locus does not license freezing our own drawing.** This
+distinction was not stated, and three instruments have misread it in exactly
+the same way — one of them citing §6.1 by number in the comment that does it.
+
+`_jb3seal.mjs` copies the note's roundel geometry into a literal `OURS`, with
+the note *"restated here as a literal so the LOCUS is never a function of the
+artefact (§6.1)"*. That is backwards. The rule exists so nobody can move the
+measuring window until the score improves. It says nothing about the value you
+read inside that window — and that value **must** come from the live art, or
+the instrument is reporting a drawing that no longer exists.
+
+The consequence is not theoretical. `_jb3seal.mjs` never imports `coins.js`,
+so it still publishes the note's roundels as circles at `cx 30/70, r 15/16` —
+the round-0 drawing, superseded in v1.63.0 when they were rebuilt as measured
+ellipses. Its D2 FAILs describe art that has not existed for ten versions.
+`_jb14d1.mjs` has the same bug and printed `0.1496 FAIL` against a true
+`1.0000` for as long.
+
+**The rule, stated so it cannot be misread again:**
+
+- The **locus** — region, radius band, patch set, path list, transect set — is
+  frozen with the target and may never be derived from our art. This is §6.1
+  and it is unchanged.
+- The **artefact side of every comparison must be read from the live art at
+  run time.** An instrument that hard-codes what our drawing does is not
+  frozen, it is **blind**, and it will pass or fail by construction forever.
+- **Assert, never copy.** If an instrument needs a constant our art also
+  defines — a field radius, a tier boundary, a palette entry — it must import
+  it, or assert equality against the imported value and throw on mismatch. It
+  must not restate it. `EDGE.field` was changed 41.0 → 44.07 in v1.57.0 and
+  copies of the old value are still live in the library.
+- **A scorer that cannot print an "ours" column produced by running the art is
+  UNMEASURED, not a PASS and not a FAIL.**
+
 > **A locus may never be a function of the artefact under test.** Freeze it as
 > a literal, derived from the TARGET or stated outright — never computed from
 > our own drawing.
