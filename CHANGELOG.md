@@ -3,6 +3,73 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.73.0 — 2026-08-22
+
+**The dollar's portrait was the quarter's profile, shrunk.**
+
+### Wrong in kind, and the old comment said so
+
+The note's vignette contained `HEAD.Washington` — **the quarter's left-facing
+profile** — inside `translate(51.5 27.63) scale(0.3333)`. Both obverse
+photographs show a **near-frontal bust**. No transform of a profile is a
+frontal head, so no amount of tuning that placement could ever have worked.
+
+The tell was sitting in the comment above it, which reasoned about a bounding
+box "because Washington faces left". Verified directly against the previous
+revision rather than taken on report.
+
+That is the fourth defect of this class — after the pyramid that was a triangle
+with a hat, the roundels that were circles, and the nickel's phantom columns —
+and it was the last one still visible by eye across the ten faces.
+
+Replaced with a frontal Washington: five paths and nine ellipses, in **absolute
+viewBox units with no group transform**, because the placement error lived
+entirely in the `translate`/`scale` indirection. `struck()` is no longer called
+here: a note is **printed, not struck**, and neither photograph shows a lit
+edge.
+
+**Scale decided the content, before anything was drawn.** One viewBox unit is
+1.042 px at the naming draw, so the whole portrait is **20 × 29 device pixels**
+there. Masses at icon, face and jabot at mid, features only at full.
+
+**The tone was measured and the deviation published as a decision.** Both
+photographs read the note as a *light* device on a *dark* ground (1.29–1.52×)
+and ours was **inverted**. The order is now the note's, and the spacing is
+deliberately stretched beyond the measurement — face 1.59 against a measured
+1.33 — because a 1.16× step is invisible at 1 px per unit. That stretch is
+recorded as a choice, not presented as the measurement.
+
+### What it reported against itself
+
+**D13 at icon regresses by 0.018**, stated as genuine rather than explained
+away; four of six D13 rows improve, two regress, and every row fails both ways.
+D6's fraction worsens 25.15 % → 28.28 % with the **numerator bit-identical** at
+75.2 — the old drawing emitted the head three times and this one emits it once
+— so no improvement and no regression is claimed.
+
+It also declined the coat colour that fits the measurement better, taking the
+one that looked right and saying plainly that the ~0.010 D13 gain was not the
+reason. And it **discarded a suite run rather than report it**, because it had
+swapped the art file for fifteen seconds mid-run to take before-numbers.
+
+### The note's D1 has been reported by a tool that cannot see the note
+
+`_jb14d1.mjs` holds `OURS` as a **frozen literal of a drawing superseded in
+v1.63.0** and never imports `coins.js` at all. It prints `0.1496 FAIL` whatever
+the art says — it fails a response test by construction. Re-derived properly,
+D1 is **1.0000 at every tier**. Related: D9's response test perturbs
+`HEAD.Washington`, which the note no longer uses, so it no longer covers this
+face at all.
+
+### What it could not determine
+
+**The two obverse photographs disagree by 0.90 units on where the figure sits
+inside the oval** (mask IoU 0.582), and this side has no printed-border
+fiducial. Nothing in the round claims better than a unit, and overlays are
+published on both. For the same reason it **refused to freeze a D2 target** for
+the vignette: a target that disagrees with itself by 0.42 IoU cannot score art
+to 0.05.
+
 ## v1.72.0 — 2026-08-22
 
 **A refusal, and the instrument that made the refused change look attractive

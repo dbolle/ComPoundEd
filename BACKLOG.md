@@ -198,6 +198,23 @@ reconsider after calibration.
 - ⚠️ **`ref/penny-obv-4.png` is unusable for texture**: a hashed obverse
   reference with a frozen disc fit whose entire bust is uniform granulation
   with no strands anywhere. Wants a line in `REFERENCES.md`.
+- 🔴 **`_jb14d1.mjs` cannot measure the note's D1 and has not been able to
+  since v1.63.0.** Its `OURS` is a frozen literal of a superseded drawing and
+  the file never imports `coins.js`; it prints `0.1496 FAIL` whatever the art
+  says, failing a response test by construction. True value: **1.0000 at every
+  tier**. Related: D9's response test perturbs `HEAD.Washington`, which the
+  note no longer uses, so **D9 no longer covers the note at all** — pointing it
+  at `VIGNETTE.head` restores it.
+- 🔴 **The note's obverse has no D2 target and cannot get one from what we
+  hold.** The two obverse photographs disagree by **0.90 units in X** on where
+  the figure sits inside the frozen oval (mask IoU 0.582), and this side has no
+  printed-border fiducial to register against. A target that disagrees with
+  itself by 0.42 IoU cannot score art to 0.05, so the round refused to freeze
+  one. **Judge call owed: BLOCKED or UNMEASURED.**
+- ⚠️ **The note's two sides now read at different weights.** The obverse is a
+  dark vignette ground with light devices; the reverse is still light-on-light.
+  At 26–38 px that difference is visible. Flagged by the portrait round, not
+  acted on.
 - 🔴 **The quarter's n=1 problem is NOT solved, and the judge's earlier
   optimism here is withdrawn.** `coloringbook/ref/quarter-obv-1963ccby.jpg` is a
   1963 **struck** business-strike Washington quarter obverse under flat diffuse
