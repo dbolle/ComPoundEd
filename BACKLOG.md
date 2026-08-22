@@ -403,6 +403,53 @@ reconsider after calibration.
      step: lock the 134 ids against the fixture, lock the payouts, drop
      `/money` from `BETA_ROUTES`, drop `isBeta` from `moneyVisible`, and
      decide explicitly whether preview progress is kept or cleared.
+   - 📌 **OWNER DECISIONS, 2026-08-22 — these supersede where they conflict.**
+     1. **"DONE" IS A TRANSFER CRITERION.** Verbatim: *"No remaining wrong in
+        kind defects AND a child can identify a photo based on only learning
+        about the denominations from our pictures. **Distinguishing our
+        renderings from each other is not the point, learning to identify real
+        currency is.**"*
+        ⚖️ **This invalidates D11's OBJECTIVE.** D11 measures our-art against
+        our-art. A set of drawings could be maximally distinct from one another
+        and teach a child nothing about the coins in their hand. Replaced by
+        `judge/_jt1transfer.mjs`, which asks whether each of our faces is nearer
+        the **right denomination's photographs** than any other's, at the sizes
+        the app really draws.
+     2. **The four proven-broken dimensions are DEMOTED TO ADVISORY** — D6, both
+        D7 metrics, and D8's shorter-outline behaviour are **reported, not
+        gated**. Stop optimising against them; stop warning specialists to
+        disbelieve them in every brief.
+     3. **References: keep using sourced photographs for now.** The owner has a
+        scanner available "in a few days" — **raise it again then if reference
+        quality is still blocking**, which it currently is on the cent's
+        whisker boundary.
+     4. **Small rulings delegated to the judge**, overturnable later.
+   - 🔴 **FIFTH RUBRIC FAULT — a LOCUS fault, not an estimator fault. D11 is
+     scored at a size the app never draws.** `_x6lib.mjs:16` says
+     `ICON_SIZE = 26 // the quarter diameter the app's icon tier draws`. That
+     comment is **false**: `src/screens/money.js` draws `coinRow(...,38)`,
+     `coinRow(...,48)` and `coinRow(...,84)`. **No D11 number has ever been
+     computed at 84px, the naming stage.** The response test passes at every
+     size, so the tool is sound — the locus was never derived. Consequence: the
+     closest pair changes with size (nickel/dime at 26px, dime/quarter at 84px,
+     two pairs moving 7–9 ranks), and the §17 ratio reads 1.49× / 1.40× / 1.69×
+     at 26 / 48 / 84. So D11 was measuring the wrong quantity **and** in the
+     wrong place.
+   - 🔴 **THE TRANSFER TEST FAILS AT 38px, AND 38px IS THE PILE DRAW.**
+     `judge/_jt1transfer.mjs`, control-gated (it sorts real photographs 4/4
+     before it will say anything about our art):
+     **10 of 12 correct.** At 48px and 84px it is **8/8** with margins growing
+     to 0.216. Both failures are at **38px**: our **penny reads as a nickel**
+     (0.084 vs 0.165) and our **quarter reads as a nickel** (0.115 vs 0.276).
+     38px is `coinRow(opt.coins, 38)` — the size a child sees when counting a
+     **pile**. Confusing a cent with a nickel there is a 1¢-vs-5¢ error in the
+     exact task the app teaches. **This is the first defect found against the
+     owner's own definition of done, and no existing gate can see it.**
+     ⚠️ v1 of this instrument used raw greyscale correlation and **failed its
+     own control 3/12** — real dime photographs did not sort as dimes, because
+     raw pixel correlation on photographs records lighting, not design. Its
+     numbers were discarded, not filed. The control now runs FIRST and exits
+     before reporting anything if it fails.
    - 📌 **Standing owner decisions on the coin art (2026-08-21). Do not
      re-open without overturning these first.**
      1. **Shapes and detail before tone.** D1, D2, D4, D6, D7 outrank D3 and
