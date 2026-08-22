@@ -429,6 +429,28 @@ reconsider after calibration.
      skips `judge/`, so `_rescore.mjs` reports UNMEASURED for the whole set. Any
      frozen-set claim made from a worktree needs the two-part check the penny
      round used (in-tree hashes plus direct hashes against main).
+   - ⚠️ **T1 UNDERSTATES THE ART, BECAUSE IT DISCARDS COLOUR.** T1 scores
+     registered NCC on blurred gradient energy of a **greyscale** raster, so
+     colour contributes exactly nothing — yet the cent is the only copper coin
+     in the set and colour is the most salient cue at 38 px.
+     Measured (`judge/_jt3colour.mjs`, mean warm chroma R−B over the disc):
+
+     | | references | ours at 38/48/54/84 |
+     |---|---|---|
+     | penny | +87.9 / +61.6 / +89.1 | **+120.9 … +126.3** |
+     | nickel | 0.0 / +5.3 | −12.6 … −12.4 |
+     | dime | −3.1 / −3.0 | −12.3 … −12.5 |
+     | quarter | +10.0 / +52.0 | −13.5 … −13.6 |
+
+     Our penny is **more strongly copper than the real coins**, and sits ~135
+     chroma units from any of our silver coins. **So T1's "penny reverse reads
+     as a nickel" is substantially a greyscale artefact** — no child confuses a
+     copper disc with a silver one. The dime→penny and quarter→dime confusions
+     are silver-on-silver and are NOT excused by this.
+     ⚠️ Do not simply bolt colour onto T1: a colour term needs its own control
+     and its own reference-invariance test, and `quarter-rev-3.jpg` reads +52,
+     so the reference chroma is not clean. Treat the 24/32 as a **lower bound**
+     on the art until that work is done.
    - 🔴 **T1 IS 24/32 ACROSS BOTH FACES AND ALL FOUR APP SIZES (38/48/54/84).**
      **Obverse is 16/16** — every obverse sorts to its own denomination at every
      size the app draws. **The reverses are 8/16 and are the entire remaining
