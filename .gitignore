@@ -29,6 +29,16 @@ coloringbook/judge/*
 !coloringbook/judge/*.json
 !coloringbook/judge/*.jsonl
 !coloringbook/judge/*.mjs
+# Retirement is by MOVE, never delete (COIN-JUDGE.md 1.1), so judge/retired/
+# holds the old hash of every instrument that ever published a number. It is
+# evidence for the same reason judge/ itself is, and needs its own un-ignore
+# rules because the `coloringbook/judge/*` line above re-ignores the subtree.
+!coloringbook/judge/retired/
+coloringbook/judge/retired/*
+!coloringbook/judge/retired/*.md
+!coloringbook/judge/retired/*.json
+!coloringbook/judge/retired/*.jsonl
+!coloringbook/judge/retired/*.mjs
 # NO TRACED DERIVATIVE IS COMMITTED. A carve-out here previously tracked
 # `_jd2target-*.png` — a silhouette TRACED from three third-party cameo proof
 # photographs — in a PUBLIC repository, while PROVENANCE-dime-proofs.md promises
