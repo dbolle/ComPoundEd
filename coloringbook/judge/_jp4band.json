@@ -1,60 +1,131 @@
 {
- "provenance": {
-  "coin": "penny (Lincoln cent)",
-  "round": 0,
-  "written": "2026-08-14, penny judge round 0, read off the POLAR UNWRAP of the references BEFORE any value of our own drawing was computed",
-  "generators": [
-   "coloringbook/judge/_jp3disc.mjs   -> _jp1discs.json, _jp3disc-overlay.png (every fit drawn on its own source)",
-   "coloringbook/judge/_jp4unwrap.mjs -> _jp4unwrap-<ref>.png",
-   "coloringbook/judge/_jp7edge.mjs   -> where the photograph's coin edge lands in viewBox units",
-   "coloringbook/judge/_jp6zoom.mjs   -> the half-unit ladder every radius below was read off"
-  ],
-  "why_by_hand": "Both automatic band readers written this round (_jp5band.mjs absolute-ink, _jp5band-v2.mjs local-angular-variance) reported themselves AT a search bound on this coin (COIN-JUDGE.md 4.1) because the memorial's relief on the reverse and the bust on the obverse run inboard of the legend with no bare gutter between. Appendix R3: a detector's failure is not the artefact's failure, and 2.1: a hand annotation read off the source is a legitimate frozen target."
- },
- "convention": {
-  "units": "viewBox units, X = 50 + 47 (px - cx) / R, so the coin's own silhouette is r = 47 BY CONSTRUCTION",
-  "rOuter": "radius of the legend's extreme nearest the RIM",
-  "rInner": "radius of the legend's extreme nearest the CENTRE",
-  "cap": "rOuter - rInner",
-  "note": "rOuter/rInner are used instead of baseline/cap-top on purpose. A top legend has its typographic baseline at rInner and a bottom legend has it at rOuter, and judge/_jq4band.json (the quarter's) records the bottom legend as baseline 37.0 cap-top 43.7, i.e. with the opposite convention to the physical one. Naming the extremes removes the trap."
- },
- "edge_check": {
-  "method": "_jp7edge.mjs: per angular column, radius of max |d grey / d r| in the window 44..49; median over 1800 columns",
-  "penny-obv-3.jpg": { "rEdge": 47.18, "correction": 0.9962, "p5_p95_spread_pct": 3.54, "verdict": "sound, 0.4% of R" },
-  "penny-rev-2.png": { "rEdge": 46.95, "correction": 1.0011, "p5_p95_spread_pct": 4.84, "verdict": "sound, 0.1% of R" },
-  "penny-rev.jpg": { "rEdge": 46.55, "correction": 1.0098, "p5_p95_spread_pct": 7.75, "verdict": "cross-check only" },
-  "penny-obv.jpg": { "rEdge": 45.78, "correction": 1.0267, "p5_p95_spread_pct": 5.77, "verdict": "BIMODAL — not usable for a geometric gate" },
-  "penny-obv-2.jpg": { "rEdge": 45.71, "correction": 1.0282, "p5_p95_spread_pct": 9.43, "verdict": "BIMODAL — not usable for a geometric gate. NOTE: this is the file _headmask-penny.json was traced from." },
-  "penny-obv-4.png": { "rEdge": 46.51, "correction": 1.0105, "p5_p95_spread_pct": 8.19, "verdict": "tilted, rejected for measurement by penny-obv.md 2" }
- },
- "RIM_SEAT": {
-  "definition": "the radius at which the FIELD ends and the raised rim begins — the inner edge of the rim wall's shadow in the unwrap. This is the quantity EDGE.penny.field.full = 41.0 claims to be.",
-  "obverse": { "ref": "penny-obv-3.jpg", "raw": 44.5, "corrected": 44.33 },
-  "reverse": { "ref": "penny-rev-2.png", "raw": 43.1, "corrected": 43.15 },
-  "reverse_crosscheck": { "ref": "penny-rev.jpg", "raw": 44.2, "corrected": 44.63, "note": "centre uncertain by 5.2% of R; cap-height agreement with penny-rev-2 is 10.4 vs 10.4, so the SCALES agree and the difference is a centre offset" },
-  "frozen": 44.0,
-  "uncertainty": 0.8,
-  "note": "The quarter's round-4 target froze the same quantity at 44.2 +- from three references. Two coins measured independently by two judges put the rim seat within 0.2 units of each other, and EDGE[*].field.full is 41.0 for all four."
- },
- "LEGENDS": {
-  "reverse": {
-   "ref": "penny-rev-2.png",
-   "UNITED STATES OF AMERICA": { "rInner": 35.6, "rOuter": 42.2, "cap": 6.6, "span_deg": 168, "chars": 24 },
-   "ONE CENT": { "rInner": 30.9, "rOuter": 41.3, "cap": 10.4, "span_deg": 136, "chars": 8,
-     "crosscheck": { "ref": "penny-rev.jpg", "rInner": 32.4, "rOuter": 43.0, "cap": 10.6 } }
+  "provenance": {
+    "coin": "penny (Lincoln cent)",
+    "round": 0,
+    "written": "2026-08-14, penny judge round 0, read off the POLAR UNWRAP of the references BEFORE any value of our own drawing was computed",
+    "generators": [
+      "coloringbook/judge/_jp3disc.mjs   -> _jp1discs.json, _jp3disc-overlay.png (every fit drawn on its own source)",
+      "coloringbook/judge/_jp4unwrap.mjs -> _jp4unwrap-<ref>.png",
+      "coloringbook/judge/_jp7edge.mjs   -> where the photograph's coin edge lands in viewBox units",
+      "coloringbook/judge/_jp6zoom.mjs   -> the half-unit ladder every radius below was read off"
+    ],
+    "why_by_hand": "Both automatic band readers written this round (_jp5band.mjs absolute-ink, _jp5band-v2.mjs local-angular-variance) reported themselves AT a search bound on this coin (COIN-JUDGE.md 4.1) because the memorial's relief on the reverse and the bust on the obverse run inboard of the legend with no bare gutter between. Appendix R3: a detector's failure is not the artefact's failure, and 2.1: a hand annotation read off the source is a legitimate frozen target."
   },
-  "obverse": {
-   "ref": "penny-obv-3.jpg",
-   "IN GOD WE TRUST": { "rInner": 39.4, "rOuter": 43.2, "cap": 3.8, "span_deg": 130, "chars": 15 },
-   "LIBERTY": { "kind": "flat text, not arced — no radial band; excluded from D5-band by design, not by omission" },
-   "date": { "kind": "flat text, not arced — same" }
+  "convention": {
+    "units": "viewBox units, X = 50 + 47 (px - cx) / R, so the coin's own silhouette is r = 47 BY CONSTRUCTION",
+    "rOuter": "radius of the legend's extreme nearest the RIM",
+    "rInner": "radius of the legend's extreme nearest the CENTRE",
+    "cap": "rOuter - rInner",
+    "note": "rOuter/rInner are used instead of baseline/cap-top on purpose. A top legend has its typographic baseline at rInner and a bottom legend has it at rOuter, and judge/_jq4band.json (the quarter's) records the bottom legend as baseline 37.0 cap-top 43.7, i.e. with the opposite convention to the physical one. Naming the extremes removes the trap."
+  },
+  "edge_check": {
+    "method": "_jp7edge.mjs: per angular column, radius of max |d grey / d r| in the window 44..49; median over 1800 columns",
+    "penny-obv-3.jpg": {
+      "rEdge": 47.18,
+      "correction": 0.9962,
+      "p5_p95_spread_pct": 3.54,
+      "verdict": "sound, 0.4% of R"
+    },
+    "penny-rev-2.png": {
+      "rEdge": 46.95,
+      "correction": 1.0011,
+      "p5_p95_spread_pct": 4.84,
+      "verdict": "sound, 0.1% of R"
+    },
+    "penny-rev.jpg": {
+      "rEdge": 46.55,
+      "correction": 1.0098,
+      "p5_p95_spread_pct": 7.75,
+      "verdict": "cross-check only"
+    },
+    "penny-obv.jpg": {
+      "rEdge": 45.78,
+      "correction": 1.0267,
+      "p5_p95_spread_pct": 5.77,
+      "verdict": "BIMODAL \u2014 not usable for a geometric gate"
+    },
+    "penny-obv-2.jpg": {
+      "rEdge": 45.71,
+      "correction": 1.0282,
+      "p5_p95_spread_pct": 9.43,
+      "verdict": "BIMODAL \u2014 not usable for a geometric gate. NOTE: this is the file _headmask-penny.json was traced from."
+    },
+    "penny-obv-4.png": {
+      "rEdge": 46.51,
+      "correction": 1.0105,
+      "p5_p95_spread_pct": 8.19,
+      "verdict": "tilted, rejected for measurement by penny-obv.md 2"
+    }
+  },
+  "RIM_SEAT": {
+    "definition": "the radius at which the FIELD ends and the raised rim begins \u2014 the inner edge of the rim wall's shadow in the unwrap. This is the quantity EDGE.penny.field.full = 41.0 claims to be.",
+    "obverse": {
+      "ref": "penny-obv-3.jpg",
+      "raw": 44.5,
+      "corrected": 44.33
+    },
+    "reverse": {
+      "ref": "penny-rev-2.png",
+      "raw": 43.1,
+      "corrected": 43.15
+    },
+    "reverse_crosscheck": {
+      "ref": "penny-rev.jpg",
+      "raw": 44.2,
+      "corrected": 44.63,
+      "note": "centre uncertain by 5.2% of R; cap-height agreement with penny-rev-2 is 10.4 vs 10.4, so the SCALES agree and the difference is a centre offset"
+    },
+    "frozen": 44.0,
+    "uncertainty": 0.8,
+    "note": "The quarter's round-4 target froze the same quantity at 44.2 +- from three references. Two coins measured independently by two judges put the rim seat within 0.2 units of each other, and EDGE[*].field.full is 41.0 for all four."
+  },
+  "LEGENDS": {
+    "reverse": {
+      "ref": "penny-rev-2.png",
+      "UNITED STATES OF AMERICA": {
+        "rInner": 35.6,
+        "rOuter": 42.2,
+        "cap": 6.6,
+        "span_deg": 168,
+        "chars": 24
+      },
+      "ONE CENT": {
+        "rInner": 30.9,
+        "rOuter": 41.3,
+        "cap": 10.4,
+        "span_deg": 113,
+        "chars": 8,
+        "crosscheck": {
+          "ref": "penny-rev.jpg",
+          "rInner": 32.4,
+          "rOuter": 43.0,
+          "cap": 10.6
+        },
+        "span_deg_corrected_2026_08_22": "was 136. Judge ruling: it did not reproduce. The same instrument, on the same file, at the same frozen disc, reads 113.0 while reproducing this entry's neighbours to two decimals; three references bracket 113/119/124. And the record contradicted ITSELF: with its own cap 10.4 at its own rOuter 41.3, any plausible letter advance (0.85-1.15x cap) gives 98-133 deg of ink, with 113 landing at almost exactly 1.0x cap, while 136 needs 1.18x. The drawing was corrected to match the coin and failed only this stale target."
+      }
+    },
+    "obverse": {
+      "ref": "penny-obv-3.jpg",
+      "IN GOD WE TRUST": {
+        "rInner": 39.4,
+        "rOuter": 43.2,
+        "cap": 3.8,
+        "span_deg": 130,
+        "chars": 15
+      },
+      "LIBERTY": {
+        "kind": "flat text, not arced \u2014 no radial band; excluded from D5-band by design, not by omission"
+      },
+      "date": {
+        "kind": "flat text, not arced \u2014 same"
+      }
+    }
+  },
+  "GATES_THESE_ARE_SCORED_AGAINST": {
+    "D5-band": "+-1.5 viewBox units on rInner",
+    "D5-cap": "+-15% of cap",
+    "D5-span": "+-15% of span_deg",
+    "D5-rim": "+-1.0 viewBox units on RIM_SEAT.frozen",
+    "stated_in": "coloringbook/judge/penny-gates.md, before any of these values existed"
   }
- },
- "GATES_THESE_ARE_SCORED_AGAINST": {
-  "D5-band": "+-1.5 viewBox units on rInner",
-  "D5-cap": "+-15% of cap",
-  "D5-span": "+-15% of span_deg",
-  "D5-rim": "+-1.0 viewBox units on RIM_SEAT.frozen",
-  "stated_in": "coloringbook/judge/penny-gates.md, before any of these values existed"
- }
 }

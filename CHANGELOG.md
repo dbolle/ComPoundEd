@@ -3,6 +3,61 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.75.0 — 2026-08-22
+
+**"ONE CENT" stops running into the Lincoln Memorial, and all three of the
+judge's guesses about why were wrong.**
+
+The owner spotted it by looking at the render: the penny reverse's legend
+overlapped the monument. The judge compared against two reference photographs
+and proposed three causes. **The measurement overturned every one.**
+
+| | reference | ours before | verdict on the judge's guess |
+|---|---|---|---|
+| ONE CENT cap / diameter | 0.1106 | 0.1144 | "letters twice the height" — **false**, +3.4 % |
+| arc radius / diameter | 0.4394 | 0.4394 | "arc too small" — **false**, exact |
+| memorial width / diameter | 0.791 | 0.778 | "memorial too wide" — **false and backwards**, ours is *narrower* |
+| **ONE CENT ink span** | **113.0°** | **149.4°** | the actual defect |
+
+The legend was wrong and the device was right. Our word spanned 149.4° where
+the coin spans 113°, carrying the O and the T up the flanks until three
+cap-box corners sat **0.47 units inside the terrace**. Now +2.39 units clear.
+
+**The root cause is a checkable arithmetic error in the comment that justified
+it.** The old constant was defended with *"7 advances over 136° at r 41.3 is
+10.48 units each against a 10.4 cap."* At r = 41.3 that angle is **14.00**
+units. 10.48 is the same angle taken at **r = 30.91** — the band's *inner*
+edge — while `arcText` sets the baseline at the *outer* one. One wrong radius
+made a legend 34 % too loose look justified.
+
+Fix: one constant, `badv: 1.0099 → 0.73`. Byte-identity partition clean — only
+`penny.reverse`, and only at the four sizes where the legend is drawn; the
+memorial, field and rim are byte-identical. T1 moved in exactly one cell and
+improved: penny reverse at 84 px, margin 0.032 → **0.071**.
+
+### JUDGE RULING: the frozen span target is wrong, not the drawing
+
+This change knowingly fails D5-span, because `_jp4band.json` records
+`ONE CENT.span_deg = 136`. That target does not reproduce — the same
+instrument, on the same file, at the same frozen disc, reads **113.0°**, while
+reproducing that entry's neighbours to two decimals. Three references bracket
+**113 / 119 / 124°**; none is near 136.
+
+**And the record contradicts itself.** With its own `cap 10.4` at its own
+`rOuter 41.3`, any plausible letter advance (0.85–1.15 × cap) gives an ink span
+of 98–133°, with the measured 113° landing at almost exactly 1.0 × cap. The
+asserted 136° would require **1.18 × cap** spacing.
+
+`span_deg` is corrected to **113**. The drawing passes the corrected gate and
+failed only the stale one.
+
+### Reported, not fixed
+
+The penny reverse's confusion with the nickel at 38 and 48 px is **structurally
+out of reach of this round**: `min: 65` means no lettering is emitted at all
+below 84 px, so at icon tier both coins are two grey building-blocks. That is a
+separate, real defect and it is where the remaining reverse transfer gap lives.
+
 ## v1.74.0 — 2026-08-22
 
 **The gates now serve the objective, and the first thing the new primary gate

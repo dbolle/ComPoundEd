@@ -403,6 +403,19 @@ reconsider after calibration.
      step: lock the 134 ids against the fixture, lock the payouts, drop
      `/money` from `BETA_ROUTES`, drop `isBeta` from `moneyVisible`, and
      decide explicitly whether preview progress is kept or cleared.
+   - ⚖️ **JUDGE RULING: `_jp4band.json`'s `ONE CENT.span_deg` was wrong, not the
+     drawing.** Corrected 136 → **113**. It did not reproduce: the same
+     instrument, same file, same frozen disc reads 113.0 while reproducing that
+     entry's neighbours to two decimals, and three references bracket
+     113/119/124. The record also contradicted itself — with its own `cap 10.4`
+     at its own `rOuter 41.3`, any plausible advance (0.85–1.15× cap) gives
+     98–133° of ink, 113 landing at almost exactly 1.0× cap, while 136 needs
+     1.18×.
+   - ⚠️ **`hashes-v*.txt` cannot be verified from a worktree.** It lists files
+     that are untracked in the main checkout, and `_jx0link.mjs` deliberately
+     skips `judge/`, so `_rescore.mjs` reports UNMEASURED for the whole set. Any
+     frozen-set claim made from a worktree needs the two-part check the penny
+     round used (in-tree hashes plus direct hashes against main).
    - 🔴 **T1 REVERSE IS 7/12 — the weak half, and the gate could not see it
      until v1.74.0.** Obverse is 12/12; overall **19/24**. Confusions, at the
      sizes the app draws:

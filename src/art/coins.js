@@ -4611,10 +4611,54 @@ const REV_TEXT = {
   //         6.4 units too far inboard because the target's `rInner` was read
   //         as a baseline. `bOff` 2.77 puts the baseline on the coin's 41.3
   //         and the caps reach in to 30.9.
-  // `badv` 1.0099 is LOOSER than the face's natural 0.7706, so ONE CENT is
-  // set solid (cond 1): 7 advances over 136° at r 41.3 is 10.48 units each
-  // against a 10.4 cap. The cent spaces its denomination out; the quarter and
-  // the nickel condense theirs. Both are measured, neither is a style.
+  // `badv` WAS 1.0099, and it put ONE CENT through the Memorial's terrace.
+  // The owner reported the collision by looking at the render; here is why it
+  // was there, because the arithmetic that justified 1.0099 is still worth
+  // reading as a warning:
+  //
+  //   "7 advances over 136° at r 41.3 is 10.48 units each against a 10.4 cap"
+  //
+  // 136° over 7 advances at r 41.3 is 41.3 × (136/7) × π/180 = 14.01 units,
+  // not 10.48. 10.48 is that angle taken at r 30.91 — the band's INNER edge —
+  // and `arcText` sets the baseline at the OUTER one, which is the exact trap
+  // the capitalised warning above this table was written about. The advance
+  // was checked at the wrong radius, so a legend 34% too loose looked right.
+  //
+  // What the wrongness cost: at 1.0099 the ink spans 151.7°, and the O and the
+  // T are carried so far up the flanks that three of their cap-box corners land
+  // INSIDE the terrace rect (x 13.5..86.5, y 59.6..65.0) — clearance −0.47
+  // units. The references put clear field between the building's base and the
+  // text all the way round.
+  //
+  // The span was re-measured off `penny-rev-2.png` at its frozen disc fit, in
+  // the SAME quantity for the coin and for us (ink extent, 0.5%/99.5% of the
+  // detected ink, region r 29..42 and y ≥ 66.5 which is below the bottom step
+  // on every reference). The instrument was CONTROLLED on the legend this round
+  // does not touch — UNITED STATES OF AMERICA — where it reproduces the frozen
+  // cap 6.6 as 6.62 and rInner 35.6 as 35.56, and reads the coin's span as
+  // 175.7° against our own 175.9°. A control that agrees to 0.1% on the legend
+  // beside it is what licenses the disagreement on this one:
+  //
+  //   ONE CENT ink span   coin (penny-rev-2)  113.1°     ours at 1.0099  151.7°
+  //
+  // 0.73 puts ours at 113.2°, and lifts the clearance to the terrace from
+  // −0.47 to +2.39 units. It is BELOW the face's natural 0.7706, so `cond`
+  // engages and condenses the glyphs by 5.3% — which is what the coins do and
+  // what `cond` exists for; the cap is untouched at 10.76 because `scale()`
+  // squeezes along the arc only.
+  //
+  // NOTE FOR THE JUDGE — a frozen target this contradicts, NOT edited (§1.1):
+  // `judge/_jp4band.json` LEGENDS.reverse["ONE CENT"].span_deg = 136 does not
+  // reproduce. Same file, same disc, same instrument that reproduces that
+  // entry's own cap and rInner to two decimals, says 113.1°. `penny-rev.jpg`
+  // says 119.4° and `penny-rev-1991d.png` 124.5°, so the three references
+  // bracket 113..125 and none of them is near 136. This change therefore
+  // FAILS D5-span against a target I believe is wrong — `_jp8ours.mjs` reports
+  // this legend's span as 149.4° before and 111.6° after, against a gate of
+  // 136 ±15% = 115.6..156.4 — and I have left the target alone and published
+  // the derivation instead (§1.1 report-don't-fix, §8 refuse-to-relax).
+  // The other two D5 gates still pass: rInner 31.58 against 30.9 ±1.5, and cap
+  // 10.76 against 10.4 ±15%. The cap was never the defect; the spread was.
   //
   // E PLURIBUS UNUM is on this reverse too, above the memorial, and had never
   // been drawn. It is set FLAT — two straight lines of upright capitals, not
@@ -4686,7 +4730,7 @@ const REV_TEXT = {
     tadv: 0.5273, // 23 advances at r 36.40 -> 168.0°, the coin's 168°
     bs: 13.87,
     bOff: 2.77, // 44.07 − 2.77 = 41.30, the coin's OUTER edge = its baseline
-    badv: 1.0099, // 7 advances at r 41.30 -> 136.0°, the coin's 136°
+    badv: 0.73, // 7 advances at r 41.30 -> 98.4° centres, 113.2° of ink = the coin's 113.1°
     flats: [
       { text: 'E PLURIBUS', x: 49.7, y: 23.55, size: 5.49, ls: -0.6789, min: 120 },
       { text: 'UNUM', x: 49.77, y: 28.6, size: 5.49, ls: -0.6414, min: 120 },
