@@ -28,8 +28,8 @@ import { normalise, N, SPAN } from '../_rvnorm.mjs';
 import { ncc, bestReg, energyGrid } from './_jq20indep.mjs';
 import { discOf, QOBV, CONTROLS } from './_jq42indep.mjs';
 
-const CANDIDATE = 'quarter-obv-1963ccby.jpg';
-const EXTRA = [CANDIDATE, 'quarter-obv-1932ngc.jpg'];
+const CANDIDATE = process.argv[2] || 'quarter-obv-1963ccby.jpg';
+const EXTRA = [CANDIDATE, 'quarter-obv-1932ngc.jpg'].filter((v, i, a) => a.indexOf(v) === i);
 const SET = [...QOBV, ...EXTRA];
 const FILES = [...SET, ...CONTROLS];
 
@@ -108,9 +108,16 @@ for (const b of SET) {
 
 const indep = rows.filter((x) => x.verdict.startsWith('same design') && !x.onBound);
 console.log(`\n${CANDIDATE} is INDEPENDENT and SAME DESIGN against ${indep.length} of ${rows.length} files.`);
+// PROVENANCE IS PER-FILE. The first version hard-coded the 1963 CC BY
+// description and printed it for whatever candidate was passed — the identical
+// fault I had just fixed in _jp3usmint.mjs and then left standing here.
+const PROV = {
+  'quarter-obv-1963ccby.jpg': '1963 STRUCK business strike, flat diffuse light, CC BY 2.0 (James St. John / Flickr).',
+  'q1995d-obv.png': '1995-D STRUCK business strike, obverse half of quarter-1995d.jpg — a pair image whose obverse half had never been extracted. ⚠️ THE REVERSE HALF OF THIS SAME SOURCE was ruled a POSTERISED RENDERING, not a photograph, by the quarter-reverse round. That ruling and this result are in TENSION and must be resolved before any TONE use.',
+};
 console.log(indep.length
-  ? `  -> It is a usable reference for this coin. It is a 1963 STRUCK business strike under flat\n     diffuse light, CC BY 2.0, and it is ABSENT from _qtlib.DISCS. Adding it takes the quarter\n     obverse D3 from one usable struck photograph to two.`
-  : `  -> NOT usable. Do not add it. The n=1 finding stands.`);
+  ? `  -> Usable for this coin. ${PROV[CANDIDATE] ?? 'PROVENANCE NOT RECORDED — record it before use.'}`
+  : `  -> NOT usable. Do not add it.`);
 
 // ── THE ABOVE IS A NON-ANSWER, NOT A VERDICT.
 // 7 of 8 comparisons ride the registration bound (rot ±8 or translation ±0.03).

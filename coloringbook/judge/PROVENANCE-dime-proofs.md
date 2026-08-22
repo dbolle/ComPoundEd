@@ -293,3 +293,51 @@ third STRUCK BUSINESS-STRIKE cent obverse.**
 proofs** — the same configuration that let the dime reverse get a traced D2
 target in v1.66.0. The cent obverse has never had a D2 target and could now
 get one by the same route.
+
+## 2026-08-22 — THE PAIR AUDIT: six coin faces were sitting unused in files we already held
+
+Prompted by the owner: *"Make sure that all of the pictures that have both
+obverse and reverse are being used for both sides of the coin."* They were not.
+
+Every pair image in `ref/` was checked against every instrument that reads it.
+**Four dime pairs are windowed to their REVERSE half by all five instruments
+that use them**, and `quarter-1995d.jpg` had only a reverse crop derived. The
+complementary halves had never been extracted. (Two pairs were already handled
+correctly: `nickel-proof-both.jpg` is split at the midline into both faces by
+`_jn1disc.mjs`, and the 1963/1964 quarter proofs have both `-obv-pad` and
+`-rev-pad` crops.)
+
+Extracted, as the exact complement of each published reverse window:
+
+| new file | from | px | what it is |
+|---|---|---|---|
+| `dime-obv-pcgs2015.png` | `dime-pcgs2015-pair.jpg` | 950×959 | **2015-P — a BUSINESS STRIKE**, and the largest dime obverse we hold |
+| `dime-obv-proof2010.png` | `dime-proof2010-pair.png` | 540×534 | 2010-S cameo proof |
+| `dime-obv-proof1960.png` | `dime-proof1960-pair.png` | 500×500 | 1960 cameo proof |
+| `dime-obv-proof1968.png` | `dime-proof1968-pair.jpg` | 320×400 | 1968 proof |
+| `q1995d-obv.png` | `quarter-1995d.jpg` | 512×508 | **1995-D — a BUSINESS STRIKE quarter obverse** |
+| `penny-rev-1991d.png` | `penny-1991d-pair.jpg` | 350×348 | 1991-D cent reverse |
+
+**`q1995d-obv.png` measured (design floor 0.2402):** independent and same-design
+against **7 of 8** quarter obverse files — 0.4849 / 0.5214 / 0.5719 / 0.5728 /
+0.6068 / 0.7068 / 0.7156 — with **no bound riding** after widening. The one
+exclusion is `quarter-obv-4.jpg`, which is the state quarter, so that is correct
+behaviour. Raw NCC well below 0.90 throughout: not a duplicate of anything.
+
+⚠️ **UNRESOLVED TENSION, and it must be settled before any TONE use.** The
+quarter-reverse round ruled `q1995d-rev.png` — **the other half of this same
+source image** — a *posterised rendering, not a photograph*, at design NCC
+0.1874, only 0.0057 above a different denomination. The obverse half registers
+at 0.48–0.72. Those two results cannot both be casually true of one image.
+Either the reverse crop is bad, or the source is an illustration whose obverse
+happens to register. **Usable for SHAPE now; NOT for D3/D13 until resolved.**
+
+### `penny-1991d-pair.jpg` — the business strike the cent needed
+
+Owner-supplied, cointrackers.com (**third-party copyright, private measurement
+only**). 700×348, obverse + reverse, red uncirculated, diffuse, straight-on.
+**1991-D: "D" is Denver, so this is a BUSINESS STRIKE**, unlike the two proofs
+added earlier today. The watermark sits outside the disc on the obverse crop.
+⚠️ Resolution is modest — each face is ~348 px against the 2000 px US Mint
+proof — so it may still be too coarse for the mid-jaw whisker texture, which is
+the open question. Measure px-per-local-unit before relying on it there.
