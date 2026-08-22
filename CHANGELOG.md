@@ -3,6 +3,76 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.78.0 — 2026-08-22
+
+**The tier system is gone. One drawing per face, scaled — and transfer goes
+24/32 to 32/32.**
+
+The owner asked what the small sizes would look like if they were simply the
+large drawing scaled down instead of tiers dropping detail. It was measurable,
+so it was measured rather than argued.
+
+`coinSVG` used to simplify below 76 px and again below 44 px, on the theory
+that sub-pixel detail is noise. **The theory was wrong and expensive.** Both
+arms run to the same device pixels, through T1's own descriptor and fitted
+registration:
+
+| | T1 correct |
+|---|---|
+| tiers, as drawn before | **24 / 32** |
+| one full-detail drawing, scaled | **32 / 32** |
+
+Scaled wins **31 of 32 cells** (the exception is the nickel reverse at 84 px,
+by 0.005). **Every one of the eight reverse confusions disappears** — the penny
+reverse goes −0.063 → **+0.244** at 38 px, the quarter reverse −0.078 → +0.144
+at 48 px. It also closes the two thinnest obverse margins, which the nickel
+round had reported as unfixable without touching shared code: nickel at 48 px
+**0.014 → 0.187**.
+
+The detail the tiers discarded — reeding, legends, interior modelling — is most
+of what makes a coin identifiable at small size.
+
+### A third arm decided the implementation
+
+Rasterising big and resampling with Lanczos is not what a browser does; a
+browser renders the **vector** natively at 38 px. A third arm tested that
+directly: full detail rendered natively small scores **32/32 too**, tracking
+the resample within 0.005. So no raster pipeline is needed and the change is
+purely *stop simplifying, set width and height*.
+
+`coinSVG` now authors every face once at `DRAW_SIZE` and rewrites only the
+outer element's `width`/`height`. The viewBox and every path are untouched,
+which is what makes it one drawing rather than a variant. The owner's reason
+for taking it is worth recording beside the numbers: **it leaves one target per
+face**, so every future round measures one drawing.
+
+### The test that had to be retuned, and the proof it was not weakened
+
+`tests/coins.spec.js` pinned "wave 1's own size gets the FULL drawing, not the
+silhouette" by comparing **byte length** at 84 px against 50 px and demanding
+1.3×. That was a proxy for "84 is not in a stripped tier". With one drawing the
+proxy compares two identical strings and can never pass — and the test's own
+comment anticipated this: *"retune this test"*.
+
+Retuned to assert the intent directly, for **all ten faces**: the naming draw
+must be byte-identical to the 380 px render apart from `width`/`height`, and
+must draw more than twelve paths (the old icon tier emitted four).
+
+**Mutation-tested.** Reintroducing the tier system makes the retuned test go
+**red**. It is strictly stronger than the length ratio it replaces: any future
+size-dependent simplification, anywhere in the set, fails it.
+
+### Cost, measured
+
+A six-coin pile at 38 px is 89 KB of SVG markup, ~18 KB gzipped — these are
+inline strings in a local-first app with no network fetch per coin, and D9
+reports 120 renders clean with its response test going red as expected. D8 is
+unchanged.
+
+Now dead and left in place rather than removed in the same commit:
+`iconS`/`iconCy`/`iconCx`, `iconWig`, `iconBust`, and `tierOf` itself, which is
+still called by nothing on the drawing path.
+
 ## v1.77.0 — 2026-08-22
 
 **Our nickel obverse was an outline with nothing inside it — and the gate that

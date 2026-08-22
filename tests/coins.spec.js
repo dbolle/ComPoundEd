@@ -58,14 +58,42 @@ test("wave 1's own size gets the FULL drawing, not the silhouette", () => {
   // was showing the stripped version — eye, ear, hairline and lettering all
   // deleted. Pinned here because it is invisible from the outside: the art
   // still "worked", it was just answering with less than it had.
+  //
+  // RETUNED 2026-08-22, and the old comment above is why the retune is not a
+  // weakening. This used to compare BYTE LENGTH at 84px against byte length at
+  // 50px and demand 1.3x — a proxy for "84 is not in a stripped tier". The
+  // tier system is gone: `coinSVG` now authors one drawing per face at
+  // DRAW_SIZE and scales it, because measured on T1 transfer the tiers scored
+  // 24/32 and one scaled drawing scores 32/32. The proxy therefore compares
+  // two identical strings and can never pass. The INTENT is now asserted
+  // directly, and far more strictly than a length ratio ever did.
   const ask = readFileSync('src/screens/money.js', 'utf8');
   const m = ask.match(/coinRow\(q\.coins,\s*(\d+)\)/);
   expect(m, 'wave 1 no longer draws a coin at a fixed size — retune this test').toBeTruthy();
   const askSize = Number(m[1]);
 
-  const full = coinSVG('dime', askSize).length;
-  const mid = coinSVG('dime', 50).length;
-  expect(full, `at ${askSize}px the drawing must be richer than the mid tier`).toBeGreaterThan(mid * 1.3);
+  // 1. THE NAMING DRAW IS THE SAME DRAWING AS THE LARGEST RENDER. Only the
+  //    outer width/height may differ. This is the whole architecture in one
+  //    assertion: if anything ever reintroduces a size-dependent simplification
+  //    it fails here.
+  const strip = (svg) => svg.replace(/^(<svg[^>]*?)width="[\d.]+" height="[\d.]+"/, '$1');
+  for (const id of COIN_IDS) {
+    for (const side of ['obverse', 'reverse']) {
+      expect(strip(coinSVG(id, askSize, { side })), `${id} ${side} at ${askSize}px must be the full drawing`)
+        .toBe(strip(coinSVG(id, 380, { side })));
+    }
+  }
+
+  // 2. AND IT IS NOT A SILHOUETTE. The old icon tier emitted four paths for a
+  //    coin face; a floor of twelve is far above that and far below what any
+  //    face currently draws, so this catches a regression without pinning a
+  //    number that ordinary art work would trip.
+  for (const id of COIN_IDS) {
+    if (id === 'buck') continue; // the note is drawn from rects, not paths
+    const paths = (coinSVG(id, askSize).match(/<path/g) || []).length;
+    expect(paths, `${id} at ${askSize}px draws only ${paths} paths — that is a silhouette`)
+      .toBeGreaterThan(12);
+  }
 });
 
 test('real coin names, never the fictional ones', () => {

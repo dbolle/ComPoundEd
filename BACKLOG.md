@@ -429,7 +429,16 @@ reconsider after calibration.
      skips `judge/`, so `_rescore.mjs` reports UNMEASURED for the whole set. Any
      frozen-set claim made from a worktree needs the two-part check the penny
      round used (in-tree hashes plus direct hashes against main).
-   - 🟢🔴 **DRAW BIG AND SCALE DOWN BEATS THE TIER SYSTEM: T1 32/32 vs 24/32.**
+   - ✅ **DONE (v1.78.0) — the tier system is gone. T1 24/32 → 32/32.**
+     Owner-approved after the measurement below. `coinSVG` authors one drawing
+     per face at `DRAW_SIZE` and rewrites only the outer `width`/`height`.
+     A third arm settled the implementation: full detail rendered NATIVELY
+     small scores 32/32 too, tracking the Lanczos resample within 0.005, so no
+     raster pipeline was needed. ⚠️ Now DEAD and deliberately left in place
+     rather than removed in the same commit: `iconS`/`iconCy`/`iconCx`,
+     `iconWig`, `iconBust`, and `tierOf` itself. Removing them is a separate,
+     purely-subtractive round.
+   - 📋 **The evidence that justified it:**
      The owner asked what the small sizes would look like if they were simply
      the large drawing scaled down instead of tiers dropping detail. Measured
      with `judge/_nk14scaletest.mjs`, both arms ending at the same device pixels
@@ -446,18 +455,22 @@ reconsider after calibration.
      on the theory that sub-pixel detail is noise; the measurement says the
      detail it discards — reeding, legends, interior modelling — is most of what
      makes a coin identifiable at small size.
-     ⚠️ **This is an architecture change and has NOT been made.** The owner has
-     authorised rewriting the module to a spec rather than forcing fidelity at a
-     resolution that cannot support it. Open questions before acting: file size
-     and render cost of always emitting full detail; whether SVG at 38 px in a
-     real browser resamples as cleanly as Lanczos here; and whether `struck()`'s
-     bevel and the min-pixel stroke floor still behave when never simplified.
+     ✅ The three open questions were answered before acting: a six-coin pile at
+     38 px is 89 KB of markup / ~18 KB gzipped, inline in a local-first app with
+     no per-coin fetch; native small vector rendering matches the resample; and
+     D9 reports 120 renders clean with its response test red, D8 unchanged.
      ⚠️ **Instrument note:** two earlier versions of this test rasterised the
      tiers arm at natural size and then resampled, which handicapped it by ~0.03
      of own-score and reported TIERS 22/32. **It was caught because it did not
      reconcile with the official gate's 24/32.** A new instrument that argues
      against an existing one must reproduce the existing one first.
-   - 🔴 **NO COIN CARRIES ANY LETTERING AT MID (48 and 54 px)** — `INS_MAIN_MIN`
+   - ✅ **RESOLVED by v1.78.0 — every coin now carries its lettering at every
+     size.** The mid-tier lettering gap and the two thinnest margins (nickel
+     0.014 at 48 px, 0.024 at 54 px) were both consequences of the tier system;
+     one drawing per face removes them. The nickel round's diagnosis was right
+     and its proposed fix — a serialised round on `INS_MAIN_MIN` and the
+     min-pixel stroke floor — is no longer needed.
+   - ⚠️ **superseded — NO COIN CARRIES ANY LETTERING AT MID (48 and 54 px)** — `INS_MAIN_MIN`
      is 62 — while every photograph plainly does at 48 px. Together with the
      min-pixel stroke floor (`sw(1.15, 0.9, boxW)`, which draws the silhouette
      contour at 2.1 viewBox units against its design 1.15), this is the nickel

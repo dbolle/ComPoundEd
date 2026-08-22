@@ -5818,19 +5818,49 @@ export function coinLabel(denomId) {
 //
 // No tooltip attribute is ever emitted: tooltips do not exist on a tablet,
 // so every word a child needs is either drawn on the coin or in the label.
+// ONE DRAWING PER FACE. Detail was authored once, at DRAW_SIZE, and the SVG is
+// simply scaled to whatever the caller asked for.
+//
+// This replaces the three-tier system, which simplified the drawing below 76px
+// and again below 44px on the theory that sub-pixel detail is noise. Measured
+// (judge/_nk14scaletest.mjs, judge/_nk15native.mjs), that theory was wrong and
+// expensive: on T1 transfer, at the four sizes src/screens/money.js actually
+// draws, the tiers score 24/32 and ONE FULL-DETAIL DRAWING SCALED DOWN scores
+// 32/32. Every one of the eight reverse confusions disappears — the penny
+// reverse goes -0.063 to +0.244 at 38px — and the two thinnest obverse margins
+// close (nickel 48px 0.014 -> 0.187). The detail the tiers discarded — reeding,
+// legends, interior modelling — is most of what makes a coin identifiable small.
+//
+// A third arm settled the implementation. Rasterising the big drawing and
+// resampling with Lanczos is not what a browser does; a browser renders the
+// VECTOR natively at 38px. Rendering full detail natively small scores 32/32
+// too, tracking the resample within 0.005, so no raster pipeline is needed and
+// this is purely "stop simplifying, set width and height".
+//
+// The owner's reason for taking it is worth recording beside the numbers: it
+// leaves ONE TARGET PER FACE, so every future round measures one drawing.
+const DRAW_SIZE = 380;
+
 export function coinSVG(denomId, size = 40, opts = {}) {
   const box = coinPx(denomId, size);
   if (!box || !FACE_VALUE[denomId]) return '';
-  const tier = tierOf(size);
+  // Author at DRAW_SIZE so every stroke floor and inscription minimum sees the
+  // size the art was measured at, then scale the finished SVG.
+  const drawBox = coinPx(denomId, DRAW_SIZE);
+  const tier = 'full';
   const side = opts.side === 'reverse' ? 'reverse' : 'obverse';
   const a11y = opts.decorative
     ? 'aria-hidden="true" focusable="false"'
     : `role="img" aria-label="${esc(opts.label ?? coinLabel(denomId))}"`;
   const cls = opts.className ? ` ${opts.className}` : '';
   const attrs = `class="coin-art${cls}" data-denom="${denomId}" data-value="${FACE_VALUE[denomId]}" data-side="${side}" data-tier="${tier}" ${a11y}`;
-  return denomId === 'buck'
-    ? noteSVG(box, attrs, tier, side, opts.value === true)
-    : discSVG(denomId, box, attrs, tier, side, opts.value === true, size);
+  const svg = denomId === 'buck'
+    ? noteSVG(drawBox, attrs, tier, side, opts.value === true)
+    : discSVG(denomId, drawBox, attrs, tier, side, opts.value === true, DRAW_SIZE);
+  // Only the outer element's width/height change; the viewBox and every path
+  // are untouched, which is what makes this one drawing rather than a variant.
+  return svg.replace(/^(<svg[^>]*?)width="[\d.]+" height="[\d.]+"/,
+    `$1width="${box.w}" height="${box.h}"`);
 }
 
 function esc(s) {
