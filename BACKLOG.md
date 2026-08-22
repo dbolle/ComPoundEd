@@ -403,6 +403,19 @@ reconsider after calibration.
      step: lock the 134 ids against the fixture, lock the payouts, drop
      `/money` from `BETA_ROUTES`, drop `isBeta` from `moneyVisible`, and
      decide explicitly whether preview progress is kept or cleared.
+   - ⚠️ **`quarter-obv.jpg` and `quarter-obv-2.jpg` may not be independent** —
+     same 1994-P, same die scratches, same mintmark, at 500 px and 750 px, with
+     near-superimposable unwraps. Run both through `judge/_jrefintake.mjs`
+     (§0.3). If they are one photograph, the quarter obverse's independent pool
+     is `quarter-obv.jpg` + `quarter-obv-3.png` only.
+   - ⚠️ **The quarter's date and motto are never seen in the app.** Both need
+     `boxW ≥ 110` (`INS_REST_MIN`) and the largest render is 84, so a child sees
+     only LIBERTY on this face. v1.76.0 corrected them for larger renders and
+     reference sheets; do not treat that as user-visible work.
+   - ⚠️ **The motto's line break is wrong and cannot be fixed at this face.**
+     The coin breaks `IN GOD WE / TRUST`; we break `IN GOD / WE TRUST`. At our
+     wider letterface a nine-glyph first line is 32.1 units against a 30–32-unit
+     clear run. Needs a round that can change the face or the letterspacing.
    - ⚖️ **JUDGE RULING: `_jp4band.json`'s `ONE CENT.span_deg` was wrong, not the
      drawing.** Corrected 136 → **113**. It did not reproduce: the same
      instrument, same file, same frozen disc reads 113.0 while reproducing that
@@ -416,7 +429,16 @@ reconsider after calibration.
      skips `judge/`, so `_rescore.mjs` reports UNMEASURED for the whole set. Any
      frozen-set claim made from a worktree needs the two-part check the penny
      round used (in-tree hashes plus direct hashes against main).
-   - 🔴 **T1 REVERSE IS 7/12 — the weak half, and the gate could not see it
+   - 🔴 **T1 IS 24/32 ACROSS BOTH FACES AND ALL FOUR APP SIZES (38/48/54/84).**
+     **Obverse is 16/16** — every obverse sorts to its own denomination at every
+     size the app draws. **The reverses are 8/16 and are the entire remaining
+     gap**: the penny reverse reads as a NICKEL at 38, 48 and 54 px, the dime
+     reverse as a penny, the quarter reverse as a dime at 84.
+     ⚠️ THREE locus gaps have now been found in this one instrument, all by
+     someone other than its author: it tested obverses only; it asserted three
+     app sizes when `coinRow`'s default makes four; and it inherited the primary
+     role from a D11 scored at 26 px, which the app never draws at all.
+   - 🔴 **superseded — T1 REVERSE WAS 7/12 — the weak half, and the gate could not see it
      until v1.74.0.** Obverse is 12/12; overall **19/24**. Confusions, at the
      sizes the app draws:
      - **penny reverse reads as a NICKEL at 38 and 48 px.** Two neoclassical

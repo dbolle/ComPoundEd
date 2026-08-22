@@ -3,6 +3,75 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.76.0 — 2026-08-22
+
+**The quarter's legends were the fault, not the bust — and the judge's
+hypothesis was wrong for the second time in a row.**
+
+The judge proposed that the bust filled the disc and crowded the text out.
+Measured against two references, as a fraction of the **outer** diameter:
+
+| | height / D | width / D |
+|---|---|---|
+| reference mean | 0.7323 | 0.5696 |
+| **ours** | **0.7553** | **0.5606** |
+
+3.1 % taller and **1.6 % narrower**. That is not a bust filling the disc, and
+`OBVERSE.quarter` was left **byte-untouched** — so v1.74.0's icon-tier
+derivation still holds exactly, because the placement it derives from has not
+moved.
+
+All three legends were wrong, and one badly:
+
+| | reference | before | after |
+|---|---|---|---|
+| LIBERTY cap | 6.90–7.20 | **4.07** | 6.90 |
+| LIBERTY span | 92.4° | **43.7°** | 92.4° |
+| date band centre (r/R) | 0.828 | **0.711** | 0.834 |
+| motto angle | 142.8° | **157.9°** | 142.6° |
+
+LIBERTY was drawn at little over half the coin's cap height and at half its
+angular span. **The date was seven units inboard, drawn on the truncation** —
+and that is the fifth instance of a fault this file already documents for the
+four reverses: a bottom legend's baseline is its band's *outer* edge, and the
+quarter obverse never received the `rOff` correction the reverses got.
+
+It **refused** to enlarge the motto, which would have scored better: our
+rounded sans is 24 % wider per unit of cap than the coin's condensed Gothic,
+the clear run on the lower left is 30–32 units, and the largest cap clearing
+both the field circle and the jaw is 3.08 against the 3.00 already drawn.
+Growing it would push ink outside the field to buy a number.
+
+### A third locus gap in the judge's own primary gate
+
+`_jt1transfer.mjs` asserted the app draws 38, 48 and 84. `src/screens/money.js:51`
+declares `const coinRow = (ids, size = 54)` and line 122 calls it bare — **54 is
+a size the app draws and the gate never tested it.**
+
+That is the third such gap in this one instrument: it tested obverses only
+until v1.74.0, it inherited the role from a D11 scored at 26 px which the app
+never draws at all, and now this. All four sizes are tested; T1 is restated
+over them.
+
+**T1 at all four sizes, both faces: 24/32.** Obverse is **16/16** — every
+obverse now sorts to its own denomination at every size the app draws. The
+reverses are 8/16 and are where the whole remaining gap lives: the penny
+reverse reads as a nickel at 38, 48 and 54 px, the dime reverse as a penny, and
+the quarter reverse as a dime at 84.
+
+### Honest scope
+
+The date and the motto **are never seen in the app**: both need `boxW ≥ 110`
+and the largest render is 84. Correcting them is right for larger renders and
+reference sheets, but a child currently sees only LIBERTY on this face.
+
+Also reported: `quarter-obv.jpg` and `quarter-obv-2.jpg` may not be
+independent — same 1994-P, same die scratches, same mintmark, at 500 px and
+750 px. They should go through `_jrefintake.mjs`. And the coin breaks the motto
+`IN GOD WE / TRUST` where we break it `IN GOD / WE TRUST`; at our wider face a
+nine-glyph first line is 32.1 units and does not fit the 30–32-unit run, so it
+is left for a round that can change the face or the letterspacing.
+
 ## v1.75.0 — 2026-08-22
 
 **"ONE CENT" stops running into the Lincoln Memorial, and all three of the

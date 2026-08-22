@@ -101,7 +101,13 @@ export async function featOfOurs(id, px) {
 export const designSim = (a, b) => bestReg(a, b, DESIGN_MASK, ROT, TR).ncc;
 
 export const N = 128;                       // comparison grid; small on purpose
-export const SIZES = [38, 48, 84];          // what src/screens/money.js actually draws
+// FOUR sizes, not three. src/screens/money.js:51 declares
+// `const coinRow = (ids, size = 54)` and line 122 calls it bare, so 54 is a
+// size the app draws and this instrument never tested it. Caught by the
+// quarter-obverse round. Third locus gap found in this file: it also tested
+// obverses only, and D11 before it was scored at 26px which the app never
+// draws at all.
+export const SIZES = [38, 48, 54, 84];          // what src/screens/money.js actually draws
 const DISCS = JSON.parse(readFileSync(new URL('./_jp1discs.json', import.meta.url).pathname, 'utf8'));
 const REF = new URL('../ref/', import.meta.url).pathname;
 

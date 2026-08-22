@@ -4517,11 +4517,90 @@ const INSCRIPTION = {
     // vector edges stay hard. The ratio at 84px is largely measuring our
     // sharpness against photographic blur, which is COIN-JUDGE.md §8's
     // "whether the reference is any good", not something a letterform can fix.
-    main: { kind: 'arc', text: 'LIBERTY', size: 5.6, centre: 270, rOff: 0.55 },
+    // ROUND 7 — THE OWNER REPORTED "THE TEXT IS MISPLACED", AND THE HYPOTHESIS
+    // HE WAS GIVEN FOR IT IS REFUTED BELOW. The brief's proposed root cause was
+    // that our bust fills the disc so the legends have nowhere to go, and that
+    // the fix was to SHRINK THE BUST. Measured, it is not:
+    //
+    //   bust envelope, as a fraction of the coin's OUTER diameter
+    //                        h/D      w/D
+    //     quarter-obv.jpg    0.7204   0.5628     (1994-P)
+    //     quarter-obv-3.png  0.7443   0.5764     (1944)
+    //     OURS               0.7568   0.5606
+    //
+    // Ours is 3.4% taller than the two-reference mean and 1.5% NARROWER. That
+    // is not a bust that fills the field, and `_pv/sq-over-*.png` (our traced
+    // silhouette laid on each photograph at its own fitted disc) shows the
+    // outline tracking the coin's within about a unit everywhere except the
+    // truncation, which runs ~2 units low. So NOTHING BELOW TOUCHES THE BUST —
+    // `OBVERSE.quarter` is unchanged, and with it the v1.74.0 icon-tier
+    // derivation (iconS 0.9451 / iconCy 42.0921 / iconCx -0.3857 = the full
+    // tier scaled by k = 42.5/44.07) still holds exactly, because the full-tier
+    // placement it is derived FROM has not moved.
+    //
+    // WHAT IS ACTUALLY WRONG IS THE TYPE, all three lines, and two of the three
+    // faults are size rather than position. Read off a polar unwrap of
+    // `quarter-obv.jpg` with a viewBox-unit radius ladder
+    // (`_pv/sq-unwrap-quarter_obv_jpg-lib2.png`) and cross-checked against the
+    // figure this comment already carried for `quarter-obv-2.jpg`:
+    //
+    //   LIBERTY  coin band r 36.0..43.2 (mine) / 36.6..43.5 (the note below),
+    //            cap 6.9-7.1, angular span 92.4 deg L-centre to Y-centre.
+    //            OURS was r 36.09..40.18, cap 4.09, span 44.3 deg.
+    //            The BASELINE was already right; the CAP was 41% short and the
+    //            SPAN was less than half, so the word sat in the middle of the
+    //            annulus with a three-unit dead band outside it.
+    //   date     coin band r 35.5..42.3 (Cartesian) / 36.1..42.9 (unwrap), cap
+    //            ~6.8 — the same size as LIBERTY, which is what the coin does.
+    //            OURS was r 31.45..35.54: the foot was SEVEN UNITS INBOARD, so
+    //            it was drawn on top of the truncation. This is exactly the
+    //            fault the REV_TEXT note above already records for every bottom
+    //            legend ("a bottom legend's baseline is its band's OUTER edge
+    //            and the derived offset puts all four five to nine units
+    //            inboard") — the quarter obverse's date is the fifth instance
+    //            and was never given the `rOff` the four reverses got.
+    //   motto    coin block, two references: line 1 baseline y 68.0 / 68.6,
+    //            line 2 baseline y 72.7 / 72.9, x-centre 24.9 / 25.2.
+    //            OURS was y 61 and 66 at x 20 and 21 — SEVEN UNITS HIGH and
+    //            FIVE LEFT, which put it beside the mouth instead of under the
+    //            chin. Position only; see the size note below.
+    //
+    // SIZES ARE MEASURED, NOT CHOSEN: `_pv/sq-cap.mjs` renders this exact font
+    // stack and weight and reports cap/size = 0.726 for LIBERTY's letters and
+    // 0.750 for digits, so cap 6.90 -> size 9.5 and cap 6.83 -> size 9.07.
+    // `rOff` then puts each baseline back on the measured radius, because
+    // growing `size` walks the baseline INBOARD (the trap this block's own
+    // header describes); the comment beside each line states the resulting
+    // baseline rather than the offset.
+    //
+    // WHAT I DID NOT TAKE, AND WHY.
+    //  * The motto is NOT enlarged. The coin's cap is 3.7-4.3 against our 3.0,
+    //    but our rounded sans is 24% wider per unit of cap than the coin's
+    //    condensed Gothic (WE TRUST is 5.755 units wide per unit of size), and
+    //    `_pv/sq-space.mjs` measures the clear run on the lower left at only
+    //    30-32 units between the field circle and our jaw. Solving for the
+    //    largest cap that still clears both at the coin's own x-centre gives
+    //    3.08 — we are already at 3.0. Growing it would push the line off the
+    //    field (D8) to buy a number. Refused: the position was the defect.
+    //  * The coin breaks the motto IN GOD WE / TRUST; we break it IN GOD /
+    //    WE TRUST. That is a real difference and it is NOT fixed here — at our
+    //    wider face a 9-glyph first line is 32.1 units and does not fit the
+    //    run measured above. Reported, not papered over.
+    //  * The date's foot is set at 42.60, between the Cartesian read (42.3) and
+    //    the unwrap read (42.9), not at either end. At 42.3 the cap top lands
+    //    at 35.47 against a bust that reaches 35.40 at 97 deg
+    //    (`_pv/sq-clear.mjs`) — 0.07 units of clearance, which at 84px is no
+    //    clearance at all. 42.60 gives 0.37, matching LIBERTY's 0.45 on the
+    //    other side, and the coin itself sets these two lines the same.
+    main: { kind: 'arc', text: 'LIBERTY', size: 9.5, centre: 270, rOff: 4.175, adv: 1.03 },
     rest: [
-      { kind: 'flat', text: 'IN GOD', x: 20, y: 61, size: 4.0 },
-      { kind: 'flat', text: 'WE TRUST', x: 21, y: 66, size: 4.0 },
-      { kind: 'arc', text: YEAR, size: 5.6, centre: 90, rev: true },
+      // baselines 68.3 and 72.8, x-centres 24.9 and 25.2 — the mean of the two
+      // references. Line spacing 4.5 against the coin's 4.55 / 4.37; it was 5.0.
+      { kind: 'flat', text: 'IN GOD', x: 24.9, y: 68.3, size: 4.0 },
+      { kind: 'flat', text: 'WE TRUST', x: 25.2, y: 72.8, size: 4.0 },
+      // baseline (the band's OUTER edge, `rev`) 42.60, cap 6.83 growing inward
+      // to 35.77; `adv` 1.074 is the coin's 13.1 deg per advance at that radius.
+      { kind: 'arc', text: YEAR, size: 9.07, centre: 90, rev: true, rOff: 10.01, adv: 1.074 },
     ],
   },
 };
