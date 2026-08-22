@@ -41,7 +41,7 @@
 //
 // Run: node coloringbook/judge/_jt1transfer.mjs
 import sharp from 'sharp';
-import { readFileSync, writeFileSync, unlinkSync } from 'node:fs';
+import { readFileSync, writeFileSync, unlinkSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { coinSVG } from '../../src/art/coins.js';
@@ -84,9 +84,14 @@ async function featOfOurs(id, px) {
   const png = await sharp(Buffer.from(coinSVG(id, px, { side: 'obverse' })))
     .resize(px, px, { fit: 'contain', background: '#ffffff' })
     .resize(900, 900, { kernel: 'nearest' }).flatten({ background: '#ffffff' }).png().toBuffer();
-  // energyGrid resolves names relative to coloringbook/ref/, so the render has
-  // to live there. Prefixed and deleted afterwards; ref/ is gitignored.
-  const name = `_tmp-transfer-${id}-${px}.png`;
+  // WRITING INTO ref/ WAS A FAULT AND THE IMAGE REVIEW CAUGHT IT MID-RUN.
+  // energyGrid resolves names relative to coloringbook/ref/, so v2 wrote its
+  // renders there — polluting the shared reference pool that other rounds read,
+  // which is the exact `_x6mat.mjs` fault this project already documents. A
+  // crashed run leaves them behind. Own subdirectory instead: still resolvable,
+  // never mistaken for a reference.
+  const name = `_scratch/${id}-${px}.png`;
+  mkdirSync(new URL('../ref/_scratch/', import.meta.url).pathname, { recursive: true });
   writeFileSync(new URL('../ref/' + name, import.meta.url).pathname, png);
   TEMPS.push(name);
   const g = await energyGrid(name, { cx: 450, cy: 450, R: 450 * 0.94 }, 0.02);

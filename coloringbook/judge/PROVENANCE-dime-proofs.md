@@ -249,50 +249,48 @@ but the metric should be read as *"how well does p90 sit on a plateau in this
 file"* and never as *"this reference is better than that one"* without an
 independence check first. NCC before plateau, from now on.
 
-## Cent obverse, added 2026-08-22 — TWO PROOFS, and neither closes the open gap
+## ⛔ RETRACTED — "Cent obverse, added 2026-08-22 — TWO PROOFS"
 
-Both supplied by the owner. Both measured with `judge/_jp3usmint.mjs`, which
-runs `_jp2indep.mjs`'s own imported comparison on an extended file list rather
-than editing its hashed `POBV`.
+**The US Mint file was already in the pool.** `penny-obv-usmint.png` is
+**byte-identical** to `penny-obv-4.png` (sha256 `c7e5d02b…`), which has been
+here all along. The judge downloaded it, measured it, wrote provenance calling
+it "the only reference in this pool that is not third-party copyright", and
+committed it as an acquisition. It was a re-add. Both `penny-obv-usmint.png`
+and `-flat.png` are deleted; `penny-obv-4.png` stands.
 
-- **`penny-obv-usmint.png` / `penny-obv-usmint-flat.png`** — US Mint pressroom,
-  2014-02-10, via commons.wikimedia.org/wiki/File:US_One_Cent_Obv.png.
-  **PD-USGov-Treasury: public domain**, and the **only reference in this pool
-  that is not third-party copyright**. 2000×2000, straight-on, diffuse,
-  background cut out (corner alpha 0). **Preprocessing declared:** the cut-out
-  is flattened onto neutral `#808080`; compositing onto black would invent a
-  hard black rim the coin does not have and bias both the disc fit and every
-  tone reading. Disc fit R 951.89.
-- **`penny-obv-proof2021.jpg`** — profilecoins.com, a commercial dealer.
-  **THIRD-PARTY COPYRIGHT: private measurement only, never redistributed,
-  never traced into shipped art.** 1200×1200, deep cameo.
+**And the independence instrument compared the file against itself and passed
+it.** `_jp3usmint.mjs` printed `raw 0.3726  design 0.8069  INDEPENDENT` for
+identical bytes against a duplicate threshold of 0.90. The cause is that the
+two files got different disc fits — 4.0 % of R apart — so identical pixels were
+compared **misregistered**. ⚠️ **The duplicate detector's negative results are
+therefore untrustworthy across the whole pool**, wherever disc fits disagree.
+Its positives (e.g. `quarter-obv.jpg` ≡ `quarter-obv-2.jpg` at 0.9542) are
+still evidence; its negatives are not.
 
-**Independence (design floor 0.3048, from `penny-obv-2.jpg` vs a quarter):**
+**Fix in place:** `judge/_jrefintake.mjs` must be run before anything enters
+`ref/`. It hashes first (free and decisive), then does a registration-free
+near-duplicate check that a disc-fit error cannot defeat, then reports
+resolution and writes the date/mintmark crop to be looked at, then checks for a
+histogram cliff. Response-tested against this exact failure: fed the US Mint
+file, it reports `ALREADY IN THE POOL, BYTE-IDENTICAL: penny-obv-4.png` and
+exits non-zero.
 
-| | vs penny-obv | vs -2 | vs -3 | vs -4 | vs each other |
-|---|---|---|---|---|---|
-| US Mint 2013-S | 0.5863 | 0.7072 | 0.7863 | 0.8069 | — |
-| 2021-S | 0.4940 | 0.6576 | 0.5629 | 0.7223 | **0.7215** |
+`penny-obv-proof2021.jpg` (profilecoins.com, third-party copyright, private
+measurement only) is genuinely new and genuinely independent. It is a 2021-S,
+i.e. a **proof**: shape only, never D3 or D13.
 
-All above the floor; raw NCC −0.14…0.37 so none is a duplicate; **no bound
-riding after widening the translation search to ±0.09R**. Both are independent
-of everything held, and of each other.
+### ⚠️ AND THE INCUMBENT IS A PROOF TOO
 
-**SHAPE ONLY — D1, D2, D7. Never D3 or D13.** Both carry an "S" mintmark, and
-since 1974 the San Francisco mint has struck **no business-strike cents**, so
-both are proofs. §20.3: a frosted proof is the best possible shape reference
-and the worst possible tone reference.
+**`penny-obv-2.jpg` is a 2002-S** — verified by cropping its own date and
+looking. "S" means proof by the same rule used to downgrade the two files
+above, and its field is crushed to near-black.
 
-⚠️ **So the cent's open problem is NOT closed by these.** What still rests on a
-single photograph is the **whisker boundary**, a texture/tone reading — only
-`penny-obv-2.jpg` supports it, and on the other struck references the
-discriminator has no contrast. **The outstanding acquisition is unchanged: a
-third STRUCK BUSINESS-STRIKE cent obverse.**
-
-✅ **What they do open:** the cent obverse now has **two independent deep-cameo
-proofs** — the same configuration that let the dime reverse get a traced D2
-target in v1.66.0. The cent obverse has never had a D2 target and could now
-get one by the same route.
+That file is the **sole** support for the cent's mid-jaw whisker boundary, which
+this document and BACKLOG.md have both been calling the flagship "n=1" tone
+problem. It is not n=1. **For tone in that region it is n=0**, because §20.3
+puts a proof at the bottom for exactly this reading. The outstanding
+acquisition — a struck business-strike cent obverse at usable resolution —
+is more important than previously stated, not less.
 
 ## 2026-08-22 — THE PAIR AUDIT: six coin faces were sitting unused in files we already held
 
