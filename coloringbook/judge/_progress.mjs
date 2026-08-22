@@ -5,6 +5,10 @@
 // Run: node coloringbook/judge/_progress.mjs
 import sharp from 'sharp';
 import { coinSVG, coinPx, COIN_IDS } from '../../src/art/coins.js';
+import { readFileSync } from 'node:fs';
+// Read the version rather than hard-coding it — this sheet is sent to the owner
+// and carried a stale "v1.66.0" label for seven releases.
+const VERSION = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url).pathname, 'utf8')).version;
 
 const IDS = ['penny', 'nickel', 'dime', 'quarter', 'buck'];
 const SIDES = ['obverse', 'reverse'];
@@ -22,7 +26,7 @@ const render = async (id, side, px, box) => {
   const H = HEAD + IDS.length * (BIG + PAD + LAB) + PAD;
   const layers = [];
   const text = [
-    `<text x="${PAD}" y="26" font-family="monospace" font-size="18" fill="#111">Compounded — coin art, every face, v1.66.0</text>`,
+    `<text x="${PAD}" y="26" font-family="monospace" font-size="18" fill="#111">Compounded — coin art, every face, v${VERSION}</text>`,
   ];
   for (let r = 0; r < IDS.length; r++) {
     const id = IDS[r];
