@@ -14,23 +14,47 @@ function lcg(seed) {
   return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296);
 }
 
+// WHY THESE ARE PLAIN THROWS AND NOT expect().
+//
+// The three property tests below sweep 12 tables x 200 seeds x 3 chains, and
+// every check inside that sweep used to be an expect(). Playwright's expect
+// captures a stack trace per call, so ~72,000 of them cost ~35ms each and this
+// ONE FILE took 42.6 minutes — longer than the other 458 tests combined.
+// `buildCountingPath` does all 2,400 iterations in ~30ms on its own, so every
+// bit of that was the assertion mechanism rather than the code under test.
+//
+// It also hid itself twice over: Playwright's `timeout: 120_000` CANNOT
+// interrupt a synchronous loop, so a test 21x over the timeout still reported
+// a pass, and the `list` reporter prints only on completion, so a grinding
+// spec is indistinguishable from a hung one. Several full-suite runs were
+// killed at test 455 in the belief they had stalled.
+//
+// `ok()` checks the SAME conditions with the same strictness and carries the
+// failing case in its message. expect() is kept for the per-test aggregates
+// outside the sweeps, where a handful of calls costs nothing and the richer
+// diff is worth having.
+function ok(cond, msg) {
+  if (!cond) throw new Error(msg);
+}
+const sameNums = (a, b) => a.length === b.length && a.every((n, i) => Object.is(n, b[i]));
+
 // Solve a chain from the text ALONE, the way the kid must: read the step off
 // the visible terms and step into the gap. Throws when the question could not
 // be solved from what is shown.
 function solveFromText(text) {
   const parts = text.trim().split(', ');
-  expect(parts).toHaveLength(4);
+  ok(parts.length === 4, `chain "${text}" has ${parts.length} terms, not 4`);
   const nums = parts.map((p) => (p === '_' ? null : Number(p)));
-  expect(nums.filter((n) => n === null)).toHaveLength(1);
+  ok(nums.filter((n) => n === null).length === 1, `chain "${text}" must have exactly one gap`);
   const gap = nums.indexOf(null);
-  expect(gap).toBeGreaterThan(0); // a leading gap would hide the step
+  ok(gap > 0, `chain "${text}" has a LEADING gap, which hides the step`);
   let step = null;
   for (let i = 0; i + 1 < 4; i++) {
     if (nums[i] === null || nums[i + 1] === null) continue;
-    if (step !== null) expect(nums[i + 1] - nums[i]).toBe(step);
+    if (step !== null) ok(Object.is(nums[i + 1] - nums[i], step), `chain "${text}" is not a constant step`);
     step = nums[i + 1] - nums[i];
   }
-  expect(step).toBeGreaterThan(0);
+  ok(step > 0, `chain "${text}" has a non-positive step ${step}`);
   return nums[gap - 1] + step;
 }
 
@@ -46,26 +70,29 @@ test('every warm-up question is solvable from what it shows and stays inside the
   for (let t = 1; t <= 12; t++) {
     for (let seed = 1; seed <= 200; seed++) {
       const chains = buildCountingPath(t, lcg(seed * 7919 + t));
-      expect(chains).toHaveLength(3); // still exactly three, always
+      const at = `table ${t}, seed ${seed}`;
+      ok(chains.length === 3, `${at}: ${chains.length} chains, not 3`); // still exactly three, always
       // three different stretches of the table, never the same run twice
-      expect(new Set(chains.map((c) => c.correction)).size).toBe(3);
+      ok(new Set(chains.map((c) => c.correction)).size === 3, `${at}: repeated run — ${chains.map((c) => c.correction).join(' | ')}`);
       for (const c of chains) {
         seen += 1;
-        expect(solveFromText(c.text)).toBe(c.answer);
+        const solved = solveFromText(c.text);
+        ok(Object.is(solved, c.answer), `${at}: "${c.text}" solves to ${solved} but answer is ${c.answer}`);
         // answers are real multiples of the table: positive, never past 12×t
-        expect(c.answer % t).toBe(0);
-        expect(c.answer / t).toBeGreaterThanOrEqual(1);
-        expect(c.answer / t).toBeLessThanOrEqual(12);
+        ok(c.answer % t === 0, `${at}: answer ${c.answer} is not a multiple of ${t}`);
+        ok(c.answer / t >= 1, `${at}: answer ${c.answer} is below 1x${t}`);
+        ok(c.answer / t <= 12, `${at}: answer ${c.answer} is past 12x${t}`);
         // the correction shows the whole run with the gap filled in
         const terms = c.correction.split(', ').map(Number);
-        expect(terms).toHaveLength(4);
-        expect(terms).toContain(c.answer);
+        ok(terms.length === 4, `${at}: correction "${c.correction}" has ${terms.length} terms, not 4`);
+        ok(terms.includes(c.answer), `${at}: correction "${c.correction}" omits the answer ${c.answer}`);
         for (const n of terms) {
-          expect(n % t).toBe(0);
-          expect(n / t).toBeGreaterThanOrEqual(1);
-          expect(n / t).toBeLessThanOrEqual(12);
+          ok(n % t === 0, `${at}: term ${n} is not a multiple of ${t}`);
+          ok(n / t >= 1, `${at}: term ${n} is below 1x${t}`);
+          ok(n / t <= 12, `${at}: term ${n} is past 12x${t}`);
         }
-        expect(terms.slice(1).map((n, i) => n - terms[i])).toEqual([t, t, t]);
+        ok(sameNums(terms.slice(1).map((n, i) => n - terms[i]), [t, t, t]),
+          `${at}: correction "${c.correction}" is not a constant ${t} step`);
       }
     }
   }
@@ -77,7 +104,8 @@ test('all three shapes appear, one per warm-up, in mixed order', () => {
   for (let t = 1; t <= 12; t++) {
     for (let seed = 1; seed <= 200; seed++) {
       const shapes = buildCountingPath(t, lcg(seed * 104729 + t)).map((c) => shapeOf(c.text, t));
-      expect(shapes.slice().sort()).toEqual(['high', 'low', 'middle']);
+      ok(shapes.slice().sort().join(',') === 'high,low,middle',
+        `table ${t}, seed ${seed}: shapes were ${shapes.join(',')}, not one of each`);
       shapes.forEach((s, i) => atPosition[i].add(s));
     }
   }
@@ -95,7 +123,9 @@ test('missing-middle answers fill the gap, for several tables', () => {
         if (gap === 3) continue;
         middles += 1;
         // flanked on both sides: the answer is the number halfway between
-        expect(c.answer).toBe((Number(parts[gap - 1]) + Number(parts[gap + 1])) / 2);
+        const halfway = (Number(parts[gap - 1]) + Number(parts[gap + 1])) / 2;
+        ok(Object.is(c.answer, halfway),
+          `table ${t}, seed ${seed}: "${c.text}" answer ${c.answer} is not the midpoint ${halfway}`);
       }
     }
     expect(middles).toBeGreaterThan(0);

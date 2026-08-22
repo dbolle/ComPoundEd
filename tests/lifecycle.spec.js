@@ -137,6 +137,12 @@ test('e2e: restore brings the player back; purge is forever; zero-profile device
   doc.id = 'res-kid';
   doc.facts[norm(5, 5)] = stat(4);
   await page.goto('/', { waitUntil: 'networkidle' });
+  // This test PURGES res-kid, and purge is deliberately irreversible. With
+  // reuseExistingServer the sync dir outlives a single run, so a run that dies
+  // between the purge below and the janitor at the end leaves a permanent
+  // tombstone that fails every later run on that server. Clean before, not
+  // just after.
+  await page.request.delete('/sync/profiles/res-kid.json');
   await seedProfile(page, doc);
   await selectProfile(page, doc.name);
   await enableSync(page);

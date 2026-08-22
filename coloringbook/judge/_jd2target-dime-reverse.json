@@ -1,0 +1,38 @@
+{
+  "dimension": "D2",
+  "subject": "dime",
+  "side": "reverse",
+  "what": "relief motif silhouette, lettering excluded",
+  "chosen_by": "the owner, 2026-08-22",
+  "chosen_from": [
+    "2010-S",
+    "1960",
+    "1968"
+  ],
+  "why": "Highest-resolution cameo proof; the only one of the three where the text-band pass had nothing left to remove (no letter touches its relief); baseline cluster 12/12 interior components against 13/17 and 10/14. The majority vote averaged it together with two worse traces.",
+  "grid": 700,
+  "source_photograph": "dime-proof2010-pair.png",
+  "source_window": [
+    0,
+    0.5,
+    0,
+    1
+  ],
+  "disc_fit": {
+    "cx": 266.2921,
+    "cy": 274.0711,
+    "R": 241.3558
+  },
+  "threshold": 112,
+  "method": {
+    "legend_ring": "dropped by connected component, not by radius; largest/second component ratio 26.3x",
+    "interior_lettering": "located from the dropped free-standing letters' own baseline; band rows 441..493",
+    "touching_letters": "plain opening inside the band only, reconstruction outside it",
+    "erode_radius": 7,
+    "locus_trough_diagnostic_only": 0.715
+  },
+  "area_fraction_of_disc": 0.318792,
+  "sha256_of_png": "c36b8aeadade9df44fdf89a51f3c129ef7b2cb49462f688b80715d7746e939c8",
+  "invariance": "Derived from the photograph alone. No value depends on src/art/coins.js, so it is bit-identical across revisions of our art by construction (COIN-JUDGE.md §6.1).",
+  "not_a_source_of_coordinates": "Scoring target only. No path data may be lifted from it into coins.js; the art is hand-placed from measurements and the photographs are third-party copyright held for private measurement."
+}

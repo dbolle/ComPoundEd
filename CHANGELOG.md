@@ -3,6 +3,260 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.66.0 — 2026-08-21
+
+**Three more obverse rounds, the $1 note's eagle redrawn, and a version-numbering
+error corrected. Two owner decisions closed as declined.**
+
+### First, a correction to this file
+
+The commit titled *v1.63.0* bumped `package.json` from 1.61.1 straight to
+1.63.0, but the entry it added below is headed **v1.62.0** — so the version
+kids see at the bottom of Grown-Ups had no matching entry, and **the $1 note
+rebuild that shipped in it was never documented at all**. The v1.62.0 heading
+is left as written because two BACKLOG rows and a published judge card cite it
+by that name, and judge evidence is append-only. What shipped as 1.63.0 is:
+the v1.62.0 entry's work, *plus* the note rebuild recorded here.
+
+### The $1 note was wrong in kind, not in degree (shipped in 1.63.0, undocumented until now)
+
+The pyramid was a pointed triangle with a second triangle on top. The real one
+is **truncated**, with a **detached** capstone above a ray gap — and the
+capstone's base is the same width as the truncation beneath it, which is what
+makes it read as detached rather than as a hat. The roundels were circles;
+they are ellipses. Four corner numerals, where we drew two.
+
+- D1 obverse IoU **0.1496 → 1.0000** at every tier, centre error −16.05 → 0.00
+- D2 roundels **0.3943 → 0.9989** and **0.4290 → 0.9991**; separation −25.6% → 0.00%
+- D4 obverse count error **2 → 0** at every tier
+- The eagle spilling beyond its roundel: **154.8% of the rim → 0.000%**
+
+The brief had carried that overhang as "10.474%" — measured against *our own*
+round-0 roundel rather than the note's. The defect was fifteen times worse
+than the figure we had been quoting ourselves.
+
+**Two costs recorded rather than waived.** D11's note row fell 0.1049 → 0.0718
+(telling the note's front from its back got harder; telling a note from a coin
+did not — the set minimum and the §17 ratio are untouched at 0.0534 / 1.49×).
+D6-reverse worsened 4.54% → 6.91%, driven by six course lines instead of three,
+and kept because §5 puts D4 above D6.
+
+**One finding overturned by the judge.** The round reported that
+`src/art/pawcoins.js` holds a second, defective `noteSVG()`. It does not —
+that file draws **Paw Bucks**, the app's own fictional currency, which
+CHARTER.md requires stay visibly distinct from real money. "Repairing" it
+toward the US note would have erased a deliberate distinction.
+
+### The quarter's wig was a stripe pattern, and D6 cannot see that
+
+Seven stroke widths changed; **no centreline moved**. `groove` 2.6/2.4 → 0.98,
+`grooveFine` 1.1/1.0 → 0.36. At 2.5 units wide on a 4.05 pitch there is no lit
+mass left between the marks to be cut — our own render scored 0 or 1 cuts on
+7 of 7 transects, i.e. it could not be measured by the instrument that measures
+the coin. Cut duty is now **0.322** against the coin's 0.258–0.429.
+
+**D6 is blind to stroke width.** This round narrowed the exact defect D6 exists
+to catch by 2.6×, and D6 moved by **0.0000** — 20.50% / 25.94% bit-identical
+before and after, drawn length identical to the decimal. Meanwhile the only fix
+for the *count* half of the same defect would raise D6 by 11 points. So D6 as
+implemented cannot route a width repair and actively forbids a count repair.
+
+### The nickel has no ear, and its wig covered a third of the head
+
+Both independent references put the wig from temple to nape with **no ear
+anywhere** — the glyph box landed in the middle of it. Replaced with
+`earMark: CURLS_JEFFERSON`, three dark cuts following three measured grooves.
+
+Worth keeping as a warning: **the tone ratio says the opposite.** The glyph box
+reads 0.925–0.948 of the cheek — *darker*, nowhere near the wig's 1.207–1.224 —
+because that part of the wig is the deepest-cut curl cluster. Anyone
+re-deriving this from tone alone would conclude the glyph sits on skin.
+
+The hair mass was far worse than the brief said: **three** of four wig patches
+read exactly 1.000 because the drawn mass never reached them. The old run was a
+strip down the back of the head, and the front two thirds of the wig rendered
+in face tone. After: hairFront 0.0% → 85.3% covered, hairCrown 38.8% → 100%,
+hairMid 0.0% → 100%, curls 30.5% → 100%, with all seven face patches still at
+0.0% — no bleed.
+
+### A third rubric fault, and the cleanest one
+
+The corrected hairline is a **shorter route**. D6-obverse rose 0.1168 → 0.1185
+and D8 rose 2.3714% → 2.4127% **with neither numerator changing** — D6's is
+bit-identical at 140.8 (it actually fell), D8's breaching path, length and depth
+are identical. The rise is 100% denominator in both.
+
+Accepted with no regression charged. Appendix R2 says no improvement may be
+claimed unless the numerator moved; applied symmetrically, no regression may be
+charged either. A gate that a shorter and more correct outline can only make
+worse is a gate on the wrong side of its own ratio.
+
+### The note's eagle: the brief's headline number was wrong by 36%
+
+The previous round left a note reading "the note's wings span 0.604 of the rim
+against our 0.858 — too wide and too short," and that went into a brief as a
+measurement. Measured properly, the note's wings span **0.8242** (0.8211/0.8273
+across two references) against our 0.8421. **We were 2.2% too wide, not 42%.**
+Neither 0.604 nor 0.756 has a generator anywhere in the tree.
+
+What was actually wrong: the note's bird **hangs low** — tail to 0.893 of the
+way down, centre offset +0.191, wings rising at 70.2°. Ours sat dead centre at
+0.502 of the height with wings at 53.9°. After: span 0.8248, height 0.6939,
+offset 0.1929, wings 70.0°.
+
+The iteration that hit **every** measured proportion rendered as a **tuning
+fork** — five separate masses, with `struck()`'s white bevel sitting in the
+0.20-unit gap between head and shield, cutting the bird in half. The fix was
+not lowering the target; every proportion is still within 0.010 of the note. It
+was noticing that the *joins* had never been measured: on the note the head's
+ruff and the shield's top edge meet, both at Y 28.33, and two shapes that meet
+in a photograph must overlap in a drawing.
+
+### D2 has a frozen dime-reverse target for the first time
+
+D2 has been blocked since it was written, because thresholding a photograph of
+struck metal records lighting as shape: four independent dime references agreed
+at only IoU 0.36–0.53 against a 0.95 gate. The constructive path §2.1 already
+allowed was a hand annotation — and the owner has no tracing tools, so the
+judge traced and published candidates for selection instead.
+
+The first attempt was wrong in a way only a person looking at it would catch.
+The owner did: *"they all seem to be based off of a circle mask that clips the
+image."* A hand-chosen `LOCUS = 0.70` circle was cutting the **torch flame flat
+across the top**, so those candidates were the wrong *shape*, not merely
+contaminated with lettering.
+
+**There is no locus circle any more.** Three measurements replace it:
+
+- **The legend ring is dropped by connected component, not by radius.** The
+  relief is one merged mass and the legend letters are separate components, so
+  selecting the dominant one excludes the whole ring without bounding the
+  flame. The largest/second gap runs **26.3× / 18.7× / 16.9×**, and the script
+  refuses to return a number if that gap ever collapses.
+- **The E·PLURIBUS·UNUM baseline is found by the photographs.** Selecting the
+  dominant mass already drops every free-standing letter, and those dropped
+  pieces carry the baseline with them. Three independent images agree: median
+  row **464.5 / 466.5 / 463**, letter height **39 / 40 / 42**. Taking min/max
+  over every interior component was tried first and is fragile — one speckle on
+  the mirror field stretched the band to 300 and 370 rows against 53.
+- **Letters touching the torch are cut by a plain opening inside that band
+  only**, because there the only relief is the thick torch shaft; outside it
+  the thin twigs still need opening-by-reconstruction.
+
+**The owner chose the 2010-S trace over the majority-vote average**, and the
+numbers agree with the eye: it is the highest-resolution cameo proof, the only
+one of the three where the band pass had nothing left to remove, and its
+baseline cluster used 12 of 12 interior components against 13/17 and 10/14. The
+average was closer to all three traces than any was to another — and better
+than none of them.
+
+Frozen as `judge/_jd2target-dime-reverse.png` with a `.json` sidecar carrying
+every parameter and a SHA-256, **verified identical across two independent
+runs**. §6.1 holds by construction: the generator never imports
+`src/art/coins.js`, so no value in the target can depend on the artefact under
+test. It is a **scoring target, not a source of coordinates** — the art stays
+hand-placed from measurements.
+
+### D7 re-scored, and almost every failure was the metric
+
+`judge/_jd7tan.mjs` restates D7 on **tangent discontinuity**, response-tested
+three ways: a known 90° kink reads 90.0, a G1-smooth join reads **tangent 0.0
+against chord 90.0**, a straight run reads 0.0/0.0. `judge/_jd7fitted.mjs` then
+restricts it to **fitted** contours, because Appendix P2 says authored polygons
+declare their own corners.
+
+Re-derived against the shipped art, the cent's `HAIR.Lincoln` goes chord 144.5
+(2 knots over 75°) → **tangent 1.0 (0 over)**, and the quarter's
+`HAIR.Washington` 102.0 → **1.2 (0)**. The quarter's 102° knot had been
+described to a specialist as "confirmed by eye as a visible kink"; its actual
+tangent discontinuity is 0.4°, and that description is retracted.
+
+Real defects survive on two faces. The dime's `HEAD.Roosevelt` knot 23 at
+111.2°, and `HAIR.Roosevelt` knots 0/16/30 at **156.3° / 114.9° / 84.8° —
+three genuine kinks the chord metric never scored at all**. And the cent's
+`BEARD` knot 7 at 85.0°, which was invisible until this release.
+
+### An instrument that could not see its subject reported a pass
+
+`_jd7fitted.mjs` parsed nine fitted constants and located only **eight** in a
+render — so the cent's beard had no D7 number at all. It surfaced because the
+script verifies its own extraction against the render before scoring anything,
+a check added after an earlier version silently found only `BEARD` and printed
+"no fitted contour emitted" for all four coins.
+
+The cause: `arrValue()` ended each block at the literal `"\n];"`, but `BEARD`
+ends `].join(' ')`. The block therefore ran on to the *next* array in the file
+and the reconstruction carried a second constant's path literals, matching
+nothing. Now terminated at the closing bracket in column 0.
+
+The moment the instrument could see `BEARD`, a **fifth genuine kink** appeared
+at knot 7. It had been there through every D7 run ever recorded.
+
+### Two owner decisions, both declined
+
+- **`EDGE.field.icon` 42.5 → 44.07: declined.** Previewed at true size. The
+  thicker border is marginally better at the smallest size only, is noticeable
+  only if pointed out and then closely examined, and it **doubles D10** (the
+  42.5 ring currently masks half the bust discontinuity: the true figure is
+  0.1528, not the published 0.0854). Not worth the complexity.
+- **The inverted `PALETTE` base tone: declined.** Our device/field ratio is
+  0.656 where the coins read 1.185–1.438 — measured, real, and deliberately
+  left. The three silver coins are the same metal in life, so **staying
+  consistent with each other outranks matching the photograph**, and
+  `PALETTE.quarter === PALETTE.nickel === PALETTE.dime` being byte-identical is
+  now protected rather than a defect to fix.
+
+### A gate that could poison itself permanently
+
+`tests/lifecycle.spec.js`'s restore test **purges** the fixed profile id
+`res-kid`, and purge is deliberately irreversible. The test server allocates
+its sync directory once at launch and `playwright.config.js` sets
+`reuseExistingServer: true` — so a run that died between the purge and the
+janitor at the end left a permanent `{"state":"purged"}` tombstone, and **every
+later run against that server failed**, waiting two minutes for a restore
+button that could never appear.
+
+That is what it was doing: a server reused since 20:03 had accumulated state
+from every run of the day. Diagnosed from the leftover file rather than
+guessed, then verified both ways — the test passes in 9.0s on a clean server,
+and with the fix it passes in 9.3s against a server poisoned with that exact
+tombstone. The repair is to clean the id **before** the test as well as after;
+no assertion was weakened.
+
+### The suite went from ~50 minutes to a few — one test was almost all of it
+
+`tests/countingpath.spec.js`'s first test took **42.6 minutes on its own**,
+longer than the other 458 tests combined. It now runs in **96 ms**.
+
+None of that was the code under test: `buildCountingPath` does all 2,400 of the
+test's iterations in ~30 ms. The three property tests sweep 12 tables x 200
+seeds x 3 chains and wrapped every check in an `expect()` — roughly **72,000
+calls, each capturing a stack trace**, at ~35 ms apiece.
+
+It hid itself twice over. Playwright's `timeout: 120_000` **cannot interrupt a
+synchronous loop**, so a test 21x over the timeout still reported a pass. And
+the `list` reporter prints only on completion, so a grinding spec looks exactly
+like a hung one — several full-suite runs were killed at test 455 in the belief
+they had stalled, and two orphaned workers were left spinning at 100% CPU,
+which made every later run slower still.
+
+The fix replaces `expect()` **inside the sweeps only** with a plain `ok()`
+throw, checking the identical conditions with the same strictness;
+`expect()` is kept for the per-test aggregates outside the loops. Assertion
+messages now carry the failing case, which the previous version did not:
+`table 7, seed 1: "56, 63, _, 77" solves to 70 but answer is 77`.
+
+**A faster test that can no longer fail would be worse than a slow one**, so all
+three converted sites were mutation-tested against deliberately broken source:
+a wrong answer, two chains sharing a run, and two chains sharing a shape. Each
+went red with a diagnosable message, and the source was restored and verified
+clean before the suite was re-run.
+
+**Reprioritised on the owner's instruction:** shapes and detail (D1, D2, D4, D6,
+D7) come before tone (D3, D13). That also makes D13's escalation — its
+normaliser measures the photograph's lighting, not the coin — much less costly
+than it looked.
+
 ## v1.62.0 — 2026-08-21
 
 **Two obverse rounds landed, and D7 joins the escalated list — its metric

@@ -1261,6 +1261,32 @@ const HAIR = {
     'C 4.76 -21.44 6.29 -22.78 7.97 -23.93',
     'C 9.69 -25.11 13.41 -25.9 13.5 -27.05 Z',
   ].join(' '),
+  // JEFFERSON: THE HAIRLINE IS THE WHOLE FRONT OF THE WIG, and until this pass
+  // this path did not draw one. The outer run below is the head contour run
+  // backwards; the return run used to sweep back to local x = -21.8 and then
+  // cross the crown at y = -28.7, so the mass it enclosed was a narrow band down
+  // the BACK of the head and the front two thirds of the wig rendered in the
+  // face tone. It missed three of its own four frozen wig patches: hairFront and
+  // hairMid lay at 0.0% coverage and read exactly 1.000 in every revision, and
+  // hairCrown was 38.8% covered, which a patch median rounds to the face as
+  // well. D1 cannot see this — its mask is the whole-bust silhouette and this
+  // line is interior — and D3 reports it as three ordinary-looking numbers.
+  //
+  // MEASURED, not composed, off the labelled local-unit ladder that
+  // judge/_jn14zoom.mjs draws on the source, and on BOTH usable references:
+  // overlays judge/_jn14zoom-unc-cand2.png (2004-P) and
+  // judge/_jn14zoom-five-cand2.png (1945-P, the only independent one). The wig
+  // front edge leaves the profile at the forehead near (9.3, -26), runs down the
+  // temple almost straight at about 2 units back per 4 units down — (4.7, -14.2),
+  // (-1.1, -2.2) — and then turns BACK along the bottom of the curl cluster,
+  // (-4.3, 5.4) to (-9.4, 11.4) to (-15.2, 16.8), where it meets the queue. The
+  // two references agree on that line to about a unit and a half.
+  //
+  // Knots are Catmull-Rom converted by judge/_jn14gen.mjs at tension 1/6, so
+  // every interior join is G1 and D7 tangent measure reads 0 across all of them.
+  // Both END tangents are matched to the segments the run splices between, and
+  // the two splice knots (-14.11, 20.67) and (9.32, -25.96) are UNCHANGED — the
+  // outer run is still the head OWN knots, byte for byte, so D1 cannot move.
   Jefferson: [
     'M 9.32 -25.96 C 9.39 -26.03 6.47 -29.34 4.68 -30.66',
     'C 2.82 -32.05 0.57 -33.27 -1.7 -34.02 C -4.01 -34.78 -6.59 -35 -9.1 -35.15',
@@ -1279,15 +1305,20 @@ const HAIR = {
     'C -27.05 30.49 -24.6 29.73 -22.13 29.33 C -19.55 28.92 -15.6 29 -14.23 28.05',
     'C -13.5 27.55 -13.25 26.95 -13.11 26.11',
     'C -12.88 24.78 -13.42 22.52 -14.11 20.67',
-    'C -14.92 18.47 -17.01 16.07 -18.03 13.93',
-    'C -18.9 12.11 -19.43 10.55 -20.02 8.69 C -20.67 6.62 -21.43 4.08 -21.7 2.04',
-    'C -21.93 0.34 -21.78 -0.92 -21.79 -2.71',
-    'C -21.82 -5.04 -22.25 -8.19 -21.79 -10.74',
-    'C -21.35 -13.19 -20.55 -15.75 -19.18 -17.75',
-    'C -17.81 -19.76 -15.59 -21.22 -13.57 -22.76',
-    'C -11.48 -24.35 -8.95 -26.1 -6.83 -27.11',
-    'C -5.13 -27.93 -3.79 -28.42 -1.97 -28.72 C 0.25 -29.08 3.94 -29.27 5.6 -28.74',
-    'C 6.54 -28.44 6.96 -27.8 7.6 -27.32 C 8.2 -26.87 9.29 -25.91 9.32 -25.96 Z',
+    // THE HAIRLINE STARTS HERE — see the block above Jefferson.
+    'C -14.41 19.72 -15.45 17.91 -15.2 16.8',
+    'C -14.95 15.69 -13.57 14.9 -12.6 14',
+    'C -11.63 13.1 -10.43 12.3 -9.4 11.4',
+    'C -8.37 10.5 -7.25 9.6 -6.4 8.6',
+    'C -5.55 7.6 -4.92 6.53 -4.3 5.4',
+    'C -3.68 4.27 -3.23 3.07 -2.7 1.8',
+    'C -2.17 0.53 -1.67 -0.87 -1.1 -2.2',
+    'C -0.53 -3.53 0.07 -4.87 0.7 -6.2',
+    'C 1.33 -7.53 2.03 -8.87 2.7 -10.2',
+    'C 3.37 -11.53 4.03 -12.87 4.7 -14.2',
+    'C 5.37 -15.53 6.07 -16.87 6.7 -18.2',
+    'C 7.33 -19.53 8.06 -20.91 8.5 -22.2',
+    'C 8.94 -23.49 9.17 -25.32 9.32 -25.96 Z',
   ].join(' '),
   // ROOSEVELT'S HAIR WAS THE WORST SHAPE IN THE FILE, and the fault was not
   // texture. It was a crescent laid on the skull — a swim cap — when the
@@ -1992,15 +2023,62 @@ const RELIEF = {
     // first cut of this family was a set of straight parallels and it read as
     // a venetian blind — and their ends are STAGGERED, because the coin's rolls
     // are short overlapping shingles rather than full sweeps (§12.6).
+    //
+    // THE WIDTHS ARE THE COIN'S DUTY CYCLE, NOT THE COIN'S CUT WIDTH, and the
+    // difference between those two is this whole group's argument.
+    //
+    // Measured on three references over seven lines each — the four frozen
+    // transects plus three laid normal to these centrelines — the coin's wig
+    // is a train of NARROW cuts in a WIDE lit mass: pitch 0.95–1.75 viewBox
+    // units (per-reference medians 1.10 / 1.45 / 1.30), cut width at half
+    // prominence 0.25–0.55 (medians 0.35 / 0.30 / 0.40), 12–22 cuts per line.
+    // Ours were 2.4–2.6 local units at a pitch of 4.05 — seven times the coin's
+    // cut and three times its pitch — which is not a wide cut, it is a STRIPE
+    // PATTERN: run the same half-prominence cut finder over our own render and
+    // it scores 0 or 1 cuts on all seven lines and drops the rest at the
+    // bracketing maximum, because at 2.5 wide on a 4.05 pitch there is no lit
+    // mass left between them to be cut.
+    //
+    // The pitch cannot be fixed here. Required cut length = (cut-field area) /
+    // (pitch), so drawing the coin's 1.25-unit pitch needs 3.2x our drawn cut
+    // length, and D6 is a fraction of drawn LENGTH — it would go 20.50% ->
+    // ~31.7% at 84 px for a change that makes the wig more like the coin, not
+    // less. With the pitch pinned, cut width and duty cycle are different
+    // targets and only one can be met. Duty wins, because duty is the one that
+    // survives to every size we draw: at 84 px a viewBox unit is 0.84 device
+    // pixels, the coin's 0.35-unit cut is 0.29 px and resolves nowhere, and the
+    // coin at 84 px is a mottled LIGHT MASS with no banding in it at all.
+    //
+    // So: 0.98 local, which is duty 0.302 over the 4.67 crossings and 14.86
+    // units these five centrelines present to those three lines — against the
+    // coin's 0.258 (1932) and 0.342 (1994-P), the two references resolved well
+    // enough to measure a 0.3-unit cut. Every centreline is unchanged, so D6
+    // and D7 are untouched by construction. `coloringbook/judge/_jw14gen.mjs`
+    // carries the arithmetic and its self-test.
     groove:
-      '<path d="M -18.4 -14.8 C -14.4 -15.6 -9.6 -16.4 -2.1 -17.6" fill="none" stroke-width="2.6"/>' +
-      '<path d="M -20.3 -10.2 C -16.6 -11.0 -12 -11.8 -4.6 -13.2" fill="none" stroke-width="2.6"/>' +
-      '<path d="M -21 -6.4 C -17.6 -7 -13.2 -7.6 -5.8 -8.8" fill="none" stroke-width="2.6"/>' +
-      '<path d="M -23 -0.6 C -19.2 -1.6 -14.4 -3.0 -7 -5.2" fill="none" stroke-width="2.4"/>' +
-      '<path d="M -23 4.6 C -18.6 3.2 -13.6 1.4 -6.7 -1.6" fill="none" stroke-width="2.4"/>',
+      '<path d="M -18.4 -14.8 C -14.4 -15.6 -9.6 -16.4 -2.1 -17.6" fill="none" stroke-width="0.98"/>' +
+      '<path d="M -20.3 -10.2 C -16.6 -11.0 -12 -11.8 -4.6 -13.2" fill="none" stroke-width="0.98"/>' +
+      '<path d="M -21 -6.4 C -17.6 -7 -13.2 -7.6 -5.8 -8.8" fill="none" stroke-width="0.98"/>' +
+      '<path d="M -23 -0.6 C -19.2 -1.6 -14.4 -3.0 -7 -5.2" fill="none" stroke-width="0.98"/>' +
+      '<path d="M -23 4.6 C -18.6 3.2 -13.6 1.4 -6.7 -1.6" fill="none" stroke-width="0.98"/>',
+    // ONE WIDTH FOR ALL FIVE, where there used to be 2.6/2.6/2.6/2.4/2.4. The
+    // 0.2 difference between the top three and the bottom two is not in any
+    // photograph: the per-line width medians run 0.35 0.35 0.35 0.45 0.35 0.35
+    // 0.45 on the target of record with no trend from the crown to the nape,
+    // and round 8 established that on 23 of this face's 26 stroke marks the
+    // along-mark width difference is smaller than the between-reference
+    // interquartile range. A distinction the references cannot resolve is taste
+    // with a number stuck on it.
+    //
+    // `grooveFine` IS SET TO THE COIN'S OWN CUT WIDTH INSTEAD, and the tier is
+    // why: it is emitted only at boxW >= 130, where one viewBox unit is at
+    // least 1.3 device pixels and the coin's 0.35-unit cut is 0.46 px and up —
+    // it can actually be drawn. So the five always-on cuts carry the tone and
+    // these two carry the geometry. 0.35 viewBox / 0.98 = 0.36 local. Together
+    // they put the 190 px duty at 0.348, which is the 1994-P's own 0.342.
     grooveFine:
-      '<path d="M -20.6 -7.8 C -17 -8.6 -12.8 -9.4 -5.6 -10.8" fill="none" stroke-width="1.1"/>' +
-      '<path d="M -22.2 1.6 C -18.6 0.4 -14.4 -1.0 -7.7 -3.6" fill="none" stroke-width="1.0"/>',
+      '<path d="M -20.6 -7.8 C -17 -8.6 -12.8 -9.4 -5.6 -10.8" fill="none" stroke-width="0.36"/>' +
+      '<path d="M -22.2 1.6 C -18.6 0.4 -14.4 -1.0 -7.7 -3.6" fill="none" stroke-width="0.36"/>',
     // THE LIT ROLLS. Three of them cross the wigCrown patch (centre (-4,-22),
     // radius 3) and own more than half its area, which is the only way a flat
     // format moves a median (§12.6): the crown renders at 1.336 against the
@@ -2226,6 +2304,34 @@ const CURLS_WASHINGTON =
   '<path d="M -4.0 6.4 C -5.9 6.7 -7.2 7.6 -7.6 8.6" fill="none" stroke-width="1.3"/>' +
   '<path d="M -1.2 3.6 C -3.0 3.6 -4.6 4.6 -5.2 6.0" fill="none" stroke-width="1.3"/>';
 
+// JEFFERSON HAS NO EAR EITHER, AND THE SAME GLYPH WAS DRAWING ONE. This is the
+// quarter finding, second instance. `OBVERSE.nickel.ear` was [1.0, -16.6, -2.2];
+// the glyph that literal emits occupies local x -21.78..-12.70, y -7.56..8.34
+// (measured from the emitted path, halo included, by judge/_jn14ear.mjs), and
+// drawn on the source that box lands in the MIDDLE OF THE WIG on both usable
+// references — overlays judge/_jn14ear-nickel_obv_unc2004_jpg-zoom.png (2004-P)
+// and judge/_jn14ear-nickel_obv_5_JPG-zoom.png (1945-P, the only independent
+// one). Neither photograph has an ear anywhere: the wig comes down over the
+// whole side of the head from the temple to the nape. That is §7 exactly — do
+// not add anatomy the coin does not have — and it was reading as a bracket
+// floating in the middle of a bald skull, because the drawn hair mass did not
+// reach there either.
+//
+// WHAT IS ACTUALLY THERE is a cluster of ROLLED CURLS, and on the die the cuts
+// between them are the deepest thing on the coin: the frozen `curls` patch at
+// local (-20, 6) reads 0.690 of the cheek on the 2004-P. Three cuts, following
+// three grooves read off judge/_jn14zoom-unc-earzone.png at one local unit per
+// square, in the same dark group the ear used. They stop at x = -22, because
+// RELIEF.Jefferson lit ridges begin at x = -23.2 and §7 says a pale stroke drawn
+// next to a dark one simply paints it out.
+const CURLS_JEFFERSON =
+  '<path d="M -6.4 1.0 C -8.6 1.8 -10.0 3.4 -9.8 5.2 C -9.6 6.8 -8.9 7.6 -8.0 7.9"' +
+  ' fill="none" stroke-width="1.5"/>' +
+  '<path d="M -11.6 3.2 C -13.8 4.2 -15.4 6.0 -15.0 7.9 C -14.7 9.3 -14.0 9.9 -13.2 10.1"' +
+  ' fill="none" stroke-width="1.4"/>' +
+  '<path d="M -16.4 1.6 C -18.6 3.0 -20.4 4.8 -21.2 7.0 C -21.6 8.1 -21.6 8.9 -21.4 9.6"' +
+  ' fill="none" stroke-width="1.4"/>';
+
 // Which obverse each coin carries, and which way it looks. Post-2004 nickel
 // and post-1998 quarter designs are deliberately NOT referenced: those came
 // through the Mint's Artistic Infusion Program and are not reliably public
@@ -2331,7 +2437,23 @@ export const OBVERSE = {
     // tone this palette already carries. It does mean the wig and the collar
     // are now the same tone where the dime could spend `cloth` on hair alone;
     // they stay apart because the `deep` contour is drawn between them.
-    who: 'Jefferson', dir: -1, bare: false, neck: 23, ear: [1.0, -16.6, -2.2], hairLit: true,
+    //
+    // RETRACTION, beside the paragraph above rather than instead of it: the row
+    // `ours, hair mass filled cloth  1.148` was true of the FILL and false of
+    // the three patches it is quoted against. When that was written the drawn
+    // hair mass reached only `hairBack`; `hairCrown` was 38.8% covered and
+    // `hairMid` and `hairFront` 0.0%, so those three read exactly 1.000 — the
+    // cheek's own tone — and the 1.148 was never on them. Measured by
+    // judge/_jn14hair.mjs, coverage by point-in-polygon on the flattened path.
+    // The hairline correction in HAIR.Jefferson now puts all six wig patches
+    // inside the mass (85.3-100%) and no face patch inside it (0.0%), and the
+    // three rows above do now read 1.148.
+    // NO `ear`. Both usable references show NO EAR on this coin — see
+    // CURLS_JEFFERSON above for the measurement and the two overlays. The
+    // literal that used to sit here was `ear: [1.0, -16.6, -2.2]`, and nothing
+    // but bust() ever read it; `earMark` carries the curls instead, exactly as
+    // the quarter does.
+    who: 'Jefferson', dir: -1, bare: false, neck: 23, earMark: CURLS_JEFFERSON, hairLit: true,
     s: 0.95, cy: 43.7, cx: -6.4, iconS: 0.95, iconCy: 43.7, iconCx: -6.4,
     // Jefferson's back seam is almost entirely HIDDEN — the queue reaches
     // screen x 78.6 and the rim crossing is at 78.2 — so its bow is doing one
@@ -4478,53 +4600,132 @@ function noteSVG(box, attrs, tier, side, withValue) {
   // The Great Seal's eagle: wings RAISED, which is the pose that tells it
   // from the quarter's spread-wing eagle at a glance, and a shield on its
   // chest. At icon size everything but the shield and a raised chevron goes.
+  //
+  // REDRAWN, NOT RESCALED (round 14). Every coordinate below is in the
+  // ROUNDEL'S OWN FRAME — origin at the measured rim centre (76.875, 27.75),
+  // one local unit = one viewBox unit — so each number can be read straight
+  // off the measurement beside it. The old paths were authored to fill an r-16
+  // circle and then mapped in by `scale(0.5154)`; no affine map of them was
+  // ever going to be right, because the error was in the POSE.
+  //
+  // WHAT WAS MEASURED, and how (`_je14seg.mjs` / `_je14bird.mjs` /
+  // `_je14anat.mjs`, both reverse references, drawn back on the source and
+  // looked at in `_je14bird-*.png` and `_je14anat-*.png`):
+  //
+  //   The roundel is engraved edge to edge — there is no bare field to
+  //   threshold against, and the r0 density sweep returned a search bound
+  //   twice (`bill.md` §5). What separates bird from background is SCALE, not
+  //   grey: blur(0.35u) - blur(2.6u) is negative exactly on the massing. The
+  //   two wings then fall out as two connected components, selected by area
+  //   with the whole candidate set printed (§4.2), and the light features —
+  //   head, shield, tail — are hand-read off 0.5-unit ladders, which §2.1/R3
+  //   permit and which two references agree on to 0.05 of a semi-axis.
+  //
+  //   quantity                    note (mean of 2 refs)     ours, before
+  //   wing span / rim width               0.8242               0.8421
+  //   bird height / rim height            0.7020               0.5019
+  //   bird centre, dy of ry              +0.1676               0.0000
+  //   wing tip, dy of ry                 -0.5112              -0.3311
+  //   wing outer edge from horizontal      70.2°                53.1°
+  //
+  // THE BRIEF FOR THIS ROUND SAID 0.604 AND 0.756 AND THE FIRST IS WRONG. The
+  // note's wings span 0.824 of the rim, not 0.604; ours was 2.2% too wide,
+  // which is well inside the two-reference spread on the rim itself (15.2% on
+  // rx). What was wrong was never the width. It is that OUR BIRD IS CENTRED IN
+  // ITS ROUNDEL AND THE NOTE'S HANGS LOW — the note's tail reaches 0.893 of
+  // the way to the bottom rim while its wingtips only reach 0.511 of the way
+  // to the top — and that our wings lie at 53° where the note's rise at 70°.
+  // Short and shallow, not wide.
+  //
+  // The measured shield and head are each offset ~0.03-0.05 of rx to the right
+  // of the rim's centre, consistently on both photographs. That is 0.3-0.4 of
+  // a viewBox unit: 0.9 device px at the largest size this app draws and 0.2
+  // at icon. It is DROPPED, and said so, rather than drawn at a scale no tier
+  // can carry. The beak is kept, because the beak is 0.8 units and does read.
+  const EW = [
+    // left wing: tip at (-7.32, -6.20), outer edge falling at ~70 deg to the
+    // lower primaries at (-3.15, 4.55), inner edge back up under the tip. The
+    // crescent is 1.5-2.3 units thick, which is what the note's is (0.16-0.26
+    // of rx, thinnest at mid-height and thickest at the shoulder).
+    //
+    // THE INNER EDGE IS TRACED, NOT INVENTED. It runs -3.5 units from the axis
+    // at the shoulder to -1.7 where it passes behind the shield, read off
+    // `_je14zoom-shoulder-bill_rev_2_jpg.png` at 150 px/unit: the wing's inner
+    // boundary is the chain of scalloped COVERTS, which are pale and which the
+    // dark-mass segmentation therefore stops 0.55 units short of. That is a
+    // §4.3 wrong-feature miss caught by opening the zoom, and it is why the
+    // inner edge here is 0.3-0.5 units inboard of what `_je14bird.mjs` reports.
+    'M -7.32 -6.2 C -6.35 -4.2 -5.2 -1.55 -4.55 1.05 C -4.15 2.65 -3.6 3.9 -3.15 4.55 L -1.9 3.55 C -1.75 2.9 -1.72 2.4 -1.78 1.9 C -2.1 0.2 -2.6 -1.5 -3.1 -3 C -3.6 -4.4 -5 -5.4 -6.2 -5.75 Z',
+    'M 7.32 -6.2 C 6.35 -4.2 5.2 -1.55 4.55 1.05 C 4.15 2.65 3.6 3.9 3.15 4.55 L 1.9 3.55 C 1.75 2.9 1.72 2.4 1.78 1.9 C 2.1 0.2 2.6 -1.5 3.1 -3 C 3.6 -4.4 5 -5.4 6.2 -5.75 Z',
+  ];
+  // head: crown at y -3.09, 2.4 units across, beak point at (-0.87, -2.28) —
+  // all read off both photographs. The throat is drawn to +0.90 rather than to
+  // the measured +0.42 so that it OVERLAPS the shield's top edge at +0.62: on
+  // the note the head's ruff and the shield's top edge meet (both at Y 28.33
+  // on `bill-rev-2.jpg`), and two shapes that meet in a photograph have to
+  // overlap in a drawing, because `struck()` prints a white bevel copy 0.55
+  // units up-left of the massing and a 0.20-unit gap is exactly wide enough
+  // for that copy to sit in and cut the bird in half. Iteration 1 drew them
+  // apart at the measured values and the render showed the break.
+  const EHEAD = 'M -0.87 -2.28 L 0.05 -2.78 C 0.5 -3.09 1.2 -3 1.42 -2.5 C 1.62 -1.95 1.55 -1.05 1.3 -0.4 L 1.1 0.9 L 0.05 0.9 C -0.2 -0.35 -0.28 -1.2 -0.1 -1.78 Z';
+  // shield: a heater, top +0.62, straight sides to +4.30, point at +7.18,
+  // half-width 1.93.
+  const ESHIELD = 'M -1.93 0.62 L 1.93 0.62 L 1.93 4.3 C 1.93 5.9 1.05 6.85 0 7.18 C -1.05 6.85 -1.93 5.9 -1.93 4.3 Z';
+  // tail: emerges from behind the shield at +6.20 and reaches +11.05, spreading
+  // to a half-width of 1.35 at the bottom.
+  const ETAIL = 'M -1.15 6.2 L 1.15 6.2 C 1.55 8.3 1.55 9.9 1.4 10.75 C 0.9 11.05 -0.9 11.05 -1.4 10.75 C -1.55 9.9 -1.55 8.3 -1.15 6.2 Z';
+  // ICON. The crescent wings are 1.5 units thick, which is 0.7 device px in a
+  // 47-px note: at icon they would not be there at all. The icon tier keeps the
+  // SAME tips, the same 70-degree outer edges and the same lower limit, and
+  // fills the crescent in to the body, so the silhouette's outline is the same
+  // shape at every tier and only its interior changes (§3 D10: no tier pop).
+  // The icon wing's outer edge is a STRAIGHT chord from the tip to the lower
+  // primaries, and deliberately: on a 47-px note the whole crescent is 3.5
+  // device px, a bow of a third of a pixel is nothing, and a bezier whose
+  // tangent AT THE TIP is shallower than its chord reads as a shallower wing
+  // to the envelope fit (62.4 deg against the chord's 70.9). Straight here,
+  // bowed at mid/full where there are pixels to carry it.
+  const EWICON = 'M -7.32 -6.2 C -6.08 -2.62 -4.84 0.98 -3.6 4.55 L -1.3 2.9 L 1.3 2.9 L 3.6 4.55 C 4.84 0.98 6.08 -2.62 7.32 -6.2 C 5.2 -4.3 2.6 -2.2 1.5 0.1 L -1.5 0.1 C -2.6 -2.2 -5.2 -4.3 -7.32 -6.2 Z';
+  const EBODYICON = 'M -1.93 0.62 L 1.93 0.62 L 1.93 4.3 C 1.93 5.75 1.5 6.05 1.15 6.4 C 1.45 8.3 1.45 9.9 1.3 10.75 C 0.87 11.05 -0.87 11.05 -1.3 10.75 C -1.45 9.9 -1.45 8.3 -1.15 6.4 C -1.5 6.05 -1.93 5.75 -1.93 4.3 Z';
   const sealArt = small
-    ? '<path d="M 70 17 C 72.4 17 73.6 18.6 73.4 20.8 L 66.6 20.8 C 66.4 18.6 67.6 17 70 17 Z"/><path d="M 56 17.5 C 61.5 19.5 65 23 66.6 27 L 73.4 27 C 75 23 78.5 19.5 84 17.5 C 82.5 25 77.5 30 70 31.5 C 62.5 30 57.5 25 56 17.5 Z"/><path d="M 65.6 26 h 8.8 c 0.8 6.6 -1.8 11.4 -4.4 13.8 c -2.6 -2.4 -5.2 -7.2 -4.4 -13.8 Z"/>'
-    : `<path d="M 70 16.5 C 72.7 16.5 74 18.4 73.7 20.9 L 73.4 22.6 L 66.6 22.6 L 66.3 20.9 C 66 18.4 67.3 16.5 70 16.5 Z"/>
-       <path d="M 66.4 18.8 L 62 20.2 L 66.5 21.6 Z"/>
-       <path d="M 56.5 17 C 61.5 19 65.4 22.4 67.4 26.4 L 66.2 28.6 C 62.6 24.4 59 21.6 55.5 20.6 Z"/>
-       <path d="M 83.5 17 C 78.5 19 74.6 22.4 72.6 26.4 L 73.8 28.6 C 77.4 24.4 81 21.6 84.5 20.6 Z"/>
-       <path d="M 66.6 22 L 73.4 22 C 74.2 24.4 74.4 26 74.2 27.6 L 65.8 27.6 C 65.6 26 65.8 24.4 66.6 22 Z"/>
-       <path d="M 65.6 27 h 8.8 c 0.8 6.4 -1.8 11.2 -4.4 13.6 c -2.6 -2.4 -5.2 -7.2 -4.4 -13.6 Z"/>`;
+    ? `<path d="${EHEAD}"/><path d="${EWICON}"/><path d="${EBODYICON}"/>`
+    : `<path d="${EHEAD}"/>
+       <path d="${EW[0]}"/>
+       <path d="${EW[1]}"/>
+       <path d="${ESHIELD}"/>
+       <path d="${ETAIL}"/>`;
   // THE EAGLE IS FITTED TO ITS ROUNDEL, WHICH NOTHING IN THE PIPELINE DOES FOR
   // IT. `struck()` is passed `rField = 0` on this subject by design (there is
   // no field circle on a note), so the note is the only subject in the set
   // whose relief is authored against nothing, and the containment dimension —
   // which asks about ONE boundary per side — reads 0.0000% while the eagle
-  // hangs 154.8% beyond the measured rim of the roundel it is supposed to sit
-  // in (13.7 units at the widest, `_jk9fitseal.mjs`). The eagle was authored
-  // to fill an r-16 circle 32 units across; the seal it stands for is 17.8
-  // units across and 24.8 tall in this box.
+  // hung 154.8% beyond the measured rim of the roundel it is supposed to sit
+  // in (round 12, before it was moved).
   //
-  // 0.5154 is the largest UNIFORM scale that inscribes this massing's 29.0 x
-  // 24.1 box in the 17.75 x 24.75 ellipse, and it is chosen over the fit the
-  // measurement asks for, with the reason written down rather than buried.
-  //
-  // The measurement asks for an anisotropic map. On the photograph the eagle's
-  // wings span 0.604 of the rim's width and the bird 0.756 of its height, so
-  // the honest transform is roughly scale(0.37 0.76) — and rendered, that is
-  // not a bird. Our wing paths were authored to span an r-16 circle, so
-  // squashing them to 0.37 of their width collapses them into two slivers
-  // either side of a dart (`_jk9-eagle-variants.png`, candidate A: every
-  // number right, the picture wrong — §4.3 in its strongest form).
-  //
-  // So: the eagle now FITS ITS ROUNDEL, which is the thing that could be fixed
-  // by moving it, and its SHAPE is still wrong, which cannot be fixed by any
-  // affine map of these paths. It fills 0.858 of the rim's width against the
-  // note's 0.604 and 0.513 of its height against 0.756 — it is too wide and
-  // too short, and it needs redrawing, not rescaling. That is left undone and
-  // said so.
-  const SEAL_FIT = 'translate(40.797 13.035) scale(0.5154)';
+  // The transform is now a pure translation to the measured rim centre, so it
+  // is no longer a fit at all: the drawing above IS the measurement. It is
+  // written as `translate(...) scale(1)` rather than dropped because
+  // `_jk9fitseal.mjs --sweep` locates the massing by matching exactly that
+  // pattern in the emitted string, and a round that silently disables the
+  // instrument its own containment number comes from has not measured
+  // anything.
+  const SEAL_FIT = 'translate(76.88 27.75) scale(1)';
   const seal = `<g transform="${SEAL_FIT}">${sealArt}</g>`;
   // The shield's stripes and the pyramid's courses are CUTS, not massing, so
   // they go on after the bevel rather than being printed three times with it.
-  // The shield cuts ride the same transform as the massing they cut into, so
-  // their stroke width is pre-divided by it — otherwise the cut thins with the
-  // shape and stops reading. 0.9 / 0.5154 = 1.75.
+  // The cut is 0.9 units wide; with the seal transform now at scale(1) that is
+  // written directly instead of being pre-divided (it used to read 1.75, which
+  // was 0.9 / 0.5154).
+  //
+  // The chief's lower edge is at +2.83 and the stripes run from there to the
+  // shield's shoulder, both read off `_je14zoom-body-bill_rev_2_jpg.png`. TWO
+  // stripes, not thirteen, for the reason the pyramid draws seven courses and
+  // not thirteen: 1.3 units of pitch is 3.1 device px at the largest size the
+  // app draws and 0.6 at mid. The miss is published, not the gate moved (§8).
   const sealCut = small
     ? ''
-    : `<g transform="${SEAL_FIT}"><g fill="none" stroke="${p.field}" stroke-width="1.75" opacity="0.85">
-         <path d="M 66 30.4 h 8"/><path d="M 67 33.6 h 6"/><path d="M 70 27.6 v 4"/></g></g>`;
+    : `<g transform="${SEAL_FIT}"><g fill="none" stroke="${p.field}" stroke-width="0.9" opacity="0.85">
+         <path d="M -1.93 2.83 h 3.86"/><path d="M -0.64 3.3 v 2.7"/><path d="M 0.64 3.3 v 2.7"/></g></g>`;
   return `<svg viewBox="0 0 100 56" width="${box.w}" height="${box.h}" ${attrs} xmlns="http://www.w3.org/2000/svg">
     ${frame}
     ${roundel(PYR)}

@@ -29,6 +29,13 @@ coloringbook/judge/*
 !coloringbook/judge/*.json
 !coloringbook/judge/*.jsonl
 !coloringbook/judge/*.mjs
+# FROZEN TARGETS are evidence, not scratch renders. The blanket PNG exclusion
+# above is about the 15 MB of overlays and contact sheets; a frozen target is
+# the thing a gate is measured AGAINST, and 1.1 promises any published number
+# can be reproduced — which is impossible if the target only lives on one disk.
+# These are ~6 KB each (700x700, 1-bit) and each has its SHA-256 in a tracked
+# .json sidecar beside it.
+!coloringbook/judge/_jd2target-*.png
 
 # Agent worktrees (isolated checkouts; never part of a commit)
 .claude/worktrees/
