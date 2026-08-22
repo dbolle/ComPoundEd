@@ -22,6 +22,108 @@ This defines the *process* that applies them.
 
 ---
 
+## 0. THE OBJECTIVE, AND WHAT IT SUPERSEDES
+
+*Added 2026-08-22, on the owner's instruction, after an adversarial review of
+this document, the instrument library and the reference pool. **Where anything
+below §0 conflicts with §0, §0 wins.***
+
+> **"Creating artistic renderings of US currency that will teach a child to
+> recognize real US currency."** — the owner
+
+Two words in that sentence invalidate a great deal of what follows.
+
+**"Artistic renderings."** Not reproductions. A stylised drawing that reads
+correctly is a success, not a compromise. Fidelity to a photograph was never
+the goal, so a gate that scores fidelity is at best a proxy and at worst a
+distraction.
+
+**"Recognize real US currency."** The test is **transfer**: a child who has
+only ever seen our pictures must be able to identify a real coin. The owner
+stated this directly when asked what "done" means:
+
+> "Distinguishing our renderings from each other is not the point, learning to
+> identify real currency is."
+
+### What that means the gates were doing wrong
+
+**They scored the wrong thing.** D11 measured our art against *our own other
+art*. A set of drawings could be maximally distinct from one another and teach
+a child nothing about the coins in their hand. **D11 is retired**, replaced by
+the transfer test (§0.1).
+
+**They scored in the wrong place.** Thirteen dimensions score at 190–380 px.
+`src/screens/money.js` draws at **38, 48 and 84**. Nothing in the rubric could
+see that at 38 px our nickel, dime and quarter obverses score 0.901 against
+each other — while one drawing rendered at two diameters scores 0.988, so the
+*drawings* contribute almost nothing to telling them apart. D11 itself was
+scored at 26 px, a size the app never renders, under a comment asserting the
+opposite.
+
+**They scored things that cannot fail.** D1, D9 and D12 have never failed on
+real art in 22 rounds. D6 issued 19 verdicts against a gate no coin has ever
+had. Meanwhile four "wrong in kind" defects — a pointed pyramid, circular
+roundels, phantom columns, and the quarter's profile used as the dollar's
+frontal portrait — were all found by **looking**, and a fifth and sixth (the
+dime's oak branch with no lobes and no acorns; the nickel's dome springing
+below its own pediment apex) were found by looking during this review.
+
+### §0.1 The gates, rebuilt around the objective
+
+**PRIMARY — the objective itself.**
+
+- **T1 TRANSFER.** At every size `money.js` actually draws (38, 48, 84), each
+  face must be nearer the **correct denomination's photographs** than any
+  other denomination's. Instrument: `judge/_jt1transfer.mjs`, which runs a
+  **control first** — it must sort real photographs 4/4 before it is permitted
+  to say anything about our art — and reports nothing if that control fails.
+  A confusion here is a real defect. Everything else is subordinate to this.
+
+**GATES — safety and the things a child actually reads.**
+
+- **D9 well-formedness.** No `undefined`/`NaN` in any emitted SVG. Cheap,
+  absolute, and a real shipping risk.
+- **D8 containment.** Ink must not spill outside the coin.
+- **D4 counts and rhythm.** Four columns, not six. Thirteen stripes. A child
+  taught "the nickel has a building with columns" needs the count right; this
+  is transfer, not decoration.
+- **D5 lettering presence.** ONE DIME, FIVE CENTS. This is how a child reads a
+  coin, and three reverses once shipped blank.
+- **D12 look at it, with a pinned control rendered first.** Every wrong-in-kind
+  defect ever found here was found this way and none was found by a number.
+  **At the sizes the app draws** — a 380 px overlay is not a substitute.
+
+**ADVISORY — reported, never gated.** D1, D2, D3, D6, D7, D10, D13. These are
+useful evidence about a drawing and several are provably broken as gates (D6
+is blind to stroke width; D7's chord metric never measured curvature; D7's
+tangent metric is C1-by-construction and detects hand-editing; D6 and D8 both
+worsen when a shorter, more correct outline is drawn). They may inform a
+round. **They may not fail one, and no round is required to move them.**
+
+**RETIRED.** D11 (objective invalidated, above). D5-rim as a gate, which was
+never adopted as the D14 it actually is.
+
+### §0.2 What survives from the old process, and why
+
+These earned their place and are unchanged: **§1** separation of powers and the
+frozen-artefact hashing; **§1.1** report-don't-fix and retract-beside;
+**§4.3's** overlay obligation, which caught seven wrong features that every
+response test had passed; **§8's** refusal to relax a gate — 17 of 22 rounds
+recorded a refusal, and it is the single most valuable ritual here; the
+**byte-identity render partition**; and **§6.1.1's** assert-never-copy.
+
+### §0.3 The standing rules that came out of the review
+
+- **An instrument reports; it does not write.** Running the whole library in
+  any order must leave the repository byte-identical. See `judge/WRITERS.md`.
+- **Nothing enters `coloringbook/ref/` without `judge/_jrefintake.mjs`.** Hash
+  first: a "new acquisition" this session was byte-identical to a file already
+  in the pool, and the independence tool compared it against itself and passed
+  it.
+- **No traced derivative is committed.** The repository is public.
+- **A scorer that cannot print an "ours" column produced by running the live
+  art is UNMEASURED** — not a PASS, not a FAIL (§6.1.1).
+
 ## 1. Separation of powers — the one rule everything else rests on
 
 > **The JUDGE measures and never edits. A SPECIALIST edits and never scores
