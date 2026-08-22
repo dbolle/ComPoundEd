@@ -16,7 +16,12 @@ function lanIP() {
 }
 
 const HOST = process.env.TEST_HOST ?? lanIP();
-const PORT = 4180;
+// TEST_PORT lets concurrent checkouts run the suite at the same time. With a
+// hard-coded port plus `reuseExistingServer: true`, two runs SHARE one server
+// and therefore one sync directory — and the lifecycle and sync specs use
+// FIXED profile ids (`del-kid`, `res-kid`, ...), so they collide and fail in
+// ways that look like flakiness. Same root cause as the res-kid tombstone.
+const PORT = Number(process.env.TEST_PORT ?? 4180);
 // @secure-tagged specs (service worker, offline, some privacy checks) need
 // a secure context (SWs don't register on a plain LAN-IP origin). The
 // default run excludes them; TEST_HOST=127.0.0.1 ONLY_SECURE=1 runs only
