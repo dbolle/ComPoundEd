@@ -429,6 +429,19 @@ reconsider after calibration.
      skips `judge/`, so `_rescore.mjs` reports UNMEASURED for the whole set. Any
      frozen-set claim made from a worktree needs the two-part check the penny
      round used (in-tree hashes plus direct hashes against main).
+   - 🔴 **NO COIN CARRIES ANY LETTERING AT MID (48 and 54 px)** — `INS_MAIN_MIN`
+     is 62 — while every photograph plainly does at 48 px. Together with the
+     min-pixel stroke floor (`sw(1.15, 0.9, boxW)`, which draws the silhouette
+     contour at 2.1 viewBox units against its design 1.15), this is the nickel
+     round's diagnosis of why **mid is the weakest tier in the set**: its two
+     margins, 0.014 at 48 px and 0.024 at 54 px, are now the thinnest anywhere.
+     Both are **shared code**, so this is a serialised judge round, and it is
+     the highest-value one left.
+   - ⚠️ **At 84 px our outer band is over-weighted** — 0.431 of energy against
+     the photographs' 0.288–0.325 — because our letters are hard vector edges
+     where photographic relief blurs. T1 prefers it strongly, so it is not a
+     regression, but it is a real overshoot and no honest correction was
+     available without inventing a number.
    - ⚠️ **T1 UNDERSTATES THE ART, BECAUSE IT DISCARDS COLOUR.** T1 scores
      registered NCC on blurred gradient energy of a **greyscale** raster, so
      colour contributes exactly nothing — yet the cent is the only copper coin

@@ -2758,7 +2758,29 @@ export const OBVERSE = {
     // but bust() ever read it; `earMark` carries the curls instead, exactly as
     // the quarter does.
     who: 'Jefferson', dir: -1, bare: false, neck: 23, earMark: CURLS_JEFFERSON, hairLit: true,
-    s: 0.95, cy: 43.7, cx: -6.4, iconS: 0.95, iconCy: 43.7, iconCx: -6.4,
+    // `iconWig` — see bust(). At `icon` this coin used to be a filled outline
+    // with 0.2% of its energy inside r ≤ 0.43 against the photographs' 25-27%;
+    // the wig is drawn as its own mass there now.
+    iconWig: true,
+    // ICON PLACEMENT, DERIVED — the fourth and last coin to take the rule, and
+    // the comment above OBVERSE named it as the one still carrying the old
+    // numbers ("the nickel still carries the old numbers ... and is out of
+    // scope for this round"). There is nothing nickel-specific about the
+    // derivation: `icon`'s field circle is EDGE.nickel.field.icon = 42.5 where
+    // full/mid is 44.07, and that is the ONLY thing that differs between the
+    // tiers, so the measured-optimal full-tier placement carries over scaled
+    // about the disc centre by k = 42.5/44.07 = 0.96437:
+    //     iconS  = 0.95 * k                = 0.91615
+    //     iconCy = 50 + (43.7 - 50) * k    = 43.9245
+    //     iconCx = -6.4 * k                = -6.1720
+    // Repeating the full-tier trio unscaled, which is what this line used to
+    // do, draws a full-tier head into a field circle 3.6% smaller — the same
+    // over-fill that failed T1 on the cent (0.084 own against 0.165 nickel) and
+    // on the quarter (0.115 against 0.276), in the same direction and for the
+    // same reason. Here it cost the thinnest margin in the set: at 38 px the
+    // nickel obverse scored 0.158 against its own photographs and 0.140
+    // against the dime's, a margin of 0.018.
+    s: 0.95, cy: 43.7, cx: -6.4, iconS: 0.91615, iconCy: 43.9245, iconCx: -6.172,
     // Jefferson's back seam is almost entirely HIDDEN — the queue reaches
     // screen x 78.6 and the rim crossing is at 78.2 — so its bow is doing one
     // job only: keeping the sliver of cloth that shows below the hair out to
@@ -3111,6 +3133,34 @@ function bust(id, tier, p, dim, boxW) {
            ${r.base}${fine ? r.fine : ''}</g>${modelling}
          <g fill="${p.ink}" stroke="${p.ink}" stroke-linecap="round" stroke-linejoin="round" opacity="0.42">
            ${o.eyeMark || eye(o.eye)}${o.earMark || ear(...o.ear)}${r.dark || ''}</g>`
+      // MID TIER WAS TRIED AND REFUSED, and it is recorded here because the
+      // measurement that motivated it is still true and the next reader will
+      // otherwise repeat the attempt. `src/screens/money.js` draws at 48 and at
+      // 54, both `mid`, and at `mid` this function emits NO line work at all —
+      // the `hairFill` comment below says so in as many words. On the nickel
+      // that leaves a head-shaped patch of `motif` with a wig-shaped patch of
+      // `hair` inside it and nothing else, and `judge/_nk4energy.mjs` prices
+      // it: at 48 px our inner three annuli (r ≤ 0.43) hold 0.083 of the
+      // disc's energy against the three photographs' 0.25-0.27, while the
+      // 0.57-0.72 ring — the silhouette contour — holds 0.436 against their
+      // 0.22. A contour with a blank inside it, and the two thinnest T1
+      // margins in the set sit at exactly these two sizes (0.020 and 0.030).
+      //
+      // Two candidates were probed with `judge/_nk8probe.mjs`, which patches
+      // OBVERSE in memory so a candidate costs a process rather than an edit:
+      //   RELIEF.Jefferson.base (the 8 measured lit ridges) at mid —
+      //     48 px  own 0.189 -> 0.187, DIME 0.169 -> 0.215, CONFUSED WITH DIME
+      //     54 px  own 0.197 -> 0.191, DIME 0.168 -> 0.212, CONFUSED WITH DIME
+      //     Wig texture at 42 device pixels is what the real DIME's whole
+      //     obverse is made of; adding it here walks the nickel into the coin
+      //     it is already closest to. That is a transfer FAILURE, not a cost.
+      //   the eye alone at mid —
+      //     48 px  own 0.189 -> 0.183, margin 0.020 -> 0.023
+      //     54 px  own 0.197 -> 0.191, margin 0.030 -> 0.033
+      //     The margin moves only because the DENOMINATOR falls; the numerator
+      //     falls too. Appendix R2's own test says that is the wrong kind of
+      //     move, and a 1-device-pixel dot is not a feature a child reads.
+      // Neither is drawn. The mid tier is left exactly as it was.
       : '';
   // THE BEVEL. The head is the highest relief on the coin, so it gets the
   // full struck treatment: a lit edge up-left, a cast shadow down-right, the
@@ -3182,11 +3232,51 @@ function bust(id, tier, p, dim, boxW) {
   const hair = icon
     ? ''
     : `<g fill="${hairFill}" stroke="${p.deep}" stroke-width="${n2(sw(0.9, 0.7, boxW) / s)}" stroke-linejoin="round"><path d="${HAIR[o.who]}"/>${tail}</g>${beard}`;
+  // `iconWig` — A SECOND MASS AT `icon`, and it is a PER-COIN OPT-IN that only
+  // the nickel sets, exactly as `iconBust`, `hairLit`, `cut` and `bare` are, so
+  // the cent, the dime and the quarter emit byte for byte what they emitted
+  // before at every tier.
+  //
+  // The paragraph above this one asserts that "at icon the whole bust is one
+  // flat shape already, so a second tone inside a 19px disc would only be
+  // noise". MEASURED, that assertion is what the nickel's weakest gate number
+  // is made of. `judge/_nk4energy.mjs` prints the descriptor T1 actually scores
+  // — blurred gradient energy — as a radial histogram, and at 38 px our nickel
+  // obverse put 0.000 / 0.000 / 0.002 of its energy in the inner three annuli
+  // (r ≤ 0.43) where all three reference photographs put 0.25-0.27, while
+  // piling 0.446 into the 0.57-0.72 ring against their 0.22. That is the
+  // signature of an OUTLINE WITH NOTHING INSIDE IT, and it is why the nickel
+  // obverse carried both the lowest own-column score of the four obverses
+  // (0.158 at 38 px against the penny's 0.317 and the quarter's 0.332) and the
+  // thinnest margin in the whole set (0.018).
+  //
+  // It is also not what the object looks like at that size. `judge/_nk5look.mjs`
+  // reduces each reference to 38 device pixels — the exact pixels a child sees
+  // in the pile — and every one of the three still shows the wig as a mass
+  // divided from the face; the disc is not 19 px either, `coinRow(ids, 38)`
+  // gives the nickel 33.2.
+  //
+  // TONE, and it is measured rather than picked. `p.motif` on `p.deep` puts the
+  // wig BRIGHTER than the face, which is the direction OBVERSE.nickel's own
+  // `hairLit` block established from two independent photographs (wig/cheek
+  // 1.207-1.269 and 1.149-1.388). It is no new colour — `motif` is the tone
+  // this same head is filled with at every other tier — and it is the only
+  // tone available here that is not the one it is drawn on: `hairFill` resolves
+  // to `p.hair` at icon, 0x77 against the icon head's 0x6b, a 12-level step
+  // that would be invisible at 33 px. `hairFill` has an open defect and is not
+  // touched; this is what that defect costs at this tier, reported.
+  //
+  // No stroke. The wig's outer edge IS the head's outline, already stroked by
+  // the enclosing group, so a second stroke would only double the contour that
+  // the histogram above says is over-weighted at this size.
+  const iconWig = icon && o.iconWig
+    ? `<g fill="${p.motif}" stroke="none"><path d="${HAIR[o.who]}"/></g>`
+    : '';
   return `<g${dim ? ' opacity="0.42"' : ''}>
       ${below}
       <g fill="${head}" stroke="${p.deep}" stroke-width="${edgeW}" stroke-linejoin="round"
          transform="translate(${n2(50 + cx)} ${cy}) scale(${n2(o.dir * s)} ${n2(s)})">
-        ${bevel}<path d="${HEAD[o.who]}"/>${icon ? tail : ''}${planes}${shade}${hair}${relief}</g>
+        ${bevel}<path d="${HEAD[o.who]}"/>${icon ? tail : ''}${iconWig}${planes}${shade}${hair}${relief}</g>
     </g>`;
 }
 
@@ -4443,7 +4533,32 @@ const INSCRIPTION = {
     // is a whole cap height of band error on top of the flip.
     main: { kind: 'arc', text: 'LIBERTY', size: 7.6, centre: 332, rOff: 3.01, adv: 0.5642 },
     rest: [
-      { kind: 'arc', text: 'IN GOD WE TRUST', size: 7.6, centre: 182, rOff: 3.34, adv: 0.5672 },
+      // `min: 62` — IN GOD WE TRUST IS PRESENT AT THE NAMING DRAW, and until
+      // this round it was not present at ANY size the app renders.
+      // `INS_REST_MIN` is 110 box pixels; `coinRow(q.coins, 84)` gives the
+      // nickel 73.4, so on the largest coin this app has ever drawn a child
+      // saw LIBERTY, a bare left rim, and nothing else. Every nickel
+      // photograph in T1's pool shows the opposite: at 38 px reduction IN GOD
+      // WE TRUST is still legible as a band of marks up the left, and it is
+      // the LARGER of the two obverse legends — 15 glyphs over a 93° span
+      // against LIBERTY's 7 over 40° (both hand-read off `_jl1grid-nkobv-*`,
+      // quoted above). This block's own first sentence says the two are the
+      // same height on the coin; drawing one and not the other at the size the
+      // recognition question is asked contradicts that measurement.
+      //
+      // 62 is not a new number: it is `INS_MAIN_MIN`, the floor the same
+      // paragraph set for the line that carries the layout, chosen so the
+      // legend is present at exactly the size the recognition question is
+      // asked at and absent below it. At 84 px the ink cap is 5.55 × 0.734 =
+      // 4.1 device pixels, the same cap LIBERTY already draws at that size —
+      // so this adds no mark smaller than one the coin already carries.
+      //
+      // THE DATE IS NOT GIVEN A FLOOR. It stays at 110 deliberately: a year is
+      // not a recognition feature (a child cannot use it to tell a nickel from
+      // a dime), our YEAR is not the year on any coin in their pocket, and at
+      // 84 px it would add four glyphs of noise to the one quadrant where
+      // LIBERTY already sits.
+      { kind: 'arc', text: 'IN GOD WE TRUST', size: 7.6, centre: 182, rOff: 3.34, adv: 0.5672, min: 62 },
       { kind: 'arc', text: YEAR, size: 7.6, centre: 18, rOff: 3.01, adv: 0.5642 },
     ],
   },
@@ -5011,7 +5126,13 @@ function inscriptionOf(id, side, rField, p, boxW) {
   }
   const spec = INSCRIPTION[id];
   if (!spec || boxW < INS_MAIN_MIN) return '';
-  const lines = boxW >= INS_REST_MIN ? [spec.main, ...spec.rest] : [spec.main];
+  // A `rest` LINE MAY CARRY ITS OWN FLOOR, exactly as every reverse `arcs` and
+  // `flats` entry above already may (`a.min ?? floor`). The obverse branch was
+  // the only one without it, and that asymmetry is what kept IN GOD WE TRUST
+  // off the nickel at the naming draw — see OBVERSE/INSCRIPTION.nickel. Absent
+  // `min` the line falls back to INS_REST_MIN, so the cent, the dime and the
+  // quarter emit byte for byte the string they emitted before at every size.
+  const lines = [spec.main, ...spec.rest.filter((l) => boxW >= (l.min ?? INS_REST_MIN))];
   return lines
     .map((l) =>
       l.kind === 'arc'

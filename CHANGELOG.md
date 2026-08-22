@@ -3,6 +3,87 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.77.0 — 2026-08-22
+
+**Our nickel obverse was an outline with nothing inside it — and the gate that
+was supposed to notice never registered scale.**
+
+The specialist was given the photographs, the coin's full history and the
+objective, and **no hint about what was wrong**. It printed T1's own descriptor
+as a radial histogram and the answer was unambiguous:
+
+| energy share, r ≤ 0.86 | 0–0.14 | 0.14–0.29 | 0.29–0.43 | 0.57–0.72 |
+|---|---|---|---|---|
+| ours at 38 px | 0.000 | 0.000 | 0.002 | **0.446** |
+| the three photographs | 0.029–0.037 | 0.083–0.094 | 0.126–0.145 | 0.220–0.226 |
+
+At pile size it held **0.2 % of its energy inside r ≤ 0.43 where every
+photograph holds 25–27 %**, and double their share on the silhouette contour.
+It was a line drawing of a coin, not a coin. That is also why it carried the
+thinnest T1 margin in the set.
+
+Two further defects, both found by looking at the sizes the app draws:
+
+- **IN GOD WE TRUST was drawn at no size the app renders.** `INS_REST_MIN` is
+  110 box px and the naming draw gives the nickel 73.4, so a child saw LIBERTY
+  and a bare left rim. All three photographs show the legend, and this file's
+  own comment records that the two legends are the *same height* on the coin.
+- **`OBVERSE.nickel` was the last face still repeating its full-tier trio at
+  icon** — the same over-fill that failed the cent and the quarter in v1.74.0.
+
+Three hunks: the icon trio **derived** (`k = 42.5/44.07`, the rule the cent and
+quarter already follow), a per-coin `iconWig` drawing the wig as a second mass
+at icon, and `min: 62` on the motto with per-line `min` support in the obverse
+branch of `inscriptionOf` — the reverse branch already had it.
+
+**T1 at 38 px: margin 0.018 → 0.122**, the thinnest in the set to comfortable.
+84 px 0.129. Byte-identity partition: 5 of 110 renders, **`nickel.obverse`
+only** — both shared-code changes are gated (`icon && o.iconWig`, and
+`l.min ?? INS_REST_MIN`) and provably reach nothing else.
+
+### The primary gate never registered scale
+
+`featOfOurs` hard-coded `R = 450 × 0.94 = 423` while the reference path calls
+`discOf(file)`, which **fits** the disc — and `bestReg` searches rotation and
+translation only, never scale. Measured on our own renders, `discOf` returns
+423.9–438.1: our art was presented **0.2 %–3.6 % larger than the photographs,
+by a different amount per coin** (nickel +3.2, penny +3.6, quarter +0.2, dime
++0.4).
+
+Every "ours" number was depressed and the between-coin comparison was not
+apples to apples. The **control was unaffected** — photo-vs-photo is fitted on
+both sides — which is exactly why the verdicts stood while the numbers did not:
+re-run with the fix on the pre-merge tree, T1 is still 24/32.
+
+That is the **fourth** fault found in this one instrument, and the third found
+by someone other than its author. Also fixed: its scratch cleanup ran only in
+the direct-run block, so anything that *imported* it left renders in the shared
+reference tree — the fault its own header documents about `_x6mat.mjs`.
+
+### Refused because it only scored better
+
+An `iconS` sweep found **0.84 giving margin 0.220 — four times what was
+taken** — and it was refused. Its only argument is its own score: it shrinks the
+icon head 11.6 % below the measured full-tier head and contradicts this file's
+own measurement that the nickel's head is ~58 % of the disc. Same refusal the
+quarter recorded at its 0.90.
+
+### What it could not determine
+
+**Mid tier (48 and 54 px) is not improved and it could not find a way.** Both
+candidates are recorded with their numbers — the measured lit ridges *confused
+the nickel with the dime* at both sizes. Its reading is that mid's real deficits
+are two shared things it was not free to touch: `INS_MAIN_MIN = 62`, so **no
+coin carries any lettering at mid** while the photographs plainly do at 48 px,
+and the min-pixel stroke floor, which draws the silhouette contour at 2.1
+viewBox units against its design 1.15. Those are the two thinnest margins left
+in the set (0.014 and 0.024).
+
+Also reported: at 84 px our outer band is now over-weighted (0.431 against the
+photographs' 0.288–0.325) because our letters are hard vector edges where
+photographic relief blurs; T1 preferred it strongly anyway, but it is a real
+overshoot and it declined to invent a number to correct it.
+
 ## v1.76.0 — 2026-08-22
 
 **The quarter's legends were the fault, not the bust — and the judge's

@@ -94,7 +94,19 @@ export async function featOfOurs(id, px) {
   mkdirSync(new URL('../ref/_scratch/', import.meta.url).pathname, { recursive: true });
   writeFileSync(new URL('../ref/' + name, import.meta.url).pathname, png);
   TEMPS.push(name);
-  const g = await energyGrid(name, { cx: 450, cy: 450, R: 450 * 0.94 }, 0.02);
+  // SCALE MUST BE REGISTERED, and it was not. This hard-coded
+  // `R = 450 * 0.94 = 423` while the REFERENCE path calls `discOf(file)`, which
+  // FITS the disc — and `bestReg` searches rotation and translation only, never
+  // scale. Measured on our own renders, `discOf` returns 423.9-438.1: the art
+  // was presented 0.2%-3.6% larger than assumed, BY A DIFFERENT AMOUNT PER COIN
+  // (nickel +3.2, penny +3.6, quarter +0.2, dime +0.4). So every "ours" number
+  // was depressed and the between-coin comparison was not apples to apples.
+  // The control is unaffected — photo-vs-photo is fitted on both sides — which
+  // is why the verdicts stood while the numbers did not.
+  // Fitting our render the same way the reference is fitted removes it.
+  // Found by the nickel round; fourth fault in this file, third found by
+  // someone other than its author.
+  const g = await energyGrid(name, await discOf(name), 0.02);
   featCache.set(key, g);
   return g;
 }
@@ -284,5 +296,12 @@ if (process.argv[1] && process.argv[1].endsWith('_jt1transfer.mjs')) {
     : '  A confusion at a size the app draws is a real defect against the objective.');
 }
 
-// clean up the renders written into ref/
-for (const t of TEMPS) { try { unlinkSync(new URL('../ref/' + t, import.meta.url).pathname); } catch {} }
+// Clean up the renders written into ref/. THIS MUST RUN ON IMPORT TOO: it used
+// to sit only in the direct-run block, so any instrument that IMPORTED this one
+// left renders in the shared reference tree — the exact fault this file's own
+// header documents about _x6mat.mjs.
+export function cleanup() {
+  for (const t of TEMPS.splice(0)) { try { unlinkSync(new URL('../ref/' + t, import.meta.url).pathname); } catch {} }
+}
+process.on('exit', cleanup);
+cleanup();
