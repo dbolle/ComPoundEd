@@ -37,6 +37,30 @@ reconsider after calibration.
   button that could never appear. Fixed in v1.66.0 by cleaning the id before
   the test as well as after; verified against a deliberately poisoned server
   (9.3s pass, where the real failure was a 2.0m timeout). No assertion weakened.
+- 🔴 **The cent's whisker boundary rests on ONE reference (n=1).** Only
+  `penny-obv-2.jpg` supports it; on the other two struck references the frozen
+  `beardJaw` patch is *less* textured than `cheek`, so the discriminator has no
+  contrast and correctly refuses. The between-reference spread cannot be
+  discharged. Those boundary numbers are a hand-checked overlay reading, **not
+  a gate-grade target** — and the two references **disagree in sign** at the
+  mid-jaw, so the front of the jaw was deliberately left alone.
+  **Outstanding acquisition: a third struck cent obverse with a frozen disc
+  fit.** ⚠️ Also open on this face: whether the front of the jaw wants cut
+  grooves rather than mass (evidence points that way; `RELIEF.Lincoln`), and
+  whether the 16.75 units of bare cheek left at x = −4 belong to `BEARD` or to
+  `HAIR` — only `HAIR` can close it.
+- 🔴 **Two frozen disc fits for `penny-obv-3.jpg` are live at once.**
+  `_pylib.mjs` says cy 997.3 / R 984.97 — which is what the tone patches are
+  expressed against — while `judge/_jp1discs.json` says cy 993.56 / R 986.97,
+  which is what `_jp13d2d13.mjs` uses. 3.7 px, 0.23 local units. One artefact,
+  two geometries, and nothing anywhere saying which is authoritative.
+- 🔴 **`_jh8locus.mjs`'s self-test is stale and fails silently.** On an
+  untouched tree it prints `end marker not found` for both `HAIR.Lincoln` and
+  the `HEAD.Lincoln` **response test** — the check that D1's IoU *can* move —
+  and then carries on. An absent check reads exactly like a passing one.
+- ⚠️ **`ref/penny-obv-4.png` is unusable for texture**: a hashed obverse
+  reference with a frozen disc fit whose entire bust is uniform granulation
+  with no strands anywhere. Wants a line in `REFERENCES.md`.
 - 🔴 **D3-obverse on the QUARTER is failing, and round 9 caused it.**
   0.1447 → **0.1927** against a gate of ≤0.1791 with no regression permitted.
   Judge-re-derived with the frozen `_jq3tone.mjs` at both revisions. Round 9

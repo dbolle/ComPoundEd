@@ -1453,6 +1453,14 @@ const HAIR = {
 // front tip is the closure knot, which an interior-knot turn walk does not
 // visit; declared anyway.
 //
+// The mid-jaw pass below adds ONE knot to the top edge, so this path now has 14
+// joins rather than 13. Both declared indices are unaffected — the closure is
+// still 0 and the rear tip is still 7, because the new knot is added after
+// them — and `_jd7fitted.mjs` still reports knot 7 at exactly 85.0 degrees.
+// That 85.0 is a real kink and it is NOT this pass's to fix; it has its own
+// round, and the segment that sets it (`C -18.02 3.65 ...`, whose first control
+// point fixes the outgoing tangent) is untouched here.
+//
 // Ray fans drawn on ref/penny-obv-3.jpg at both points, every 15 degrees: at the
 // REAR tip the sideburn's dark band arrives from about 250 degrees and the jaw
 // boundary leaves toward about 350, an included angle near 100. At the FRONT tip
@@ -1483,24 +1491,65 @@ const HAIR = {
 // Generators: coloringbook/judge/_jc5d7.mjs, _jc5corner.mjs, _jc5tip.mjs,
 // _jh8ours.mjs, _jh8over.mjs, _jh8ladder.mjs.
 //
-// WHAT IS STILL WRONG HERE, MEASURED AND LEFT ALONE. Read off a 1-unit local
-// grid drawn on ref/penny-obv-2.jpg (a cameo proof — excluded from anything
-// photometric by penny-gates.md, but §20.3's best SHAPE reference), the coin's
-// whisker field runs well above this top edge across the middle of the jaw:
-// ours 4.9 / 7.3 / 9.8 / 11.8 / 12.9 at local x -8 / -4 / 0 / +4 / +8 against
-// the photograph's ~0 / -3 / 0 / +4 / +8 — a lens-shaped shortfall peaking near
-// 10 local units at x = -4..0. It is NOT closed here. Closing it was tried
-// (top edge lifted to y 1.5 under the ear and 5.0 at x = +1) and reverted for
-// two measured reasons: it draws a HUMP the coin has no trace of, because the
-// coin's boundary is monotone and ours would have to dive back to the chin
-// closure at (15.15, 12.77); and it cost D13-obverse at 44 px -0.0464 ->
-// -0.0487 against a +-0.05 gate, i.e. all but 0.0013 of the margin on the
-// dimension this coin is already weakest on. At 190 px it left almost no bare
-// cheek at all. The shortfall is a real fidelity gap and it needs its own
-// brief, its own regression budget, and probably a tone patch in the mid-jaw —
-// the frozen set in _tonepatches-penny.json has none between `cheek`
-// (8.5, -1.5) and `beardJaw` (-4, 17.5), which is exactly the region in
-// dispute.
+// THE TOP EDGE NOW RISES IN FRONT OF THE EAR, and the reason it rises there and
+// nowhere else is a disagreement between the two struck references.
+//
+// The previous pass left this as a known gap and quoted, in prose, "ours
+// 4.9 / 7.3 / 9.8 / 11.8 / 12.9 at local x -8 / -4 / 0 / +4 / +8 against the
+// photograph's ~0 / -3 / 0 / +4 / +8". No generator computed either row.
+// Re-derived (coloringbook/judge/_jy4ours.mjs) the old edge was
+// 5.15 / 7.60 / 9.80 / 11.75 / 12.90 — the prose was right to 0.30 units.
+// Re-derived on the photograph (_jy3cheek.mjs: flood the SMOOTH region out from
+// the frozen `cheek` patch, threshold set midway between the frozen `cheek` and
+// `beardJaw` patches' own texture energy, overlay published and looked at) the
+// coin's bare cheek ENDS at about y -3.6 / -1.8 / 0.0 / +0.5 / +2.5 at local
+// x +2 / +4 / +6 / +8 / +10 — and at x <= -2 it does not exist at all: on
+// ref/penny-obv-2.jpg the whisker field runs unbroken from the jaw up into the
+// hair, so there is no bare skin in front of the ear whatsoever. Our drawing
+// had 13.25 local units of it at x = -8.
+//
+// So the rear of the shortfall is unambiguous and the front is not. The tone
+// probe (_jy7probe.mjs, median/cheek, both struck references) reads:
+//
+//     local          penny-obv-3.jpg (record)   penny-obv.jpg (1909-S)
+//     (-8,0) (-4,0)        0.950  0.874            0.638  0.626
+//     (-8,4) (-4,4)        0.869  1.015            0.718  0.776
+//     ( 0,4) ( 4,4)        1.065  1.045            0.718  0.569
+//     ( 0,8) ( 4,8)        1.030  1.075            0.816  0.816
+//
+// Behind x = -2 both references say darker than the cheek. In front of it they
+// disagree in SIGN: the reference of record puts the upper jaw BRIGHTER than
+// the cheek, because a struck whisker field is bright ridges with dark grooves
+// and its median is not the mass tone. §12.7 says a patch whose two independent
+// references disagree in sign is not a target, so the lift stops there. That is
+// also what the new mid-jaw tone patch says: `jawMid`, local (2.25, 8.0) r 2.6
+// — the exact midpoint of the frozen `cheek` and `beardJaw` centres, placed and
+// hashed before anything scored it, in coloringbook/judge/_jy0tonepatch-midjaw.json
+// — reads 1.0603 on the reference of record and 0.7989 on the 1909-S against
+// our 1.0000. Filling it with `deep` was measured: it takes that patch to
+// 0.7172, i.e. |D| 0.0603 -> 0.3431 against the photograph D3 is scored on.
+//
+// What this pass therefore does: the top edge leaves the run under the ear at
+// (-11.2, 3.6), rises to (-7.6, -1.0) in front of the ear where the sideburn
+// is, and rejoins the shipped curve at (0.9, 10.2) — which is unchanged, as is
+// everything forward of it, byte for byte. Bare cheek between HAIR and BEARD
+// falls from 13.25 to 7.30 local units at x = -8 and from 16.45 to 10.65 at
+// x = -6. Cost, measured: D13-obverse at 44 px -0.0464 -> -0.0474 against a
+// +-0.05 gate (the budget written before the change allowed -0.0482); at 84 px
+// +0.0017 -> +0.0008; at 26 px byte-identical, because `beard` is gated on
+// `!icon`. D10's 42->44 d(ink) is UNCHANGED at 0.1921 absolute — the cheek this
+// darkens is `motif` at grey 99, already below the 0.85 x field ink threshold,
+// so ink FRACTION cannot move; only the mean can. D3 at the frozen 11-patch
+// locus is unchanged at 0.1596 and `BEARD` knot 7 still reads exactly 85.0.
+//
+// WHAT IS STILL WRONG HERE. Forward of x = 0 the coin's whisker field still
+// runs 8-11 local units above our top edge and this pass deliberately does not
+// close it, because the closure is contradicted by the reference of record's
+// own tone. The right repair there is almost certainly not more mass but cut
+// grooves over a light field — which is a RELIEF question, not a `BEARD` one.
+// Also unclosed: at x = -4 there are still 16.75 units of bare cheek between
+// HAIR's lower edge and BEARD's upper edge, because HAIR's front lower boundary
+// climbs to y -12.25 there and only HAIR can bring it down.
 const BEARD = [
   'M 15.15 12.77 C 15.64 13.62 13.67 16.33 12.3 17.51',
   'C 10.84 18.76 8.36 18.92 6.51 19.89 C 4.62 20.89 3.04 22.71 1.07 23.44',
@@ -1509,8 +1558,9 @@ const BEARD = [
   'C -13.79 17.79 -14.7 16.08 -15.53 14.3',
   'C -16.35 12.52 -17.84 7.14 -18.85 4 C -18.02 3.65 -17.2 2.95 -16.6 3.05',
   'C -15 3.05 -13 3.3 -11.2 3.6',
-  'C -9.2 4.3 -7.2 5.6 -5.2 6.9 C -3.1 8.1 -1.1 9.3 0.9 10.2',
-  'C 2.95 11.2 5 12.3 7.06 12.94 C 9.55 12.84 14.56 11.75 15.15 12.77 Z',
+  'C -10.0 3.0 -9.0 -0.7 -7.6 -1.0 C -6.2 -1.3 -5.9 1.4 -5.2 2.6',
+  'C -3.6 5.3 -1.1 9.0 0.9 10.2 C 2.95 11.2 5 12.3 7.06 12.94',
+  'C 9.55 12.84 14.56 11.75 15.15 12.77 Z',
 ].join(' ');
 
 // What hangs off the back of the head, in the same dark tone as the hair —

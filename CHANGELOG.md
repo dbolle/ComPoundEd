@@ -3,6 +3,79 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.68.0 — 2026-08-22
+
+**The cent's mid-jaw whisker field, and a round that refused a better score
+five separate times.**
+
+### Two photographs of the same coin disagree about the sign
+
+The cent's beard top edge ran well below the coin's whisker field across the
+mid-jaw. Closing that gap sounds like one measurement. It is not: **the two
+struck references disagree in sign**, and the round showed it is a *field*
+rather than one bad patch. Behind local x = −2 both read 0.62–0.95 — darker
+than the cheek. In *front* of it the reference of record reads 1.03–1.08 where
+the 1909-S reads 0.57–0.82.
+
+The reason is physical: a struck whisker field is bright ridges with dark
+grooves, so **its median is not its mass tone**. Shape says close the gap; the
+photograph D3 is actually scored against says that region is not dark. So the
+lift is **rear-only** — the beard's top edge goes from y 5.15 to −0.80 at
+x = −8, and the bare wedge of cheek between hair and beard closes from 13.25
+units to 7.30, while everything forward of x = +0.9 is untouched.
+
+### The measurement hole was filled before it could be gamed
+
+There was no tone patch anywhere between `cheek` and `beardJaw`, so the region
+being changed was unmeasured. The round placed one **first**, at the exact
+midpoint of the two neighbouring patch centres with the radius both carry — so
+it is derived from the frozen target and never reads `coins.js`. It went into
+its own file rather than the hashed patch set, the writer was verified to
+refuse overwrite, the patch was checked wholly inside the head mask at its
+centre and 48 boundary samples, and its first value was published **as a
+baseline**: coin 1.0603, ours 1.0000.
+
+It also stated an **ink budget before drawing** — D13 at 44 px had 0.0036 of
+headroom and the round allowed itself half — then spent 0.0010, and correctly
+predicted in advance that D10's `d(ink)` would not move at all.
+
+### Five refusals, and one of them is the point
+
+- Two candidates scored **better on D13 than anything else tried** (+0.0000 and
+  −0.0001 at 84 px). Both refused: one wrecks the new patch, one introduces an
+  88.7° knot.
+- The **tidiest curve of the eight, and the best-looking**, was refused on a
+  number.
+- A candidate was applied, measured, and then **withdrawn** — its front lift
+  put 28.46 % of the new patch inside the beard while the frozen median did not
+  move at all, because a median is a step function of coverage. It noticed its
+  own gate had gone blind rather than banking the unchanged number.
+- **The 12-patch D3 including the new patch is 0.1514, better than the shipped
+  11-patch 0.1596 — and it refused to fold it in.** That would redefine a gate
+  using a patch that happens to flatter it.
+
+Nothing else moved: D1 bit-identical with its mutation test re-run, D3
+unchanged, D8/D9/D11 unchanged, D10's `d(ink)` numerator bit-identical so **no
+improvement is claimed** (R2). The byte-identity partition, re-run by the
+judge, changed 7 renders of 100 — all cent obverse, all ≥44 px, with the icon
+sizes identical because the beard is not drawn at icon.
+
+### What it could not determine, and said so
+
+**The coin's whisker boundary rests on a single reference.** On the other two
+the frozen `beardJaw` patch is *less* textured than the cheek, so the
+discriminator has no contrast and correctly refuses to answer. The
+between-reference spread cannot be discharged at n=1, and the round labelled
+its own boundary numbers a hand-checked overlay reading rather than a
+gate-grade target.
+
+Also reported: `_jh8locus.mjs`'s self-test is **stale** — the check that D1's
+IoU *can* move prints "end marker not found" and carries on, so its absence
+reads like a comment; `ref/penny-obv-4.png` is a hashed reference with no
+whisker or hair detail anywhere on the bust; and **two different frozen disc
+fits for `penny-obv-3.jpg` are live at once**, 0.23 local units apart, with
+nothing saying which is authoritative.
+
 ## v1.67.0 — 2026-08-22
 
 **A dime curve that was never drawn, a quarter round that correctly refused its

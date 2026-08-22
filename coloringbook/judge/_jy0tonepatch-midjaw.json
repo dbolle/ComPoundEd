@@ -1,0 +1,23 @@
+{
+ "_comment": "ADDITIVE mid-jaw tone patch for the Lincoln cent obverse, in the same disc-normalised (u,v,r) frame as _tonepatches-penny.json. Written once; the writer refuses to overwrite. NOT merged into _tonepatches-penny.json by the specialist that placed it — that file is hashed for the round and only the judge may fold this in and re-hash.",
+ "metric": "same as _tonepatches-penny.json: median luminance divided by the cheek patch.",
+ "reference": "coloringbook/ref/penny-obv-3.jpg, disc cx=999.0 cy=997.3 R=984.97 — the same frame the frozen set is expressed in.",
+ "localFrame": "penny OBVERSE: CX=3.88 CY=40.0 s=0.78 dir=+1; screen=(50+CX+dir*s*lx, CY+s*ly); u=(screen-50)/47",
+ "derivation": "local (x,y) = the exact midpoint of the frozen cheek (8.5,-1.5) and beardJaw (-4,17.5) centres; r = 2.6, the radius both of them carry. Derived from the TARGET only (COIN-JUDGE 6.1); src/art/coins.js is not read by the writer.",
+ "placed": "before any instrument that scores it was written or run; first value published as a BASELINE on unmodified art.",
+ "patches": [
+  {
+   "name": "jawMid",
+   "u": 0.11989,
+   "v": -0.08,
+   "r": 0.04315,
+   "local": {
+    "x": 2.25,
+    "y": 8,
+    "r": 2.6
+   },
+   "what": "the mid-jaw whisker field — the midpoint of the frozen cheek and beardJaw centres, which is the hole in the frozen set",
+   "insideCoinMask": true
+  }
+ ]
+}
