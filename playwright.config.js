@@ -22,6 +22,22 @@ const HOST = process.env.TEST_HOST ?? lanIP();
 // FIXED profile ids (`del-kid`, `res-kid`, ...), so they collide and fail in
 // ways that look like flakiness. Same root cause as the res-kid tombstone.
 const PORT = Number(process.env.TEST_PORT ?? 4180);
+// Node's fetch() refuses the WHATWG "bad port" list outright, and several specs
+// call fetch(baseURL) directly. Picking one of these produces `TypeError: fetch
+// failed / cause: bad port` from a line that looks nothing like a port problem —
+// it cost a full 10-minute suite run to find. 4190 (ManageSieve) is the one in
+// this range and is easy to reach for when handing ports out to parallel runs.
+const BAD_PORTS = new Set([
+  1719, 1720, 1723, 2049, 3659, 4045, 4190, 5060, 5061, 6000, 6566, 6665, 6666,
+  6667, 6668, 6669, 6697, 10080,
+]);
+if (!Number.isInteger(PORT) || PORT < 1024 || PORT > 65535 || BAD_PORTS.has(PORT)) {
+  throw new Error(
+    `TEST_PORT=${process.env.TEST_PORT} is unusable: ${BAD_PORTS.has(PORT)
+      ? `port ${PORT} is on the WHATWG bad-port list and fetch() will refuse it`
+      : 'not an integer in 1024..65535'}. Pick another.`,
+  );
+}
 // @secure-tagged specs (service worker, offline, some privacy checks) need
 // a secure context (SWs don't register on a plain LAN-IP origin). The
 // default run excludes them; TEST_HOST=127.0.0.1 ONLY_SECURE=1 runs only

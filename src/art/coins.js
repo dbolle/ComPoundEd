@@ -1672,14 +1672,67 @@ const RELIEF = {
     // start point moved with the redrawn outline (the mass is deeper at the
     // nape now), and the two queue strokes were re-sited onto the traced
     // queue, which sits further back and lower than the composed one did.
+    //
+    // THE FRONT TWO THIRDS OF THE WIG USED TO BE BARE, and that is what the
+    // first four entries of each string below are for. Round 3 corrected the
+    // hairline so the drawn mass finally reached all six wig patches, and in
+    // doing so it created a new defect it reported rather than fixed: the
+    // forward-most lit ridge in the wig began at local x = -24.03 (-23.43
+    // counting its stroke halo), so from the hairline back to about x = -20
+    // the wig was a solid cap with no strand detail at all. Measured: on the
+    // frozen grid, 8 of the 37 clean interior samples at x >= -16 carried any
+    // oriented line work at all; the other 29 returned coherence 0.000.
+    //
+    // THE NEW RIDGES ARE STREAMLINES OF A MEASURED DIRECTION FIELD, not
+    // eyeballed curves. `judge/_jn15strand.mjs` runs a structure tensor over
+    // the wig on nickel-obv-unc2004.jpg and reports a local-frame angle plus a
+    // coherence at each of the 62 grid points that clear both the hairline and
+    // the frozen silhouette; `judge/_jn15flow.mjs` integrates
+    // streamlines through that field from seeds 2.6 units inside the frozen
+    // hairline; `judge/_jn15fit.mjs` fits one cubic per course (worst
+    // deviation 0.104 local units), trims each back end for clearance, and
+    // prints every §7 gap. Three further candidates were REJECTED by that tool
+    // for want of room and are not drawn.
+    //
+    // WHAT THE FIELD SAYS, because it is not what a hand would guess. Over the
+    // CROWN the strands still RISE going back — at y = -26 they run +19, +26,
+    // +30, +9 deg at x = 0, -4, -8, -12, cross zero at about x = -15, and only
+    // then fall to -42 at x = -24. Below y = -18 they descend going back at a
+    // remarkably steady angle: median -36.7 deg over 48 samples, interquartile
+    // -43.8 to -28.8. That crown arc is the first `base` entry and it is why
+    // the wig reads as one form rather than as a comb.
+    //
+    // TWO THINGS THIS ROUND FOUND AND DID NOT FIX, both reported to the judge.
+    // (1) The nine ridges below at x <= -24 stand nearly upright where the
+    // photograph's strands lie at about -37 deg: measured with the same tensor
+    // on the same grid, our BACK samples miss the coin by a mean of 61.2 deg
+    // (median 59.0) — against 12.1 deg on the front once these courses are in.
+    // (2) Eight pairs among those nine already miss §7's spacing rule, and a
+    // ninth misses it against a dark curl; base[3] and fine[0] are 0.07 local
+    // units apart. So the new courses are TRIMMED to stop clear of that family
+    // rather than run through it — untrimmed, one passes within 0.12 units of
+    // base[0] — because two ridge families crossing at 60-70 deg read as a
+    // lattice, not as hair.
     base:
+      '<path d="M 6.14 -23.58 C -2.87 -24.62 -12.31 -30.15 -21.16 -25.44" fill="none" stroke-width="1.6"/>' +
+      '<path d="M 4.03 -18.68 C -3.62 -17.25 -11.54 -15.58 -17.83 -10.71" fill="none" stroke-width="1.55"/>' +
+      '<path d="M 1.35 -13.31 C -6.1 -9.61 -13.51 -5.6 -19.56 0.21" fill="none" stroke-width="1.5"/>' +
+      '<path d="M -1.33 -7.95 C -5.57 -5.31 -9.96 -2.87 -13.88 0.25" fill="none" stroke-width="1.42"/>' +
       '<path d="M -26.24 -26.41 q 6.4 8.8 5.6 18.6" fill="none" stroke-width="1.63"/>' +
       '<path d="M -30.25 -18.35 q 5.0 9.2 4.2 18.8" fill="none" stroke-width="1.63"/>' +
       '<path d="M -27.04 1.8 q 2.0 7.8 -0.4 13.6" fill="none" stroke-width="1.55"/>' +
       '<path d="M -28.04 -25.0 q 5.6 6.0 6.4 13.4" fill="none" stroke-width="1.46"/>' +
       '<path d="M -30.75 -16.94 q 4.0 7.4 4.0 15.0" fill="none" stroke-width="1.46"/>' +
       '<path d="M -25.43 1.8 q 3.2 6.4 2.2 12.6" fill="none" stroke-width="1.38"/>',
+    // The four new `fine` courses are STAGGERED — each starts part way along
+    // its own streamline rather than at the hairline — because on the
+    // photograph the cuts between the long strands are short and offset from
+    // one another, not a second full-length comb.
     fine:
+      '<path d="M 3.75 -21.34 C -0.58 -21.43 -4.89 -22.03 -9.23 -22.05" fill="none" stroke-width="1.22"/>' +
+      '<path d="M -11.22 -21.95 C -14.22 -21.71 -17.13 -20.72 -19.74 -19.25" fill="none" stroke-width="1.15"/>' +
+      '<path d="M -1.02 -14.5 C -4.72 -12.97 -8.39 -11.36 -11.8 -9.26" fill="none" stroke-width="1.2"/>' +
+      '<path d="M -13.48 -8.18 C -15.98 -6.51 -18.29 -4.58 -20.52 -2.57" fill="none" stroke-width="1.12"/>' +
       '<path d="M -24.03 -18.76 q 3.6 4.0 3.8 8.4" fill="none" stroke-width="1.2"/>' +
       '<path d="M -33.25 -6.26 q 2.2 6.4 0.6 11.6" fill="none" stroke-width="1.2"/>' +
       '<path d="M -26.44 -27.42 q 4.0 3.0 5.2 6.6" fill="none" stroke-width="1.12"/>' +
@@ -2386,9 +2439,16 @@ const CURLS_WASHINGTON =
 // between them are the deepest thing on the coin: the frozen `curls` patch at
 // local (-20, 6) reads 0.690 of the cheek on the 2004-P. Three cuts, following
 // three grooves read off judge/_jn14zoom-unc-earzone.png at one local unit per
-// square, in the same dark group the ear used. They stop at x = -22, because
-// RELIEF.Jefferson lit ridges begin at x = -23.2 and §7 says a pale stroke drawn
-// next to a dark one simply paints it out.
+// square, in the same dark group the ear used. They stop at x = -22, which is
+// where the nearest RELIEF.Jefferson lit ridge starts, and the clearance is
+// right — but the REASON round 3 recorded for it is not. It read "a pale stroke
+// drawn next to a dark one simply paints it out", and on this pair the paint
+// order is the other way about: bust() emits the lit-ridge group (`p.field`, at
+// 0.85) and only THEN the dark group that carries `earMark`, so in SVG order
+// the curls draw over the ridges. Checked on the emitted string rather than
+// argued — at 190px the first lit ridge is at char 7216 and the first curl at
+// char 9241. §7's arithmetic still applies in both directions, because whichever
+// stroke is drawn second covers the first; only the direction was misstated.
 const CURLS_JEFFERSON =
   '<path d="M -6.4 1.0 C -8.6 1.8 -10.0 3.4 -9.8 5.2 C -9.6 6.8 -8.9 7.6 -8.0 7.9"' +
   ' fill="none" stroke-width="1.5"/>' +

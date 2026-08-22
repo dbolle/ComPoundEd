@@ -3,6 +3,73 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.69.0 — 2026-08-22
+
+**Jefferson's wig gets strand detail across the front, and a third face in a row
+turns out to rest on a single photograph.**
+
+### The front two thirds of the wig was a bare cap
+
+Round 3 fixed the hair *mass* on this face — three of four wig patches had been
+rendering in **face tone** — and closed by reporting what it had created: every
+lit ridge in `RELIEF.Jefferson` sat at x ≤ −23, so the front of the head was a
+blank pale shape. Mass first, ornament after, is the method's own ordering, and
+this is the after: **four new `base` and four new `fine` ridges**.
+
+- strand coverage across the front core: **8 of 37 → 37 of 37**
+- mean angular error against the photograph: **31.5° → 12.1°** (median 8.6°)
+- the back region it did not touch: 61.1° → 61.2°, i.e. unmoved — its own control
+
+The ridges were not eyeballed. A structure tensor measured the strand direction
+field on the photograph, streamlines were integrated through it, and cubics
+were fitted and trimmed. **Two wrong features were caught before any number was
+published**: near the centre the tensor was reporting the *hairline* rather
+than a strand, and at the back it was reporting the *silhouette edge* on both
+sides — which is exactly why our art and the photograph appeared to "agree" to
+2.8° there. Both are now screened out.
+
+### D6 rises six points, and it is the right kind of rise
+
+D6-obverse goes **11.85 % → 17.86 %** at 84 px. It is **100 % numerator**
+(140.8 → 227.7), which is the *opposite* kind to round 3's rise on this same
+face — that one was 100 % denominator with a bit-identical numerator, because a
+corrected hairline is a shorter route.
+
+Appendix R2 is symmetric and is applied that way: round 3 was charged no
+regression because its numerator did not move, and this round **is** charged
+one because its numerator did. Adding ornament raises D6 honestly, and §5 puts
+the detail above D6.
+
+### The trap in the brief ran the other way
+
+The brief warned that extending pale ridges forward would paint out round 3's
+dark curls. Checked by **rendering at 2400 px** rather than by reasoning:
+`bust()` emits the lit-ridge group first and the dark curl group second, so the
+curls paint over the ridges, not the reverse. The source comment claiming
+otherwise was wrong; the clearance it produced is still right. The round
+corrected **the comment and nothing else** — a repair to the evidence trail
+rather than to the art.
+
+### Three faces in a row now rest on one photograph
+
+**Strand direction across the front is measurable on a single image.** The only
+independent reference is degenerate there — coherence peaks at 0.36 and it
+disagrees by up to 88°, agreeing only at the back where *both* are reading the
+silhouette edge. And the image the field was measured on is **not independent**
+of the file already in use (NCC 0.9674 — a re-encode). The round said so rather
+than implying corroboration.
+
+That is the cent's whisker boundary, the quarter obverse's tone, and now the
+nickel's strand direction: **three faces where the evidence is n = 1.**
+
+Also reported and not fixed: **the existing back ridges are ~60° off the coin**
+— the overlay shows the new courses lying along the strands while the untouched
+ones cross them — and nine pre-existing spacing violations, the worst 0.07
+units apart. The new marks add none, and were trimmed to stop clear rather than
+crossing: an earlier pass with better coverage was discarded for passing 0.12
+units from an existing ridge, because two families crossing at 60–70° read as a
+lattice.
+
 ## v1.68.0 — 2026-08-22
 
 **The cent's mid-jaw whisker field, and a round that refused a better score

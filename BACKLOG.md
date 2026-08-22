@@ -37,6 +37,30 @@ reconsider after calibration.
   button that could never appear. Fixed in v1.66.0 by cleaning the id before
   the test as well as after; verified against a deliberately poisoned server
   (9.3s pass, where the real failure was a 2.0m timeout). No assertion weakened.
+- 🔴 **THREE FACES NOW REST ON n=1, and that is the project's real blocker.**
+  Not a rubric problem and not a drawing problem — an evidence problem:
+  - **cent** whisker boundary: only `penny-obv-2.jpg` supports it; the other
+    two struck references have no contrast there and the discriminator
+    correctly refuses.
+  - **quarter obverse** tone: after removing the state quarter and collapsing
+    the duplicate pair, one struck photograph (judge ruling above).
+  - **nickel** strand direction across the front wig: the only independent
+    reference is degenerate there (coherence 0.36, disagreeing by up to 88°),
+    and the image the field was measured on is a **re-encode** of the file
+    already in use, NCC 0.9674.
+  **The acquisitions are now specific, and they are worth more than any queued
+  round:** a second *struck business-strike* quarter obverse under diffuse
+  light; a third *struck* cent obverse with a frozen disc fit; a plain
+  business-strike dime reverse under diffuse light; and a genuinely independent
+  high-resolution nickel obverse. Until these exist, several gates are tuning
+  to a single photograph and cannot be trusted to a decimal.
+- 🔴 **The nickel's EXISTING back ridges are ~60° off the coin.** Same tensor,
+  same grid as the new front courses: mean 61.2°, median 59.0°. The overlay
+  shows the new courses lying along the strands while the untouched ones cross
+  them. The new work was **trimmed to stop clear** — untrimmed, one course
+  passes 0.12 units from an existing ridge, and two families crossing at 60–70°
+  read as a lattice. Its own round. Also there: nine pre-existing spacing
+  violations, worst 0.07 units apart; the eight new marks add zero.
 - 🔴 **The cent's whisker boundary rests on ONE reference (n=1).** Only
   `penny-obv-2.jpg` supports it; on the other two struck references the frozen
   `beardJaw` patch is *less* textured than `cheek`, so the discriminator has no
