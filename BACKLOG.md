@@ -91,6 +91,43 @@ reconsider after calibration.
   p95 4.8–11.1 % of R, which is **bigger than the feature**. That is nine
   instruments across five subjects failing this way, each replaced in minutes
   by a ladder overlay. **D2-reverse stays UNMEASURED.**
+- 🟡 **n=1 is now n=1-and-a-bit: the nickel has a two-reference BAND.** A round
+  broke the confound experimentally rather than arguing it — shrink the
+  measuring disc until it provably cannot contain edge pixels and the near-edge
+  points still agree 5/5 at 9.7°, while the identical sweep on the front (where
+  the references are at the null) gives 42–49°. **Scope: five grid points, 3.5–5
+  units inside the silhouette. Not "the back".** Beyond that the second
+  reference decays to the null. This overturns v1.69.0's "the agreement is a
+  silhouette-edge artefact", which the judge repeated in its own report.
+  The cent's whisker boundary and the quarter obverse's tone are **still n=1**,
+  and the acquisitions below remain the highest-value work available.
+- 🔴 **THE JUDGE'S OWN CHECK VOIDED EVERY ROUND IT VERIFIED — fixed in
+  v1.71.0.** `_rescore.mjs` runs `_x6mat.mjs`, which unconditionally rewrites
+  `coloringbook/_x6-run.json`, and that file had been put in the hashed frozen
+  set. Every specialist's first mandated check destroyed a member of the set it
+  was checking; its stored hash was stale on top of that (`93252d…` stored,
+  `0e3f23…` actual and deterministic). A run **output** is not a frozen
+  **target**; the set now excludes run artefacts as it already excluded the
+  append-only history logs.
+  🔴 **Still open, and worse:** `coloringbook/_x6mat.mjs` is a **symlink**, so
+  in a worktree `import.meta.url` realpaths to the main checkout — its write
+  lands in the *main* tree (hitting concurrent rounds) and its
+  `import('../src/art/coins.js')` reads the *main* checkout's art. **D11 via
+  `_rescore.mjs` in a worktree measures the wrong tree.**
+- 🔴 **`_jn15agree.mjs`'s frozen sample list omits three samples its own
+  generator returns clean** — `(-28,10)`, `(-32,-2)`, `(-32,2)`, all back-most,
+  and precisely where the nickel's n=2 band turns out to live. The published
+  61.2° was over 15 of 18 available samples; with all 18 it is ≈55.0°. Also:
+  `_jn2indep.mjs`'s file list does not include `nickel-obv-unc2004.jpg`, the
+  file the entire strand direction field is measured on.
+- ⚠️ **A THIRD kind of D6 movement, and it is not an improvement.** v1.71.0's
+  D6 fell 17.86 % → 13.91 % with the numerator moving — so R2 is satisfied on
+  its face — but **Δnumerator equals Δdenominator exactly**, because every mark
+  removed was already uniform-width. No mark became less uniform. Alongside
+  100 %-numerator (honest ornament) and 100 %-denominator (a shorter, more
+  correct outline), this is "there is simply less stroke length". **R2 needs a
+  third clause: a ratio that falls because its subject shrank is not a
+  result.**
 - 🔴 **THREE FACES NOW REST ON n=1, and that is the project's real blocker.**
   Not a rubric problem and not a drawing problem — an evidence problem:
   - **cent** whisker boundary: only `penny-obv-2.jpg` supports it; the other
@@ -139,6 +176,23 @@ reconsider after calibration.
 - ⚠️ **`ref/penny-obv-4.png` is unusable for texture**: a hashed obverse
   reference with a frozen disc fit whose entire bust is uniform granulation
   with no strands anywhere. Wants a line in `REFERENCES.md`.
+- 🟢 **THE QUARTER'S n=1 PROBLEM MAY ALREADY BE SOLVED, AND NOTHING NEEDS
+  ACQUIRING.** `coloringbook/ref/quarter-obv-1963ccby.jpg` is a **1963 struck
+  business-strike Washington quarter obverse** — the correct 1932–1998 design,
+  under **flat diffuse light** on a plain background, 2.7 MB — and it is
+  **CC BY 2.0** (James St. John via Flickr), the cleanest licence in the pool.
+  It was acquired *for tone*. **It is not in `_qtlib.DISCS`**, the D3 candidate
+  set, which instead carries a state quarter and a duplicated photograph.
+  Verified by eye by the judge; it is exactly the "second struck business-strike
+  quarter obverse under diffuse light" the acquisition list below asks for.
+  ⚠️ **Not yet measured for independence** — `_jq42indep.mjs`'s `QOBV` list
+  omits it, and extending it means editing a frozen artefact, which would void
+  the two rounds in flight. It also keeps its comparison helpers private, so a
+  new instrument cannot reuse them without a second implementation. **Do this
+  first when the slots are free:** export the helpers or extend `QOBV`, run the
+  independence check on the extended pool, and if it is independent and
+  same-design, put it in the D3 set. That single change could take the quarter
+  obverse from n=1 to n=2 without acquiring anything.
 - ⚖️ **JUDGE RULING (2026-08-22): the quarter obverse D3 candidate set is four
   files that are really ONE piece of usable evidence.** Re-derived by the judge
   with the project's own frozen `_jq42indep.mjs`, whole matrix printed:

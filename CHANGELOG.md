@@ -3,6 +3,88 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.71.0 — 2026-08-22
+
+**The nickel's wig becomes one hair mass instead of two combs crossing — and a
+round overturns a claim the judge had already published.**
+
+### The back was 61° off the coin, and is now 7°
+
+v1.69.0 fixed the front of Jefferson's wig and, with the same instrument,
+measured the back and found it wrong: the new front courses lay **along** the
+strands at 12.1° mean error while the untouched back ones **crossed** them at
+61.2°. This round replaced nine near-upright arcs with **six** courses cut from
+the *same* measured streamlines as the front, so the two families that used to
+cross at 60–70° are now one family with a gap.
+
+- back mean angular error: **61.2° → 7.0°** (median 6.1, worst 15.2)
+- back coverage: 15/15 → 15/15 — **not** bought by drawing less
+- front core: **bit-identical**, its own control
+- spacing violations: **9 → 0** (the worst had been 0.07 units apart)
+
+Marks went 9 → 6 because that is what the space holds: seeded at every
+intermediate arc, each extra course is rejected for fouling another under the
+method's own threshold. The nine pre-existing violations were what "more marks
+than the space holds" looks like when the rule is not enforced.
+
+### It overturned something already published, including in the judge's report
+
+v1.69.0 concluded the two nickel references agree at the back **only because
+both are reading the silhouette edge** — an artefact, leaving the face at n = 1
+throughout. That went into the changelog and into the judge's own summary. It
+is wrong.
+
+First, the "~8°" figure never described the back: over the 14 back samples both
+references answer, mean disagreement is **18.7°**. The small number lives only
+in the band nearest the edge, which is exactly what made the edge story look
+right.
+
+Then the confound was broken **experimentally** rather than argued about:
+shrink the measuring disc until it provably cannot contain edge pixels, holding
+the sample set fixed. At a radius clearing the outline by 2.6 units the
+near-edge points still agree **5 of 5 at 9.7°**. The identical sweep on the
+front — where the two references are at the null — gives **42–49°**, i.e. at or
+above chance everywhere. Small discs do not agree everywhere; the back
+separates from the front by 4.5–7.2× at every radius.
+
+**Scope stated honestly:** the n = 2 region is **five grid points** in a band
+3.5–5 units inside the silhouette, not "the back". Beyond that the second
+reference decays to the null. n = 2 is a band; n = 1 is the rest of the face.
+
+### D6 fell, and the round refused to claim it
+
+D6-obverse went 17.86 % → **13.91 %**. The numerator moved (227.7 → 169.2), so
+Appendix R2 is satisfied on its face — but **Δnumerator equals Δdenominator
+exactly**, because every mark removed was already uniform-width. No mark became
+less uniform. That is a *third* kind of D6 movement, distinct from v1.69.0's
+100 %-numerator rise and round 3's 100 %-denominator rise, and the honest
+reading is that D6 fell because there is less stroke length, not because the
+drawing improved. The round said exactly that and claimed nothing.
+
+**A cost it chose and disclosed:** below y ≈ +7 the direction field turns hard
+— adjacent samples are 137° apart and consensus collapses — so no streamline
+may be integrated through it. The nape now carries **less** line work than
+before. It chose that over filling in a direction it could not determine.
+
+### The check that voids every round it verifies — the judge's own fault
+
+`_rescore.mjs` invokes `_x6mat.mjs`, which unconditionally rewrites
+`_x6-run.json` — and that file had been put in the hashed frozen set. So **the
+first mandated check of every round destroyed a member of the set it was
+verifying.** Its stored hash was stale on top of that.
+
+Fixed here: a run **output** is not a frozen **target**, and the frozen set now
+excludes run artefacts the same way it already excludes the append-only history
+logs. Two related traps are recorded but not yet fixed: `_x6mat.mjs` is a
+**symlink**, so in a worktree it writes into the *main* checkout and reads the
+*main* checkout's art — meaning D11 via `_rescore.mjs` in a worktree measures
+the wrong tree entirely.
+
+And `_jn15agree.mjs`'s frozen sample list **omits three samples its own
+generator returns clean** — all three of them back-most, precisely where the
+n = 2 band turns out to live. The published 61.2° was over 15 of 18 available
+samples; with all 18 it is ≈55.0°.
+
 ## v1.70.0 — 2026-08-22
 
 **The quarter's eagle stops being a bat, and D7 turns out to measure who typed

@@ -1765,28 +1765,51 @@ const RELIEF = {
     // -43.8 to -28.8. That crown arc is the first `base` entry and it is why
     // the wig reads as one form rather than as a comb.
     //
-    // TWO THINGS THIS ROUND FOUND AND DID NOT FIX, both reported to the judge.
-    // (1) The nine ridges below at x <= -24 stand nearly upright where the
+    // ROUND 15 FOUND TWO DEFECTS IN THE BACK AND FIXED NEITHER; ROUND 16 FIXED
+    // BOTH, by replacing that family rather than re-angling it.
+    // (1) The nine ridges at x <= -24 stood nearly upright where the
     // photograph's strands lie at about -37 deg: measured with the same tensor
-    // on the same grid, our BACK samples miss the coin by a mean of 61.2 deg
-    // (median 59.0) — against 12.1 deg on the front once these courses are in.
-    // (2) Eight pairs among those nine already miss §7's spacing rule, and a
-    // ninth misses it against a dark curl; base[3] and fine[0] are 0.07 local
-    // units apart. So the new courses are TRIMMED to stop clear of that family
-    // rather than run through it — untrimmed, one passes within 0.12 units of
-    // base[0] — because two ridge families crossing at 60-70 deg read as a
-    // lattice, not as hair.
+    // on the same grid, our BACK samples missed the coin by a mean of 61.2 deg
+    // (median 59.0) against 12.1 deg on the front. Every one of the fifteen back
+    // samples was wrong by 36 deg or more, so there was no sub-region to keep.
+    // (2) Eight pairs among those nine missed §7's spacing rule and a ninth
+    // missed it against a dark curl, base[3] and fine[0] being 0.07 local units
+    // apart.
+    // The back is now cut from the SAME streamlines as the front, so the two
+    // families are one family and the front courses' trims are no longer holding
+    // two crossing combs apart — they are the gap between a course and its own
+    // continuation. The front courses themselves were NOT touched: round 16 owned
+    // the back only, and re-running the front's trims is a separate round.
     base:
       '<path d="M 6.14 -23.58 C -2.87 -24.62 -12.31 -30.15 -21.16 -25.44" fill="none" stroke-width="1.6"/>' +
       '<path d="M 4.03 -18.68 C -3.62 -17.25 -11.54 -15.58 -17.83 -10.71" fill="none" stroke-width="1.55"/>' +
       '<path d="M 1.35 -13.31 C -6.1 -9.61 -13.51 -5.6 -19.56 0.21" fill="none" stroke-width="1.5"/>' +
       '<path d="M -1.33 -7.95 C -5.57 -5.31 -9.96 -2.87 -13.88 0.25" fill="none" stroke-width="1.42"/>' +
-      '<path d="M -26.24 -26.41 q 6.4 8.8 5.6 18.6" fill="none" stroke-width="1.63"/>' +
-      '<path d="M -30.25 -18.35 q 5.0 9.2 4.2 18.8" fill="none" stroke-width="1.63"/>' +
-      '<path d="M -27.04 1.8 q 2.0 7.8 -0.4 13.6" fill="none" stroke-width="1.55"/>' +
-      '<path d="M -28.04 -25.0 q 5.6 6.0 6.4 13.4" fill="none" stroke-width="1.46"/>' +
-      '<path d="M -30.75 -16.94 q 4.0 7.4 4.0 15.0" fill="none" stroke-width="1.46"/>' +
-      '<path d="M -25.43 1.8 q 3.2 6.4 2.2 12.6" fill="none" stroke-width="1.38"/>',
+      // THE BACK OF THE WIG, redrawn in round 16. It used to be a second,
+      // separate family of nine near-upright arcs, and it was measured at a mean
+      // 61.2 deg from the photograph while the front courses above sat at 12.1 —
+      // so the two families crossed at 60-70 deg and the front ones had to be
+      // trimmed short to stop the pair reading as a lattice. These four are
+      // CONTINUATIONS OF THE SAME STREAMLINES the front courses were cut from
+      // (`judge/_jn16fit.mjs`, seeded at the same hairline arc lengths), so
+      // there is now one family with a gap in it rather than two that disagree.
+      // Every course's direction matches the measured field to 0.2 deg and every
+      // fit deviation is under 0.02 local units.
+      '<path d="M -23.36 -24.27 C -25.23 -23.17 -27.01 -21.92 -28.69 -20.55" fill="none" stroke-width="1.63"/>' +
+      '<path d="M -21.36 -7.92 C -25.69 -4.05 -29.94 0.09 -32.88 5.15" fill="none" stroke-width="1.63"/>' +
+      '<path d="M -21.41 1.9 C -23.23 3.6 -25.06 5.32 -26.57 7.33" fill="none" stroke-width="1.55"/>' +
+      // The one mark on this face laid along a TWO-REFERENCE angle. At the
+      // bottom of the wig the field turns hard — the samples at (-28,6) and
+      // (-28,10) are 137 deg apart — so no streamline may be integrated through
+      // it. But `judge/_jn16back.mjs` shows (-28,10) is one of five back samples
+      // where the two independent photographs genuinely agree: +74.2 deg on
+      // nickel-obv-unc2004.jpg and +77.4 on nickel-obv-5.JPG, 3.2 deg apart, and
+      // the agreement SURVIVES shrinking the tensor's disc to 1.0 local units,
+      // where it sits 2.6 units clear of the silhouette and cannot be reading
+      // the edge. This ridge is laid along their mean and drawn short, because a
+      // two-reference angle is a measurement at one place and says nothing about
+      // the curvature either side of it.
+      '<path d="M -28.15 9.42 C -27.82 10.71 -27.49 12 -27.17 13.3" fill="none" stroke-width="1.55"/>',
     // The four new `fine` courses are STAGGERED — each starts part way along
     // its own streamline rather than at the hairline — because on the
     // photograph the cuts between the long strands are short and offset from
@@ -1796,9 +1819,16 @@ const RELIEF = {
       '<path d="M -11.22 -21.95 C -14.22 -21.71 -17.13 -20.72 -19.74 -19.25" fill="none" stroke-width="1.15"/>' +
       '<path d="M -1.02 -14.5 C -4.72 -12.97 -8.39 -11.36 -11.8 -9.26" fill="none" stroke-width="1.2"/>' +
       '<path d="M -13.48 -8.18 C -15.98 -6.51 -18.29 -4.58 -20.52 -2.57" fill="none" stroke-width="1.12"/>' +
-      '<path d="M -24.03 -18.76 q 3.6 4.0 3.8 8.4" fill="none" stroke-width="1.2"/>' +
-      '<path d="M -33.25 -6.26 q 2.2 6.4 0.6 11.6" fill="none" stroke-width="1.2"/>' +
-      '<path d="M -26.44 -27.42 q 4.0 3.0 5.2 6.6" fill="none" stroke-width="1.12"/>' +
+      // The back's `fine` texture, on the intermediate hairline arcs — the same
+      // 3-unit stagger the front uses. THERE ARE TWO OF THESE WHERE THERE USED
+      // TO BE THREE, and the space is why: seeded at every intermediate arc,
+      // each additional course is rejected for fouling a `base` course under
+      // §7's own threshold. The nine marks these six replace carried NINE §7
+      // violations between them — worst 0.07 local units apart — which is what
+      // drawing more marks than the space holds looks like when the rule is not
+      // enforced. Six clear the rule with nothing left over.
+      '<path d="M -21.45 -18.22 C -25.96 -15.34 -29.66 -11.38 -32.88 -7.15" fill="none" stroke-width="1.22"/>' +
+      '<path d="M -21.99 -1.22 C -24.75 1.42 -27.62 4.06 -29.54 7.4" fill="none" stroke-width="1.2"/>' +
       '<path d="M -30.2 22.6 q -2.6 3.0 -3.4 5.4" fill="none" stroke-width="1.2"/>' +
       '<path d="M -26.4 23.8 q -2.2 2.8 -2.8 4.8" fill="none" stroke-width="1.03"/>' +
       '<path d="M 14.27 -8.08 L 22.29 1.39" fill="none" stroke-width="1.03"/>' +
