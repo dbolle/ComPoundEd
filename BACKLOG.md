@@ -287,17 +287,26 @@ reconsider after calibration.
   where P2 says a declaration belongs. Indices owed: `HEAD.Roosevelt` 23,
   `HAIR.Roosevelt` 0 and 16, `BEARD` 7. **Judge ruling owed, not specialist
   work.**
-- 🔴 **Two harness collisions found by running three rounds at once.**
-  (a) `deploy/sync-server.mjs` self-starts during every `npm test` — its guard
-  is `import.meta.url.endsWith(argv[1].split('/').pop())`, and when
-  `tests/server.mjs` imports it that basename is `server.mjs`, which
-  `sync-server.mjs` ends with. Every suite binds `0.0.0.0:8092` for a listener
-  the tests never use, so concurrent suites die on `EADDRINUSE`. Needs a
-  distinct `PORT` as well as `TEST_PORT` until the guard is fixed.
-  (b) Fresh git worktrees check out an **old default commit** (`be6cb73`,
-  v1.54.0) rather than the dispatch commit, and contain no `coloringbook/` or
-  `node_modules`. Both specialists had to reset and symlink before measuring —
-  a specialist that did not notice would silently measure v1.54.0.
+- ✅ **FIXED 2026-08-23 — `deploy/sync-server.mjs` no longer self-starts when
+  something imports it.** Its guard compared the entry point's BASENAME as a
+  suffix of its own URL, and `tests/server.mjs` imports it:
+  `"…/sync-server.mjs".endsWith("server.mjs")` is **true**, so every `npm test`
+  bound `0.0.0.0:8092` for a listener the tests never use and concurrent suites
+  died on `EADDRINUSE`. That is why every specialist round this week was handed
+  a distinct `PORT` as well as a distinct `TEST_PORT` — **no longer needed**.
+  Not only a test problem: **any** script whose filename ends `server.mjs` and
+  imported this module would have silently started a real sync sidecar against
+  the family's data directory. Now compares resolved paths, which is exact.
+  Response-tested three ways — run directly it still binds and answers HTTP
+  200; imported it does not start; a near-miss basename does not start it —
+  and the full suite is green **without** a distinct `PORT`.
+- 🔴 **The other harness collision is still open.** Fresh git worktrees check
+  out an **old default commit** (`be6cb73`, v1.54.0) rather than the dispatch
+  commit, and contain no `coloringbook/` or `node_modules`. Every specialist
+  this week has had to reset and symlink before measuring; one that did not
+  notice would silently measure a tree twenty versions old. **This is the
+  highest-value harness fix left** — it is the only one that can silently
+  produce wrong measurements rather than a loud failure.
 - ⚠️ **The frozen-hash convention has a wrinkle:** `*-history.jsonl` files are
   **append-only evidence** and are in the hashed set, so recording a verdict
   makes the next check report them as CHANGED. Exclude history logs when
