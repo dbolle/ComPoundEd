@@ -1104,6 +1104,17 @@ const HEAD = {
   // target and score in coloringbook/ (gitignored): bust silhouette IoU
   // 0.695 -> 0.958.
   //
+  // ROUND 11, ON THE THREE FILES THAT QUALIFY: this contour still tracks. Our
+  // edges drawn on each photograph at its own RIM-fitted disc
+  // (`judge/_qo2over.mjs`; `_rvdisc.fit` p95 0.24 / 0.24 / 0.05 % of R, and the
+  // overlay's own red rim ring lands on each coin's rim, which is the scale
+  // self-check) follow the profile, the crown, the back of the wig and the
+  // truncation to about a unit on all three, including
+  // `quarter-obv-1932ngc.jpg`, which was NOT in the pool when this was fitted.
+  // Note that the 0.77% and 0.74% above are a 1944 and the STATE QUARTER: only
+  // the first is this design, so the "it is the DESIGN" claim rested on one
+  // same-design cross-check. The 1932 is the second, and it agrees.
+  //
   // What the measuring found, against the version before it:
   //
   //   · THE HEAD WAS IN THE WRONG PLACE. `cx` 5.4 -> -0.4 and `cy` 47.5 ->
@@ -2248,6 +2259,74 @@ const RELIEF = {
   //
   // — nearly horizontal over the top, turning to steeply down-and-back at the
   // occiput. A single angle would draw a combed sheet; this is a field.
+  //
+  // ROUND 11 RE-DERIVED THOSE FOUR NUMBERS AND THE ART THEY WERE MEASURED FOR,
+  // AND BOTH COME OUT DIFFERENT. The instrument is `judge/_qo5field.mjs`: the
+  // same structure tensor, but on a BAND-PASSED grid (sigma 0.30 .. 2.2 viewBox
+  // units, the band this entry's own text sets when it records the coin's wig
+  // pitch as 0.95-1.75). Its predecessor `_qo3strand.mjs` measured the raw
+  // photograph and returned reference coherences of 0.05-0.58 with the three
+  // files disagreeing by up to 81 deg — at the strand scale the dominant signal
+  // in a raw patch is the FORM SHADING of the wig, not the strands. Both files
+  // are kept; the raw one is a recorded non-answer. `_qo5field` refuses to print
+  // anything until four null tests pass, including stripes at the strand pitch
+  // buried under a 120-level ramp — the exact confound that defeated v1 — and
+  // our own render coming back at the chord angles `judge/_qo4marks.mjs` reads
+  // off the emitted path data.
+  //
+  // THE REFERENCE SET IS THREE FILES, not the one the backlog assumed. Re-run
+  // in the round worktree, `judge/_jq42indep.mjs obv` reproduces the 2026-08-22
+  // ruling exactly (quarter-obv.jpg vs quarter-obv-2.jpg design NCC 0.9959, ONE
+  // photograph; quarter-obv-4.jpg 0.2460-0.2920 against a 0.2318 floor, the
+  // 1999+ state quarter) — and `judge/_jq43ccby.mjs quarter-obv-1932ngc.jpg`,
+  // which reproduces four of that file's published figures before reporting,
+  // scores the 1932 NGC at 0.6171 / 0.6331 / 0.5062 against obv / obv-2 / obv-3
+  // on a 0.2402 floor with the registration off every bound. So the usable
+  // STRUCK set is quarter-obv.jpg (= obv-2), quarter-obv-3.png and
+  // quarter-obv-1932ngc.jpg, rim-fitted (`_rvdisc.fit`) to p95 0.24 / 0.24 /
+  // 0.05 % of R.
+  //
+  //   locus                file says   re-derived (n, worst spread)   OURS
+  //   crown      (-6,-18)      -7.3      +1.4  (n=3, 4.9)             +8.6
+  //   mid-mass  (-14,-12)     +10.9     +18.6  (n=2, 4.8)            +11.0
+  //   back     (-18.5,-3)     +54.1     +38.8  (n=3, 8.6)            +17.1
+  //   curls       (-8, 2)     +20.5     +25.2  (n=2, 2.7)            +36.3
+  //
+  // Only the SHAPE of the old claim survives: the coin really does swing from
+  // near-horizontal at the crown to steeply down-and-back at the occiput, but
+  // the swing is +1.4 -> +38.8 (37.4 deg), not -7.3 -> +54.1 (61.4 deg).
+  //
+  // AND THE DRAWING DOES NOT FOLLOW IT. Measured at each of our own 14 wig
+  // marks' midpoints, ours minus the coin is ONE-SIDED: 12 of 14 negative
+  // (drawn too shallow), median 10.3 deg, worst 37.8 deg, and 9 of the 14 are
+  // out by more than the spread between the references at that same point.
+  // Our marks span -1 .. +22.2 deg where the coin's field spans +1.4 .. +38.8.
+  // Nine of nine RESOLVED marks are too shallow; the five unresolved ones split
+  // three shallow to two steep. That is a systematic under-rotation, not noise.
+  //
+  // ⚠️ THE OBVIOUS CORRECTION WAS BUILT, MEASURED, AND REFUSED, and the reason
+  // is the round's main finding. `judge/_qo8gen.mjs` rotates each resolved mark
+  // RIGIDLY ABOUT ITS OWN CHORD MIDPOINT to the direction measured there —
+  // length, width, curvature and midpoint all preserved, so D6 is unchanged by
+  // construction — and every one of its four self-checks passes (chord angle to
+  // 0.03 deg, length to 0.011 units, every point still inside the HAIR mass with
+  // 2.9-4.9 local units of clearance). Applied, it takes the direction error
+  // from median 10.3 deg to 0.1 and from 9-of-14 out to 0-of-14.
+  //   It also puts EIGHT CENTRELINE CROSSINGS into a wig that had ZERO:
+  //   groove1xgroove5, groove1xlit5, groove3xgroove4, groove3xlit6,
+  //   groove4xgroove6, groove4xlit6, groove6xlit6, lit0xlit1. A die's cuts do
+  //   not cross; crossed strokes read as hatching, and the overlay at 380 px
+  //   shows the family collapsing into a starburst.
+  //   The cause is structural, and it is why no smaller version works either:
+  //   these marks are an INTERLEAVED STACK — groove, ridge, groove, ridge — and
+  //   turning individual members of a stack necessarily makes them converge.
+  //   A crossing-guarded greedy subset keeps only 4 of the 9, and it keeps the
+  //   WRONG four: the two tightest reference agreements (grooves[6] spread 4.1,
+  //   lit[0] spread 4.6) are exactly the two it has to throw away, and which
+  //   four survive depends on the order they are tried in. §8/rule 4.
+  // Turning this field means re-authoring the family — re-spaced so it stays
+  // non-crossing while everywhere tangent to a field that swings 37 deg across
+  // the head. That is its own round. The measurement above is the brief for it.
   Washington: {
     // THE CUTS, drawn first, in `ink` at 0.33 over the wig: the die cuts and
     // the light sits on what is left standing. They are ARCS, not bars — the
@@ -2258,6 +2337,16 @@ const RELIEF = {
     // THE WIDTHS ARE THE COIN'S DUTY CYCLE, NOT THE COIN'S CUT WIDTH, and the
     // difference between those two is this whole group's argument.
     //
+    // ⚠️ "THREE REFERENCES" BELOW IS TWO. The set used was quarter-obv-2.jpg,
+    // quarter-obv-1932ngc.jpg and quarter-obv-4.jpg, and round 11 re-derived
+    // what `_jq42indep.mjs` already said about the last of those: it is the
+    // 1999+ state-quarter obverse, design NCC 0.2460 / 0.2507 / 0.2576 / 0.2881
+    // / 0.2920 against a 0.2318 floor, and the 1932 NGC scores it 0.2856 — a
+    // fourth independent vote for the same verdict. The widths below are NOT
+    // re-opened: the two same-design files are the ones whose medians are
+    // quoted (1.10 and 1.30 pitch, 0.35 and 0.40 width), the third only ever
+    // widened the reported range, and dropping it moves no number here. What it
+    // changes is the CONFIDENCE, and that is why it is written down.
     // Measured on three references over seven lines each — the four frozen
     // transects plus three laid normal to these centrelines — the coin's wig
     // is a train of NARROW cuts in a WIDE lit mass: pitch 0.95–1.75 viewBox
@@ -2304,7 +2393,14 @@ const RELIEF = {
     // `grooveFine` IS SET TO THE COIN'S OWN CUT WIDTH INSTEAD, and the tier is
     // why: it is emitted only at boxW >= 130, where one viewBox unit is at
     // least 1.3 device pixels and the coin's 0.35-unit cut is 0.46 px and up —
-    // it can actually be drawn. So the five always-on cuts carry the tone and
+    // it can actually be drawn.
+    // ⚠️ STALE SINCE v1.78.0, and left standing only because the sentence above
+    // is the record of why the width is what it is. `coinSVG` now authors every
+    // face once at DRAW_SIZE and rewrites only the outer width/height, so
+    // `boxW` is 380 at every displayed size and `fine` is ALWAYS true. These two
+    // cuts draw at 38 px as well as at 380. Nothing on this face may be
+    // justified by "it does not draw small" any more.
+    // So the five always-on cuts carry the tone and
     // these two carry the geometry. 0.35 viewBox / 0.98 = 0.36 local. Together
     // they put the 190 px duty at 0.348, which is the 1994-P's own 0.342.
     grooveFine:
@@ -2454,7 +2550,19 @@ const RELIEF = {
     // for exactly one mark. Measured perpendicular to each drawn centreline on
     // three references — `quarter-obv-2.jpg` (the frozen target of record),
     // `quarter-obv-1932ngc.jpg` and `quarter-obv-4.jpg` — per third of each
-    // mark's length, 25 of the 26 stroke-rendered marks on this face have their
+    // mark's length — and ⚠️ one of those three is the WRONG COIN.
+    // `quarter-obv-4.jpg` is the 1999+ state-quarter obverse (design NCC
+    // 0.2460-0.2920 on a 0.2318 floor, re-derived round 11, and independently
+    // 0.2856 against the 1932 NGC). The taper below is NOT withdrawn: it was
+    // accepted because three references AGREED IN SIGN and disagreed 7x in the
+    // middle third, and the two same-design files — the target of record and the
+    // 1932 — carry that sign on their own (0.80 -> 2.60 and 0.80 -> 2.80). The
+    // 1994-P row quoted as "0.40 -> 1.30" is the state quarter and should be
+    // read as corroboration from a related die, not as a third vote.
+    // The right third file exists and was not available then:
+    // `quarter-obv-3.png`, which `_jq42indep.mjs` scores independent and
+    // same-design at 0.6437. Re-reading the taper on it is owed.
+    // 25 of the 26 stroke-rendered marks on this face have their
     // first-third and third-third width medians separated by LESS than the
     // between-reference interquartile range. Their widths are not uniform; they
     // are unresolved, and a taper drawn through that is taste with a number
@@ -2579,6 +2687,24 @@ const EYE_LINCOLN =
 // occupies local x +1..-9, y -1..+9 is a cluster of ROLLED CURLS, and below
 // them is bare cheek. Two hooks, in the same dark group the ear used, because
 // on the die the cuts between these curls are the deepest thing in the wig.
+//
+// ⚠️ THE SECOND CITATION ABOVE IS THE WRONG COIN, and `judge/REFERENCES.md`
+// asked for this line to be re-checked. `quarter-obv-4.jpg` is the 1999+
+// state-quarter obverse (design NCC 0.2460-0.2920 against a 0.2318 floor), and
+// `quarter-obv-2.jpg` is the same photograph as `quarter-obv.jpg` at 0.9959 —
+// so as written this finding rested on ONE photograph and one different design.
+// ROUND 11 RE-CONFIRMED IT ON THE TWO FILES THAT QUALIFY. Held at the same
+// rim-fitted disc (`judge/_qo1zoom.mjs`, p95 0.24% and 0.05% of R), both
+// `quarter-obv-3.png` and `quarter-obv-1932ngc.jpg` show the same thing the
+// 1994-P does: no helix, no lobe, no concha anywhere on this side of the head,
+// and a cluster of rolled curls filling viewBox x 45..62, y 36..53 with bare
+// cheek below it. The finding stands on three photographs and two designs;
+// the citation is what was wrong.
+// WHAT THE RE-CHECK ALSO SHOWS, reported and NOT acted on: the coin's curl
+// cluster spans about 17 viewBox units of x on all three files and this glyph
+// spans 6.5, sitting at the front edge of it. Making it cover the cluster means
+// authoring new marks rather than moving one, and it belongs with the wig
+// re-authoring the direction block above calls for, not beside it.
 const CURLS_WASHINGTON =
   '<path d="M 0.4 0.2 C -2.4 -0.2 -4.8 1.6 -4.6 4.0 C -4.5 5.4 -3.4 6.3 -2.2 6.2"' +
   ' fill="none" stroke-width="1.5"/>' +
@@ -2973,11 +3099,42 @@ export const OBVERSE = {
     // bareNeck() is no longer drawn here, so the nickel's use of it is
     // untouched.
     //
+    // NO `neck` EITHER, AND ROUND 11 REMOVED IT. `neck: 17` sat on this line
+    // and controlled nothing: `bust()` reads `o.neck` only inside `below`, and
+    // `below` is the empty string whenever `o.cut` is set — which the line
+    // above sets, deliberately, for exactly this face. So `coat()` and
+    // `bowTie()` are never reached here and the 17 was an inert number that
+    // read like a measurement. Same argument, same evidence and same proof as
+    // round 3's removal of `OBVERSE.nickel.ear`: every face at every size emits
+    // a byte-identical string before and after (partition below, 10 of 10).
+    //
+    // ⚠️ `eye: [8.7, -2.7]` IS THE OPEN ITEM ON THIS ENTRY, and round 11 could
+    // not close it. This is the ONLY face still drawing the shared `EYE_MARK` —
+    // a 6.66-unit flat lid over a filled CIRCLE 2.94 units across (measured off
+    // the live render by `judge/_qo4marks.mjs`, which applies `eye()`'s own
+    // nested translate; v1 of that tool did not and reported the mark 6.7 units
+    // from where it draws). The offset itself has no derivation recorded
+    // anywhere in this file or in the commit that introduced it, and the two
+    // faces that DID measure their own eye both threw the shared glyph away
+    // for the same reason — EYE_LINCOLN, "nearly three times too long here";
+    // EYE_ROOSEVELT, "a flat lid over a round pupil, which stares".
+    // What round 11 can say: the PLACEMENT is not the nickel's kind of error.
+    // The pupil's centre (35.19, 36.61) lands inside the coin's own eye mark on
+    // all three references. What it cannot say is the FORM. The eye is about 3
+    // viewBox units long on this coin — 15 px on quarter-obv.jpg, whose disc is
+    // only R 249 — and the brow shadow merges with it at every threshold that
+    // finds either, on all three files. A shape read at that scale would be the
+    // segmentation problem this project has lost to ten times. UNMEASURED, and
+    // owed a round with a reference that can carry it.
+    //
     // NO `ear`. Both usable references — a 1994-P and the 1999+ obverse —
     // show NO EAR on this coin: the wig's front curls come down over it and
     // what is there is a cluster of rolled curls, with bare cheek below. The
     // shared glyph was drawing a helix on open skin, which is §7's "do not add
     // anatomy the coin does not have". `earMark` carries the curls instead.
+    // (One of those two references is the wrong design; round 11 re-confirmed
+    // the finding on `quarter-obv-3.png` and `quarter-obv-1932ngc.jpg` instead.
+    // See CURLS_WASHINGTON.)
     //
     // ICON PLACEMENT, and it failed T1 for the same reason the cent's did. The
     // shipped trio ENLARGED the head (1.02 against the full tier's 0.98) and
@@ -3006,7 +3163,7 @@ export const OBVERSE = {
     // behind it, only a better score, and §8/rule 4 says a number whose only
     // argument is its own score is refused. 0.9451 is where the geometry puts
     // it and it passes.
-    who: 'Washington', dir: -1, bare: true, cut: true, neck: 17, hairLit: true,
+    who: 'Washington', dir: -1, bare: true, cut: true, hairLit: true,
     eye: [8.7, -2.7], earMark: CURLS_WASHINGTON,
     s: 0.98, cy: 41.8, cx: -0.4, iconS: 0.9451, iconCy: 42.0921, iconCx: -0.3857,
   },

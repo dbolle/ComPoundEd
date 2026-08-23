@@ -7,6 +7,50 @@ reconsider after calibration.
 
 ## Where we are
 
+- ✅ **WITHDRAWN: "the quarter obverse's D3 rests on ONE struck photograph."**
+  It rests on **three**. The quarter-obverse round settled the pool with
+  numbers: `quarter-obv.jpg` v `quarter-obv-2.jpg` design NCC **0.9959** (one
+  photograph counted twice — confirmed) and `quarter-obv-4.jpg` 0.2460–0.2920
+  against a 0.2318 floor (the 1999+ state quarter — confirmed, and it was
+  cited as evidence in `coins.js` in three places, now corrected). But the
+  1932 NGC scores **0.6171 / 0.6331 / 0.5062** against a 0.2402 floor and is
+  registration-clean on every bound. Usable struck set: `quarter-obv.jpg`,
+  `quarter-obv-3.png`, `quarter-obv-1932ngc.jpg`, rim-fitted to p95
+  0.24 / 0.24 / 0.05 % of R. The n=1 weakness recorded here for weeks was an
+  artefact of nobody scoring the 1932.
+- 🔴 **THE QUARTER'S WIG DIRECTION FIELD IS MEASURED, WRONG, AND THE FIX IS
+  REFUSED — this is a brief for a re-authoring round, not a defect to nudge.**
+  `RELIEF.Washington`'s header claims a measured field (−7.3 / +10.9 / **+54.1**
+  / +20.5°) and argues "a single angle would draw a combed sheet; this is a
+  field". Re-derived band-passed with four null tests: **+1.4 / +18.6 / +38.8 /
+  +25.2** — the shape survives, the numbers do not. And **the art never
+  followed it**: at our own 14 wig marks' midpoints ours−coin is 12 of 14
+  negative, **median 10.3°, worst 37.8°**, 9 of 14 out by more than the
+  between-reference spread at that same point. Every resolved mark is too
+  shallow.
+  **Why it was reverted, which is the valuable part.** Rotating each mark
+  rigidly about its own chord midpoint (so length, width, curvature and
+  midpoint are preserved and D6 is unchanged *by construction*) takes the error
+  to **0.1° median, 0 of 14 failing** — and puts **8 centreline crossings into
+  a wig that had 0**, collapsing the 380 px render into a starburst. The cause
+  is structural: the marks are an interleaved stack, so turning members
+  individually makes them converge. A crossing-guarded greedy subset keeps only
+  4 of 9 and discards the two *tightest* reference agreements, and which four
+  survive is order-dependent. **The wig has to be re-authored as a set, not
+  corrected mark by mark.**
+- ⚠️ **The quarter obverse is the last face still using the shared `EYE_MARK`,
+  and its shape is UNMEASURED.** `eye: [8.7, −2.7]` — a 6.66-unit flat lid over
+  a 2.94-unit filled circle — with no derivation recorded anywhere. Placement
+  is fine (pupil centre lands inside the coin's eye on all three files); the
+  form is not: the eye is ~3 viewBox units (15 px on the best file) and the
+  brow merges with it at every threshold on all three. **Both faces that ever
+  measured their own eye threw this glyph away** — the nickel's absence of one
+  was v1.79.0's finding.
+- 🔎 **Flagged for the judge, outside any face:** `qp1963-obv-pad.png` and
+  `quarter-proof-ebay.jpg` show **background NCC 0.459**, by far the largest
+  off-diagonal in the matrix — suggesting one photographic setup, i.e. a
+  possible independence failure in a pool nobody has re-checked.
+
 - ✅ **Instruments no longer name machines — `_paths.mjs` (2026-08-23).** The
   redaction removed the username; this removes the cause. Two rules: no tracked
   file contains an absolute path (everything derives from `import.meta.url`),
