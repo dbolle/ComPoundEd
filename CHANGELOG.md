@@ -3,6 +3,72 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.83.0 — 2026-08-23
+
+**The dime's date was 18 % short, and three of its four legends had never been
+measured.**
+
+Fourth face of the sweep, and the largest evidence pool in the project — nine
+references, **all nine proved independent** (9/9 distinct sha256, max
+off-diagonal edge-energy NCC 0.419; the largest raw-grey correlation is
+*negative*, −0.551, which is polarity, not duplication).
+
+`INSCRIPTION.dime.main` (LIBERTY) carries four measured paragraphs. The three
+`rest` lines carried one relative sentence and no number — the cent obverse's
+pattern exactly, on a different coin.
+
+| date cap ÷ motto cap | |
+|---|---|
+| the coin, n = 9 | **1.385** (IQR 1.312–1.542) |
+| ours | **1.130** |
+
+The **ratio** is the statistic, and that choice is what makes it trustworthy: a
+photographed raised letter carries a bevel skirt our flat fill does not, and
+the cent round refused a size change on exactly that ground. A ratio of two
+legends *on the same photograph* divides the skirt out — and since the skirt is
+additive, **1.385 is a lower bound**. Date size **5.0 → 6.1**.
+
+The accompanying `x` and `y` moves are **not** placement measurements and are
+labelled as such: they are `flatText`'s upward growth plus §7 clearance. At 6.1
+on the old placement the "1" **touched** the truncation — gap 0.085 viewBox
+units. Now 0.838, with 2.027 to the field circle.
+
+**Dead and wrong code removed:** `ear`, `eye` and `neck` in `OBVERSE.dime` were
+unreachable — `bust()` reads `o.eyeMark || eye(o.eye)` and both marks are
+present, and `neck` sits inside a branch `cut` switches off. Two were also
+*wrong*: `ear: [1.07, −12.2, 3.0]` contradicted `EAR_ROOSEVELT`'s own comment.
+Emitted string unchanged.
+
+**The silhouette was refused, and this is the most valuable refusal so far.**
+`HEAD.Roosevelt` had one photograph behind it; the round ICP'd our extracted
+bust onto all nine. Signed residuals: crown −0.02, back-upper −0.02, back-lower
+−0.03, truncation +0.07, jaw −0.00, face −0.05 local units — **the sign
+disagrees in every region**, null test 0.038. There is nothing to correct. It
+is the design.
+
+**T1 32/32**, and the **numerator** moved at every size: dime obverse own
+column 0.516 → **0.535** at 38 px (margin 0.263 → 0.284), and up at 48/54/84
+too. Partition re-derived by the judge: 6/60, `dime.obverse` alone. Suite 461.
+
+**Open, and stated as unmeasured rather than guessed:** the **ear** is visibly
+too small and 2–4 units too low on all nine references — the strongest visual
+finding in the round — but three instruments refused themselves (one misses our
+own drawn hollow by 1.71; per-file reads span 5.7 units in x and 9.0 in y), so
+no number was published and nothing was changed. The **hairline** is likewise
+UNMEASURED: its texture ladder returns −5.50 **on our own art** where the
+answer is 0.
+
+**Structural finding for every face — the `min` presence-floors are dead.**
+Since v1.78.0 the drawing is always authored at `DRAW_SIZE = 380`, so `boxW` is
+the 380 px box at every displayed size (nickel: **332.2 at 38, 48, 54, 84 and
+380 alike**, verified by the judge). `fine`'s 130 px threshold is therefore
+permanently true, and every `min` floor is evaluated at 332.2 — including the
+`min: 62` added by the nickel-obverse round, which is a **no-op**. This is
+leftover tier-era machinery and it has already misled one round through a
+comment asserting the opposite. Removal belongs in the pending
+purely-subtractive round alongside `iconS`/`iconCy`/`iconCx`, `iconWig`,
+`iconBust` and `tierOf`.
+
 ## v1.82.0 — 2026-08-23
 
 **The nickel's roofline stepped up at the ends where the coin's runs flat.**

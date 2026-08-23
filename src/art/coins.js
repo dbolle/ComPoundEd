@@ -2924,9 +2924,30 @@ export const OBVERSE = {
   // `earMark` / `eyeMark` are the two features measured close enough off the
   // photograph to deserve their own paths; the other three coins keep the
   // shared ones.
+  //
+  // NO `ear`, `eye` OR `neck` LITERAL, and their removal is a correction rather
+  // than a tidy-up. bust() reads `${o.eyeMark || eye(o.eye)}${o.earMark ||
+  // ear(...o.ear)}`, so with both marks present this face's `ear` and `eye`
+  // could never be reached; `neck` is read only by `coat()`, inside the branch
+  // `o.cut` switches off. All three were DEAD, and two of them were dead and
+  // WRONG, which is worse than dead:
+  //
+  //   `ear: [1.07, -12.2, 3.0]` says a shared glyph 7% oversize centred at
+  //   (-12.2, 3.0). The comment above OBVERSE still explains that 1.07 —
+  //   "Roosevelt's is a third larger because the real dime's is" — while
+  //   EAR_ROOSEVELT, the path that actually draws, says the opposite in as many
+  //   words ("An earlier pass drew Roosevelt's a third larger ... it is now the
+  //   same size as the rest") and spans x -11 .. -19.7, y -0.8 .. +10.4.
+  //   `eye: [5.8, -1.2]` offsets the shared glyph to (11.8, -3.8) where
+  //   EYE_ROOSEVELT draws its almond at (14.2, -6.4).
+  //
+  // The file was contradicting itself in three places and the stale literals
+  // were the reason. This is the nickel's finding, second instance — round 3
+  // removed `ear: [1.0, -16.6, -2.2]` from OBVERSE.nickel on the same argument.
+  // Verified by byte-identity: every face at every size emits the same string
+  // before and after (`judge/_do15part.mjs`).
   dime: {
-    who: 'Roosevelt', dir: -1, bare: true, cut: true, neck: 17, hairLit: true,
-    ear: [1.07, -12.2, 3.0], eye: [5.8, -1.2],
+    who: 'Roosevelt', dir: -1, bare: true, cut: true, hairLit: true,
     earMark: EAR_ROOSEVELT, eyeMark: EYE_ROOSEVELT,
     // icon repeats s/cy/cx rather than carrying its own numbers. The old icon
     // trio was fitted to the OLD outline and, held against the traced mask
@@ -5121,10 +5142,87 @@ const INSCRIPTION = {
     // faces could be laid over one another: the motto sits further left and
     // a little higher, tight under the truncation, and the date rides up to
     // meet it rather than sitting on the rim.
+    //
+    // THAT SENTENCE WAS THE WHOLE OF THE EVIDENCE FOR THESE THREE LINES. `main`
+    // above carries four measured paragraphs — a fitted cap, a frozen band, a
+    // span in degrees, a per-advance — and the three `rest` lines carried one
+    // relative statement and no number, in the channel §0.1 calls "how a child
+    // actually reads a coin". That is the cent's LIBERTY exactly (see
+    // INSCRIPTION.penny, where the same omission moved `y` by 3.4 units).
+    //
+    // THE DATE IS SET LARGER THAN THE MOTTO ON THE COIN, AND WE DREW THEM THE
+    // SAME. Measured by `judge/_do14blobs.mjs` on all NINE dime-obverse
+    // references. It does not window the legends — a rectangle cannot hold
+    // either of them (WE TRUST's right end sits 0.2 units from the throat, and
+    // the truncation runs diagonally through any box that holds the date, which
+    // put `judge/_do12band.mjs`'s reads on its own window bound twice). It
+    // finds them: outside the bust and inside r <= 41 the field is bare, so a
+    // threshold on |grad I| there returns one blob per GLYPH, and a legend's
+    // cap height is the median of its blobs' heights.
+    //
+    //     date cap / motto cap      coin   1.385   IQR 1.312 .. 1.542, n = 9
+    //                               ours   1.130   (sizes 5.0 / 4.4 = 1.136)
+    //
+    // THE RATIO IS THE STATISTIC, and that is the point. `judge/_py3band.mjs`
+    // established on the cent that a photographed raised letter's band includes
+    // a bevel skirt our flat fill does not have, and REFUSED a size change on
+    // that ground; the absolute caps here carry the same systematic (coin 5.40
+    // and 3.75 against our 3.90 and 3.45). A ratio of two legends on the SAME
+    // photograph under the SAME light divides the skirt out — and because the
+    // skirt is additive it inflates the smaller cap proportionally more, so
+    // 1.385 is a LOWER BOUND on the coin's true ratio. Holding the motto at 4.4
+    // and taking the lower bound: 4.4 x 1.385 = 6.09, drawn 6.1.
+    //
+    // `x` 69 -> 70.5 AND `y` 80.5 -> 81.6 ARE NOT MEASUREMENTS OF WHERE THE
+    // DATE SITS. They are the two things a bigger word forces, and both are
+    // §7 arithmetic on OUR OWN geometry, exactly as round 4's clamp on this
+    // face's jaw cap was:
+    //
+    //   · `flatText` grows a glyph UPWARD from its baseline, so raising `size`
+    //     alone walks the ink band up off the place the line already occupies.
+    //     Half the cap's growth, 0.43, goes back into the baseline.
+    //   · the rest is CLEARANCE. This face's truncation is a DIAGONAL running
+    //     from (49.5, 85.4) up to (77.9, 63.8), straight past the date's
+    //     top-left corner, and at size 6.1 on the old placement the "1" TOUCHED
+    //     it: `judge/_do16clear.mjs`, which deletes the date's own `<text>` from
+    //     the emitted SVG and measures the pixel sets against each other, read
+    //     the gap at 0.085 viewBox units. Two dark marks 0.085 apart are one
+    //     mark. At (70.5, 81.6) the gap is 0.838 and the clearance to the field
+    //     circle is 2.027; the word's farthest ink is at r 42.04 against the
+    //     44.07 circle and the 47 blank, so D8 has 2.0 units of margin.
+    //
+    // Neither move is claimed as a fit. Both happen to run TOWARD the coin's own
+    // reads rather than away from them — 70.5 sits at the top of the coin's
+    // measured date-centre-x IQR (67.67 .. 70.49) and the band centre goes
+    // 78.70 -> 79.51 against a measured 80.30 — and that is recorded as a
+    // direction, not as the reason.
+    //
+    // THREE MEASURED THINGS ARE REFUSED (§8), each with its number:
+    //
+    //   · the motto's SIZE. Our cap reads 3.45 against the coin's 3.75 (IQR
+    //     3.60 .. 4.20). +0.30 is the same order as the bevel systematic that
+    //     the cent round could not separate from its own 15%, and in the same
+    //     direction. Not a number.
+    //   · the motto's PLACE. Its block reads 2.40 left and 1.95 high of the
+    //     coin's (left x 19.57 v 21.97, top y 73.58 v 75.52, block width 25.65
+    //     v 25.50 — the width AGREES to 0.15, so this is placement and not
+    //     scale). It is refused because of the instrument's own control:
+    //     LIBERTY, the one legend on this face that HAS been fitted, comes back
+    //     1.22 out in x and 1.00 in y through the same pipeline. A 2-unit
+    //     finding measured by a frame that misplaces a known line by 1.2 is
+    //     under 2x its own error.
+    //   · the date's PLACE. Same control, and worse contamination: the date
+    //     quadrant returns SIX blobs on the coin against our four, because the
+    //     designer's initials JS sit inside it, so the quadrant's left edge
+    //     (57.07 v our 62.47) and its centroid are not the date's.
+    //
+    // What could NOT be determined: whether the coin sets the motto's two lines
+    // at the same size as each other. Their blobs merge vertically on four of
+    // the nine at any threshold that finds them at all.
     rest: [
       { kind: 'flat', text: 'IN GOD', x: 28.2, y: 77, size: 4.4 },
       { kind: 'flat', text: 'WE TRUST', x: 32.5, y: 82, size: 4.4 },
-      { kind: 'flat', text: YEAR, x: 69, y: 80.5, size: 5.0 },
+      { kind: 'flat', text: YEAR, x: 70.5, y: 81.6, size: 6.1 },
     ],
   },
   quarter: {
