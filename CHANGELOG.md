@@ -3,6 +3,60 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.84.1 — 2026-08-23
+
+**The acorn is real. It was in the wrong place, and v1.84.0 deleted it instead
+of moving it.**
+
+Owner, looking at the same 40× crop: *"The zoomed object on the dime is an
+acorn."* It is — a smooth rounded nut with the stalk entering at the upper
+right and no leaf lobing on the nut itself. Restored at round 28's **own**
+coordinates: it measured the object correctly and only named it wrong.
+
+**Two failures of judgment here, both mine, and both worth naming:**
+
+1. **I checked it twice and got it wrong the second time.** At moderate zoom I
+   read it as an acorn and was ready to reject that part of the round. At
+   higher zoom the "lobed all round" reading looked convincing and I deferred
+   to the round's measurement over my own eyes — the exact inversion of §0,
+   which says believe the picture and publish the disagreement.
+2. **My supporting argument was void.** I reported that removal was harmless
+   because `leafAt`'s ladder already puts 58.6 % ink at that spot before *and*
+   after. Ink from a **misplaced leaf** at the right coordinates is not
+   evidence that the right object is drawn there. **Coverage is not
+   identification.** As the owner put it: just because misplaced leaves cover
+   the same location isn't confirmation that the object is correct.
+
+**Fitted, not asserted:** 5.6 × 4.6 units centred (58.8, 57.7) on unc2005 and
+4.8 × 4.0 centred (59.2, 57.2) on proofbright — wider than tall, so the acorn
+lies on its side with the cap toward the stalk, not upright as it was first
+drawn. Rotation and scale were fitted to that box on the emitted path's own
+control hull.
+
+**What the box could not decide, stated rather than implied:** every rotation
+from 70° to 90° can be scaled to land inside the two references' own
+disagreement. The unconstrained best fit is 90° — cap dead horizontal — and it
+is **rejected**: it is 0.03 units better and the photographs plainly show the
+stalk entering *above* the horizontal. 75° is chosen on the picture; the number
+only stops it being wrong by more than the references disagree.
+
+The `ZM` separator fault is **not** reintroduced — the explicit space is in the
+path and D9 stays **0 of 180**. Partition 6/60, `dime.reverse` alone. Suite 461.
+
+**Both retractions are kept beside their corrections rather than deleted**, so
+the sequence stays legible: a three-photograph re-measurement located an object
+correctly and then misnamed it, and a judge with the right first instinct
+talked himself out of it.
+
+**Open, and larger than this fix — owner-raised:** *"The current branches/leaves
+on either side of the torch need significant work still."* Confirmed by eye at
+40×: on the coin the acorn sits in **open field** with clear separation between
+leaves; ours is a merged dark mass because the leaves are oversized and
+overlapping and fill field the coin leaves empty. The acorn is now correct and
+still barely readable for that reason. This needs its own round — the leaf
+ladder (`leafAt`, `SPREAD`, the 7-leaf count flagged LOW CONFIDENCE, and the
+two unmeasured olive fruits) is the subject, not the acorn.
+
 ## v1.84.0 — 2026-08-23
 
 **The dime's torch was a rectangle, and the acorn was a leaf.**

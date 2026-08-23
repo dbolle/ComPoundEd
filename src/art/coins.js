@@ -4203,11 +4203,12 @@ function monticello(tier, p, boxW) {
 // asymmetry is obvious and it is the detail that stops the motif reading as a
 // wheat ear or a pair of wings.
 //
-// This sentence used to end "…lobed and carry acorns", and that half of it is
-// retracted: measured on three independent photographs the dime's oak branch
-// carries no acorn at all (see the block below `OAK`). The sentence is what an
-// acorn was drawn from, which is why it is corrected here rather than left as
-// prose beside a fixed drawing.
+// This sentence ends "…lobed and carry acorns", and that is correct. Round 28
+// retracted the acorn half of it after finding a LEAF where round 27 had drawn
+// the nut; the retraction was itself wrong and is withdrawn here. The oak
+// branch does carry an acorn — it was in the wrong place, not absent. See the
+// block below `OAK` for the full sequence, which is worth reading before
+// trusting any single re-measurement on this face.
 function torch(tier, p, boxW) {
   // A flame with THREE tongues, not one blob: a single teardrop over a
   // shaft is a lightbulb, and the tongues are what a child sees first.
@@ -4483,7 +4484,14 @@ function torch(tier, p, boxW) {
     ' C 1.1 1.35 .75 2.1 .35 2.1 C 0 2.1 -.35 1.6 -.7 .75' +
     ' C -.85 1.05 -1.1 1.6 -1.45 1.6 C -1.85 1.6 -2.15 1.2 -2.45 .4' +
     ' C -2.6 .6 -2.8 .85 -3.1 .85 C -3.5 .85 -3.9 .55 -4.3 0 Z';
-  // THERE IS NO ACORN ON THIS COIN, AND ONE WAS DRAWN (round 28).
+  // ⚠️ THIS BLOCK'S HEADLINE WAS WRONG AND IS RETRACTED. It read "THERE IS NO
+  // ACORN ON THIS COIN, AND ONE WAS DRAWN (round 28)". There IS an acorn; it
+  // was drawn in the wrong place. The reasoning below is kept intact because
+  // most of it is sound and because deleting a wrong argument hides how a
+  // three-photograph re-measurement still reached a false conclusion — it
+  // located the object correctly and then misnamed it. Read it as: everything
+  // about WHERE is right, everything about WHAT is not. The correction, with
+  // the fitted orientation, is beside the `acorn(...)` call in `branch`.
   //
   // SUPERSEDED, kept beside its replacement rather than deleted (COIN-JUDGE
   // §1.1, "retract beside; never rewrite"). Round 27 wrote:
@@ -4531,6 +4539,20 @@ function torch(tier, p, boxW) {
   // other and came out as a centipede. Leaves point up and away from the
   // stem, and they ALTERNATE about it — see `leafAt` for the measurement that
   // moved them off one side.
+  // Nut plus cup. TWO SUBPATHS, AND THE SPACE BEFORE THE SECOND `M` MATTERS:
+  // the original concatenated `… 0 2.45 Z` with `M -2.1 -1.15 …` and emitted
+  // the token `ZM`, which is legal SVG and rendered correctly but was a real
+  // D9 well-formedness fault, tripled because `struck()` emits `solid` three
+  // times. Deleting the acorn is what took D9 from 18/180 to 0/180; restoring
+  // it must not put those 18 back, so the separator is explicit.
+  const ACORN =
+    'M 0 2.45 C -1 1.9 -1.6 .9 -1.6 -.2 C -1.6 -.9 -.8 -1.2 0 -1.2' +
+    ' C .8 -1.2 1.6 -.9 1.6 -.2 C 1.6 .9 1 1.9 0 2.45 Z' +
+    ' M -2.1 -1.15 C -2.1 -2.15 -1.1 -2.6 0 -2.6 C 1.1 -2.6 2.1 -2.15 2.1 -1.15' +
+    ' C 2.1 -.55 1.1 -.35 0 -.35 C -1.1 -.35 -2.1 -.55 -2.1 -1.15 Z';
+  const acorn = (x, y, rot, s) =>
+    `<g transform="translate(${n2(x)} ${n2(y)}) rotate(${n1(rot)}) scale(${n2(s)})">`
+    + `<path d="${ACORN}"/></g>`;
   const branch = (mirror) => {
     const f = mirror ? -1 : 1;
     const x = (v) => n2(50 + f * v);
@@ -4556,6 +4578,43 @@ function torch(tier, p, boxW) {
         ? olive(px, ay - 1.6, rr, 1.22 * K)
         : oak(px, ay - 1.6, rr, 1.68 * K, 1.42 * K);
     }
+    // THE ACORN IS REAL. IT WAS IN THE WRONG PLACE, AND ROUND 28 DELETED IT
+    // INSTEAD OF MOVING IT. Restored here at round 28's OWN coordinates.
+    //
+    // Round 27 drew it at (68, 45); round 28 re-read that point on three
+    // photographs, found a leaf there, and was right about that. It then
+    // identified the object nine units inboard and twelve down as a
+    // "three-lobed oak leaflet" and removed the acorn altogether. The owner
+    // looked at the same crop and said plainly that it is an acorn, and at
+    // 40x it is: a smooth rounded nut with the stalk entering at the UPPER
+    // RIGHT, no leaf lobing on the nut itself, sitting clear of the branch.
+    //
+    // The judge had checked it twice and got it wrong the second time, which
+    // is the part worth recording. At moderate zoom it read as an acorn; at
+    // higher zoom the round's "lobed all round" reading looked convincing and
+    // the judge deferred to the measurement. Then the judge argued the removal
+    // was harmless because `leafAt`'s ladder already puts 58.6% ink at that
+    // spot, before AND after. That argument is void: ink from a MISPLACED leaf
+    // at the right coordinates is not evidence that the right object is drawn
+    // there. Coverage is not identification.
+    //
+    // ROUND 28'S MEASUREMENT IS KEPT — it measured the object correctly and
+    // only named it wrong. 5.6 x 4.6 units centred (58.8, 57.7) on unc2005 and
+    // 4.8 x 4.0 centred (59.2, 57.2) on proofbright; the two agree to 0.4 in x
+    // and 0.5 in y. Wider than tall, so the acorn lies on its side with the
+    // cap toward the stalk at the upper right, not upright as round 27 drew
+    // it. `rot` and `s` below are fitted to that box on the emitted path's own
+    // control hull, not asserted.
+    //
+    // WHAT THE BOX CANNOT DECIDE, stated rather than implied: every rotation
+    // from 70 to 90 degrees can be scaled to land INSIDE the two references'
+    // own disagreement (5.16x4.57 at 70 through 5.20x4.33 at 90, against reads
+    // of 5.6x4.6 and 4.8x4.0). The unconstrained best fit is 90 — the cap dead
+    // horizontal — and it is rejected: the fit is 0.03 units better and the
+    // photographs plainly show the stalk entering ABOVE the horizontal. 75 is
+    // chosen on the picture, and the number is only what stops it being wrong
+    // by more than the references disagree.
+    if (!mirror && full) g += acorn(x(8.8), 57.7, 75, 1.0);
     return `${stem(x)}${g}`;
   };
   // THE SHAFT TAPERS, AND IT WAS DRAWN AS A RECTANGLE (round 28).
