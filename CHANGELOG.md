@@ -3,6 +3,77 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.79.0 — 2026-08-23
+
+**Jefferson had no eye. He had the shared default, never measured on his face,
+sitting on his cheek.**
+
+The owner looked at the render and said the eye looked odd. It was worse than
+odd: `OBVERSE.nickel` carried an `earMark` but **no `eyeMark` and no `eye`**,
+where the cent has `EYE_LINCOLN` and the dime has `EYE_ROOSEVELT`. It fell
+through to `bust()`'s shared default and had **never been measured on this
+face at all**.
+
+| | eye centre | length |
+|---|---|---|
+| the proof (1968-S) | (12.75, −7.25) | 3.5 |
+| the 2004-P | (11.80, −6.80) | 3.5 |
+| tone-map centroids, four references | x 10.80–14.33, y −6.86…−8.37 | |
+| **we drew** | **(6.00, −2.60)** | 3.0, a circle |
+
+**6.5 units too far back and 4.6 too low** — on the open cheek, level with the
+middle of the nose, with the drawn hairline nearer to it than the brow. Now
+`EYE_JEFFERSON`: a measured brow ridge and a deep-set almond rotated −22° so
+the nose-side corner is high, in the same idiom and the same mark count as the
+other two faces.
+
+**Why nobody had seen it:** until v1.78.0 removed the tier system, the eye did
+not draw below 76 px. Fixing the architecture is what made the error visible.
+
+Found by the first: `RELIEF.Jefferson.fine`'s lit nose ridge **started inside
+the eye socket**, at (14.27, −8.08). Re-started at the proof's own crest, which
+also cleared a **pre-existing** §7 foul measured *before* any edit — worst
+face-mark clearance **−0.284 → +0.466**, every face pair now clear.
+
+### The round's refusal is the shape
+
+The owner asked for shape first. It was measured — a ladder off the cameo
+proof, where a frosted bust on a mirror field is separable by one threshold —
+and the head reads **~1.2 units too big toward the back, ~0.6 too high at the
+crown**, about 1 % of the diameter, with the sign surviving a threshold sweep.
+
+**It was refused, because the references disagree by more than the finding.**
+Registered against the 2004-P our device reads ~4 % *larger* than against the
+proof. A 1.2-unit correction taken off one photograph, inside a 4 %
+disagreement between photographs, is a number whose only argument is its own
+score. The hairline is refused for the same reason — the two references
+disagree by ~4 units and in *sign*, and the tool that tries to locate it
+**refuses itself** on both.
+
+### T1 could not see any of this
+
+**32/32 before and after, identical to three decimal places.** The eye is too
+small a share of blurred gradient energy for the transfer gate to register —
+which is exactly §0.1's point that D12, looking at it, is the gate that finds
+these. The owner found it by eye; no number in the project would have.
+
+D9 clean, D1 bit-identical (the head was untouched), D6 fell 20.34 % → 19.88 %,
+D8 deep-fraction 0.0000 % both sides. Partition: 10 of 100 cells, **nickel
+obverse only**.
+
+### An instrument fault of the judge's own, and it had already been published
+
+`judge/_nk3over.mjs` — the overlay the judge used to form a view of this face
+and **showed the owner** — normalised our render by half its width, 50 viewBox
+units, while `outlineOf` draws the blank at **r = 47**. Our outline was drawn
+**6.0 % small** against a reference cropped to its own disc, so every placement
+it has ever shown was flattered. Corrected here.
+
+Also reported, not fixed: `discOf()`'s `R = √(area/π)` is off a rim fit by
+−0.8 % to −5.1 % depending on the photograph, and `nickel-obv-5.JPG` cannot be
+disc-fitted at all — the coin fills the frame and every ray hits its own search
+bound.
+
 ## v1.78.0 — 2026-08-22
 
 **The tier system is gone. One drawing per face, scaled — and transfer goes

@@ -32,7 +32,16 @@ async function discOf(file){
 const png = await sharp(Buffer.from(coinSVG('nickel', N, {side:'obverse'}))).flatten({background:'#ffffff'}).png().toBuffer();
 const { data, info } = await sharp(png).greyscale().raw().toBuffer({resolveWithObject:true});
 const W=info.width, H=info.height, P=(x,y)=>data[y*W+x];
-const cx=W/2, cy=H/2, R=Math.min(W,H)/2;
+// THE BLANK IS DRAWN AT r=47, NOT 50. `outlineOf` calls
+// `reededPath(n, 47, depth)`, so the coin's edge sits at 47 of the 100-unit
+// viewBox. Normalising our render by half its WIDTH (=50 units) drew our
+// outline 6.0% SMALL against a reference cropped to its own disc — which made
+// our art look like it fits inside the coin better than it does. Every
+// placement this overlay has shown was flattered by 6%. Found by the nickel
+// shape round; the judge had already published a reading from the flattered
+// version.
+const BLANK_R = 47;
+const cx=W/2, cy=H/2, R=Math.min(W,H)/2 * (BLANK_R/50);
 const fv=[]; for(let a=150;a<=210;a+=2){const t=a*Math.PI/180;
   for(let r=0.62;r<=0.80;r+=0.02){const x=Math.round(cx+Math.cos(t)*R*r), y=Math.round(cy+Math.sin(t)*R*r); fv.push(P(x,y));}}
 fv.sort((p,q)=>p-q); const field=fv[fv.length>>1];

@@ -1831,7 +1831,27 @@ const RELIEF = {
       '<path d="M -21.99 -1.22 C -24.75 1.42 -27.62 4.06 -29.54 7.4" fill="none" stroke-width="1.2"/>' +
       '<path d="M -30.2 22.6 q -2.6 3.0 -3.4 5.4" fill="none" stroke-width="1.2"/>' +
       '<path d="M -26.4 23.8 q -2.2 2.8 -2.8 4.8" fill="none" stroke-width="1.03"/>' +
-      '<path d="M 14.27 -8.08 L 22.29 1.39" fill="none" stroke-width="1.03"/>' +
+      // THE LIT NOSE RIDGE, RE-STARTED. It used to begin at (14.27, -8.08),
+      // which is INSIDE the eye — see EYE_JEFFERSON: the coin's socket occupies
+      // x 11.0..14.5, y -8.1..-6.4, so a pale stroke started there ran out of
+      // the eye and down the face. Nothing had ever measured it, because until
+      // this round nothing on this face had measured the eye either.
+      // On the proof the nose's own lit crest runs (16.4, -4.1) to (20.9, 0.7),
+      // i.e. about 2.3 local units inboard of the profile, at 46.8 deg. The
+      // ANGLE this stroke already drew was right (49.7 deg) and is kept by
+      // keeping its far end; only the start moves, to (16.0, -5.0), which is
+      // 45.5 deg over the same run. Clearance to the new eye is 2.479 local
+      // units edge to edge, against the 0.15 that §7 and round 4 work to.
+      //
+      // THE FAR END MOVES TOO, AND THAT IS A §7 FAULT THIS ROUND FOUND RATHER
+      // THAN CAUSED. At (22.29, 1.39) this stroke came within 0.836 of the head
+      // contour's centreline, i.e. the two inked bodies OVERLAPPED by 0.284
+      // local units — measured before any edit, by `judge/_nk17gap.mjs`, so it
+      // is the shipped drawing's number and not this round's. On the proof the
+      // nose's lit crest ends at about (20.9, 0.7), a unit short of where we
+      // ran it, so the measurement and the clearance want the same thing: the
+      // end goes to (21.0, 0.8) and the gap becomes positive.
+      '<path d="M 16.0 -5.0 L 21.0 0.8" fill="none" stroke-width="1.03"/>' +
       '<path d="M 6.85 1.8 q 3.6 3.4 4.4 7.0" fill="none" stroke-width="1.03"/>',
   },
   // ROOSEVELT, AND THE ONE THING THIS HEAD KEPT GETTING WRONG WAS TONE.
@@ -2600,6 +2620,67 @@ const CURLS_JEFFERSON =
   '<path d="M -16.4 1.6 C -18.6 3.0 -20.4 4.8 -21.2 7.0 C -21.6 8.1 -21.6 8.9 -21.4 9.6"' +
   ' fill="none" stroke-width="1.4"/>';
 
+// JEFFERSON'S OWN EYE, AND IT IS THE THIRD COIN TO NEED ONE. The nickel had no
+// `eye` and no `eyeMark`, so `eye(o.eye)` in bust() fell through to the SHARED
+// EYE_MARK at its default position — a 6.8-unit lid arched over a round pupil
+// of radius 1.5 centred at local (6.0, -2.6). The cent and the dime each threw
+// that glyph out after measuring their own ("nearly three times too long ...
+// reads as a startled cartoon", "a flat lid over a round pupil, which stares").
+// It was never measured on this face at all, and until v1.78.0 removed the
+// tiers it did not draw below 76 px, so nobody saw it in the pile.
+//
+// WHERE THE COIN PUTS THE EYE, measured in this head's own local frame by
+// `judge/_nk17eye.mjs`, which tone-maps the socket window at 0.25 local units a
+// cell on each reference SEPARATELY and reports the darkest-blob centroid (the
+// eye and the brow are the deepest cuts on this part of the die, so they are a
+// local extremum INSIDE the device — this needs no segmentation of bust from
+// field, the wall ~10 instruments in this project have died on). Corroborated
+// by reading the same feature off the labelled 1-unit ladder
+// `judge/_nk17grid.mjs -2 24 -16 12 eye` draws on the two clearest references:
+//
+//                       eye centre        eye length
+//     proof (1968-S)    (12.75, -7.25)       3.5      ladder read
+//     unc2004 (2004-P)  (11.80, -6.80)       3.5      ladder read
+//     tone-map centroids, four references:  x 10.80-14.33, y -6.86..-8.37
+//     WE DREW            (6.00, -2.60)       3.0 (a circle)
+//
+// So the mark was 6.5 local units too far BACK and 4.6 too LOW — it sat on the
+// open cheek, level with the middle of the nose, with the drawn hairline
+// closer to it than the brow was. That is what "the eye looks odd" is.
+//
+// The tone-map's x is biased FORWARD by up to ~1.5 units because the window's
+// far edge is the profile, where the silhouette's own shadow is dark; the
+// first run of that instrument put the "brow" at x 18.2, which is the black
+// field beyond the profile, and it is now clamped to x <= 16 with that failure
+// recorded in the file. The ladder reads are the ones taken.
+//
+// TWO MARKS, the same idiom EYE_LINCOLN and EYE_ROOSEVELT use, and the same
+// COUNT the shared glyph used:
+//   · the BROW is a heavy ridge, not a lid — it runs back from the profile at
+//     (15.8, -12.6) to (11.0, -11.6) on the proof and (15.9, -12.3) to
+//     (10.2, -11.1) on the 2004-P, two references agreeing to about a unit,
+//     and it descends going back rather than arching up.
+//   · the EYE is a small deep-set almond 3.5 x 1.7 under it, SLOPING: the
+//     corner nearest the nose is high and the outer corner drops, which the
+//     `rotate(-22)` carries (local +x is toward the nose on every head here,
+//     before bust() applies `dir`; EYE_LINCOLN and EYE_ROOSEVELT rotate the
+//     same way for the same reason).
+// Between them is 3.6 units of lit upper lid, which is what makes this eye
+// deep-set rather than a dot with a line over it — so the brow is NOT drawn
+// down at the lid where the shared glyph had it.
+//
+// `eye()` and EYE_MARK above are untouched: the quarter is the only face still
+// on the shared glyph and it emits byte for byte what it did.
+const EYE_JEFFERSON =
+  // Drawn from x = 15.0 rather than the measured 15.8, and the 0.8 is §7, not
+  // taste: the head's own contour is 1.15 device units wide, i.e. ~0.6 local
+  // half-width, and the profile stands at x = 16.75 at this height, so a
+  // 1.3-wide stroke starting at 15.8 FOULS the silhouette by 0.30. From 15.0
+  // the clearance is 0.50, against round 4's 0.15 margin. Same trim, same
+  // reason, as EYE_LINCOLN's brow (measured from 13.4, drawn from 12.3).
+  '<path d="M 15.0 -12.43 C 13.7 -12.16 12.35 -11.88 11.0 -11.6" fill="none" stroke-width="1.3"/>' +
+  '<ellipse cx="12.5" cy="-7.2" rx="1.75" ry="0.85" transform="rotate(-22 12.5 -7.2)" stroke="none"/>';
+
 // Which obverse each coin carries, and which way it looks. Post-2004 nickel
 // and post-1998 quarter designs are deliberately NOT referenced: those came
 // through the Mint's Artistic Infusion Program and are not reliably public
@@ -2757,7 +2838,11 @@ export const OBVERSE = {
     // literal that used to sit here was `ear: [1.0, -16.6, -2.2]`, and nothing
     // but bust() ever read it; `earMark` carries the curls instead, exactly as
     // the quarter does.
+    // `eyeMark` — see EYE_JEFFERSON. This face used to carry neither `eye` nor
+    // `eyeMark`, so bust() fell through to the shared glyph at its default
+    // place, 6.5 units behind and 4.6 below where four references put the eye.
     who: 'Jefferson', dir: -1, bare: false, neck: 23, earMark: CURLS_JEFFERSON, hairLit: true,
+    eyeMark: EYE_JEFFERSON,
     // `iconWig` — see bust(). At `icon` this coin used to be a filled outline
     // with 0.2% of its energy inside r ≤ 0.43 against the photographs' 25-27%;
     // the wig is drawn as its own mass there now.
@@ -2780,6 +2865,39 @@ export const OBVERSE = {
     // same reason. Here it cost the thinnest margin in the set: at 38 px the
     // nickel obverse scored 0.158 against its own photographs and 0.140
     // against the dime's, a margin of 0.018.
+    //
+    // THE SILHOUETTE WAS RE-MEASURED AND NOT TOUCHED, and that is a refusal
+    // worth recording (§8). `judge/_nk17ladder.mjs` traces the device on
+    // nickel-obv-proof.png — a cameo proof, frosted bust on a mirror field that
+    // photographs near-black, so one level threshold separates device from
+    // field on THAT reference where nothing works on a business strike — and
+    // ladders it against HEAD.Jefferson's own flattened path in this frame:
+    //
+    //     back of the head   mean |Δ| 2.85 local units over 27 rungs, worst -5.0 at y = 4
+    //     top of the head    mean |Δ| 2.28 over 21 rungs, worst -7.7 at x = -30
+    //     the FACE PROFILE   mean |Δ| 1.66 over 25 rungs   <- the control
+    //
+    // The profile column is the CONTROL: the overlay says the front matches, so
+    // its 1.66 is the trace's own inward bias (a 1.6-unit solid run is required
+    // before a pixel counts as the edge, and the device carries a shadow band
+    // there). Net of it the head is ~1.2 units too big toward the back and
+    // ~0.6 too high at the crown — 1% of the coin's diameter — and the sign
+    // survives the threshold sweep (back-minus-front is 1.15 / 1.19 / 1.59 at
+    // thresholds 25 / 60 / 90).
+    //
+    // It is NOT resized, because the references disagree by more than the
+    // finding. Our device registered against nickel-obv-unc2004.jpg reads about
+    // 4% LARGER than against the proof, and the two disc fits themselves differ
+    // by 0.8% on the proof and 2.2-5.1% on the other three
+    // (`judge/_nk17grid.mjs` header). A 1.2-unit correction taken off one
+    // photograph, inside a 4% disagreement between photographs, is a number
+    // whose only argument is its own score.
+    // Same refusal for the HAIRLINE: read off the proof it is up to 3 units too
+    // far forward in y -10..+5, read off the 2004-P it is about 2 units too far
+    // BACK over the same run, and `_jn14hair.mjs`'s own texture-energy crossing
+    // REFUSES ITSELF on both ("11/11 crossings land on the brow/eye/nose
+    // relief, not the hairline"). Round 3 measured that line on the two
+    // references it had; this round has no better instrument, so it stands.
     s: 0.95, cy: 43.7, cx: -6.4, iconS: 0.91615, iconCy: 43.9245, iconCx: -6.172,
     // Jefferson's back seam is almost entirely HIDDEN — the queue reaches
     // screen x 78.6 and the rim crossing is at 78.2 — so its bow is doing one
