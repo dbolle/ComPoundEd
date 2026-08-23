@@ -3,6 +3,65 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.81.0 — 2026-08-23
+
+**The colonnade stood on nothing, and every storey above the base was too wide.**
+
+Second face of the ten-face sweep, no hints given. Four findings, all the same
+species as the cent obverse and the nickel's eye: a mark never measured on
+*this* face, only inferred from the one dimension somebody had already checked.
+
+**The stylobate did not exist.** The memorial's *outer* bounds had been checked
+and pass — top 30.5 v 31.0, bottom 65.0 v 64.6, terrace line 59.6 v 59.6
+exact — so every published check of this motif's height passed while its
+**interior division was 3.8 units out**. The colonnade block simply ran down
+through the platform the columns stand on. Column feet read 54.35 / 54.2 / 54.5
+across three references; as a fraction of each reference's own building height,
+which cancels disc error, **0.695 / 0.686 / 0.731 against ours at 0.774**.
+
+**Every storey above the base was 12–22 % too wide:**
+
+| | ours | the coin |
+|---|---|---|
+| attic | 21.5–78.5 | **26.3–73.7** |
+| entablature | 16.5–83.5 | **20.9–79.1** |
+| colonnade block | 17.5–82.3 | **21.4–78.1** |
+| outer column centres | 22.37 / 77.63 | **25.05 / 74.75** |
+
+v1.75.0's "memorial width" check measured the **terrace** — the widest slab,
+which was right and is untouched. Nothing had ever measured the storeys above
+it.
+
+Also: the base was two fat slabs where the coin has one tall slab with a
+0.8-unit lip; and the seated figure was sized to his bay rather than to
+himself (5.6 units wide where the coin has 2.1), so his base painted over both
+centre shafts and the middle of the colonnade filled in as one pale block.
+
+**Refused, with the number:** the stylobate's three steps. The coin has them,
+but at 38 px the band is 1.5 device pixels. T1 for this face, everything else
+held: three steps 0.458–0.464, two steps 0.480–0.489, one lit top + one shade
+0.511–0.516. Monotone, all passing. Not drawn.
+
+**T1 32/32**, control 4/4 both faces. Penny reverse own column
+0.495 → **0.562** at 38 px, margin 0.242 → **0.275**. Partition re-derived by
+the judge against a pristine base: 6/60 cells, `penny.reverse` alone. Suite
+green, 461 tests.
+
+**Judge's reservations, recorded rather than smoothed over.** Against the
+photographs our stepped base still reads heavier than the coin's — the
+references show a shallow platform where we stack tall bands — and our attic
+block is proportionally taller than the shallow band the coin has. Both are
+*less* wrong than before this round. Neither is measured, so neither was
+changed; they are the first thing a follow-up round should put a number on.
+
+**Instrument faults found:** `_jp1discs.json` has **no entry** for
+`penny-rev-1991d.png` (acquired after cent round 0, so the newest cent-reverse
+reference has never been through the disc instrument), and its
+`penny-rev-artwork.jpg` entry is **unusable and unflagged** — p95 13.93 % of R
+with 244 of 720 rays at the window end. Frozen file not edited. Separately
+`_jq9well.mjs` reports a bad path token on the **dime** reverse at every size —
+pre-existing, flagged for that face's round.
+
 ## v1.80.0 — 2026-08-23
 
 **LIBERTY had never been measured, and Lincoln's bow tie was twice the size of

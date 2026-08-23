@@ -3520,10 +3520,61 @@ function bust(id, tier, p, dim, boxW) {
 //           drawn at the coin's value and the disagreement is published.
 //   BANDS   the horizontal lines are what survives the shrink:
 //           30.5 roof · 32.1/37.8 attic frieze · 39.9 dentils ·
-//           41.85 colonnade top · 58.2 colonnade foot · 59.6 terrace ·
+//           41.85 colonnade top · 54.4 colonnade foot · 59.6 terrace ·
 //           65.0 the bottom step. The previous drawing ran 27.0 .. 68.6,
 //           i.e. 41.6 units tall where the coin's is 34.5 — 20% too tall,
 //           which is why it read as a letterbox rather than as a temple.
+//
+// THE FACE-REVIEW ROUND (2026-08-23) FOUND FOUR THINGS ON THIS MOTIF, and
+// every one of them is a mark that had never been measured on its own: the
+// colonnade FOOT, the WIDTH of every storey above the base, the seated FIGURE,
+// and the CENTRING of the two courses of fine masonry. The foot is here; the
+// widths are at THE WIDTHS below; the other two are at their own code.
+//
+// THE COLONNADE FOOT WAS 58.2 AND THE COIN PUTS IT AT 54.4. The band table
+// above is the line that had never been checked against a picture on its own
+// — the outer bounds HAD been (top 30.5 against a measured 31.0, bottom 65.0
+// against 64.6, both inside a unit) and so had the terrace line (59.6 against
+// 59.6, exact), so every published check of this motif's HEIGHT passed while
+// its INTERIOR division was 3.8 units out. What sat between 54.4 and 59.6 on
+// the coin — the stylobate, the flight of shallow full-width steps the
+// colonnade actually stands on — was not drawn at all; the colonnade block
+// simply ran down through it to the terrace.
+//
+// Measured three ways, each at its own rim fit (R <-> 47 viewBox units; the
+// fits and every ladder, grid, crop and overlay below are `judge/_jp15rev.mjs`,
+// and the pictures are `judge/_jp14look.mjs`), the column feet — the dark line where the shafts stop and the platform's lit
+// top begins — read:
+//
+//   penny-rev-2.png     54.35   (frozen disc, p95 0.64% of R)
+//   penny-rev-1991d.png 54.2    (fitted this round, p95 1.02%)
+//   penny-rev-artwork.jpg 54.5  (Gasparro's model; drawn-rim fit, p95 0.33%)
+//
+// and as a fraction of each reference's own building height, which cancels
+// any error in the disc: 0.695, 0.686, 0.731 against ours at 0.774. The
+// artwork is a DRAWING, not a photograph, and is labelled as such; the two
+// photographs alone bracket 0.686-0.695, i.e. 54.2-54.4 on our building.
+//
+// WHAT THIS ROUND COULD NOT DETERMINE, published rather than guessed at:
+//
+//   · THE SHAFT WIDTH. Ours is 3.0. The two end columns measure 3.5 (left)
+//     and 2.7 (right) at 50 px per unit on `penny-rev-2.png` — the shafts are
+//     round and the light is upper-left, so a shaft's lit face and its shaded
+//     face are not the same width and neither is its silhouette. 3.0 is
+//     inside that spread and is LEFT ALONE.
+//   · AUTOMATIC COLUMN FINDING, on this face, at all. Three peak/valley
+//     finders were written and all three failed: on `penny-rev-2.png` a
+//     brightness-maximum finder returns a colonnade whose own midpoint is
+//     47.2 rather than 50, because each shaft's maximum sits on its LIT EDGE,
+//     and a minimum finder misses gaps and invents others (it returned an
+//     8.5-unit "pitch" beside a 3.2-unit one). Every column number here comes
+//     from a 50-px-per-unit crop read by eye, on both flanks, checked for
+//     symmetry about 50. That is the method, stated so the next round knows
+//     the instruments are not there.
+//   · THE COUNT of the attic panels (8) and of the dentils (21). Both are
+//     stylisations of courses the coin has many more of, both are re-centred
+//     below but neither is re-counted, and at 38 px a dentil is 0.3 of a
+//     device pixel.
 function lincolnMemorial(tier, p, boxW) {
   if (tier === 'icon') {
     // §15.4: at 20px the twelve columns are one device pixel each. Four fat
@@ -3552,24 +3603,83 @@ function lincolnMemorial(tier, p, boxW) {
   // this building the Memorial. At `mid` a column is 1.5 device pixels, so
   // the honest answer is not "draw eight" — eight is a DIFFERENT BUILDING —
   // it is to draw none and let the colonnade be one lit block, exactly as
-  // at `icon`. `bayCentres(19.9, 80.1, 12, 0.91)` reproduces the measured
-  // centres to a worst error of 0.13 of one gap.
-  const centres = bayCentres(19.9, 80.1, 12, 0.91);
+  // at `icon`.
+  //
+  // The centres follow the block (see THE WIDTHS below): the twelve run
+  // 25.14..74.86 on a 4.445 pitch with the statue's bay 5.265, which is the
+  // 25.05..74.75 read off `penny-rev-2.png` to 0.1 of a unit, and the 1.184
+  // centre-bay widening the struck cent has always been drawn with.
+  const centres = bayCentres(22.92, 77.08, 12, 0.82);
 
+  // THE WIDTHS, and every one above the stylobate was 12-22% too big.
+  //
+  // This is the same shape of miss as the colonnade foot: what HAD been
+  // checked was the widest slab. v1.75.0 tested "memorial width / diameter"
+  // and got 0.791 for the coin against 0.778 for us — ours NARROWER, verdict
+  // "false and backwards" — and that measurement was the TERRACE, which is
+  // right and is untouched here. Nothing had ever measured the storeys above
+  // it on their own, and they are not a scaled copy of the terrace: the real
+  // cent's memorial is a much steeper pyramid than ours was.
+  //
+  // Registration is not assumed, it is shown. `judge/_jp15rev.mjs blend`
+  // renders this face at `penny-rev-2.png`'s own frozen disc and lays our
+  // edges on the photograph: UNITED STATES OF AMERICA, ONE CENT and
+  // E PLURIBUS UNUM all land on the coin's own letters. Three legends on three
+  // legends is the licence to believe the fourth reading — that the building
+  // inside them is too wide — and the same picture says it on all three
+  // references.
+  //
+  // Measured on `penny-rev-2.png` (frozen disc, p95 0.64% of R), both flanks,
+  // by `_jp15rev.mjs ladder` and again by `_jp15rev.mjs crop` at 50 px per
+  // unit, and symmetric about 50 to within 0.25 of a unit each time:
+  //
+  //                       coin            was            now
+  //   attic block      26.3 .. 73.7   21.5 .. 78.5   26.3 .. 73.7   (-9.6)
+  //   entablature      20.9 .. 79.1   16.5 .. 83.5   20.9 .. 79.1   (-8.8)
+  //   colonnade block  21.4 .. 78.1   17.5 .. 82.3   21.6 .. 78.4   (-8.0)
+  //   outer col centre 25.05/74.75    22.37/77.63    25.14/74.86
+  //   base slab        16.5 .. 83.4   16.0 .. 84.0   16.4 .. 83.6
+  //   bottom lip       13.8 .. 86.4   13.5 .. 86.5   13.5 .. 86.5
+  //
+  // The other two references agree once their own fit error is taken out,
+  // which is the honest way to state it: `penny-rev-1991d.png` reads the
+  // colonnade block 19.8..80.4 and the attic 25.0..74.0 at its own fit, i.e.
+  // 5.1% wider than `penny-rev-2.png` reads the SAME attic, and dividing that
+  // one scale factor out lands its colonnade on 20.8..79.2 and its outer
+  // column centre on 24.9. `penny-rev.jpg` reads the block's left edge at
+  // 20.0 at its own fit. Three references, one design, one disc convention;
+  // the spread is the fit, not the coin.
   const solid =
     // roof cornice and the attic storey (the one carrying the state names)
-    '<rect x="20.5" y="30.5" width="59" height="1.6"/>' +
-    '<rect x="21.5" y="32.1" width="57" height="5.7"/>' +
+    '<rect x="25.8" y="30.5" width="48.4" height="1.6"/>' +
+    '<rect x="26.3" y="32.1" width="47.4" height="5.7"/>' +
     // the entablature, overhanging both ways — the strongest horizontal on
     // the coin and the reason the silhouette reads low and wide
-    '<rect x="16.5" y="37.8" width="67" height="2.1"/>' +
-    '<rect x="17.2" y="39.9" width="65.6" height="1.95"/>' +
-    // the colonnade block, then what it stands on. The terrace is a single
-    // broad platform on the coin, not a flight of narrow ledges: the stair
-    // is cut INTO it up the middle and shows as lines, not as a silhouette.
-    '<rect x="17.5" y="41.85" width="64.8" height="16.35"/>' +
-    '<rect x="16" y="58.2" width="68" height="1.4"/>' +
-    '<rect x="13.5" y="59.6" width="73" height="5.4"/>';
+    '<rect x="20.9" y="37.8" width="58.2" height="2.1"/>' +
+    '<rect x="21.3" y="39.9" width="57.4" height="1.95"/>' +
+    // THE BASE, and it is ONE tall slab with a THIN LIP, not two fat ones.
+    //
+    // The stylobate (the steps the columns stand on) and the terrace (the
+    // plaza under them) are the same width on the coin and read as one mass:
+    // at 50 px per unit on `penny-rev-2.png` (`_jp15rev.mjs crop`) the left
+    // edge is a single straight vertical at 16.5 from y 58.8 all the way to
+    // 63.2, and the right edge the same at 83.4 — the two midpoints come out
+    // 49.95 and 50.05, so the mass is measured symmetric
+    // and not assumed so. Only in the last 0.8 of a unit does it step out, to
+    // 13.8 and 86.4, and THAT is the 73-unit maximum width v1.75.0 measured
+    // when it compared "memorial width / diameter" and found ours right. Ours
+    // was right — at exactly one y. It then ran that width up 5.4 units, where
+    // the coin runs it 1.8, and held the mass above it 2.5 units narrow.
+    //
+    // The terrace's own stair is cut INTO its face up the middle and shows as
+    // lines, not as a silhouette, which is why it is in `fine` and not here.
+    // The stylobate's steps run the whole width and are not in the silhouette
+    // either — the straight edge above is the evidence — and what they do to
+    // its TONE, and why they are not drawn there either, is measured at the
+    // `ledge`/`shade` calls below.
+    '<rect x="21.6" y="41.85" width="56.8" height="12.55"/>' +
+    '<rect x="16.4" y="54.4" width="67.2" height="8.8"/>' +
+    '<rect x="13.5" y="63.2" width="73" height="1.8"/>';
 
   const detail =
     // THE RECESS. Everything between the columns is the deepest cut in the
@@ -3577,49 +3687,97 @@ function lincolnMemorial(tier, p, boxW) {
     // cutting field-coloured slots does) inverts the whole face. It is a
     // HALF-STRENGTH deep, not a full one: measured, a full-strength recess
     // gave the band 1.6x the reference's along-band variation at 84px.
-    `<g fill="${p.deep}" opacity="0.55"><rect x="18" y="41.85" width="64" height="16.35"/></g>` +
+    `<g fill="${p.deep}" opacity="0.55"><rect x="22.1" y="41.85" width="55.8" height="12.55"/></g>` +
     // Drawn at `mid` as well as `full`, and that is the measurement talking:
     // at a 42px box the reference's colonnade band still carries 0.20 of
     // along-band high-frequency energy, and a flat block carried 0.00. Twelve
     // aliased columns are closer to the coin than eight clean ones or none.
-    columns(centres, 3.0, 43.2, 57.2, p, fine) +
+    columns(centres, 3.0, 43.2, 53.4, p, fine) +
     // capital band and plinth band: the shafts have to stop on something
-    `<rect x="18" y="41.85" width="64" height="1.35" fill="${p.motif}"/>` +
-    `<rect x="18" y="57.2" width="64" height="1.0" fill="${p.motif}"/>` +
-    ledge(18, 82, 41.85, 0.3) +
-    // the seated figure, lit against the shadow of his own bay. The bay he
-    // sits in is the widened centre one — measured 5.85 against a 4.94 mean
-    // — and he is 3.0 units wide, which is what fits it. Full tier only: at
-    // 54px he is three pixels and reads as a chip in the die.
+    `<rect x="22.1" y="41.85" width="55.8" height="1.35" fill="${p.motif}"/>` +
+    `<rect x="22.1" y="53.4" width="55.8" height="1.0" fill="${p.motif}"/>` +
+    ledge(22.1, 77.9, 41.85, 0.3) +
+    // THE SEATED FIGURE, and he had never been measured either — he was sized
+    // to the BAY ("he is 3.0 units wide, which is what fits it") rather than
+    // to himself, and the bay is not the statue. Read off `penny-rev-2.png` at
+    // its frozen disc, twice, once across and once down:
+    //
+    //   x  the dim run between the two centre shafts   48.9 .. 51.0   (2.1)
+    //   y  head top to the bright bay floor below him  45.6 .. 51.5   (5.9)
+    //
+    // The drawing had him 47.2..52.8 (5.6 units, 2.6x) and 44.9..55.5 (10.6
+    // units, 1.8x) — WIDER THAN THE CLEAR OPENING between the two centre
+    // shafts, so his own base painted OVER both of them in the same tone and
+    // the middle of the colonnade filled in as one pale block. That is what he
+    // looks like at 84px and it is not what the coin looks like. On the coin
+    // he fills his opening exactly: the centre bay is 5.265 and the shafts are
+    // 3.0, so the gap is 2.265 and he is 2.1 across it. He is drawn at the
+    // measured size, with the same three pieces: head, seated mass, plinth.
     (full
-      ? `<g fill="${p.motif}"><circle cx="50" cy="45.9" r="1.0"/>
-           <path d="M 48.3 47.1 L 51.7 47.1 L 52.2 53.4 L 47.8 53.4 Z"/>
-           <rect x="47.2" y="53.4" width="5.6" height="2.1"/></g>
-         <rect x="48.3" y="47.1" width="0.7" height="6.3" fill="#ffffff" opacity="0.45"/>`
+      ? `<g fill="${p.motif}"><circle cx="50" cy="46.3" r="0.7"/>
+           <path d="M 49.2 47 L 50.8 47 L 50.95 50.6 L 49.05 50.6 Z"/>
+           <rect x="48.95" y="50.6" width="2.1" height="0.9"/></g>
+         <rect x="49.2" y="47" width="0.4" height="3.6" fill="#ffffff" opacity="0.45"/>`
       : '') +
     // the attic divided into panels, and the dentil course under the
-    // entablature — the two pieces of fine masonry the cent actually shows
+    // entablature — the two pieces of fine masonry the cent actually shows.
+    //
+    // BOTH COURSES WERE OFF-CENTRE, and that is a third thing on this face
+    // nobody had ever checked. They were written as literal lists — the panels
+    // at [27.0 .. 70.4] inside an attic running 21.5..78.5, so 5.9 units of
+    // margin on the left and 7.7 on the right, and the dentils from 17.6 at
+    // pitch 3.15 inside an architrave running 17.2..82.8, margins 0.4 and 1.0.
+    // A course of identical marks on a symmetric building is symmetric or it
+    // is a mistake; nothing measured it because nothing looked. Both are now
+    // generated about x = 50, so the count and the pitch are the only free
+    // numbers and the centring cannot drift again.
     (fine
-      ? `<g fill="${p.deep}" opacity="0.5">${[27.0, 33.2, 39.4, 45.6, 51.8, 58.0, 64.2, 70.4]
-          .map((x) => `<rect x="${x}" y="32.9" width="0.8" height="4.0"/>`)
+      ? `<g fill="${p.deep}" opacity="0.5">${Array.from({ length: 8 }, (_, i) => 50 + (i - 3.5) * 5.16 - 0.4)
+          .map((x) => `<rect x="${n2(x)}" y="32.9" width="0.8" height="4.0"/>`)
           .join('')}</g>` +
-        `<g fill="${p.deep}" opacity="0.45">${Array.from({ length: 21 }, (_, i) => 17.6 + i * 3.15)
+        `<g fill="${p.deep}" opacity="0.45">${Array.from({ length: 21 }, (_, i) => 50 + (i - 10) * 2.76 - 0.55)
           .map((x) => `<rect x="${n2(x)}" y="40.1" width="1.1" height="0.9"/>`)
           .join('')}</g>` +
-        // the broad central staircase, cut into the terrace
-        `<g fill="${p.deep}" opacity="0.4">${[60.6, 61.9, 63.2]
+        // the broad central staircase, cut into the terrace. Moved up 0.4 to
+        // 62.6 for its lowest course: the terrace FACE now ends at 63.2 (see
+        // THE BASE above), and a step line at 63.2 was printing on the bottom
+        // lip instead of on the face it is cut into.
+        `<g fill="${p.deep}" opacity="0.4">${[60.2, 61.4, 62.6]
           .map((y) => `<rect x="31" y="${y}" width="38" height="0.6"/>`)
           .join('')}</g>`
       : '') +
     // and the lines of light and shadow that turn a stack of slabs into
     // steps. Without these the whole base is one grey ramp.
-    ledge(21, 79, 30.5) +
-    ledge(16.5, 83.5, 37.8) +
-    shade(16.5, 83.5, 39.0, p, 0.4) +
-    ledge(16, 84, 58.2) +
-    shade(16, 84, 59.0, p) +
-    ledge(13.5, 86.5, 59.6) +
-    shade(13.5, 86.5, 63.9, p);
+    ledge(26.3, 73.7, 30.5) +
+    ledge(20.9, 79.1, 37.8) +
+    shade(20.9, 79.1, 39.0, p, 0.4) +
+    // THE STYLOBATE, and it gets ONE lit top and ONE shadow, not its steps.
+    //
+    // The coin has three of them: the x 33..43 grey ladder on
+    // `penny-rev-2.png` alternates lit tread / shadowed riser at 55.5-56.0,
+    // 57.0-57.5 and 58.5-59.5, three courses on a ~1.5-unit pitch between the
+    // column feet and the terrace line. Drawing them was tried and REFUSED,
+    // with the number, because at the sizes this app draws they are the stripe
+    // artefact §16.1 names and not a stair — 5.2 viewBox units is 1.5 device
+    // pixels at 38px, so six alternating bars cannot resolve as steps and can
+    // only add gradient energy where the coin has a soft slope. T1's own
+    // column for this face, everything else in this round held fixed:
+    //
+    //                            38px    48px    54px    84px
+    //   three steps (6 bars)    0.458   0.460   0.461   0.464
+    //   two steps   (4 bars)    0.480   0.481   0.486   0.489
+    //   ONE lit top + ONE shade 0.511   0.514   0.514   0.516   <- drawn
+    //   (v1.80.0, before this round)  0.495   0.500   0.498   0.497
+    //
+    // Every variant passes T1's gate; the gate is not the point. What the
+    // ladder says is that each pair of bars costs about 0.025 of agreement
+    // with three photographs of the coin, monotonically, which is the
+    // signature of drawing texture the size cannot carry. The steps are in the
+    // reference, they are not in the drawing, and this is the number.
+    ledge(16.4, 83.6, 54.4) +
+    shade(16.4, 83.6, 58.7, p) +
+    ledge(16.4, 83.6, 59.6) +
+    shade(13.5, 86.5, 64.1, p);
   return { solid, detail };
 }
 
