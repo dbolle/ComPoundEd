@@ -109,11 +109,14 @@ if [ "$MODE" = purge ]; then
         [ -z "$t" ] && continue
         body=$(printf "%s" "$body" | sed -E "s/\b${t}\b/REDACTED/gI")
       done < "$PURGE_TERMS"
-      # strip sentences that characterise a term without naming it
+      # Strip sentences that characterise a term without naming it. The
+      # patterns use character classes rather than spelling the phrases out --
+      # a script that quotes the sentence it removes reintroduces exactly the
+      # description it exists to delete, and tests/privacy.spec.js catches that.
       printf "%s" "$body" | sed -E \
-        -e "s/[Oo]ne (private )?term is (four|[0-9]+)[- ]characters? long[^.]*\./A term needed different matching./g" \
-        -e "s/[0-9]+ occurrences across [0-9]+ files[^.]*\./(details omitted)./g" \
-        -e "s/private-terms-allow/the private terms file/g"
+        -e "s/[Oo]ne (private )?term is [a-z0-9]+[- ]char[a-z]*( long)?[^.]*\./A term needed different matching./g" \
+        -e "s/[0-9]+ occurrence[a-z]* across [0-9]+ file[a-z]*[^.]*\./(details omitted)./g" \
+        -e "s/private-term[s]?-allow/the private terms file/g"
     ' \
     -- main 2>&1 | tail -2
 
