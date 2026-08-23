@@ -3,6 +3,76 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.84.0 — 2026-08-23
+
+**The dime's torch was a rectangle, and the acorn was a leaf.**
+
+Fifth face of the sweep. Three defects, all marks never measured on this face,
+plus the resolution of a malformed-path fault that had been open since the cent
+reverse round.
+
+**The shaft was `<rect width="9.4" height="31.1">`** — 9.4 units at all 31
+rows, on the largest mark on the face, drawing at every size since v1.78.0. The
+header table carried **one** width for it. Measured on two independent files:
+w61/w42 = 0.782 and 0.681, w69/w42 = 0.590 and 0.581, **against our 1.000**. At
+y 70 the coin is 5.02 and 5.87 units wide; we drew **9.4**. Now a linear taper
+9.4 @ y 38.5 → 5.7 @ y 69.6.
+
+**The foot was the rectangle's fault.** A 9.4 × 3.0 collar existed only to
+bridge a 9.4 shaft to the table's own 5.0 "stalk" — it is in no measurement and
+on no reference (60–87 % too wide there), and below it a 5.0 waist under an
+8.7 flat base made a barbell. The table's "stalk" was never an element; it is
+this same shaft near its bottom. Before, the torch reads as a thermometer with
+a plunger at every size.
+
+**The acorn is not where we drew it.** Round 27 put a nut-in-a-cup at exactly
+(68, 45); on three references there is a **leaf** at that point. The object it
+traced is a three-lobed oak leaflet nine units inboard and twelve down. The
+judge checked this by eye at two magnifications and initially read the object
+as an acorn — at higher zoom it is lobed all round, with no nut-and-cap, and
+the round's identification stands. Removed. Ink at the real leaflet position is
+**58.6 % before and after** — the leaf ladder already covers it, so no gap was
+created — while ink at the wrong position fell 79.9 % → 53.3 %, leaving the leaf
+the coin does have.
+
+**The stems stopped at y 66** — that is the legend, not the end of the branch.
+Four readings on two references put the tips at offset 14.0, y 75.6 (sd 0.95 /
+0.8); we drew bare field from y 68 to 79 on both sides.
+
+**The `ZM` token was the acorn**, and it is now explained rather than merely
+gone: `… 0 2.45 Z` + `M -2.1 -1.15 …` concatenated with no separator. Legal
+SVG that rendered correctly — cosmetic in the raster, but a real D9 fault, ×3
+because `struck()` emits `solid` three times. **D9 18 of 180 renders faulty →
+0 of 180.**
+
+**T1 32/32.** Dime reverse margin 0.130 / 0.127 / 0.128 / 0.129 → **0.142 /
+0.140 / 0.143 / 0.142**; every other face byte-identical. Partition re-derived
+by the judge: 6/60, `dime.reverse` alone. D6 (advisory) 0.2210 → 0.1018. Suite
+461.
+
+**Rejected because it scored the same:** a full-length trapezoid, T1 margins
+0.142/0.141/0.143/0.142 — indistinguishable from what shipped. Rejected on the
+*measurement*: it gives 7.07 at y 61 and 4.8 at y 74 where the references say
+6.43/7.13 and 5.02/5.87. Refusing a tie on evidence rather than taking it on
+score is the right instinct.
+
+**Refused with the number:** the stem's x offset. Ours is 15.1 at y 58–62 where
+both references put it at 16.3 and 17.25 — and the file's own claim, 14.4, is
+1.9–2.9 out. Moving it moves `leafAt`'s anchor and the whole seven-leaf ladder,
+which this round could not bound. The consequence is written into the file
+rather than hidden: the added tail runs near straight where the coin's leans.
+
+**Reported, not added:** two olive fruits on short stalks at roughly (30, 42)
+and (27, 57), present on both independent references and the 1960 proof, absent
+from our olive branch. Both abut a leaf on every row, so no publishable
+tolerance was reachable.
+
+**Its own instruments failed and are kept as the record:** a fixed-window edge
+reader reported the shaft *widening* 20.5 % and produced x = 88 617 170 517.85
+on one row; a ±0.8-gate tracker walked onto a leaf at y 46 and never returned.
+Both sit beside the instrument that worked. Two `_jd1discs.json` entries that
+did not exist are now published (p95 1.12 % and 1.10 % of R).
+
 ## v1.83.0 — 2026-08-23
 
 **The dime's date was 18 % short, and three of its four legends had never been

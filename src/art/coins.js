@@ -4199,9 +4199,15 @@ function monticello(tier, p, boxW) {
 // and the bar plus its flame is the whole drawing.
 //
 // The two branches are drawn as two different plants, which they are: olive
-// leaves are smooth ovals, oak leaves are lobed and carry acorns. On the
-// real dime that asymmetry is obvious and it is the detail that stops the
-// motif reading as a wheat ear or a pair of wings.
+// leaves are smooth ovals and oak leaves are lobed. On the real dime that
+// asymmetry is obvious and it is the detail that stops the motif reading as a
+// wheat ear or a pair of wings.
+//
+// This sentence used to end "…lobed and carry acorns", and that half of it is
+// retracted: measured on three independent photographs the dime's oak branch
+// carries no acorn at all (see the block below `OAK`). The sentence is what an
+// acorn was drawn from, which is why it is corrected here rather than left as
+// prose beside a fixed drawing.
 function torch(tier, p, boxW) {
   // A flame with THREE tongues, not one blob: a single teardrop over a
   // shaft is a lightbulb, and the tongues are what a child sees first.
@@ -4210,6 +4216,16 @@ function torch(tier, p, boxW) {
   // photograph at 486px and 733px diameter (mean |delta| 5.35 grey levels,
   // NCC 0.9931, where two different coins run 40-90 apart). Everything below
   // is single-source and is labelled as such in coloringbook/reverses.md.
+  //
+  // NO LONGER TRUE, and the ⚠️ above is left standing because everything under
+  // it that has not been re-read since still rests on the one photograph.
+  // `dime-rev-proofbright.png` (2000x2000, alpha-matted proof) and
+  // `dime-rev-unc2005.png` (1285x1274, near line-art) arrived afterwards. Rim
+  // fits and the full independence matrix are in `judge/_dr1disc.mjs` and
+  // `judge/_dr3indep.mjs`: on a common disc-normalised grid the two old files
+  // correlate at 0.9930 (same photograph, as stated) and the largest
+  // correlation between any two of the THREE distinct sources is 0.1717. Every
+  // number added in round 28 is quoted on at least two of the three.
   //
   // The previous torch ran y 10.6 .. 82.5, i.e. 71.9 units for a torch the
   // coin draws in 58.5 (20.0 .. 78.5) — 23% too tall — and its FOOT was 18
@@ -4228,6 +4244,16 @@ function torch(tier, p, boxW) {
   //   shaft    y 39.2 .. 69.4, 46.4 .. 55.9    9.4 wide      8.4
   //   stalk    y 71.7 .. 74.2, 48.7 .. 53.8    5.0 wide      3.4
   //   foot     y 74.2 .. 77.3, 47.1 .. 55.9    8.7 wide      6.8
+  //
+  // TWO CORRECTIONS TO THIS TABLE, both made in round 28 and both about the
+  // same thing — every width here is ONE reading, and the shaft has thirty:
+  //
+  //   · "shaft ... 9.4 wide" is the width at the TOP of the shaft. It is 5.7
+  //     at the bottom on two independent references, and the drawing rendered
+  //     the single number as a rectangle. See the block above `solid`.
+  //   · "stalk" is not a separate element. It is this same shaft measured near
+  //     its foot, which is why its 5.0 and the shaft's 9.4 could not be joined
+  //     without inventing a collar. There is no stalk in the drawing now.
   //
   // The photograph puts the flame's own centre at 51.9 rather than 50, and that
   // is NOT copied: it is one photograph, the coin is a symmetric die, and a
@@ -4333,8 +4359,39 @@ function torch(tier, p, boxW) {
   // ratio-1.000 length from 655 to 1179 units and the D6 fraction from 0.2685
   // to 0.3965 against a 0.50 gate. §14 is right that a real coin has no
   // uniform-width marks; a straight stem is no excuse for drawing one.
-  const stem = (x) => `<path d="M ${x(13.0)} 66 C ${x(14.6)} 54 ${x(15.0)} 41 ${x(14.5)} 27.2
-        L ${x(15.8)} 27.2 C ${x(17.0)} 41 ${x(17.2)} 54 ${x(15.6)} 66 Z"/>`;
+  //
+  // AND IT STOPPED AT y 66, WHICH IS THE LEGEND, NOT THE END OF THE BRANCH
+  // (round 28). On the coin each stem runs on BELOW E PLURIBUS UNUM and ends in
+  // a point most of the way to ONE DIME. Read off 0.25-unit scanline profiles
+  // through each file's own rim fit (`judge/_dr1disc.mjs`), as offsets from the
+  // coin's vertical axis so the two branches are comparable:
+  //
+  //                          stem centre at y 68      tip
+  //     unc2005  olive              16.2          15.0 at y 76.2
+  //     proofbr. olive              15.4          14.2 at y 75.5
+  //     unc2005  oak                15.2          12.7 at y 76.2
+  //     proofbr. oak                16.1          14.1 at y 74.6
+  //     mean                        15.7          14.0 at y 75.6  (sd 0.95/0.8)
+  //
+  // Four readings on two independent photographs, and the two branches agree
+  // with each other to within their own spread — this is one mirrored mark, not
+  // two. Ours ended at y 66 with NOTHING below it: profiled at x 30..42 and
+  // x 58..70 our drawing is bare field from y 68 to y 79 where the coin carries
+  // a stem at every row. That is the emptiest part of this face and it is where
+  // the coin is not empty.
+  //
+  // WHERE THE TAIL IS DRAWN, AND WHAT IS KNOWINGLY NOT COPIED. The coin's tail
+  // LEANS inboard, 15.7 to 14.0 over eight units. Ours cannot: the stem above
+  // it already sits at centre offset 14.3 at y 66 (measured below, and 1.4
+  // inboard of the coin — see the round report; moving it moves `leafAt`'s
+  // anchor and the whole seven-leaf ladder with it, which is more than this
+  // round can measure). So the tail runs near straight from our own 14.3 down
+  // to the measured tip at 14.0, y 75.7. The tip lands where the coin's does;
+  // the lean does not, and that is stated rather than hidden.
+  const stem = (x) => `<path d="M ${x(14.0)} 75.7 C ${x(13.3)} 73.5 ${x(13.05)} 70 ${x(13.0)} 66
+        C ${x(14.6)} 54 ${x(15.0)} 41 ${x(14.5)} 27.2
+        L ${x(15.8)} 27.2 C ${x(17.0)} 41 ${x(17.2)} 54 ${x(15.6)} 66
+        C ${x(15.5)} 70 ${x(15.1)} 73.5 ${x(14.0)} 75.7 Z"/>`;
   if (tier === 'icon') {
     // THE BRANCHES ARE DRAWN AT ICON TIER, and until this pass they were not.
     // The comment above this function said "at icon size the branches go
@@ -4426,26 +4483,42 @@ function torch(tier, p, boxW) {
     ' C 1.1 1.35 .75 2.1 .35 2.1 C 0 2.1 -.35 1.6 -.7 .75' +
     ' C -.85 1.05 -1.1 1.6 -1.45 1.6 C -1.85 1.6 -2.15 1.2 -2.45 .4' +
     ' C -2.6 .6 -2.8 .85 -3.1 .85 C -3.5 .85 -3.9 .55 -4.3 0 Z';
-  // AND OAKS CARRY ACORNS. The header of this function has claimed since it
-  // was written that "oak leaves are lobed and carry acorns"; `grep -n acorn`
-  // returned that sentence and nothing else. There is one on the coin,
-  // plainly, at the fork of the branch — a smooth nut in a scaly cup,
-  // measured at 4.4 by 4.9 units centred near (68, 45)
-  // (`_pv/rv3/dm-acorn.png`, 83 px per unit). One is drawn, at the coin's
-  // size, at full tier only.
+  // THERE IS NO ACORN ON THIS COIN, AND ONE WAS DRAWN (round 28).
   //
-  // STATED PLAINLY: at the sizes money.js draws, the dime's box is 62 / 35 /
-  // 28 px, so this acorn is 3.0 px tall at best and contributes a blob, not
-  // a readable acorn. It is drawn because the file asserts it and because it
-  // reads at the preview sizes, NOT because a child will see an acorn at
-  // 62 px. The lobes above are the change that does work at 62 px.
-  const ACORN =
-    'M 0 2.45 C -1 1.9 -1.6 .9 -1.6 -.2 C -1.6 -.9 -.8 -1.2 0 -1.2' +
-    ' C .8 -1.2 1.6 -.9 1.6 -.2 C 1.6 .9 1 1.9 0 2.45 Z' +
-    'M -2.1 -1.15 C -2.1 -2.15 -1.1 -2.6 0 -2.6 C 1.1 -2.6 2.1 -2.15 2.1 -1.15' +
-    ' C 2.1 -.55 1.1 -.35 0 -.35 C -1.1 -.35 -2.1 -.55 -2.1 -1.15 Z';
-  const acorn = (x, y, rot) =>
-    `<g transform="translate(${n2(x)} ${n2(y)}) rotate(${n1(rot)})"><path d="${ACORN}"/></g>`;
+  // SUPERSEDED, kept beside its replacement rather than deleted (COIN-JUDGE
+  // §1.1, "retract beside; never rewrite"). Round 27 wrote:
+  //
+  //   "AND OAKS CARRY ACORNS. The header of this function has claimed since it
+  //    was written that 'oak leaves are lobed and carry acorns'; `grep -n
+  //    acorn` returned that sentence and nothing else. There is one on the
+  //    coin, plainly, at the fork of the branch — a smooth nut in a scaly cup,
+  //    measured at 4.4 by 4.9 units centred near (68, 45) (`_pv/rv3/
+  //    dm-acorn.png`, 83 px per unit). One is drawn, at the coin's size, at
+  //    full tier only."
+  //
+  // and drew `acorn(x(18), 45, -22)`, i.e. a nut-in-a-cup centred at exactly
+  // (68, 45). RE-READ at (68, 45) on THREE independent photographs, each
+  // through its own rim fit — `dime-rev-unc2005.png` (whose fit this round
+  // published as cx 642.02 cy 637.13 R 636.40, within 0.5 px and 0.06% of R of
+  // the ad-hoc one round 27 quotes, so the two rounds are reading the SAME
+  // registration), `dime-rev-proofbright.png`, and the 1960 proof —
+  // there is no nut and no cup at (68, 45). What is there is the base of the
+  // upper-right oak leaf and its stalk.
+  //
+  // What round 27 was looking at is 9 units inboard and 12 units down from
+  // where it drew: a small THREE-LOBED OAK LEAFLET on a short stalk, read off
+  // 0.25-unit scanline profiles at 5.6 by 4.6 units centred (58.8, 57.7) on
+  // unc2005 and 4.8 by 4.0 centred (59.2, 57.2) on proofbright — the two agree
+  // to 0.4 units in x and 0.5 in y. It is a leaf, not a fruit: its outline
+  // carries the same rounded lobes as every other leaf on that branch, at a
+  // quarter of the size.
+  //
+  // So the acorn is gone rather than moved. `leafAt`'s lowest inboard leaf
+  // already sits at (62.2, 60.4), 3.7 units from the leaflet's measured
+  // centre, and a round that cannot show the seven-leaf ladder is wrong is not
+  // entitled to add an eighth glyph beside it. The claim in this function's
+  // header is corrected in the same pass, because a comment that asserts a
+  // feature is how this one got drawn.
   // Scaled along its LENGTH and its width separately: the coin's oak leaf is
   // 11.8 units by 5.5 and the authored path is 8.6 by 4.2, so one uniform
   // factor cannot hit both. Scaling uniformly far enough to reach the coin's
@@ -4483,29 +4556,100 @@ function torch(tier, p, boxW) {
         ? olive(px, ay - 1.6, rr, 1.22 * K)
         : oak(px, ay - 1.6, rr, 1.68 * K, 1.42 * K);
     }
-    // the acorn, oak branch only, on the stem at the height the coin has it
-    if (!mirror && full) g += acorn(x(18), 45, -22);
     return `${stem(x)}${g}`;
   };
+  // THE SHAFT TAPERS, AND IT WAS DRAWN AS A RECTANGLE (round 28).
+  //
+  // `<rect x="45.3" y="38.5" width="9.4" height="31.1"/>` — 9.4 units wide at
+  // every one of its 31 rows. It is the largest single mark on this face, it
+  // draws at every size since v1.78.0, and its width had never been measured
+  // below the head. The table at the top of this function has one number for
+  // it ("shaft y 39.2 .. 69.4 ... 9.4 wide"), read at the TOP of the shaft off
+  // the one photograph the dime had in 2026-08-21.
+  //
+  // MEASURED on the two references acquired since, each through its own RIM fit
+  // (`judge/_dr1disc.mjs`; the area disc is -5.58% on unc2005 and is not used),
+  // on the rows where every file compared shows bare field on BOTH sides of the
+  // shaft — `judge/_dr8shaft.mjs`, which prints the profiles it read:
+  //
+  //     y      unc2005   proofbright   drawn (was)   drawn (now)
+  //     40       9.67       10.41          9.4          9.20
+  //     42       8.21       10.47          9.4          9.00
+  //     61       6.43        7.13          9.4          6.65
+  //     62       5.78        6.96          9.4          6.60
+  //     68       4.93        6.08          9.4          5.85
+  //     69       4.84        6.08          9.4          5.75
+  //     70       5.02        5.87          9.4          5.65
+  //
+  // The two files disagree by up to 2.3 units in ABSOLUTE width — a bevel
+  // skirt — which is why the RATIO is the number this rests on. Against each
+  // file's own w(42): w61/w42 is 0.782 and 0.681, w69/w42 is 0.590 and 0.581.
+  // Ours was 1.000 at every row; it is now 0.739 and 0.639.
+  //
+  // A LINEAR taper 9.4 at y 38.5 to 5.7 at y 69.6 lands inside the two
+  // references at every row above except y 42, where they straddle it by 0.8
+  // and 1.5. The top width is NOT re-fitted: 9.4 sits between the two files'
+  // 9.67 and 10.41 at y 40 and it is what the head steps down to.
+  //
+  // AND THE STEP AT THE FOOT WAS THE RECTANGLE'S FAULT. The table also lists
+  // "stalk y 71.7 .. 74.2, 5.0 wide" — which is not a separate element, it is
+  // this same shaft measured near its bottom. Drawing the shaft parallel-sided
+  // forced a 9.4-wide, 3-unit-tall collar at y 69.6 .. 72.6 to bridge the gap
+  // between a 9.4 shaft and a 5.0 stalk. That collar appears in NO measurement
+  // in this file and on NO reference: at y 70 the coin is 5.02 (unc2005) and
+  // 5.87 (proofbright) wide against our 9.4, i.e. 60% to 87% too wide, over
+  // three units of a torch that is 60 units tall. It was sized
+  // to its CONTAINER rather than to itself, which is the third time this sweep
+  // has found that (the cent's bow tie, the cent reverse's seated figure, the
+  // nickel reverse's door pediment). It is gone; the shaft simply runs on.
+  //
+  // THE FOOT IS A KNOB, NOT A PLINTH. Drawn, it was a 5.0-wide waist at
+  // y 72.6 .. 76.6 under a 8.7-wide flat base at y 76 .. 78.4 — wide, narrow,
+  // wide, which at 28 device pixels is a barbell or the plunger of a syringe.
+  // On both references the shaft narrows to a neck and then a single rounded
+  // finial hangs off it, widest just below its shoulder and closing to a blunt
+  // bottom:
+  //
+  //                          unc2005            proofbright
+  //     widest    ~8.0 at y 76.0     ~8.2 at y 75.2
+  //     bottom            y 79.8             y 79.4
+  //
+  // Those four are read off the 0.5-unit scanline strips `_dr8shaft.mjs`
+  // prints, not off the sub-unit ladder: the finial has no bare field on both
+  // sides at every row (the stems pass it) so the ladder refuses those rows,
+  // and a number good to half a unit is what the pictures actually support.
+  //
+  // The drawn foot's WIDTH was right (8.7 against 8.0/8.2) and its POSITION was
+  // 1.4 to 2.1 units low against this function's own table, which puts the foot
+  // at y 74.2 .. 77.3. One path now draws neck-to-finial, at the table's own y.
   const solid = `${flame}
     <rect x="44.15" y="33" width="11.7" height="5.5" rx="1.5"/>
-    <rect x="45.3" y="38.5" width="9.4" height="31.1"/>
-    <rect x="45.3" y="69.6" width="9.4" height="3" rx="1"/>
-    <rect x="47.5" y="72.6" width="5" height="4"/>
-    <rect x="45.65" y="76" width="8.7" height="2.4" rx="1"/>
+    <path d="M 45.3 38.5 L 54.7 38.5 L 52.85 69.6 L 52.85 74.2 L 47.15 74.2 L 47.15 69.6 Z"/>
+    <path d="M 47.15 74.2 C 45.95 74.7 45.6 75.5 45.9 76.3
+      C 46.4 78 47.9 79.4 50 79.4 C 52.1 79.4 53.6 78 54.1 76.3
+      C 54.4 75.5 54.05 74.7 52.85 74.2 Z"/>
     ${branch(false)}${branch(true)}`;
   // THE INTERIOR. A flat bar is a chimney; the real torch is a fluted
   // cylinder with two collars, and the fluting is what makes it metal.
+  //
+  // The two long flutes and the two shaft bands FOLLOW THE TAPER, and they have
+  // to: held at their old constant x they would have printed white and `deep`
+  // ink OUTSIDE the shaft below y ~ 60, where the massing has moved inboard.
+  // Each is placed at the same fraction of the shaft it was placed at before —
+  // the flutes 0.8 units in from the edge, the bands the shaft's full width —
+  // so this is the same detail on a narrower cylinder, not new modelling.
+  // The right flute is 53.1 rather than its old 53.0: the die is symmetric and
+  // the 0.1 was a typo, not a measurement.
   const detail =
-    `<g fill="#ffffff" opacity="0.45"><rect x="46.1" y="38.9" width="0.8" height="30.3"/>
-       <rect x="53.0" y="38.9" width="0.8" height="30.3"/>
+    `<g fill="#ffffff" opacity="0.45"><path d="M 46.1 38.9 L 46.9 38.9 L 48.71 69.2 L 47.91 69.2 Z"/>
+       <path d="M 53.1 38.9 L 53.9 38.9 L 52.09 69.2 L 51.29 69.2 Z"/>
        <rect x="44.55" y="33.6" width="0.8" height="4.4"/></g>` +
     // the two BANDS the coin actually cuts, at the measured 40.5 and 53.4.
-    // Their widths follow the shaft and the collar, which grew to the coin's
-    // measured 9.4 and 11.7 in this pass; a band narrower than the thing it
-    // cuts across would read as a nick.
-    `<g fill="${p.deep}" opacity="0.5"><rect x="45.3" y="40.1" width="9.4" height="1.0"/>
-       <rect x="45.3" y="53.0" width="9.4" height="1.0"/>
+    // Their widths follow the shaft and the collar; a band wider than the thing
+    // it cuts across would print on bare field, and one narrower would read as
+    // a nick.
+    `<g fill="${p.deep}" opacity="0.5"><rect x="45.4" y="40.1" width="9.2" height="1.0"/>
+       <rect x="46.16" y="53.0" width="7.68" height="1.0"/>
        <rect x="44.15" y="36.9" width="11.7" height="1.0"/></g>` +
     (fine
       ? `<g fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.42" stroke-linecap="round">
