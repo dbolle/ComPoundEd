@@ -6,25 +6,96 @@
 set -euo pipefail
 
 TERMS_FILE="$HOME/.config/compounded/private-terms"
+# Words that are KNOWN-SAFE despite containing a private term as a SUBSTRING.
+# Optional; absent means a stricter scan, so its absence never fails open.
+ALLOW_FILE="$HOME/.config/compounded/private-terms-allow"
+
 if [ ! -f "$TERMS_FILE" ]; then
   echo "pre-push: missing $TERMS_FILE (one private term per line)." >&2
   echo "This gate fails closed — create the file, then push again." >&2
   exit 1
 fi
 
+# WHY AN ALLOWLIST RATHER THAN WORD-BOUNDARY MATCHING (2026-08-23).
+# The scan is deliberately SUBSTRING-based: a private term concatenated into a
+# path, a hostname or an identifier (`/home/<name>/`, `<name>-laptop`,
+# `restore<Name>Profile`) is a real leak, and whole-word matching would sail
+# straight past all three. That strictness is the point and is kept.
+#
+# But one private term is four characters long and is a substring of an
+# ordinary English word this project uses constantly in its own methodology
+# vocabulary — 37 occurrences across 19 files including docs/COIN-JUDGE.md,
+# src/art/coins.js, src/engine/leitner.js and three test specs, with ZERO
+# whole-word matches anywhere in the tree. The gate fired twice on it and was
+# wrong both times; the only true positive it has ever caught was a username in
+# hardcoded absolute paths, which was a whole word.
+#
+# The alternatives were worse. Switching to `grep -qiwF` loosens the gate for
+# every term, including the concatenation cases above. Rewording 37 occurrences
+# keeps the gate but permanently degrades a term of art in the methodology
+# docs. So: substring matching stays exactly as strict as it was, and a small
+# explicit list of known-safe WHOLE WORDS is deleted from the text before the
+# scan. A private term appearing anywhere outside one of those exact words
+# still trips the gate.
+#
+# Adding to the allowlist is a privacy decision. Add a word only after checking
+# it has no whole-word matches in the tree.
+scrub() {
+  if [ -s "$ALLOW_FILE" ]; then
+    local args=()
+    while IFS= read -r w; do
+      [ -z "$w" ] && continue
+      args+=(-e "s/${w}//gI")
+    done < "$ALLOW_FILE"
+    if [ ${#args[@]} -gt 0 ]; then sed "${args[@]}"; else cat; fi
+  else
+    cat
+  fi
+}
+
 ZERO=0000000000000000000000000000000000000000
 while read -r _local_ref local_sha _remote_ref remote_sha; do
   [ "$local_sha" = "$ZERO" ] && continue # branch deletion
-  if [ "$remote_sha" = "$ZERO" ]; then range="$local_sha"; else range="$remote_sha..$local_sha"; fi
+
+  # A brand-new remote branch has no remote_sha. The old code passed the
+  # all-zeros SHA straight to `git diff` with 2>/dev/null, so the diff scan
+  # FAILED SILENTLY and every added line went unchecked on exactly the push
+  # that publishes a branch for the first time. Use the empty tree instead.
+  if [ "$remote_sha" = "$ZERO" ]; then
+    range="$local_sha"
+    base=$(git hash-object -t tree /dev/null)
+  else
+    range="$remote_sha..$local_sha"
+    base="$remote_sha"
+  fi
+
+  # Collect once, scrub once, then test each term against the scrubbed text.
+  #
+  # THE TEST BELOW USES A HERESTRING, NOT A PIPE, AND THAT IS LOAD-BEARING.
+  # This gate previously read `git log … | grep -qiF -- "$term"`. Under
+  # `set -o pipefail` that construction FAILS OPEN: `grep -q` exits the instant
+  # it matches, the upstream writer takes SIGPIPE, pipefail turns the whole
+  # pipeline non-zero, and `if` reads non-zero as "no match" — so a detected
+  # leak is reported as clean. It only bites when the match occurs EARLY enough
+  # that the writer still has output buffered, which means the gate was
+  # reliable for a term buried deep in history and silently useless for one in
+  # the most recent commits. Proven on 2026-08-23 with a synthetic leak in the
+  # newest commit: the old form printed "scan clean" and exited 0.
+  # `grep -q <<< "$var"` has no pipeline and no SIGPIPE, so the exit status is
+  # grep's own. Do not turn these back into pipes.
+  msgs=$(git log --format='%B' "$range" | scrub)
+  added=$(git diff "$base" "$local_sha" | grep '^+' | scrub || true)
+
   while IFS= read -r term; do
     [ -z "$term" ] && continue
-    if git log --format='%B' "$range" | grep -qiF -- "$term"; then
+    if grep -qiF -- "$term" <<< "$msgs"; then
       echo "pre-push: a private term appears in an outgoing COMMIT MESSAGE ($range)." >&2
       echo "Reword the commit before pushing (the term itself is not echoed here)." >&2
       exit 1
     fi
-    if git diff "$remote_sha" "$local_sha" 2>/dev/null | grep "^+" | grep -qiF -- "$term"; then
+    if grep -qiF -- "$term" <<< "$added"; then
       echo "pre-push: a private term appears in ADDED lines of the outgoing diff ($range)." >&2
+      echo "Redact it before pushing (the term itself is not echoed here)." >&2
       exit 1
     fi
   done < "$TERMS_FILE"

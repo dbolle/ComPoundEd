@@ -7,6 +7,45 @@ reconsider after calibration.
 
 ## Where we are
 
+- 🔴🔴 **The pre-push privacy gate FAILED OPEN, and it failed open exactly when
+  the leak was newest.** The scan read `git log … | grep -qiF -- "$term"` under
+  `set -o pipefail`. `grep -q` exits the instant it matches; the upstream
+  writer then takes SIGPIPE; pipefail turns the whole pipeline non-zero; and
+  `if` reads non-zero as **"no match"**. So a detected leak was reported as
+  clean. It only misfires when the match happens early enough that the writer
+  still has output buffered — meaning the gate was reliable for a term buried
+  deep in history and **silently useless for one in the most recent commits**.
+  Proven with a synthetic leak in the newest commit: the old form printed
+  "private-term scan clean" and exited 0. Fixed by testing with a herestring
+  (`grep -qiF -- "$term" <<< "$msgs"`), which has no pipeline and no SIGPIPE.
+  Response-tested four ways: clean tree → 0; bare term in the newest commit
+  message → 1; term concatenated into a path in an added line → 1; allowlisted
+  word alone → 0.
+  ⚠️ Two further faults found in the same hook. Its added-lines check passed
+  the all-zeros SHA to `git diff` with `2>/dev/null` when pushing a branch for
+  the first time, so **every added line went unchecked on exactly the push that
+  publishes a branch** — now uses the empty-tree hash. And the gate had never
+  actually reached its added-lines check before, because the message check
+  always failed first.
+- 🔴 **A real leak this caught: the username in 20 tracked files.** Hardcoded
+  absolute paths (`/home/<user>/compounded/…` and scratchpad paths) in judge
+  instruments, present in **43 of 74 unpushed commits**. `origin/main` was
+  clean, so nothing had escaped; redacted across the whole unpushed range with
+  `filter-branch`, verified zero occurrences in every message and every blob of
+  the range, with `src/`, `tests/` and `package.json` byte-identical
+  afterwards. **Live instruments should derive paths from `import.meta.url`
+  rather than hardcoding — still to do; the redaction only removed the name.**
+- ⚠️ **The gate is substring-based ON PURPOSE, with a narrow allowlist.** A
+  private term concatenated into a path, hostname or identifier is a real leak
+  and whole-word matching would miss all three. But one 4-character term is a
+  substring of an ordinary English word used throughout this project's own
+  methodology vocabulary (37 occurrences, 19 files, **zero** whole-word
+  matches), and the gate fired on it twice and was wrong both times. So
+  substring strictness is kept and `~/.config/compounded/private-terms-allow`
+  lists known-safe whole words that are deleted before the scan. Adding to that
+  file is a privacy decision: only add a word with no whole-word matches in the
+  tree.
+
 - 🔄 **Ten-face review sweep, no hints given, one face at a time.** Each round
   is told only to find anything off or never evaluated. Motivated by v1.78.0:
   removing the tier system means details that never drew below 76 px now draw
