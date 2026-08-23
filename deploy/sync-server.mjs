@@ -31,6 +31,8 @@ import { createServer } from 'node:http';
 import { createHash, timingSafeEqual } from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import { openSync, closeSync, fsyncSync, writeFileSync, unlinkSync, readFileSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
+import { resolve } from 'node:path';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 
@@ -393,7 +395,22 @@ export async function startupSweep() {
   }
 }
 
-const isMain = process.argv[1] && import.meta.url.endsWith(process.argv[1].split('/').pop());
+// SELF-START ONLY WHEN THIS EXACT FILE IS THE ENTRY POINT.
+//
+// This used to compare the entry point's BASENAME as a suffix of our own URL:
+// `import.meta.url.endsWith(argv[1].split('/').pop())`. `tests/server.mjs`
+// imports this module, its basename is `server.mjs`, and
+// ".../sync-server.mjs".endsWith("server.mjs") is TRUE — so every `npm test`
+// run started a real sidecar and bound 0.0.0.0:8092 for a listener the tests
+// never use. Two concurrent suites then died on EADDRINUSE, which is why every
+// specialist round this week has had to be handed a distinct PORT as well as a
+// distinct TEST_PORT.
+//
+// It is not only a test problem: ANY script whose filename ends in
+// `server.mjs` that imports this module would silently start a sync sidecar.
+// Comparing resolved paths is exact and has no such near-miss.
+const isMain = process.argv[1]
+  && import.meta.url === pathToFileURL(resolve(process.argv[1])).href;
 if (isMain) {
   await fs.mkdir(DIR, { recursive: true, mode: 0o700 }).catch(() => {});
   if (!acquireSingleInstanceLock()) {
