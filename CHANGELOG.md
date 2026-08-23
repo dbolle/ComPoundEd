@@ -3,6 +3,63 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.82.0 — 2026-08-23
+
+**The nickel's roofline stepped up at the ends where the coin's runs flat.**
+
+Third face of the ten-face sweep, no hints. The lead given was the cent
+reverse's lesson — a passing check on an outer bound says nothing about the
+interior — and Monticello duly had three defects nobody had measured on this
+face.
+
+| measured on all three references | the coin | drawn | now |
+|---|---|---|---|
+| end-pavilion roofline | 42.00 / 40.95 / 41.70 | **45.40** | 41.9 |
+| wing roofline | 40.90 / 39.95 / 40.40 | 40.80 ✓ | 40.80 |
+| **the step between them** | 1.10 / 1.00 / 1.30 | **4.60** | 1.10 |
+| terrace width | 80.90 / 82.30 / 81.30 | **77.00** | 81.4 |
+
+The step is a *difference of two ladders on the same photograph*, so
+per-reference registration error cancels — which is why it is the strongest
+number in the round. 3.85 units is 3.9 % of the coin's diameter, on the outer
+fifth of the building, and it turned a nearly-flat roofline into a wedding
+cake.
+
+Third defect: **all three portico openings were built on x = 50.25** — door,
+lining, pediment and both side bays — on a building whose every other mark is
+on 50. The door pediment was 6.70 wide against a **4.90 clear opening** and was
+drawn *after* `columns()`, covering 0.65 of one column and 1.15 of another.
+That is the cent reverse's oversized seated figure again, on a different coin.
+
+**A comment on this face was actively false and load-bearing:** it claimed the
+`fine` detail level "is NEVER true in the app". Since v1.78.0 everything is
+authored at `DRAW_SIZE = 380`, so the nickel's `boxW` is 332.2 and **`fine` is
+true at every displayed size** — balustrade, fanlight, dome ribs, sills and
+column flutes all draw at 38 px today. Corrected in place rather than deleted.
+
+**Refused, retracted, and killed:** the header's claim that the wings' roofline
+"reads at y ≈ 35.5–36.2" is **retracted** — three references say 40.90 / 39.95
+/ 40.40, and what reads at 37.3–38.3 is the roof deck behind the gable, a
+different plane. The round's own eye-read that the inner columns were 1.7 units
+out was **killed by its own instrument**: the device on that reference sits
+0.65–0.70 units right of its own rim fit, and divided out the columns land
+within 0.45. And growing the end pilasters was **refused for looking better** —
+they stop reading as pilasters and become a second pair of tall windows.
+
+**T1 32/32** both faces, four sizes, controls 4/4. Nickel reverse own
+agreement 0.610 → **0.618**, margin 0.299 → 0.301. Partition re-derived by the
+judge: 6/60, `nickel.reverse` alone. Suite 461 green.
+
+**THIS ROUND CORRECTED THE SWEEP'S OWN BRIEF, WITH NUMBERS.** The brief said
+the area `discOf()` fails on cameo proofs. It does not — the test is the
+relationship between device, field and SURROUND, not the strike. Measured
+against rim fits: the cameo proof **−1.77 %** (its white surround keeps the
+near-black mirror field counted as device), while a *bright* coin flattened
+onto white failed **−31.75 %** (R 324.1 v 474.9). The rule "fit the rim" is
+unchanged; the reason given for it was wrong, and the brief has been fixed for
+the remaining seven faces. The frozen `_jn1discs.json` entries are rim fits and
+sound, within 0.4 % of R.
+
 ## v1.81.0 — 2026-08-23
 
 **The colonnade stood on nothing, and every storey above the base was too wide.**

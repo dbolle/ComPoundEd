@@ -3818,7 +3818,7 @@ function lincolnMemorial(tier, p, boxW) {
 //           is exactly how a colonnade acquires phantom members.
 //   BANDS   dome 26.2..32.8 · drum 32.0..35.2 · pediment apex 34.5, base
 //           41.5, with the roof behind it at 37.4 · wing roofline 40.8 with
-//           the balustrade from 39.0 · cornices 43.3 and 45.4 · building
+//           the balustrade from 39.0 · cornices 43.3 and 41.9 · building
 //           foot 58.5 · terrace 60.4.
 //           THE DOME SPRINGS ABOVE THE PEDIMENT APEX, and the order that
 //           puts it there is the whole point of the motif — see the block
@@ -3826,21 +3826,56 @@ function lincolnMemorial(tier, p, boxW) {
 //           table recorded "dome 30.5..38.0 · pediment apex 34.5" side by
 //           side without noticing that 38.0 is below 34.5.
 //   WIDTHS  dome 41..59 · drum cornice 39.6..60.4 · pediment 34.5..65.5 ·
-//           portico 35..65 · main block 18..82 · ends 12.8..86.1 · terrace
-//           11.5..88.5. The references read the dome WIDER than this, at
+//           portico 35..65 · main block 18..82 · ends 12.8..87.2 · terrace
+//           9.3..90.7. The references read the dome WIDER than this, at
 //           ~39..61; it is drawn at the icon tier's 41..59 so that the drum
 //           lands inside the gable rather than hanging over field, which at
 //           73 px matters more than the extra unit a side. Reported, not
 //           hidden.
 //
-//   STILL OPEN, reported and NOT acted on this round (out of scope, and
-//   both would move D4-gated or review-blessed geometry):
-//     · the wings' roofline reads at y ~35.5-36.2 on both references, not
-//       40.8, so the wing/portico step is compressed. The ORDER is right,
-//       which is what the review credited; the spacing is not measured here.
-//     · the drum on the references is ~38.5..61.5 with three arched dormers
-//       in it. Only the band is drawn; the dormers are below the 84 px
-//       resolution the app draws at.
+//   ⚠️ THE "STILL OPEN" NOTE THAT USED TO SIT HERE WAS WRONG, and it is
+//   RETRACTED rather than deleted (§1.1 retract-beside). It said "the wings'
+//   roofline reads at y ~35.5-36.2 on both references, not 40.8, so the
+//   wing/portico step is compressed". A brightness ladder down x 21..27 —
+//   `_nkrvlad.mjs`, one band, all three references — puts the wing roofline
+//   at 40.90 / 39.95 / 40.40, mean 40.42, against the drawn 40.8. The wings
+//   are within 0.4 of a unit and were never compressed. What DOES read at
+//   ~37.3..38.3 is the roof deck BEHIND the gable, a different plane: the
+//   proof's device silhouette (`_nkrsil.mjs`, flood-filled from the wing wall
+//   so the legends cannot join the component) tops at 37.5 over x 33.0..38.8
+//   and 37.1 over x 61.3..66.3, which is the 37.4 already drawn, and at 38.3
+//   over x 28.7..32.8 and 66.5..72.0, a second step of that deck that is NOT
+//   drawn and is the one thing on this roofline still open.
+//
+//   ALSO STILL OPEN: the drum on the references is ~38.5..61.5 with three
+//   arched dormers in it. Only the band is drawn; the dormers are below the
+//   84 px resolution the app draws at.
+//
+//   REFERENCE POOL, checked this round rather than inherited. Three files,
+//   three sha256, and one of them is a CAMEO PROOF: `nickel-rev-proof.png`
+//   (2879x2905) is frosted device on a mirror field that photographs near
+//   black, which makes it the best SHAPE reference in the set — it is the only
+//   one that segments on a single threshold, 81.7 grey levels of separation —
+//   and the worst TONE reference. `nickel-rev.jpg` is 500x493 and GREYSCALE
+//   (one channel), so nothing about colour may be read from it. The recorded
+//   "NCC 0.13 and −0.39" reproduces (0.144 and −0.364, disc-normalised, inside
+//   r 0.95) and the three are genuinely different photographs.
+//
+//   ⚠️ AND THE AREA `discOf()` DOES NOT FAIL IN KIND ON THIS PROOF, which is
+//   worth saying because the cent round's finding on `penny-obv-2.jpg`
+//   (R = 395.7 against a rim fit's 450.0, −12.1%) reads as if it applied to
+//   every proof. Measured here against a rim fit (`_rvrim.mjs`, radial walk +
+//   Kasa circle, p95 residual 12.6 px on 1419): the area fit on
+//   `nickel-rev-proof.png` is −1.8%, because this file's SURROUND is white, so
+//   the near-black mirror field is still counted as device. It fails far worse
+//   on the file nobody would suspect — `nickel-rev-2.png`, a bright coin on a
+//   transparent background, where the area fit is −31.7% (R 324.1 against a
+//   rim fit's 474.9) because the coin's own field is within tolerance of the
+//   flattened white. The lesson is the same and the rule is unchanged (fit the
+//   RIM), but "it is a proof" is not the test. The frozen discs in
+//   `judge/_jn1discs.json` and `coloringbook/_rvnorm.mjs` ARE rim fits and are
+//   sound: they agree with an independent rim fit to −0.38% / +0.18% / −0.04%
+//   of R and under 3 px of centre.
 function monticello(tier, p, boxW) {
   if (tier === 'icon') {
     // §15.4 again: three field-coloured slots at 23px are stripes, not a
@@ -3934,11 +3969,60 @@ function monticello(tier, p, boxW) {
     // the wings, a step lower: roofline 40.8, cornice 43.3, block 18..82
     '<rect x="19" y="40.8" width="62" height="2.5"/>' +
     '<rect x="18" y="43.3" width="64" height="15.2"/>' +
-    // the end bays, a step lower again, running the full measured width
-    '<rect x="12.8" y="45.4" width="74.4" height="2.2"/>' +
-    '<rect x="13.4" y="47.6" width="73.2" height="10.9"/>' +
-    // the long terrace the whole house stands on
-    '<rect x="11.5" y="58.5" width="77" height="1.9"/>';
+    // THE END PAVILIONS, AND THE STEP DOWN TO THEM IS 1.1 UNITS, NOT 4.6.
+    //
+    // Their WIDTH had been measured (12.8..87.2) and is right. Their HEIGHT
+    // never had been — the same shape of miss as the cent's stylobate: an
+    // outer bound that passes tells you nothing about the course it sits on.
+    // Read on all three references by `_nkrvlad.mjs`, a brightness ladder down
+    // the band x 14..17 (inside the pavilion, clear of both its corners), and
+    // beside it the same ladder down x 21..27 on the wing, so the STEP is a
+    // difference of two numbers taken the same way on the same photograph:
+    //
+    //                       wing roof   end pavilion   step
+    //   nickel-rev.jpg         40.90        42.00       1.10
+    //   nickel-rev-2.png       39.95        40.95       1.00
+    //   nickel-rev-proof.png   40.40        41.70       1.30
+    //   mean                   40.42        41.55       1.15
+    //   drawn (before)         40.80        45.40       4.60
+    //
+    // 45.40 is 3.85 units below the three references' 41.55 — 3.9% of the
+    // coin's diameter, on the outer fifth of the building, and it was the
+    // largest single error on this face. What it did to the silhouette is the
+    // point: it turned a roofline that is nearly one long horizontal into a
+    // wedding cake, and at 38 px a 4.6-unit step is 1.75 device pixels (a step
+    // a child sees) where the coin's 1.15 is 0.44 (a step a child does not).
+    // The motif's own note says the stepped roofline "carries the whole
+    // identity"; the steps that carry it are the dome, the gable and the roof
+    // deck at 37.4, all of which are unchanged. This one was invented.
+    //
+    // The ends now run 41.9 (= wing 40.8 + the measured 1.1) to the terrace,
+    // which also puts their wall top at 44.1 against a measured 43.0..44.7.
+    '<rect x="12.8" y="41.9" width="74.4" height="2.2"/>' +
+    '<rect x="13.4" y="44.1" width="73.2" height="14.4"/>' +
+    // THE TERRACE, AND IT WAS 5.5% NARROW — the widest mark on the face, and
+    // the one that makes this building read wide and low rather than tall.
+    //
+    // 11.5..88.5 was in the WIDTHS table above and had never been re-derived.
+    // Measured by `_nkrcols.mjs` as a brightness ladder across the band
+    // y 58.2..59.0 (inside the terrace on all three references — its bottom
+    // edge reads 61.2 / 59.7 / 60.9, so the band is safe on the tightest one),
+    // taking the outer edge on each flank independently:
+    //
+    //                        left    right    width   centre
+    //   nickel-rev.jpg       10.10   91.00    80.90   50.55
+    //   nickel-rev-2.png      9.40   91.70    82.30   50.55
+    //   nickel-rev-proof.png  9.30   90.60    81.30   49.95
+    //   mean                                  81.50
+    //   drawn (before)       11.50   88.50    77.00   50.00
+    //
+    // The three centres are the device's own axis, not 50: `_nkraxis.mjs`
+    // reflects each reference about a trial x and takes the best NCC, and gets
+    // 50.55 / 50.70 / 50.45 for the whole building (ncc 0.57 / 0.48 / 0.62),
+    // so two of these coins sit about half a unit right of their own rim fit.
+    // That is why only the WIDTH is taken from them and the drawing stays
+    // symmetric about 50: 50 ± 40.7.
+    '<rect x="9.3" y="58.5" width="81.4" height="1.9"/>';
 
   const detail =
     // portico: a shadowed recess with FOUR lit columns in front of it. The
@@ -3946,21 +4030,71 @@ function monticello(tier, p, boxW) {
     // full strength put more along-band variance in the drawing than the
     // photograph has.
     `<g fill="${p.deep}" opacity="0.55"><rect x="35.6" y="43.3" width="28.8" height="15.2"/></g>` +
+    // THE THREE OPENINGS, DRAWN BEHIND THE COLONNADE AND ON THE AXIS — both
+    // of which they were not.
+    //
+    // 1. THEY WERE NOT ON THE AXIS. Every mark in this group was built on
+    //    x = 50.25: the door 47.5..53.0, its lining 48.4..52.1, its pediment
+    //    46.9..53.6 and the two side openings 41.5..45.0 and 55.5..59.0 all
+    //    have midpoint 50.25, while the dome, drum, gable, cornices, wings,
+    //    ends and terrace are all built on 50. A course of marks on a
+    //    bilaterally symmetric building is symmetric or it is a mistake — the
+    //    same finding the cent's attic panels and dentils gave, in the same
+    //    place in the same kind of block, and nothing had measured it because
+    //    nothing had looked.
+    //
+    // 2. THEY WERE PAINTED OVER THE COLUMNS. `bayCentres(35.4, 64.6, 4, 0.4)`
+    //    puts the two centre shafts at 46.25 and 53.75, 2.6 wide, so the clear
+    //    opening between them is 47.55..52.45 — 4.90 units. The door pediment
+    //    was 6.70 wide and drawn AFTER `columns()` in `p.motif`, the shafts'
+    //    own colour, so it covered 0.65 of column 2 and 1.15 of column 3 and
+    //    the middle of the colonnade fused into one pale block. This is the
+    //    cent reverse's seated-figure defect exactly (v1.81.0: "WIDER THAN THE
+    //    CLEAR OPENING ... so his own base painted OVER both of them").
+    //    Two changes fix it and both are what the building does: the group is
+    //    drawn BEFORE `columns()`, so the colonnade stands in front of it, and
+    //    it is sized to the coin rather than to nothing.
+    //
+    // Measured on `nickel-rev-2.png` off `_nkrgrid.mjs` crops at 60 px per
+    // viewBox unit (`_nkrgrid-pL/pR-*`), then de-biased by that reference's
+    // own device axis of 50.65 (`_nkraxis.mjs`):
+    //
+    //                        read        on a 50 axis   was          now
+    //   door pediment base  47.8..53.4   47.2..52.8   46.9..53.6   47.2..52.8
+    //   door frame          48.5..53.0   47.9..52.4   47.5..53.0   47.75..52.25
+    //   left side opening   40.9..44.0   40.3..43.4   41.5..45.0   41.1..44.2
+    //
+    // The side openings are centred on their own clear bay (40.35..44.95,
+    // midpoint 42.65) at the measured 3.1-unit width rather than on the read
+    // 42.3, because the read carries the axis correction's error and the bay
+    // does not. The pediment stays 0.35 wider than the clear opening each
+    // side — the coin's is too, and now it tucks behind the shafts instead of
+    // erasing them.
+    (full
+      ? `<path d="M 47.2 48.6 L 50 46.2 L 52.8 48.6 Z" fill="${p.motif}"/>` +
+        `<rect x="47.75" y="49" width="4.5" height="9.5" fill="${p.motif}"/>` +
+        `<rect x="48.6" y="50.4" width="2.8" height="8.1" fill="${p.deep}"/>` +
+        `<g fill="${p.deep}" opacity="0.5"><rect x="41.1" y="49" width="3.1" height="9.5"/>
+           <rect x="55.8" y="49" width="3.1" height="9.5"/></g>`
+      : '') +
     columns(centres, 2.6, 44.4, 57.6, p, fine) +
     `<rect x="35.6" y="43.3" width="28.8" height="1.1" fill="${p.motif}"/>` +
     `<rect x="35.6" y="57.6" width="28.8" height="0.9" fill="${p.motif}"/>` +
-    // THE CENTRE DOOR, under its own small pediment — the feature that the
-    // six-column version was drawing as two extra columns. It sits in the
-    // MIDDLE opening, between columns 2 and 3, and the two openings either
-    // side of it are plain.
-    (full
-      ? `<rect x="47.5" y="49" width="5.5" height="9.5" fill="${p.motif}"/>` +
-        `<rect x="48.4" y="50.4" width="3.7" height="8.1" fill="${p.deep}"/>` +
-        `<path d="M 46.9 48.6 L 50.25 46.2 L 53.6 48.6 Z" fill="${p.motif}"/>` +
-        `<g fill="${p.deep}" opacity="0.5"><rect x="41.5" y="49" width="3.5" height="9.5"/>
-           <rect x="55.5" y="49" width="3.5" height="9.5"/></g>`
-      : '') +
-    // the end bays: a pilaster either side of each end window
+    // the end bays: a pilaster either side of each end window. They keep the
+    // top and the height they had (48.4, 9.8) even though the block behind
+    // them rose 3.5 units. Growing them with it was tried and REFUSED by
+    // looking: at 44.9..58.2 two 1.8-unit `deep` bars either side of a blank
+    // panel stop reading as pilasters and start reading as a second pair of
+    // tall windows, and this face already has four real windows a side. An
+    // unmeasured mark does not get to become more prominent on the strength of
+    // a measurement about something else.
+    // ⚠️ REPORTED, NOT FIXED: `padL = [15.0, 19.6]` has never had a number.
+    // The two strong verticals the end pavilion actually shows are its own
+    // corners — `_nkrcols.mjs` across y 49..56 puts them at 12.80 and 17.60 on
+    // `nickel-rev-2.png` and 12.3 and 17.3 on the proof, i.e. about 2.1 units
+    // outboard of where these two bars sit. Moving them is a change to what
+    // the mark IS (corner returns, not a pilaster pair) and belongs with a
+    // reading of the octagonal bow, which this round did not do.
     `<g fill="${p.deep}" opacity="0.6">${[...padL, ...padR]
       .map((x) => `<rect x="${n2(x - 0.9)}" y="48.4" width="1.8" height="9.8"/>`)
       .join('')}</g>` +
@@ -3990,11 +4124,21 @@ function monticello(tier, p, boxW) {
       : '') +
     // THE RAKING CORNICES. `ledge` only draws horizontals, so the two sloping
     // edges of the gable had no lit edge of their own and the pediment read as
-    // a plain wedge. Gated on `full` and not on `fine`: at the sizes money.js
+    // a plain wedge. Gated on `full`, which since v1.78.0 is the only gate
+    // there is.
+    //
+    // ⚠️ THE REASON THIS BLOCK USED TO GIVE FOR NOT USING `fine` IS NOW FALSE,
+    // and it is left corrected rather than deleted because it was load-bearing
+    // for where marks on this face were put. It said: "at the sizes money.js
     // draws, the nickel's box is 73.4 / 42 / 33.2 px, so `fine` (>=130) is
-    // NEVER true in the app — anything put behind it is invisible to a child.
-    // A 0.7-unit stroke is 0.51 px at 84 and 0.29 px at 48, so `mid` would
-    // only haze; `full` is where it earns its place.
+    // NEVER true in the app — anything put behind it is invisible to a child."
+    // That was true of the tier system. v1.78.0 replaced it: `coinSVG` authors
+    // ONE drawing at `DRAW_SIZE = 380` and then rewrites only the outer
+    // width/height, so the nickel's `boxW` is 332.2 at every displayed size and
+    // `fine = full && boxW >= 130` is ALWAYS TRUE. Everything behind `fine` on
+    // this face — the wing balustrade, the fanlight, the two dome ribs, the
+    // window sills and the white flute down each shaft — draws at 38 px today.
+    // Nothing here relies on it being off; the next round should not either.
     (full
       ? // The roof BEHIND the gable, shaded so the gable stands proud of it.
         // Drawn as the two corners the pediment does not cover rather than as
@@ -4012,10 +4156,20 @@ function monticello(tier, p, boxW) {
       : '') +
     ledge(34, 66, 41.5) +
     ledge(19, 81, 40.8) +
-    ledge(12.8, 87.2, 45.4) +
+    // The end pavilions' lit top, drawn only on the RETURNS that are exposed
+    // (12.8..19 and 81..87.2). At 45.4 this was one line clear across the
+    // building; at 41.9 the same full-width line would cut through the wing
+    // cornice band (40.8..43.3), which is in front of it, so it is clipped to
+    // the two pieces of it a viewer can see.
+    ledge(12.8, 19, 41.9) +
+    ledge(81, 87.2, 41.9) +
+    // the string course across the whole front at 47.6 — kept where it is.
+    // It used to be the end block's own top edge; it is now a course in the
+    // wall, which is what the references show it as (a continuous horizontal
+    // at y ~46.5..47.6 running the full width on all three).
     shade(13.4, 86.6, 47.6, p, 0.4) +
-    ledge(11.5, 88.5, 58.5) +
-    shade(11.5, 88.5, 59.9, p);
+    ledge(9.3, 90.7, 58.5) +
+    shade(9.3, 90.7, 59.9, p);
   return { solid, detail };
 }
 // Dime — the torch of the 1946 reverse, with the OLIVE branch on the left
