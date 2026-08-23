@@ -3154,13 +3154,51 @@ function coat(rIn, dir, s, cx, cy, neck, g) {
 // Lincoln's bow tie, which the real cent has and which is worth the four
 // curves it costs: it is the one thing on the whole coin that is obviously
 // an ITEM OF CLOTHING, and a child who has spotted it once will look for it
-// again. Drawn in the head tone against the darker coat so it separates.
+// again. Drawn in `deep` against the lighter coat so it separates. (That last
+// sentence used to read "in the head tone against the DARKER coat", which was
+// written before the coat became the lighter of the two; the call site has
+// always passed `p.deep`.)
+//
+// AND IT WAS TWICE THE SIZE OF THE COIN'S, ON THE WRONG CENTRE. `git log -S`
+// says this helper and its one call site were authored whole in eb4c947
+// (v1.55.0) and never touched again; no comment anywhere claims a measurement,
+// and none had been taken. The literals `8 * k` and `ox` put a symmetric
+// butterfly 12.48 viewBox units wide — 12.5% of the coin's diameter — centred
+// on the head's own origin at x 53.88.
+//
+// WHAT THE COIN HAS, read off `judge/_py2text.mjs` ladders at one viewBox unit
+// a line, four references, each registered by its own RIM fit:
+//
+//                              knot left   knot right   width   centre
+//     penny-obv-2.jpg  2002-S      52.8        60.0       7.2     56.4
+//     penny-obv-unc2005.png        53.3        60.3       7.0     56.8
+//     penny-obv-1991d.png          52.5        60.0       7.5     56.3
+//     penny-obv-3.jpg              53.5        59.0       5.5     56.3
+//     ------ mean                  53.03       59.83      6.80    56.43
+//     OURS                         47.64       60.12     12.48    53.88
+//
+// The RIGHT edge was already right, to 0.3 units on three of the four — which
+// is the corroboration that this is a real 5.4-unit error on the LEFT edge and
+// not a registration slip, because a registration slip moves both edges. What
+// we drew ran the left wing back across the lapel, and at 84 px it reads as a
+// dark bar laid straight across the chest (`judge/_py4-look-before.png`).
+//
+// So: half-width `8` -> `4.36` (4.36 * 0.78 = 3.40 viewBox units, the measured
+// half of 6.80), and the call site moves the centre 2.55 units forward onto the
+// throat. The inner apex and the knot are scaled with the width by the same
+// 4.36/8 = 0.545, because a knot that keeps its old radius inside a tie half
+// the width is a disc with two flaps.
+//
+// THE HEIGHT IS NOT TOUCHED, AND THAT IS A REFUSAL. The same four ladders read
+// the knot 4.4 / 5.5 / 6.0 / 5.5 units tall, mean 5.35, against the 5.30 this
+// already draws. There is nothing there to correct and the references disagree
+// by more than the difference would be.
 const bowTie = (ox, y, k) =>
-  `<path d="M ${n2(ox - 8 * k)} ${n2(y - 3.4 * k)} L ${n2(ox - 2 * k)} ${n2(y)}
-     L ${n2(ox - 8 * k)} ${n2(y + 3.4 * k)} Z
-     M ${n2(ox + 8 * k)} ${n2(y - 3.4 * k)} L ${n2(ox + 2 * k)} ${n2(y)}
-     L ${n2(ox + 8 * k)} ${n2(y + 3.4 * k)} Z"/>
-   <circle cx="${n2(ox)}" cy="${n2(y)}" r="${n2(2.1 * k)}"/>`;
+  `<path d="M ${n2(ox - 4.36 * k)} ${n2(y - 3.4 * k)} L ${n2(ox - 1.09 * k)} ${n2(y)}
+     L ${n2(ox - 4.36 * k)} ${n2(y + 3.4 * k)} Z
+     M ${n2(ox + 4.36 * k)} ${n2(y - 3.4 * k)} L ${n2(ox + 1.09 * k)} ${n2(y)}
+     L ${n2(ox + 4.36 * k)} ${n2(y + 3.4 * k)} Z"/>
+   <circle cx="${n2(ox)}" cy="${n2(y)}" r="${n2(1.14 * k)}"/>`;
 
 // The portrait. Below `full`, the relief marks are DELETED rather than
 // shrunk — a 1.5-unit eye at 38px is a smudge that reads as damage, not as
@@ -3314,8 +3352,19 @@ function bust(id, tier, p, dim, boxW) {
         ? ''
         : `<g fill="${cloth}" stroke="${p.deep}" stroke-width="${strokeW}" stroke-linejoin="round" stroke-linecap="round">
              ${coat(rIn, o.dir, s, cx, cy, o.neck, o.coat)}</g>` +
+          // THE TIE SITS ON THE THROAT, NOT ON THE HEAD'S CENTRELINE. `50 + cx`
+          // is the origin BEHIND THE EYE (see the HEAD comment) — putting the
+          // tie's knot there was 2.55 viewBox units behind where four
+          // photographs put it, on top of the lapel rather than under the
+          // beard. `+ o.dir * 3.27 * s` is that 2.55 expressed in the head's own
+          // local units so it mirrors with `dir` and scales with `s` like every
+          // other placement here; for the cent it lands the knot's centre on
+          // 56.43, the mean of the four ladder reads in bowTie's own comment.
+          // `coat()` puts the collar's throat crossing at `ox + dir * 9 * s` =
+          // 60.90, so the tie's forward edge at 59.83 is 1.07 units inside its
+          // own garment.
           (id === 'penny'
-            ? `<g fill="${p.deep}" stroke="none">${bowTie(50 + cx, cy + (o.neck + 3) * s, s)}</g>`
+            ? `<g fill="${p.deep}" stroke="none">${bowTie(50 + cx + o.dir * 3.27 * s, cy + (o.neck + 3) * s, s)}</g>`
             : ''));
   // Hair (and Lincoln's beard) as a darker mass over the head, at every tier
   // that is not `icon`. At icon the whole bust is one flat shape already, so
@@ -4615,8 +4664,65 @@ const INSCRIPTION = {
     //         exactly that: the cent spreads IN GOD WE TRUST right across the
     //         top from about 205° to 335°.
     main: { kind: 'arc', text: 'IN GOD WE TRUST', size: 4.8, centre: 270, rOff: 3.47, adv: 1.34 },
+    // LIBERTY HAD NEVER BEEN MEASURED. `main` above carries three paragraphs of
+    // measurement; the two `rest` lines carry none, and `git log -L` says why:
+    // `{ kind: 'flat', text: 'LIBERTY', x: 20, y: 53, size: 5.2 }` was authored
+    // whole in eb4c947 (v1.55.0) and no character of it changed in the 24
+    // rounds since. It is a placement someone liked, in the one channel §0.1
+    // calls "how a child actually reads a coin".
+    //
+    // `y` 53 -> 56.4, and that is 3.39 viewBox units — 3.4% of the coin's
+    // diameter, 0.65 mm on a real cent, and at 84 px (the naming draw, where
+    // the cent's own box is 84 * 0.7853 = 66 px) 2.2 device pixels of a word
+    // whose whole ink band is 2.6 px tall. Measured by
+    // `judge/_py3band.mjs`, which integrates |grad I| along each viewBox row of
+    // a window holding LIBERTY and nothing else and reports where that profile
+    // rises and falls — the INK BAND, which is exactly what `flatText`'s `y`
+    // and `size` set. A struck letter and the field beside it are the same
+    // reflectance, so no segmentation is possible here; gradient does not care.
+    //
+    //     band midpoint, viewBox y      seven references, read separately
+    //       penny-obv-4.png              53.60
+    //       penny-obv-3.jpg              54.00
+    //       penny-obv-unc2005.png        54.55
+    //       penny-obv-proof2021.jpg      54.65
+    //       penny-obv-2.jpg              54.70
+    //       penny-obv-1991d.png          55.15
+    //       ------ mean of the six       54.44   (sd 0.51)
+    //       penny-obv.jpg (1909-S)       57.00   published, NOT in the target
+    //       OURS                         51.05
+    //
+    // 53.00 + (54.44 − 51.05) = 56.39, drawn at 56.4. All SEVEN references put
+    // the word lower than we drew it; the 1909-S is left out of the target
+    // because it is the wheat-cent obverse against a Memorial reverse and its
+    // photograph is visibly tilted, and taking it in would move `y` FURTHER in
+    // the same direction (56.76), so excluding it is the conservative choice.
+    //
+    // THE MIDPOINT IS THE STATISTIC, not the baseline, and the instrument's own
+    // control says why: on a photograph the band includes the raised letter's
+    // bevel skirt on both sides, and OUR flat fill has none. Re-run at band
+    // thresholds 0.15 / 0.25 / 0.40 / 0.55 the references' midpoints move by at
+    // most 0.15 — the skirt is symmetric — while their edges move up to 0.7.
+    //
+    // `size` 5.2 IS REFUSED, and that is the round's measured refusal. The same
+    // read makes our ink band 3.90 against the references' 4.30–5.30, i.e. ours
+    // looks 15% small — but that gap is the same order as the bevel systematic
+    // above, which I could not separate from it with any instrument I have.
+    // At threshold 0.55 our own band collapses to 0.80 units (two sharp spikes,
+    // one surviving) where every photograph's stays 3.6–4.6 wide, which is the
+    // systematic showing itself. A number I cannot separate from its own
+    // artefact is not a number. `x` 20 likewise stands: the column read is
+    // dominated by the rim at the low end of every window wide enough to hold
+    // the word, and the overlays (`judge/_py2-text-libA.png`, `-libB.png`) show
+    // ours and the coin agreeing to about half a unit on the centre.
+    //
+    // The date is UNCHANGED, and that is a second refusal. Same instrument,
+    // window x 68..89: our band midpoint 66.00 against the six references'
+    // 65.80–67.80. The window cannot be made clean — it holds the mintmark, the
+    // coat's front seam and the rim as well as the digits, and three references
+    // ran into its edge — so the −0.9 it reports is inside its own noise.
     rest: [
-      { kind: 'flat', text: 'LIBERTY', x: 20, y: 53, size: 5.2 },
+      { kind: 'flat', text: 'LIBERTY', x: 20, y: 56.4, size: 5.2 },
       { kind: 'flat', text: YEAR, x: 78, y: 68, size: 5.4 },
     ],
   },

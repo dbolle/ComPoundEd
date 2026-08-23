@@ -3,6 +3,76 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.80.0 — 2026-08-23
+
+**LIBERTY had never been measured, and Lincoln's bow tie was twice the size of
+the coin's, on the wrong centre.**
+
+First face of a full ten-face review sweep, each face reviewed with no hints —
+only the instruction to find anything off or never evaluated.
+
+The cent obverse has **three** inscription lines. Its scorecard has `D5-band`,
+`D5-cap` and `D5-span` rows for IN GOD WE TRUST and **no row at all** for
+LIBERTY or the date: one line of three had ever been scored. `LIBERTY` was
+authored whole in `eb4c947` (v1.55.0) and not one character changed in the 24
+rounds since.
+
+Measured by integrating |∇I| along each row of a window holding the word and
+nothing else — a struck letter and the field beside it are the same
+reflectance, so segmentation is impossible, but gradient does not care:
+
+| ink-band midpoint | y |
+|---|---|
+| six references, each rim-registered | 53.60, 54.00, 54.55, 54.65, 54.70, 55.15 |
+| **mean** | **54.44** (sd 0.51) |
+| `penny-obv.jpg` (1909-S), dissents +2.5, published and excluded | 57.00 |
+| **we drew** | **51.05** |
+
+All seven put it lower than we drew it — 3.4 % of the coin's diameter too
+high. `y` 53 → **56.4**.
+
+**The bow tie**, same story: `bowTie()` and its one call site authored whole in
+the same commit, never touched, no comment anywhere claiming a measurement.
+Four ladder reads at one viewBox unit per line:
+
+| | left | right | width | centre |
+|---|---|---|---|---|
+| mean of four references | 53.03 | 59.83 | **6.80** | 56.43 |
+| **we drew** | **47.64** | 60.12 | **12.48** | **53.88** |
+
+**The right edge was already right to 0.3 units on three of the four** — which
+is what proves this a real 5.4-unit error on the *left* edge rather than a
+registration slip, because a slip moves both edges. We drew a symmetric
+butterfly 12.5 % of the coin's diameter wide with a round knot, centred on the
+head's origin *behind the eye*; at 84 px it read as a dark bar laid across the
+chest. The photographs show a small, compact, angular tie at the throat with
+the lapels sweeping out of it. Half-width `8` → `4.36`, knot and apex scaled
+by the same 0.545, and the call site moves the centre 2.55 units forward onto
+the throat.
+
+**Refused, with the numbers:** LIBERTY's `size` (ours reads 15 % small, but the
+gap is the same order as the bevel systematic and could not be separated from
+it — at threshold 0.55 our band collapses to 0.80 units where every
+photograph's stays 3.6–4.6 wide, so it is an artefact, not a measurement);
+LIBERTY's `x`; the date's `y` (−0.9, inside its own noise, and the window
+necessarily holds the mintmark, the coat seam and the rim); and the tie's
+height (four reads 4.4/5.5/6.0/5.5, mean 5.35, against the 5.30 already drawn
+— nothing to correct).
+
+**T1 transfer 32/32, unchanged**, control 4/4 both faces. The cent obverse's
+own score rose 0.430 → 0.526 at 38 px and its margin 0.293 → 0.389, and
+decomposition shows **LIBERTY carries all of the gain** while the tie is
+score-neutral. The tie was taken on the measurement, not on the score.
+
+**Instrument fault found, and it generalises:** the area `discOf()` fails *in
+kind* on a cameo proof. The mirror field photographs as near-black, is counted
+as background, and the fit encloses only the frosted device — on
+`penny-obv-2.jpg`, R = **395.7** against a rim fit's **450.0 (−12.1 %)** with
+the centre 7.0 units out in x, so every feature on that file lands seven units
+from where it is. That is a different thing from the −0.8 %…−5.1 % bias already
+on record. T1 and the frozen `_jp1discs.json` are unaffected; the private
+copies of the area fit carried by ladder instruments are not.
+
 ## v1.79.0 — 2026-08-23
 
 **Jefferson had no eye. He had the shared default, never measured on his face,

@@ -7,6 +7,32 @@ reconsider after calibration.
 
 ## Where we are
 
+- 🔄 **Ten-face review sweep, no hints given, one face at a time.** Each round
+  is told only to find anything off or never evaluated. Motivated by v1.78.0:
+  removing the tier system means details that never drew below 76 px now draw
+  at 38 px, so anything inherited from a shared default has been shipping
+  unlooked-at. **Done: penny obverse (v1.80.0 — two findings).** Remaining:
+  penny rev, nickel obv/rev, dime obv/rev, quarter obv/rev, buck obv/rev.
+  The pattern is holding across three consecutive rounds now: **the defects are
+  features that were never measured on their own face**, not constants that
+  drifted. Both cent findings were authored whole in `eb4c947` (v1.55.0) and
+  untouched for 24 rounds; the nickel's eye did not exist as a face-local
+  feature at all.
+  ⚠️ **And T1 could not see any of them.** 32/32 before and after on the
+  nickel's eye to 3 d.p.; on the cent the tie is score-neutral and was taken on
+  the measurement alone. **Looking at the render is the gate that finds these.**
+- 🔴 **The area `discOf()` fails IN KIND on a cameo proof — fit the rim.**
+  Found by the cent round. The mirror field photographs near-black, is counted
+  as background, and the fit encloses only the frosted device: on
+  `penny-obv-2.jpg` R = **395.7** vs a rim fit's **450.0 (−12.1 %)**, centre
+  **7.0 viewBox units** out in x. Every feature measured on that file lands
+  seven units from where it is. This is a different failure from the
+  −0.8 %…−5.1 % area-vs-rim bias already recorded — that is a bias, this is a
+  wrong object. **Scope:** T1 is safe (it registers through `_rvdisc.fit`,
+  which reads 445.8 there) and frozen `_jp1discs.json` is correct at 445.83;
+  the fault is in the **private copies** of the area `discOf()` carried by
+  ladder/overlay instruments (`_nk17grid.mjs` and family). Every remaining face
+  with a proof in its pool is exposed — the dime has three.
 - ✅ **The scope check every round needed was re-derived by hand each time —
   now an instrument.** `_jp9partition.mjs` renders all 5 ids x 2 sides x 6
   sizes on both sides of a change and hashes the bytes, so a round's claim to
