@@ -21,6 +21,36 @@ preserve existing profile data:
   `/sync/profiles/` (host rm fails — the dir is owned by the container user;
   use `curl -X DELETE`). Kids could otherwise restore test data.
 
+## Hard requirement: private data never enters the repo
+
+`github.com/dbolle/ComPoundEd` is PUBLIC. Kid names, the home server's address
+and the machine's username must never reach it — not in code, not in a
+comment, not in a commit message, and not in a symlink target.
+
+- **Never write an absolute machine path in a tracked file.** Derive it from
+  `import.meta.url` — `coloringbook/judge/_paths.mjs` is the only place a path
+  comes from. Anything genuinely machine-specific (host, ports, scratch dir)
+  goes in **gitignored `judge.local.json`** and is read with `local('key')`.
+  `judge.local.example.json` is the tracked template. A value that is not in
+  the repo cannot be committed to the repo.
+- **Never characterise a private term** — not its length, its shape, how often
+  it occurs, which words contain it, or why it needed special handling. The
+  secret has never been committed; a description precise enough to enumerate
+  candidates is nearly as good, and one was. Explaining the *rule* is fine.
+- **Never echo a private term** into output, a commit message, a test failure,
+  or an agent report — not even on this machine. Report by index and category.
+  Never run `bash -x` on anything that reads the terms file; debug by
+  behaviour (exit codes, pass/fail) instead.
+- Matching policy lives per-term in the private, never-tracked terms file:
+  `<term>` is substring (the default, and the strict one — a term glued into a
+  path or identifier is a real leak), `<term>|word` is whole-word only.
+- Three gates enforce this and all three must stay green:
+  `.githooks/pre-commit` (earliest), `tests/privacy.spec.js` (runs in
+  `npm test`, the one gate that cannot be skipped), `.githooks/pre-push`
+  (last line). Install hooks with `npm run setup-hooks`.
+- The `local-history` branch predates publication and contains private network
+  details — **never push it**. Push `main` only, never `--all`, never `--tags`.
+
 ## Working on this repo
 
 - BETA EXEMPTION: features gated by `isBeta()` (subjects.beta, Grown-Ups
@@ -49,5 +79,3 @@ preserve existing profile data:
   principles (kids 7–10, no dark patterns, local-only data).
 - Test on the deployed insecure origin (`http://<server-ip>:8091`), not
   just localhost — secure-context-only APIs differ (crypto.randomUUID bit us).
-- The `local-history` git branch predates publication and contains private
-  network details in commits — never push it to a public remote.

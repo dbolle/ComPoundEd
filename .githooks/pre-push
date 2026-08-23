@@ -5,10 +5,31 @@
 # Install with: npm run setup-hooks
 set -euo pipefail
 
+# One term per line, outside the repo and never tracked. A line may carry an
+# optional matching mode:
+#
+#     <term>          substring match (the default, and the strict one)
+#     <term>|word     whole-word match only
+#
+# SUBSTRING IS THE DEFAULT ON PURPOSE. A private term concatenated into a path,
+# a hostname or an identifier is a real leak and whole-word matching would sail
+# straight past all three. `|word` exists for a term that is also a substring of
+# ordinary English, where substring matching produces only false positives.
+#
+# WHY THE MODE LIVES IN THE PRIVATE FILE AND NOT IN A TRACKED ALLOWLIST.
+# An allowlist of "safe words" names the very words that contain a term, and a
+# tracked comment explaining WHY a term needed one leaks its length, its
+# occurrence count and the word family around it — enough to enumerate
+# candidates from a public checkout and confirm one by its hit count. This file
+# is never published, so putting the policy here means nothing public describes
+# any term at all.
+#
+# NOTHING IN THIS REPOSITORY MAY CHARACTERISE A PRIVATE TERM. Not its length,
+# not its shape, not how many times it occurs, not which words contain it, not
+# why it needed a mode — in code, comments, docs, or commit messages. The term
+# itself is never echoed by this hook either; a failure says only that one was
+# found.
 TERMS_FILE="$HOME/.config/compounded/private-terms"
-# Words that are KNOWN-SAFE despite containing a private term as a SUBSTRING.
-# Optional; absent means a stricter scan, so its absence never fails open.
-ALLOW_FILE="$HOME/.config/compounded/private-terms-allow"
 
 if [ ! -f "$TERMS_FILE" ]; then
   echo "pre-push: missing $TERMS_FILE (one private term per line)." >&2
@@ -16,41 +37,9 @@ if [ ! -f "$TERMS_FILE" ]; then
   exit 1
 fi
 
-# WHY AN ALLOWLIST RATHER THAN WORD-BOUNDARY MATCHING (2026-08-23).
-# The scan is deliberately SUBSTRING-based: a private term concatenated into a
-# path, a hostname or an identifier (`/home/<name>/`, `<name>-laptop`,
-# `restore<Name>Profile`) is a real leak, and whole-word matching would sail
-# straight past all three. That strictness is the point and is kept.
-#
-# But one private term is four characters long and is a substring of an
-# ordinary English word this project uses constantly in its own methodology
-# vocabulary — 37 occurrences across 19 files including docs/COIN-JUDGE.md,
-# src/art/coins.js, src/engine/leitner.js and three test specs, with ZERO
-# whole-word matches anywhere in the tree. The gate fired twice on it and was
-# wrong both times; the only true positive it has ever caught was a username in
-# hardcoded absolute paths, which was a whole word.
-#
-# The alternatives were worse. Switching to `grep -qiwF` loosens the gate for
-# every term, including the concatenation cases above. Rewording 37 occurrences
-# keeps the gate but permanently degrades a term of art in the methodology
-# docs. So: substring matching stays exactly as strict as it was, and a small
-# explicit list of known-safe WHOLE WORDS is deleted from the text before the
-# scan. A private term appearing anywhere outside one of those exact words
-# still trips the gate.
-#
-# Adding to the allowlist is a privacy decision. Add a word only after checking
-# it has no whole-word matches in the tree.
-scrub() {
-  if [ -s "$ALLOW_FILE" ]; then
-    local args=()
-    while IFS= read -r w; do
-      [ -z "$w" ] && continue
-      args+=(-e "s/${w}//gI")
-    done < "$ALLOW_FILE"
-    if [ ${#args[@]} -gt 0 ]; then sed "${args[@]}"; else cat; fi
-  else
-    cat
-  fi
+# Match one term against a blob of text, honouring its mode.
+matches() { # $1 = term, $2 = mode, stdin = text
+  if [ "$2" = word ]; then grep -qiwF -- "$1"; else grep -qiF -- "$1"; fi
 }
 
 ZERO=0000000000000000000000000000000000000000
@@ -69,37 +58,62 @@ while read -r _local_ref local_sha _remote_ref remote_sha; do
     base="$remote_sha"
   fi
 
-  # Collect once, scrub once, then test each term against the scrubbed text.
-  #
-  # THE TEST BELOW USES A HERESTRING, NOT A PIPE, AND THAT IS LOAD-BEARING.
-  # This gate previously read `git log … | grep -qiF -- "$term"`. Under
-  # `set -o pipefail` that construction FAILS OPEN: `grep -q` exits the instant
-  # it matches, the upstream writer takes SIGPIPE, pipefail turns the whole
-  # pipeline non-zero, and `if` reads non-zero as "no match" — so a detected
-  # leak is reported as clean. It only bites when the match occurs EARLY enough
-  # that the writer still has output buffered, which means the gate was
-  # reliable for a term buried deep in history and silently useless for one in
-  # the most recent commits. Proven on 2026-08-23 with a synthetic leak in the
-  # newest commit: the old form printed "scan clean" and exited 0.
-  # `grep -q <<< "$var"` has no pipeline and no SIGPIPE, so the exit status is
-  # grep's own. Do not turn these back into pipes.
-  msgs=$(git log --format='%B' "$range" | scrub)
-  added=$(git diff "$base" "$local_sha" | grep '^+' | scrub || true)
+  msgs=$(git log --format='%B' "$range")
 
-  while IFS= read -r term; do
+  # PER-COMMIT, NOT THE NET DIFF. This scanned `git diff base..head` only, which
+  # cannot see content that was ADDED AND THEN REMOVED inside the pushed range —
+  # yet every one of those commits is published and the blob stays reachable
+  # forever. That is not hypothetical: a `node_modules` symlink pointing at a
+  # home directory was added in one commit and deleted in the next, and went
+  # public because the net diff showed nothing. Scanning each commit's own diff
+  # closes it. `-M` keeps renames cheap; `--no-textconv` avoids running filters.
+  added=$(git log --format='%n' -p -M --no-textconv "$range" | grep '^+' || true)
+
+  # Symlinks are the other half of that hole: `grep -r` will not read a symlink
+  # and `git grep` skips them, so a symlink whose TARGET is a private path is
+  # invisible to a tree scan. Collect their targets explicitly.
+  links=""
+  for c in $(git rev-list "$range"); do
+    while read -r mode _type sha _path; do
+      [ "$mode" = 120000 ] || continue
+      links="$links
+$(git cat-file blob "$sha" 2>/dev/null || true)"
+    done < <(git ls-tree -r "$c" 2>/dev/null | grep '^120000 ' || true)
+  done
+
+  while IFS= read -r line; do
+    [ -z "$line" ] && continue
+    term="${line%%|*}"
+    mode="word"; [ "$line" = "$term" ] && mode="substring"
     [ -z "$term" ] && continue
-    if grep -qiF -- "$term" <<< "$msgs"; then
+
+    if matches "$term" "$mode" <<< "$msgs"; then
       echo "pre-push: a private term appears in an outgoing COMMIT MESSAGE ($range)." >&2
       echo "Reword the commit before pushing (the term itself is not echoed here)." >&2
       exit 1
     fi
-    if grep -qiF -- "$term" <<< "$added"; then
-      echo "pre-push: a private term appears in ADDED lines of the outgoing diff ($range)." >&2
+    if matches "$term" "$mode" <<< "$added"; then
+      echo "pre-push: a private term appears in ADDED lines of an outgoing COMMIT ($range)." >&2
       echo "Redact it before pushing (the term itself is not echoed here)." >&2
+      exit 1
+    fi
+    if [ -n "$links" ] && matches "$term" "$mode" <<< "$links"; then
+      echo "pre-push: a private term appears in a SYMLINK TARGET in an outgoing commit ($range)." >&2
+      echo "Remove the symlink before pushing (the term itself is not echoed here)." >&2
       exit 1
     fi
   done < "$TERMS_FILE"
 done
+
+# THE TEST BELOW USES A HERESTRING, NOT A PIPE, AND THAT IS LOAD-BEARING — see
+# `matches` above. This gate previously read `git log … | grep -qiF -- "$term"`.
+# Under `set -o pipefail` that construction FAILS OPEN: `grep -q` exits the
+# instant it matches, the upstream writer takes SIGPIPE, pipefail turns the whole
+# pipeline non-zero, and `if` reads non-zero as "no match" — so a detected leak
+# is reported clean. It only bites when the match happens early enough that the
+# writer still has output buffered, which means the gate was reliable for a term
+# buried deep in history and silently useless for one in the most recent
+# commits. Do not turn these back into pipes.
 
 echo "pre-push: private-term scan clean; running preservation specs…"
 npm run build >/dev/null 2>&1

@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+# Compounded pre-commit gate — the EARLIEST catch.
+#
+# The pre-push hook is the last line and the privacy specs are the durable one;
+# this exists so a private value never enters a commit object in the first
+# place. Once it is committed, removing it means rewriting history, and if it
+# has been pushed it cannot be recalled at all.
+#
+# Scans only what is STAGED. Fast enough to run on every commit.
+# The term itself is never echoed.
+set -euo pipefail
+TERMS_FILE="$HOME/.config/compounded/private-terms"
+
+staged=$(git diff --cached --name-only --diff-filter=ACMR)
+[ -z "$staged" ] && exit 0
+
+# 1. machine-local / secret-bearing paths must never be staged
+# `.env.example` is deliberately tracked, so it is excluded by a second pass
+# rather than a negative lookahead — POSIX ERE has none, and the lookahead form
+# made grep warn and silently match differently than intended.
+if bad=$(printf '%s\n' "$staged" \
+      | grep -iE '(^|/)\.env($|\.)|settings\.local|\.tmp\.[0-9]+|(^|/)judge\.local\.json$|(^|/)private-terms|\.(pem|key)$|(^|/)id_(rsa|ed25519)|(^|/)\.npmrc$' \
+      | grep -ivE '\.env\.example$' || true); [ -n "$bad" ]; then
+  echo "pre-commit: refusing to commit a machine-local or secret-bearing file:" >&2
+  printf '  %s\n' $bad >&2
+  exit 1
+fi
+
+# 2. symlinks that escape the repo (their targets are invisible to text scans)
+while IFS= read -r f; do
+  [ -L "$f" ] || continue
+  t=$(readlink "$f")
+  case "$t" in /*) echo "pre-commit: staged symlink points outside the repo: $f" >&2; exit 1;; esac
+done <<< "$staged"
+
+# 3. hardcoded absolute machine paths in staged content
+if git diff --cached -U0 | grep '^+' | grep -qE '/home/[A-Za-z0-9._-]+/|/Users/[A-Za-z0-9._-]+/|/tmp/claude-[0-9]+/'; then
+  echo "pre-commit: staged content hardcodes an absolute machine path." >&2
+  echo "Derive it from import.meta.url (coloringbook/judge/_paths.mjs), or put the" >&2
+  echo "value in gitignored judge.local.json and read it with local()." >&2
+  exit 1
+fi
+
+# 4. private terms in staged content or in the message being written
+[ -f "$TERMS_FILE" ] || exit 0
+added=$(git diff --cached -U0 | grep '^+' || true)
+while IFS= read -r line; do
+  [ -z "$line" ] && continue
+  term="${line%%|*}"; [ -z "$term" ] && continue
+  if [ "$line" = "$term" ]; then hit=$(grep -qiF -- "$term" <<< "$added" && echo y || echo n)
+  else hit=$(grep -qiwF -- "$term" <<< "$added" && echo y || echo n); fi
+  if [ "$hit" = y ]; then
+    echo "pre-commit: a private term appears in staged content (not echoed here)." >&2
+    exit 1
+  fi
+done < "$TERMS_FILE"
+exit 0

@@ -73,16 +73,22 @@ reconsider after calibration.
   the range, with `src/`, `tests/` and `package.json` byte-identical
   afterwards. **Live instruments should derive paths from `import.meta.url`
   rather than hardcoding — still to do; the redaction only removed the name.**
-- ⚠️ **The gate is substring-based ON PURPOSE, with a narrow allowlist.** A
-  private term concatenated into a path, hostname or identifier is a real leak
-  and whole-word matching would miss all three. But one 4-character term is a
-  substring of an ordinary English word used throughout this project's own
-  methodology vocabulary (37 occurrences, 19 files, **zero** whole-word
-  matches), and the gate fired on it twice and was wrong both times. So
-  substring strictness is kept and `~/.config/compounded/private-terms-allow`
-  lists known-safe whole words that are deleted before the scan. Adding to that
-  file is a privacy decision: only add a word with no whole-word matches in the
-  tree.
+- 🔴 **NOTHING IN THIS REPOSITORY MAY CHARACTERISE A PRIVATE TERM.** Not its
+  length, not its shape, not how many times it occurs, not which words contain
+  it, not why it needed special handling — in code, comments, docs, or commit
+  messages. This rule exists because the privacy machinery had become its own
+  disclosure: a tracked allowlist names the very words that contain a term, and
+  the tracked comment explaining *why* a term needed one supplied its length,
+  its occurrence count and the surrounding word family. From a public checkout
+  that is enough to enumerate candidates and confirm one by its hit count. The
+  secret was never committed; the description of it was almost as good.
+  **The fix removes the need to explain anything in public.** The allowlist is
+  gone. Matching policy now lives per-term in the private, never-tracked terms
+  file — `<term>` for substring (the default and the strict one), `<term>|word`
+  for whole-word only — so the one term that needed different treatment is
+  handled without any public artefact mentioning that it exists. Substring
+  remains the default because a term concatenated into a path, hostname or
+  identifier is a real leak that whole-word matching would miss.
 
 - 🔄 **Ten-face review sweep, no hints given, one face at a time.** Each round
   is told only to find anything off or never evaluated. Motivated by v1.78.0:
@@ -1443,3 +1449,4 @@ accessories + ÷ heatmap; encourage-new-facts bundles A–E; Little Pup mode
 home simplification; self-paced hints; iPhone/iPad fit; public repo +
 GitHub Pages; grooming Phase 1; wardrobe Phase 2 (v9); Paw Bucks Phase 3
 (v10); store gear assets + teaser.
+
