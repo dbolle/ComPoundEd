@@ -1,0 +1,9 @@
+{
+  "_comment": "Copy to judge.local.json (gitignored) for machine-specific values. Never commit the copy.",
+  "scratch": "coloringbook/judge",
+  "server": {
+    "host": "127.0.0.1",
+    "httpPort": 8080,
+    "appPort": 8091
+  }
+}

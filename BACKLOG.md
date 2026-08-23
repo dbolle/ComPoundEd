@@ -7,6 +7,44 @@ reconsider after calibration.
 
 ## Where we are
 
+- ✅ **Instruments no longer name machines — `_paths.mjs` (2026-08-23).** The
+  redaction removed the username; this removes the cause. Two rules: no tracked
+  file contains an absolute path (everything derives from `import.meta.url`),
+  and anything genuinely machine-specific — LAN address, ports, scratch dir —
+  lives in **`judge.local.json`, which is gitignored**, read via `local()`. A
+  value that is not in the repo cannot be committed to the repo.
+  `judge.local.example.json` is tracked as the template.
+  This also fixed a second-order bug worth naming: the hardcoded paths pointed
+  at the MAIN checkout, so an instrument copied into a round's worktree
+  **measured the main checkout's `coins.js` while appearing to measure the
+  round's** — the same class as the symlink trap, and equally invisible in the
+  output. `_jx0link.mjs` now finds the main checkout with
+  `git rev-parse --git-common-dir`, which is the correct derivation from inside
+  a linked worktree and needs no configuration at all; it refuses to run in the
+  main checkout (tested), and linked 217 entries correctly from a worktree.
+  Three one-off partition scripts (`_nk-part`, `_nk-part2`, `_part-motif`) were
+  **retired rather than repaired** — `_jp9partition.mjs` supersedes them.
+  ⚠️ **19 retired instruments keep the `USER` placeholder.** Retirement is
+  supposed to preserve an instrument at its old hash (COIN-JUDGE 1.1) and the
+  redaction has already broken that for these files. They are inert historical
+  artefacts and are not runnable as-is; the alternative was publishing a
+  username. Recorded here rather than quietly.
+- 🔴 **A PRE-EXISTING exposure on the public remote, owner's call, not acted
+  on.** Commit `45394e6` (2026-07-12, public ~6 weeks) contains a stray
+  `.claude/settings.local.json.tmp.…` — 100 permission rules carrying the
+  **home-server LAN IP (16x)** and the **username (27x)**. Not introduced by
+  the 2026-08-23 push; removed from the tree in a later commit but present in
+  2 published commits. **No credentials, tokens or keys** (scanned), the IP is
+  **RFC1918** and unroutable, and **no kid name appears in it** — the terms
+  that leaked are an internal address and a username.
+  Access data is thin and the gap is the point: **0 forks**, 0 stars, 0
+  watchers; 22 clones from 9 unique cloners with **0 views and 0 referrers**
+  over the last 14 days, which is a crawler signature rather than human
+  interest. GitHub retains only 14 days, so the first ~5 weeks — the bulk of
+  the exposure — is unmeasurable, and there is no per-object access data
+  anywhere, so nothing can say whether that blob was ever fetched. A purge
+  would be effective on GitHub's side (no forks) but cannot retract a clone.
+
 - 🔴🔴 **The pre-push privacy gate FAILED OPEN, and it failed open exactly when
   the leak was newest.** The scan read `git log … | grep -qiF -- "$term"` under
   `set -o pipefail`. `grep -q` exits the instant it matches; the upstream

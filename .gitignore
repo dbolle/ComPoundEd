@@ -49,5 +49,11 @@ coloringbook/judge/retired/*
 # `_jd2target-dime-reverse.json` — which IS tracked — carries its SHA-256. The
 # generator plus the hash is the evidence; the derivative image is not.
 
+# Machine-specific values for judge instruments (host names, LAN addresses,
+# scratch dirs). Read via coloringbook/judge/_paths.mjs `local()`. The example
+# is tracked; the real file never is — this is what stopped a username from
+# being committed into a public repo on 2026-08-23.
+judge.local.json
+
 # Agent worktrees (isolated checkouts; never part of a commit)
 .claude/worktrees/
