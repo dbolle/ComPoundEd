@@ -7,6 +7,33 @@ reconsider after calibration.
 
 ## Where we are
 
+- ✅ **The scope check every round needed was re-derived by hand each time —
+  now an instrument.** `_jp9partition.mjs` renders all 5 ids x 2 sides x 6
+  sizes on both sides of a change and hashes the bytes, so a round's claim to
+  have touched ONE face is checked structurally instead of trusted. This is
+  the check T1 cannot do: T1 scored **32/32 before and after** the nickel's
+  6.5-unit eye error, identical to 3 d.p. (v1.79.0) — a gate blind to a defect
+  is equally blind to one you introduce.
+  Validated four ways before first use: **null** (two distinct checkouts at
+  d19a503 -> 0/60), **response** (across the eye commit -> nickel.obverse
+  alone, 6/60), **self-test** (same dir twice -> refuses, exit 2), and
+  **size-dependence** (across the tier removal -> all 10 faces move at
+  24-84 px but not at 380, because 380 was already the `full` tier; the one
+  face that also moves at 380 is nickel.obverse, which is exactly the later
+  eye commit). It carries the two traps that have each cost a round: the
+  **stale base** (the Agent tool's own worktree isolation checks out ~25
+  commits behind, so the before-side is named and its commit printed) and the
+  **symlink trap** (a symlinked `.mjs` resolves relative imports against the
+  link target, measuring one checkout twice — absolute-path import avoids it,
+  and the self-test proves the two modules are distinct objects).
+  `scripts/round-setup.sh` builds round worktrees at the dispatch commit for
+  the same reason, linking the gitignored `ref/` and `node_modules` in.
+- ⚠️ **Do not merge the branch `worktree-agent-af59d13f68c79bc97` (56e2fc5).**
+  It is a superseded copy of the 174-instrument retirement — `main` already
+  has all 177 files — and it **commits `node_modules` as a symlink blob**
+  (mode 120000), the captured artefact of the incident that destroyed the
+  toolchain and needed `npm ci` to restore. Left in place as evidence, never
+  to be merged.
 - ✅ **The gate was 45+ minutes and one test was nearly all of it — fixed in
   v1.66.0.** `tests/countingpath.spec.js`'s first test ran **42.6 minutes
   alone**, longer than the other 458 combined; it now runs in **96 ms**, and
