@@ -3,6 +3,55 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.85.0 — 2026-08-24
+
+**No leaf on the dime was attached to anything.**
+
+Second attempt at the branches, after the judge reverted the first for reading
+as a tulip. `SPREAD` anchored each blade by its **centre** at a fitted offset
+from the stem — so the ladder was seven free-floating glyphs beside a stalk,
+and nothing in the file said otherwise because attachment had never been a
+measured quantity. The base now lands *on* the stem and the centre is derived
+from it: attachment is arithmetic, not a constant that happens to be close.
+
+Four more, three of which no number in the file covered:
+
+- **The blade was an ellipse — blunt at both ends.** Every leaf on both
+  references is a lance: pointed tip, narrow base, widest a third up. Rounded
+  ends are petals, and that is most of why the first attempt read as a flower.
+- **The oak leaf sat in a 2.05:1 box nobody had re-measured.** Every oak leaf
+  on the coin is 1.4:1–1.6:1 (13.9×9.3, 13×8, 11×7.5, 9.5×6). Four lobe pairs
+  in a 2.05:1 box must be small and round — a bead string, which an earlier
+  round *named* and then reproduced. Re-authored at 12.0 × 7.5.
+- **The olive branch carries two olives and we drew none.** Not mentioned
+  anywhere in the file; both references agree to 0.5 units.
+- **Every leaf hangs off a petiole; ours were sessile.** The 2–3 unit gap is
+  what breaks the branch into pieces instead of a column.
+
+| foliage rows | olive | oak |
+|---|---|---|
+| the coin | 29.50 / 28.50 | 29.50 / 26.75 |
+| ours before | **44.00** | **40.25** |
+| ours after | **29.75** | **31.00** |
+
+The oak's extra unit is the acorn, untouched. Its y-57 neighbourhood now reads
+acorn | field | stem — the structure it lacked.
+
+**The round took a WORSE T1 than the version that was reverted, deliberately.**
+Own score 0.336 → **0.408**, margin 0.141 → **0.207**, against the reverted
+attempt's 0.451 / 0.270 — and it said it would not have taken that one. It also
+rejected two oak outlines *on the picture without scoring them* (one read as a
+maple leaf, one as a bead chain), and published a real cost: the retired D11's
+reverse-only minimum falls 5.4 %.
+
+**T1 32/32, D9 0/180, partition 6/60 `dime.reverse` alone** (all re-derived by
+the judge), suite 461.
+
+**Stated as a choice, not a measurement:** the two references' oak-leaf widths
+disagree by 36 % of the smaller, and 7.5 is the mean of four leaves read off
+crops. One length per plant is a simplification the coin does not make — its
+olive blades run 11.3 to 16.7.
+
 ## v1.84.1 — 2026-08-23
 
 **The acorn is real. It was in the wrong place, and v1.84.0 deleted it instead

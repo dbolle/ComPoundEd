@@ -4472,37 +4472,118 @@ function torch(tier, p, boxW) {
   //     blade running (30.6, 44.0) to (38.6, 27.2) — inboard of its own stem.
   //     Hence `i % 2 === 1`: with the bottom leaf inboard, the top one is too,
   //     and the widest reach lands at mid height where the coin puts it.
-  const leafAt = (i, n, [dO, dI]) => {
-    const t = i / (n - 1);
-    const out = i % 2 === 1;
+  //
+  // ⚠️ EVERYTHING ABOVE THIS LINE IS SUPERSEDED BY ROUND 30 AND IS KEPT ONLY
+  // BESIDE ITS REPLACEMENT (COIN-JUDGE §1.1). Three of its numbers are refuted
+  // by `judge/_dr9branch.mjs`, which floods the FIELD inward instead of
+  // thresholding and is null-tested against `_dr8shaft.mjs`'s seven shaft
+  // widths by a completely different estimator (mean error 0.00 sd 0.24 and
+  // −0.01 sd 0.35):
+  //
+  //   · "olive blade 18.6 long by 5.5 wide" — RETRACTED. Every number in the
+  //     block above was hand-read off ONE gridded crop of `dime-rev-2.jpg`,
+  //     and that file FAILS the shaft null test by 63 units; nothing may be
+  //     published from it. Fitted instead on the two files that pass, by
+  //     extrapolating each blob's PCA extents back to zero erosion, an
+  //     isolated olive blade is 14.52 × 6.75 (proofbright) and 11.63 × 5.56
+  //     (unc2005). Drawn: 14.5 × 6.3.
+  //   · "bigger leaves, not more of them" — RETRACTED, and it is the trade
+  //     that produced what the owner saw. Seven a side is CONFIRMED, on both
+  //     files independently: eroded until the leaves let go, the coin's olive
+  //     breaks into groups of 49/52/20/38 u² → 2+2+1+2, one isolated blade
+  //     being ~20 u². The count was never the error. The SIZE was: at 18.6 by
+  //     5.1 the blade is 3.6:1 where the coin's is 2.2:1, and seven of them
+  //     merged into a single 197 u² component 37.9 × 22.1 — one object where
+  //     the coin's is four. At 40× that is a fern, not a sprig.
+  //   · the LADDER ITSELF — the anchor was the leaf's CENTRE, floated off the
+  //     stem by `SPREAD`, so no leaf was attached to anything. The measured
+  //     span was 22.00 .. 66.00 (44.00 units) against the coin's 28.25 ..
+  //     57.75 and 29.50 .. 58.00, i.e. half again too tall, standing on
+  //     E PLURIBUS UNUM at the bottom and inside the legend at the top. At
+  //     y 60 the coin carries 1.2 and 0.0 units of branch ink; ours carried
+  //     12.0.
+  //
+  // THE LADDER IS NOW THE COIN'S OWN, ONE ROW PER LEAF. Read off
+  // `coloringbook/ref/dime-rev-unc2005.png` and `dime-rev-proofbright.png`
+  // through their own rim fits (`judge/_dr1disc.mjs`) on the disc-normalised
+  // crops `judge/_dr2grid.mjs 12 42 20 82 22` and `36 52 28 64 44`, as offsets
+  // from the coin's vertical axis. `ay` is where the leaf JOINS THE STEM, not
+  // where its middle is — that is the whole difference between a sprig and a
+  // bouquet, and it is why `SPREAD` is gone:
+  //
+  //     base (offset, y)   tip (offset, y)   angle   length   side
+  //       16.3, 57.5          3.1, 47.2        38     16.7     in
+  //       17.1, 51.4         33.2, 55.0       −13     16.5     out
+  //       15.8, 50.5          6.3, 44.3        33     11.3     in
+  //       16.6, 47.3         31.0, 43.0        17     15.0     out
+  //       15.3, 45.5          7.0, 37.1        45     11.8     in
+  //       16.5, 40.0         20.3, 28.4        72     12.2     out
+  //       16.2, 39.5         13.2, 26.8        77     13.0     in
+  //
+  // Four things fall out of that table which no previous pass had:
+  //   · the bases climb the stem from y 57.5 to y 39.5 and the leaves ALL
+  //     spring from it — 18 units of node, not a 32-unit column of free-
+  //     floating blades;
+  //   · the angle is NOT a single ramp. The outboard leaves lie almost flat at
+  //     the foot (−13°) and stand almost upright at the crown (72°); the
+  //     inboard ones start at 38°, because the torch is there and a leaf
+  //     pointing flat inboard would be drawn underneath it;
+  //   · four leaves inboard, three outboard, bottom and top both inboard —
+  //     which is what `i % 2 === 1` already said, and it was right;
+  //   · one length per plant is a simplification the coin does not make (its
+  //     olive blades run 11.3 to 16.7). It is kept, and stated, because seven
+  //     hand-fitted lengths on one photograph is exactly the kind of number
+  //     this face has already had to retract twice.
+  //
+  // `ax` is the STEM CENTRE at that row, 15.9 — see the stem block below.
+  const LADDER = [
+    // ay (base, on the stem), rot (degrees up from horizontal)
+    [57.5, 38], [51.4, -13], [50.5, 33], [47.3, 17], [45.5, 45], [40.0, 72], [39.5, 77],
+  ];
+  const leafAt = (i, n) => {
+    // `n` is 7 at every size the app draws. The 5-leaf form survives only for
+    // the icon block below, which v1.78.0 made unreachable; it samples the
+    // same seven rows rather than inventing a second ladder.
+    const r = LADDER[n === LADDER.length ? i : Math.round((i * (LADDER.length - 1)) / (n - 1))];
+    // ONE LENGTH PER PLANT overshoots the measured 29.5-unit span at BOTH
+    // ends, because the coin's own blades run 11.3 to 16.7 and its short ones
+    // are the ones at the top and bottom of the ladder. The bases are drawn 6%
+    // closer to the ladder's own centre than they measure — 1.1 units at the
+    // extremes, nothing in the middle — and that is stated here rather than
+    // folded back into the table, which stays what was read off the coin.
+    return { ay: n2(48.5 + (r[0] - 48.5) * 0.94), ax: 15.9, rot: r[1], out: i % 2 === 1 };
+  };
+  // A blade's BASE is on the stem; the glyph is drawn about its own CENTRE, so
+  // the centre is half a blade-length out along the direction the leaf leaves
+  // at. This is the whole of what `SPREAD` used to do and it needs no fitted
+  // constant: attachment is a consequence of the arithmetic rather than a
+  // number that happens to be close.
+  //
+  // The rotation has to be mirrored with the branch, which the old code did by
+  // flipping a sign whose meaning it never stated. Written out: the tip's
+  // direction in SCREEN space is (f·dir·cos rot, −sin rot), where dir is +1
+  // outboard and −1 inboard, so the angle is −rot when f·dir is +1 and
+  // rot−180 when it is −1. Both give a tip that points UP, which is the one
+  // property every leaf on this coin shares.
+  const seat = (L, f, reach) => {
+    const dir = L.out ? 1 : -1;
+    const a = (L.rot * Math.PI) / 180;
     return {
-      ay: 62 - 32 * t, // up the stem
-      // the stem itself, at the coin's 14.6..15.8, plus this leaf's own offset
-      ax: 14.6 + 1.2 * Math.sin(t * 2.4) + (out ? dO - 2.4 * t : dI),
-      rot: 30 + 28 * t, // rising as it climbs
-      out,
+      cx: n2(50 + f * (L.ax + dir * reach * Math.cos(a))),
+      cy: n2(L.ay - reach * Math.sin(a)),
+      rot: n1(f * dir === 1 ? -L.rot : L.rot - 180),
     };
   };
-  // How far off the stem each leaf hangs at the FOOT of the branch, [outboard,
-  // inboard]. Measured tips, as offsets from the coin's axis: olive 4.0 .. 29.5,
-  // oak 5.0 .. 33.0 (`judge/_jl1grid-jt2-olive.png`,
-  // `judge/_jl1grid-jt2-oak.png`). With the stem at 14.6 and a leaf 2h long the
-  // span comes out at 2.4 + d + 2h, so the oak — whose leaf is 11.8 units long
-  // against the olive blade's 18.6 — needs 1.5 units more `d` to cover 1.5
-  // units more span. The inboard offset is −2.4 rather than −8.0 because the
-  // coin's stem is not in the middle of its own foliage: it reaches 15 units
-  // outboard and 10.5 inboard.
-  //
-  // Two rejected attempts, both looked at on the overlay:
-  //   d 11.5 with the oak leaf left at the coin's own size split the branch
-  //   into two disjoint chains with a 14-unit hole down the middle of it;
-  //   d 8.0 with the oak scaled 1.75 UNIFORMLY closed the hole and turned the
-  //   lobed leaves into 7.7-unit blobs — at 380px it read as a grape cluster,
-  //   which is worse than the gutter it fixed. It also measured BETTER: the two
-  //   were scored against each other before the ladder above was bounded, and
-  //   the blobs won D13 at 84px by +0.1621 to +0.1701. They were still the
-  //   wrong drawing.
-  const SPREAD = { olive: [8.0, -2.4], oak: [9.5, -2.4] };
+  // A tapered quad from one point to another, `w` half-wide at each end. Every
+  // stalk on this face is one of these rather than a stroke: a stroke has no
+  // area in the viewBox and `struck()`'s offset copies would not carry it, and
+  // D6 has already caught one parallel-sided mark on this branch.
+  const stalk = (x1, y1, x2, y2, w1, w2) => {
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1;
+    const nx = -dy / L, ny = dx / L;
+    return `<path d="M ${n2(x1 + nx * w1)} ${n2(y1 + ny * w1)} L ${n2(x2 + nx * w2)} ${n2(y2 + ny * w2)}`
+      + ` L ${n2(x2 - nx * w2)} ${n2(y2 - ny * w2)} L ${n2(x1 - nx * w1)} ${n2(y1 - ny * w1)} Z"/>`;
+  };
   // THE STEM, one description for all three tiers. Near straight, at the coin's
   // own offset 13.0 .. 15.8 (X 34.2 .. 37.0 read off the gridded crop). It used
   // to bow out to offset 22 at mid height, which put it through the middle of
@@ -4546,10 +4627,23 @@ function torch(tier, p, boxW) {
   // round can measure). So the tail runs near straight from our own 14.3 down
   // to the measured tip at 14.0, y 75.7. The tip lands where the coin's does;
   // the lean does not, and that is stated rather than hidden.
-  const stem = (x) => `<path d="M ${x(14.0)} 75.7 C ${x(13.3)} 73.5 ${x(13.05)} 70 ${x(13.0)} 66
-        C ${x(14.6)} 54 ${x(15.0)} 41 ${x(14.5)} 27.2
-        L ${x(15.8)} 27.2 C ${x(17.0)} 41 ${x(17.2)} 54 ${x(15.6)} 66
-        C ${x(15.5)} 70 ${x(15.1)} 73.5 ${x(14.0)} 75.7 Z"/>`;
+  //
+  // ⚠️ THE REFUSAL IN THE PARAGRAPH ABOVE IS WITHDRAWN (round 30). It was
+  // right that moving the stem moves the whole ladder; the ladder is being
+  // re-authored here anyway, so the reason no longer holds and the error was
+  // real. `judge/_dr9branch.mjs` reads the stem centre on the rows where the
+  // leaves leave it clear — y 56/60/62 on both branches of both files, eleven
+  // reads — at 17.0, 16.4, 15.7, 18.6, 16.8, 15.8, 16.4, 16.3, 14.8, 15.4,
+  // 15.2: mean 16.2, sd 0.98. With the scanline mean of 15.7 at y 68 above,
+  // 15.9 is the number, against our 14.3 at y 66. The tail below y 66 now
+  // starts from 15.8 and leans inboard to the measured 14.0 at y 75.7, which
+  // is the coin's own lean and was the part previously given up. The taper
+  // (2.6 units at the foot to 1.3 at the crown) and the tip are unchanged —
+  // D6 caught a parallel-sided stem once and that finding still stands.
+  const stem = (x) => `<path d="M ${x(14.0)} 75.7 C ${x(14.3)} 73.5 ${x(14.45)} 70 ${x(14.5)} 66
+        C ${x(14.9)} 54 ${x(15.0)} 41 ${x(14.5)} 27.2
+        L ${x(15.8)} 27.2 C ${x(17.0)} 41 ${x(17.3)} 54 ${x(17.1)} 66
+        C ${x(16.4)} 70 ${x(15.5)} 73.5 ${x(14.0)} 75.7 Z"/>`;
   if (tier === 'icon') {
     // THE BRANCHES ARE DRAWN AT ICON TIER, and until this pass they were not.
     // The comment above this function said "at icon size the branches go
@@ -4579,12 +4673,12 @@ function torch(tier, p, boxW) {
       const x = (v) => n2(50 + f * v);
       let g = '';
       for (let i = 0; i < 5; i++) {
-        const L = leafAt(i, 5, SPREAD.olive); // one ellipse serves both plants here
-        // `rx 9.3` is the coin's own blade half-length, the same 18.6 the olive
-        // draws at mid and full; it was 5.93, i.e. 64% of it.
-        g += `<g transform="translate(${x(L.ax)} ${n2(L.ay - 1.6)})` +
-          ` rotate(${n1((L.out ? -f : f) * L.rot)})">` +
-          '<ellipse cx="0" cy="0" rx="9.3" ry="2.9"/></g>';
+        const L = leafAt(i, 5); // one ellipse serves both plants here
+        // `rx 7.25` is the coin's own blade half-length, the same 14.5 the
+        // olive draws at mid and full.
+        const s = seat(L, f, 7.25);
+        g += `<g transform="translate(${s.cx} ${s.cy}) rotate(${s.rot})">` +
+          '<ellipse cx="0" cy="0" rx="7.25" ry="3.15"/></g>';
       }
       return `${stem(x)}${g}`;
     };
@@ -4604,8 +4698,52 @@ function torch(tier, p, boxW) {
   // by 5.5 wide. `rx 7.6` at `k` 1.22 is 18.5 by 5.1; the previous `rx 4.3` was
   // 10.5 by 5.1, i.e. the right width and 56% of the length, which is most of
   // why each branch read as a column rather than a spray.
-  const olive = (x, y, rot, k) =>
-    `<g transform="translate(${x} ${n2(y)}) rotate(${n1(rot)})"><ellipse cx="0" cy="0" rx="${n2(7.6 * k)}" ry="${n2(2.1 * k)}"/></g>`;
+  //
+  // ⚠️ THE SIZE ABOVE IS RETRACTED (round 30, and see the ladder block) — it
+  // came off the one file that fails `_dr9branch.mjs`'s null test. AND THE
+  // SHAPE WAS WRONG TOO, which no number in this file had ever said. An
+  // ellipse is blunt at BOTH ends; every leaf on both references is a LANCE,
+  // pointed at the tip, tapering to a narrow base at the stem, widest a third
+  // of the way up (`judge/_dr2grid.mjs 36 52 28 64 44` shows four of them
+  // against the torch at 44 px per unit). Blunt-ended blades are why the
+  // previous attempt at this branch was read as a flower: rounded ends are
+  // petals. The path below is the measured 14.5 × 6.3 box with a 25° tip.
+  const BLADE =
+    'M 7.25 0 C 4.4 -1.35 1.4 -2.75 -1.6 -3.1'
+    + ' C -3.9 -3.35 -6.1 -2.4 -7.25 0'
+    + ' C -6.1 2.4 -3.9 3.35 -1.6 3.1'
+    + ' C 1.4 2.75 4.4 1.35 7.25 0 Z';
+  const olive = (x, y, rot) =>
+    `<g transform="translate(${x} ${y}) rotate(${rot})"><path d="${BLADE}"/></g>`;
+  // THE OLIVE BRANCH CARRIES OLIVES, AND WE DREW NONE. Nothing in this file
+  // has ever mentioned them; `grep -n olive` returns leaves and this comment.
+  // They are plain on both references — two small ovals hanging outboard of
+  // the stem on short stalks — and `_dr9branch.mjs`'s small-body pass finds
+  // one of them as an isolated blob on proofbright at (30.13, 42.28) where
+  // ours reports "(none)", because ours has nothing there to find and the
+  // ladder's ink was one merged mass anyway.
+  //
+  // Read on the disc-normalised crops of BOTH usable files, as offsets:
+  //
+  //                       upper                lower
+  //     proofbright   20.1, 42.3          22.3, 57.0
+  //     unc2005       20.3, 42.7          22.8, 58.0
+  //     size          ~3.5 x 3.1          ~3.5 x 3.1
+  //
+  // Two independent photographs agreeing to 0.5 units. They matter for three
+  // reasons and only the first is fidelity: they are what makes an olive
+  // branch an OLIVE branch rather than a generic sprig; they are the only
+  // thing besides leaf outline that tells this branch from the oak, and leaf
+  // outline is gone by 48 px; and they put ink at y 57 where the coin has it
+  // and a leaf does not, which is the row the old ladder covered by hanging a
+  // whole blade over E PLURIBUS UNUM.
+  // The stalk is a tapered quad rather than a stroke, for the same reason
+  // every other mark on this face is a fill: a stroke has no width in the
+  // viewBox and `struck()`'s offset copies would not carry it.
+  const fruit = (o, y, so, sy, f) =>
+    stalk(50 + f * so, sy, 50 + f * o, y, 0.35, 0.5)
+    + `<g transform="translate(${n2(50 + f * o)} ${n2(y)}) rotate(${n1(f * -35)})">`
+    + '<ellipse cx="0" cy="0" rx="1.75" ry="1.55"/></g>';
   // AN OAK LEAF IS LOBED, AND THE PREVIOUS PATH WAS NOT (round 27).
   //
   // What it drew: three shallow bumps a side on a 2.4:1 body, with the
@@ -4632,15 +4770,39 @@ function torch(tier, p, boxW) {
   // neither do `SPREAD`, the ladder bounds, or the reach the leaves have.
   // Only the outline changed. It costs ~290 more characters, paid 21 times
   // over at full tier (7 leaves x 3 struck() passes, oak branch only).
+  //
+  // ⚠️ THE ±4.3 BY ±2.1 BOX IS THE PART THAT WAS WRONG, and keeping it is why
+  // the outline above still did not read as an oak leaf (round 30). 4.3:2.1 is
+  // 2.05:1. Measured on both usable references through their own rim fits,
+  // every oak leaf big enough to measure is between 1.4:1 and 1.6:1 —
+  // terminal 13.9 × 9.3, right-lower 13 × 8, right-upper 11 × 7.5, left-upper
+  // 9.5 × 6 (`judge/_dr2grid.mjs 58 88 20 82 22`), and `_dr9branch.mjs`'s
+  // zero-erosion extrapolations of isolated oak blobs are 11.65 × 6.14 and
+  // 11.32 × 8.37. An oak leaf is BROAD; that is most of what makes it an oak
+  // leaf. Fitted into a 2.05:1 box, four lobe pairs have to be small and round
+  // and the leaf renders as a string of beads, which is what round 27 named
+  // and then reproduced. Looked at at 40× beside both references, ours was a
+  // caterpillar again.
+  //
+  // Re-authored at 12.0 × 7.5 — the mean of the four leaves above, 1.6:1 —
+  // with THREE lobe pairs and a rounded terminal lobe (four a side, which is
+  // the count round 27 established and which is not disputed here), sinuses
+  // cutting to 52-53% of each lobe's crown, inside round 27's own measured
+  // 45-55%. The scale factor is now 1.0: the path is authored at the size it
+  // is drawn, so there is no second number to get wrong.
   const OAK =
-    'M -4.3 0 C -3.9 -.55 -3.5 -.85 -3.1 -.85 C -2.8 -.85 -2.6 -.6 -2.45 -.4' +
-    ' C -2.15 -1.2 -1.85 -1.6 -1.45 -1.6 C -1.1 -1.6 -.85 -1.05 -.7 -.75' +
-    ' C -.35 -1.6 0 -2.1 .35 -2.1 C .75 -2.1 1.1 -1.35 1.25 -1' +
-    ' C 1.6 -1.6 2.05 -1.95 2.4 -1.95 C 3.1 -1.95 4.3 -1.15 4.3 0' +
-    ' C 4.3 1.15 3.1 1.95 2.4 1.95 C 2.05 1.95 1.6 1.6 1.25 1' +
-    ' C 1.1 1.35 .75 2.1 .35 2.1 C 0 2.1 -.35 1.6 -.7 .75' +
-    ' C -.85 1.05 -1.1 1.6 -1.45 1.6 C -1.85 1.6 -2.15 1.2 -2.45 .4' +
-    ' C -2.6 .6 -2.8 .85 -3.1 .85 C -3.5 .85 -3.9 .55 -4.3 0 Z';
+    'M -6 -.4 C -5.3 -1.15 -4.7 -1.75 -4.15 -1.9' +
+    ' C -3.75 -2 -3.35 -1.85 -3.05 -1.55 C -2.95 -1.4 -2.88 -1.25 -2.8 -1.1' +
+    ' C -2.45 -1.95 -1.8 -3.15 -1.05 -3.35' +
+    ' C -.6 -3.45 -.28 -3.32 -.05 -3.05 C .1 -2.85 .25 -2.55 .4 -2' +
+    ' C .85 -2.95 1.45 -3.9 2.25 -4' +
+    ' C 2.85 -4.05 3.2 -3.88 3.45 -3.5 C 3.6 -3.25 3.75 -2.9 3.9 -2.35' +
+    ' C 4.5 -3.35 5.6 -2.85 6 0' +
+    ' C 5.6 2.85 4.5 3.35 3.9 2.35 C 3.75 2.9 3.6 3.25 3.45 3.5' +
+    ' C 3.2 3.88 2.85 4.05 2.25 4 C 1.45 3.9 .85 2.95 .4 2' +
+    ' C .25 2.55 .1 2.85 -.05 3.05 C -.28 3.32 -.6 3.45 -1.05 3.35' +
+    ' C -1.8 3.15 -2.45 1.95 -2.8 1.1 C -2.88 1.25 -2.95 1.4 -3.05 1.55' +
+    ' C -3.35 1.85 -3.75 2 -4.15 1.9 C -4.7 1.75 -5.3 1.15 -6 .4 Z';
   // ⚠️ THIS BLOCK'S HEADLINE WAS WRONG AND IS RETRACTED. It read "THERE IS NO
   // ACORN ON THIS COIN, AND ONE WAS DRAWN (round 28)". There IS an acorn; it
   // was drawn in the wrong place. The reasoning below is kept intact because
@@ -4688,8 +4850,23 @@ function torch(tier, p, boxW) {
   // 11.8 units by 5.5 and the authored path is 8.6 by 4.2, so one uniform
   // factor cannot hit both. Scaling uniformly far enough to reach the coin's
   // radial span made the leaf 7.7 wide, which reads as fruit, not foliage.
-  const oak = (x, y, rot, kx, ky) =>
-    `<g transform="translate(${x} ${n2(y)}) rotate(${n1(rot)}) scale(${n2(kx)} ${n2(ky)})"><path d="${OAK}"/></g>`;
+  //
+  // ⚠️ "ONE UNIFORM FACTOR CANNOT HIT BOTH" IS REFUTED (round 30) and it was
+  // never checked. 11.8/8.6 is 1.372 and 5.5/4.2 is 1.310 — a 4.7% difference,
+  // and 1.34 lands inside 2.5% of BOTH. The shipped 1.68 × 1.42 was not a
+  // consequence of the numbers it cites; it drew a leaf 14.4 long, 22% over
+  // the 11.8 it was fitted to, which is a fifth of the whole 29-unit branch.
+  // `_dr9branch.mjs` extrapolates isolated oak blobs back to zero erosion at
+  // 11.65 × 6.14 (proofbright) and 11.32 × 8.37 (unc2005). The path is now
+  // authored at 12.0 × 7.5 (see `OAK`) and `k` is 1.0 at every size the app
+  // draws, so the uniform/non-uniform question is retired rather than answered
+  // — there is nothing left to scale. WHAT I COULD NOT DETERMINE: the two
+  // width reads disagree by 36% of the smaller, far outside anything else on
+  // this face, and I cannot tell whether unc2005's 8.37 is a lobe-tip span or
+  // two leaves that never separated. 7.5 is the mean of four leaves read off
+  // the crops instead, and where those two numbers disagree it is a choice.
+  const oak = (x, y, rot, k) =>
+    `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${n2(k)})"><path d="${OAK}"/></g>`;
   // OLIVE LEFT, OAK RIGHT — the way round the real dime has them; the
   // previous layout had it backwards, and it also hung every leaf off the
   // INSIDE of its stem at a downward angle, which packed them into each
@@ -4723,18 +4900,37 @@ function torch(tier, p, boxW) {
     // reverses.md. The count is NOT touched here: D4 on this face is BLOCKED
     // on a second photograph, so the way to cover a denser spray than seven
     // glyphs can draw is bigger leaves, not more of them.
+    //
+    // ⚠️ "BIGGER LEAVES, NOT MORE OF THEM" IS RETRACTED (round 30) — see the
+    // ladder block. The count was right all along and the size was the error.
     const leaves = full ? 7 : 5;
     // `mid` draws 5 leaves where `full` draws 7, so its leaves are the larger
     // ones; the 1.13 ratio is the old 1.38/1.22, unchanged by this pass.
     const K = full ? 1 : 1.13;
     let g = '';
     for (let i = 0; i < leaves; i++) {
-      const { ay, ax, rot, out } = leafAt(i, leaves, mirror ? SPREAD.olive : SPREAD.oak);
-      const px = x(ax), rr = (out ? -f : f) * rot;
-      g += mirror
-        ? olive(px, ay - 1.6, rr, 1.22 * K)
-        : oak(px, ay - 1.6, rr, 1.68 * K, 1.42 * K);
+      const L = leafAt(i, leaves);
+      // EVERY LEAF ON THIS COIN HANGS OFF A PETIOLE, and drawing them sessile
+      // on the stem is what kept the branch one object. On both references the
+      // oak's blades stand 2 to 3 units clear of their own stem with open
+      // field in the gap — it is the most visible thing about that branch at
+      // 40× — and the olive's stand about one. `half` is half the drawn blade
+      // (the olive path is 14.5 long, the oak leaf 12.0), so the glyph's
+      // centre sits petiole + half out along the angle the leaf leaves at and
+      // its BASE lands on the far end of the petiole.
+      // …and the petiole SHORTENS as the leaf climbs: on both references the
+      // crown leaf sits straight on the end of the stem, which is why the top
+      // of the branch is a tight pair and the foot is a spray.
+      const ped = (mirror ? 1.0 : 2.6) * (1 - (0.8 * i) / (leaves - 1));
+      const half = (mirror ? 7.25 : 6.0) * K;
+      const s = seat(L, f, ped + half), b = seat(L, f, ped + 0.7);
+      g += stalk(50 + f * L.ax, L.ay, b.cx, b.cy, 0.55, 0.4);
+      g += mirror ? olive(s.cx, s.cy, s.rot) : oak(s.cx, s.cy, s.rot, K);
     }
+    // The two olives, outboard of the stem on the OLIVE branch only. Each
+    // hangs on a stalk back to the stem, which both references show and which
+    // is the difference between a fruit and a dot of ink in the field.
+    if (mirror && full) g += `${fruit(20.2, 42.5, 15.9, 45.6, f)}${fruit(22.5, 57.5, 16.1, 53.2, f)}`;
     // THE ACORN IS REAL. IT WAS IN THE WRONG PLACE, AND ROUND 28 DELETED IT
     // INSTEAD OF MOVING IT. Restored here at round 28's OWN coordinates.
     //
