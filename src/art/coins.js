@@ -6952,8 +6952,38 @@ function noteSVG(box, attrs, tier, side, withValue) {
   // not carry the note's aspect ratio (31 CFR 411 non-copy, above), so the
   // border-normalised map into this viewBox is anisotropic by 2.5718/1.9565 =
   // 1.3145 and a drawn circle is wrong by exactly that factor. The two rims
-  // come out ry/rx 1.281 and 1.394: they are not the same shape as each other
-  // on the note either, which is why each carries its own ry.
+  // come out ry/rx 1.281 and 1.394.
+  //
+  // THAT LAST SENTENCE USED TO CONTINUE "they are not the same shape as each
+  // other on the note either, which is why each carries its own ry", AND THAT
+  // IS FALSE. Round 17 fitted each seal's rim as a CIRCLE in raw photograph
+  // pixels — no border, no rectification, so no anisotropy can enter — and the
+  // two seals are the same circle on both files: r 114 and 114 on
+  // `bill-rev.jpg`, r 348 and 348 on `bill-rev-2.jpg`, each drawn back on its
+  // own source and looked at (`_jb16rim.mjs --draw`). As a fraction of the
+  // printed border's width those are 0.10071 and 0.10069 — the two photographs
+  // agree on the seal's size to 0.02%. The eagle circle is also PREDICTED, not
+  // only fitted: from the pyramid's r plus the seals' separation (0.5961 of
+  // the border width, against our 53.75/90 = 0.5972) it lands on the rim, and
+  // on `bill-rev.jpg` that matters, because the free fit there returns a
+  // selection margin of 2.05 grey levels — the eagle side's rim is buried in
+  // the laurel and the arrows. So ry/rx must be ONE number for both roundels.
+  // `_jb3seal.mjs`'s eagle ellipse on `bill-rev-2.jpg` is 10.7% out of round in
+  // photograph pixels (rx 320.6 px, ry 355.0 px), which a circle cannot be;
+  // that one bad fit is what pulled the mean ry from ~11.4 to 12.375.
+  //
+  // IT IS REPORTED AND NOT FIXED, and the reason is that this round cannot say
+  // what the one number is. It is rho_border / 1.9565, and rho_border is the
+  // quantity `_jb1fit.mjs` publishes as 2.5610 / 2.5827 while round 17's own
+  // border fit — read off 10x zooms of the printed border's outer corners,
+  // where `_jb1fit.mjs`'s own corners land 6-8 px onto blank paper on
+  // `bill-rev.jpg` — reads 2.630 / 2.612. Those disagree by 2.7%, which
+  // straddles both of the values below
+  // (1.3145 against 1.3396), and the constant is shared with the obverse's
+  // vignette oval. A round that re-derived it here would be moving the
+  // obverse's registration from inside the reverse. PYR.ry is 2.4% low and
+  // EAG.ry 6.1% high against the file's own 1.3145; at 84px that is 23.6 and
+  // 25.7 device pixels of roundel height where they should be equal.
   const PYR = { cx: 23.13, cy: 27.88, rx: 8.88, ry: 11.38 };
   const EAG = { cx: 76.88, cy: 27.75, rx: 8.88, ry: 12.38 };
   const roundel = (r) =>
@@ -6974,12 +7004,56 @@ function noteSVG(box, attrs, tier, side, withValue) {
   //   capstone   apex Y 19.4, base Y 22.7, half-width 1.35 — the same width as
   //              the truncation below it, with a 1.25-unit ray gap between
   //
+  // THE 1.25-UNIT GAP IS THE WHOLE DEVICE AND IT IS 1.30 DEVICE PIXELS AT THE
+  // NAMING DRAW. Round 17 measured it a third way, in the SEAL'S OWN FRAME
+  // (units of the fitted rim radius, so no border and no anisotropy):
+  // capstone base at -0.4163 / -0.4089 of r, truncation at -0.3109 / -0.2894,
+  // gap 0.1054 / 0.1194, mean 0.1124 r — which is 1.28 units of our ry, within
+  // 2.4% of the 1.25 drawn here. The note does not offer a bigger one.
+  // At 84px (a 104px box) one viewBox unit is 1.04 device px, so the gap row
+  // reads 226 against a 244 field and a 160-200 mass — a 21% dip, one row deep.
+  // THE DETACHED CAPSTONE THEREFORE DOES NOT SURVIVE AT ANY SIZE THIS APP
+  // DRAWS, and that miss is published rather than the geometry exaggerated
+  // (§8) — the same call this face already makes on seven courses instead of
+  // thirteen. What round 17 DID remove is the thing that was closing the gap
+  // on top of that: see the massing line at the end of this function.
+  //
+  // THE EYE HAS NEVER BEEN MEASURED ON THIS FACE AND IS ABOUT 60% OVERSIZE.
+  // Read off a 6x ladder over the capstone, the note's eye is 0.076 of r
+  // across = 0.68 viewBox units; the circle below is 1.10, and it covers 63% of the
+  // capstone's width at its own height. It is LEFT oversize deliberately: at
+  // 0.68 units it would be 0.71 device px at 84 and would vanish, taking the
+  // one mark that says which triangle is the capstone with it. Correcting it
+  // would score better against the photograph and read worse on the screen, so
+  // it is reported, not applied.
+  //
   // The LEFT slope is deliberately mirrored from the right rather than fitted.
   // Both line fits agreed across the two references to 0.12 units, but the
   // overlay showed the left one tracking the pyramid's cast shadow where it
   // spills left of the masonry near the base (§4.3), so it read 0.400 against
   // the right's 0.315 and pulled the axis 0.9 units off the seal's own centre.
   // The axis used here is the seal's measured centre, 23.13.
+  //
+  // ROUND 17 TRIED TO RE-DERIVE `baseHW` AND `topHW`, PRODUCED A 12.7% "ERROR",
+  // AND THEN FOUND THE ERROR WAS ITS OWN. It is worth writing down, because the
+  // trap will catch the next round too. Measured in the seal's own frame, every
+  // horizontal quantity here is divided by the fitted rim RADIUS — so a rim fit
+  // that is 3.4% small makes the drawing look 3.4% wide, and a hand-read
+  // landmark on a texture boundary swings further than that on its own. An
+  // early sweep of `_jb16rim.mjs` with a narrower `r` window returned r = 336
+  // on `bill-rev-2.jpg`; the correct fit is 348, which is what agrees with
+  // `bill-rev.jpg`'s 114 to 0.02% of the border width. On r = 336 the base
+  // half-width "measured" 0.373 of r against our 0.4507 and the truncation
+  // came out 0.152, 0.171 and 0.26 on three readings of ONE file at three
+  // magnifications — a +-30% band, because that boundary is a texture change
+  // (course hatching against sky hatching) and not an edge.
+  //
+  // On the corrected rim the answer is that nothing here is wrong. The overlay
+  // is the verdict, not the numbers: `_jb16over.mjs` draws this trapezoid and
+  // this capstone back on both photographs through the seal rim alone, and
+  // they sit on the masonry and on the glory. NOTHING IN `PY` MOVES. Every
+  // candidate correction was smaller than the disagreement between two
+  // readings of one file.
   const PY = { axis: 23.1, baseY: 33.25, topY: 23.95, baseHW: 4.0, topHW: 1.35, capY: 22.7, apexY: 19.4 };
   const pyramid =
     `<path d="M ${PY.axis - PY.baseHW} ${PY.baseY} L ${PY.axis - PY.topHW} ${PY.topY} L ${PY.axis + PY.topHW} ${PY.topY} L ${PY.axis + PY.baseHW} ${PY.baseY} Z"/>
@@ -7028,7 +7102,8 @@ function noteSVG(box, attrs, tier, side, withValue) {
   //   permit and which two references agree on to 0.05 of a semi-axis.
   //
   //   quantity                    note (mean of 2 refs)     ours, before
-  //   wing span / rim width               0.8242               0.8421
+  //   wing span / rim width               0.8242 ***RETRACTED, see below***
+  //                                                            0.8421
   //   bird height / rim height            0.7020               0.5019
   //   bird centre, dy of ry              +0.1676               0.0000
   //   wing tip, dy of ry                 -0.5112              -0.3311
@@ -7043,13 +7118,59 @@ function noteSVG(box, attrs, tier, side, withValue) {
   // to the top — and that our wings lie at 53° where the note's rise at 70°.
   // Short and shallow, not wide.
   //
+  // ── ROUND 17: THE WING TIP WAS 2.14 UNITS OUT IN THE OPEN FIELD ──────────
+  //
+  // "wing span / rim width 0.8242" is wrong, and the way to see it is the one
+  // §4.3 asks for: draw the paths back on the photograph and look. The head,
+  // the shield and the tail all land on their features. The two crescents do
+  // not land on the wings at all — their tips sit past the E PLURIBUS ribbon
+  // in bare hatched sky, a whisker inside the rim, and their outer edge runs
+  // through open ground for the top half of its length before meeting the
+  // wing near the primaries. `_jb16over.mjs` — and it parses the EMITTED SVG,
+  // so what it draws is what ships.
+  //
+  // Read off those overlays, in the roundel's own local units, the wing's
+  // upper-outer tip is at
+  //
+  //     bill-rev.jpg   (-5.6, -5.7)            bill-rev-2.jpg  (-5.5, -4.6)
+  //     used here      (-5.65, -5.25)          ours, before    (-7.32, -6.20)
+  //
+  // — about 1.7 units out and 1.0 unit up, ~2 units of displacement, over a
+  // fifth of rx. NOTHING HERE CLAIMS BETTER THAN +-0.3 OF A UNIT: the two
+  // references agree within 0.1 in x and differ by 1.1 in y, because the
+  // wing's top fades into the E PLURIBUS ribbon, and the local unit is itself
+  // a fraction of a fitted rim. The x read is the reliable one and it is the
+  // one that matters. THE TIP MOVES; the rest of the crescent does not. Below
+  // the shoulder the old outer edge was already on the wing to about half a
+  // unit, so only the tip, the two control points that leave it and the inner
+  // edge's return are re-authored, and the cap across the tip keeps its
+  // 1.207-unit width exactly.
+  //
+  // WHAT IT COST THE ROUNDEL, and this is the real damage. The note has no
+  // field circle, so `struck()` is handed `rField = 0` and `spendOf()` — which
+  // bounds relief against ONE circle centred on (50,50) — never runs on this
+  // subject at all. It could not have helped: this face's boundaries are two
+  // off-centre ELLIPSES and that function cannot express one. So nothing was
+  // bounding anything, and the old tip's normalised radius against its own
+  // roundel, rho = hypot((x-cx)/rx, (y-cy)/ry), was 0.9645 BEFORE any bevel —
+  // already inside the rim stroke, whose inner edge sits at rho 0.914 at 38px
+  // and 0.9293 above it. With the bevel it went to
+  //
+  //     38/48/54px  rho 1.200      84px  rho 1.121      190px  rho 1.041
+  //
+  // i.e. white ink outside the rim at every size the app draws, worst 20.0%.
+  // The render is unambiguous: at 54px the rim was gone from 9 o'clock through
+  // 12 to 3. The eagle massing now reaches rho 0.8868 — the TAIL, not the
+  // wings — and nothing offsets it (below). `_jb16contain.mjs` is the table;
+  // `_jb16look.mjs` is the picture.
+  //
   // The measured shield and head are each offset ~0.03-0.05 of rx to the right
   // of the rim's centre, consistently on both photographs. That is 0.3-0.4 of
   // a viewBox unit: 0.9 device px at the largest size this app draws and 0.2
   // at icon. It is DROPPED, and said so, rather than drawn at a scale no tier
   // can carry. The beak is kept, because the beak is 0.8 units and does read.
   const EW = [
-    // left wing: tip at (-7.32, -6.20), outer edge falling at ~70 deg to the
+    // left wing: tip at (-5.65, -5.25), outer edge falling to the
     // lower primaries at (-3.15, 4.55), inner edge back up under the tip. The
     // crescent is 1.5-2.3 units thick, which is what the note's is (0.16-0.26
     // of rx, thinnest at mid-height and thickest at the shoulder).
@@ -7061,8 +7182,8 @@ function noteSVG(box, attrs, tier, side, withValue) {
     // dark-mass segmentation therefore stops 0.55 units short of. That is a
     // §4.3 wrong-feature miss caught by opening the zoom, and it is why the
     // inner edge here is 0.3-0.5 units inboard of what `_je14bird.mjs` reports.
-    'M -7.32 -6.2 C -6.35 -4.2 -5.2 -1.55 -4.55 1.05 C -4.15 2.65 -3.6 3.9 -3.15 4.55 L -1.9 3.55 C -1.75 2.9 -1.72 2.4 -1.78 1.9 C -2.1 0.2 -2.6 -1.5 -3.1 -3 C -3.6 -4.4 -5 -5.4 -6.2 -5.75 Z',
-    'M 7.32 -6.2 C 6.35 -4.2 5.2 -1.55 4.55 1.05 C 4.15 2.65 3.6 3.9 3.15 4.55 L 1.9 3.55 C 1.75 2.9 1.72 2.4 1.78 1.9 C 2.1 0.2 2.6 -1.5 3.1 -3 C 3.6 -4.4 5 -5.4 6.2 -5.75 Z',
+    'M -5.65 -5.25 C -5.35 -3.55 -5.05 -1.35 -4.55 1.05 C -4.15 2.65 -3.6 3.9 -3.15 4.55 L -1.9 3.55 C -1.75 2.9 -1.72 2.4 -1.78 1.9 C -2.1 0.2 -2.6 -1.5 -3.1 -3 C -3.45 -3.6 -4 -4.35 -4.53 -4.8 Z',
+    'M 5.65 -5.25 C 5.35 -3.55 5.05 -1.35 4.55 1.05 C 4.15 2.65 3.6 3.9 3.15 4.55 L 1.9 3.55 C 1.75 2.9 1.72 2.4 1.78 1.9 C 2.1 0.2 2.6 -1.5 3.1 -3 C 3.45 -3.6 4 -4.35 4.53 -4.8 Z',
   ];
   // head: crown at y -3.09, 2.4 units across, beak point at (-0.87, -2.28) —
   // all read off both photographs. The throat is drawn to +0.90 rather than to
@@ -7091,6 +7212,17 @@ function noteSVG(box, attrs, tier, side, withValue) {
   // tangent AT THE TIP is shallower than its chord reads as a shallower wing
   // to the envelope fit (62.4 deg against the chord's 70.9). Straight here,
   // bowed at mid/full where there are pixels to carry it.
+  //
+  // DEAD SINCE v1.78.0 AND LEFT ALONE ON PURPOSE. `coinSVG` hardcodes
+  // `tier = 'full'`, so `small` is false on every call and neither of the two
+  // constants below is ever emitted — round 17 confirmed it on all 180 renders
+  // in the partition. They therefore still carry the OLD wing tips (-7.32,
+  // -6.20) that `EW` no longer does, and the sentence above about "the SAME
+  // tips" is true of the code as written and false of the drawing. Correcting
+  // unreachable strings would change no pixel and would put a second,
+  // untestable set of wing coordinates into a face that has just been shown to
+  // have carried one wrong set for three rounds. If tiers ever come back, both
+  // of these must be re-derived, not scaled.
   const EWICON = 'M -7.32 -6.2 C -6.08 -2.62 -4.84 0.98 -3.6 4.55 L -1.3 2.9 L 1.3 2.9 L 3.6 4.55 C 4.84 0.98 6.08 -2.62 7.32 -6.2 C 5.2 -4.3 2.6 -2.2 1.5 0.1 L -1.5 0.1 C -2.6 -2.2 -5.2 -4.3 -7.32 -6.2 Z';
   const EBODYICON = 'M -1.93 0.62 L 1.93 0.62 L 1.93 4.3 C 1.93 5.75 1.5 6.05 1.15 6.4 C 1.45 8.3 1.45 9.9 1.3 10.75 C 0.87 11.05 -0.87 11.05 -1.3 10.75 C -1.45 9.9 -1.45 8.3 -1.15 6.4 C -1.5 6.05 -1.93 5.75 -1.93 4.3 Z';
   const sealArt = small
@@ -7118,7 +7250,8 @@ function noteSVG(box, attrs, tier, side, withValue) {
   const SEAL_FIT = 'translate(76.88 27.75) scale(1)';
   const seal = `<g transform="${SEAL_FIT}">${sealArt}</g>`;
   // The shield's stripes and the pyramid's courses are CUTS, not massing, so
-  // they go on after the bevel rather than being printed three times with it.
+  // they go on last rather than being printed with it (they went on after the
+  // bevel when there was one; see the massing line below).
   // The cut is 0.9 units wide; with the seal transform now at scale(1) that is
   // written directly instead of being pre-divided (it used to read 1.75, which
   // was 0.9 / 0.5154).
@@ -7132,11 +7265,41 @@ function noteSVG(box, attrs, tier, side, withValue) {
     ? ''
     : `<g transform="${SEAL_FIT}"><g fill="none" stroke="${p.field}" stroke-width="0.9" opacity="0.85">
          <path d="M -1.93 2.83 h 3.86"/><path d="M -0.64 3.3 v 2.7"/><path d="M 0.64 3.3 v 2.7"/></g></g>`;
+  // NO BEVEL, AND SO NO `struck()` HERE ANY MORE — which is the decision this
+  // note's own OBVERSE already made and wrote down, and which never crossed to
+  // this face: "`struck()`'s offset white copy says 'this stands proud of the
+  // field', which is true of a struck coin and false of an intaglio-printed
+  // note: neither photograph shows a directional lit edge anywhere on the
+  // vignette." Neither reverse photograph shows one either. What made it worth
+  // finding is what the copy was doing at the sizes the app draws:
+  //
+  //   · THE OFFSET IS IN VIEWBOX UNITS AND GROWS AS THE NOTE SHRINKS.
+  //     `reliefOff` is min(1.7, max(0.55, 118/boxW)), so it is CLAMPED AT 1.70
+  //     units for every note narrower than 69px — that is 38, 48 and 54 — and
+  //     1.13 at 84. On a coin the field circle then pays for it through
+  //     `spendOf()`; on the note `rField` is 0 and nothing does.
+  //   · IT CLOSED THE CAPSTONE. The ray gap is 1.25 units. The white copy of
+  //     the pyramid's truncated top lands at Y 23.95 - o, i.e. 22.25 at
+  //     38/48/54 against the capstone's base at 22.70 — 0.45 units of OVERLAP,
+  //     gap zero — and 22.82 at 84, leaving 0.12 units. The one feature the
+  //     comment at the top of this block calls "the single most recognisable
+  //     thing about the device" was printed shut at every size the app draws.
+  //   · IT ERASED THE ROUNDEL. See the wing-tip note above: rho 1.200 at
+  //     38/48/54 and 1.121 at 84, white ink laid across and outside the rim
+  //     from 9 o'clock through 12 to 3.
+  //
+  // The `deep` copy goes with it and costs nothing: `struck()`'s own note says
+  // that at mid/full it is drawn with the same geometry as the layer painted
+  // over it and is entirely hidden. So this line emits exactly what `struck()`
+  // emitted minus the white copy — one `motif` fill plus the cuts — and
+  // `struck()` itself is untouched, along with all four coins that use it (the
+  // partition: 162 of 180 renders byte-identical, the 18 that moved are this
+  // face's).
   return `<svg viewBox="0 0 100 56" width="${box.w}" height="${box.h}" ${attrs} xmlns="http://www.w3.org/2000/svg">
     ${frame}
     ${roundel(PYR)}
     ${roundel(EAG)}
-    <g${withValue ? ' opacity="0.42"' : ''}>${struck(`${pyramid}${seal}`, p, tier, box.w, `${pyramidCut}${sealCut}`)}</g>
+    <g${withValue ? ' opacity="0.42"' : ''}><g fill="${p.motif}">${pyramid}${seal}</g>${pyramidCut}${sealCut}</g>
     ${small || withValue ? '' : `<text x="50" y="32" text-anchor="middle" font-family="${FONT}" font-size="9"
         font-weight="800" letter-spacing="0.6" fill="${p.ink}" opacity="0.8">ONE</text>`}
     ${withValue ? valueNote(p) : ''}

@@ -3,6 +3,78 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.88.0 — 2026-08-24
+
+**The note's relief copy was erasing the capstone gap and the eagle's rim at
+the sizes the app draws. Tenth and last face of the sweep.**
+
+`struck()` had never been removed from this face. The note's *obverse* dropped
+it in an earlier round for a reason that applies verbatim here — an
+intaglio-printed note has no lit die edge, and neither reference shows one —
+but the reverse kept it, and the offset white copy was doing real damage:
+
+- `reliefOff` clamps at **1.70 viewBox units** for every note narrower than
+  69 px — that is **38, 48 and 54** — while the capstone's ray gap is **1.25
+  units**. The white copy of the pyramid's truncated top landed at Y 22.25
+  against the capstone's base at 22.70: **0.45 units of overlap, gap zero**, at
+  three of the four sizes a child sees, and 0.12 short at the fourth. The
+  detached capstone — which this drawing's own comment calls "the single most
+  recognisable thing about the device" — **did not exist at any displayed
+  size**.
+- The same copy laid white ink outside the eagle roundel's rim and erased it
+  from 9 o'clock through 12 to 3. At 54 px the roundel was an **open horseshoe**
+  with the wings spilling through the gap; it is now a closed oval with the
+  bird inside. Verified by the judge at 54 px against the previous build.
+
+**The eagle's wings were never on a wing.** Drawn back onto both photographs
+through the seal's own rim — by an instrument that parses the **emitted SVG**,
+so it cannot drift from the drawing — the head, shield and tail land on their
+features while the two crescents' tips sit past the E PLURIBUS ribbon in bare
+hatched sky, and the outer edge runs through open ground for the top half of
+its length. Measured tip ≈ **(−5.65, −5.25)** against the drawn **(−7.32,
+−6.20)**. The published "wing span / rim width 0.8242" is retracted.
+
+**Nothing was accepted because a number improved, and two got worse:** D6
+reverse 36.73 % → 44.16 % (the denominator halved when the two bevel copies
+stopped counting as marks — same ink), and D13 shortfall −0.339/−0.382 →
+−0.344/−0.391 from the smaller wings. Both published rather than hidden.
+
+**Refused, with the number:**
+- **`EAG.ry` ≠ `PYR.ry` is a real defect and was not fixed.** The two seals are
+  the *same circle* on both photographs (r/borderW **0.10071 vs 0.10069** —
+  0.02 % agreement), so one value must serve both. The frozen eagle ellipse is
+  **10.7 % out of round in photograph pixels**, which a circle cannot be, and
+  that one bad fit is what dragged the mean. But the two candidate border
+  ratios are 2.7 % apart and the constant is **shared with the obverse's
+  vignette oval**, where a sibling round was working. Reported, not moved.
+- **The eye is ~60 % oversize** (0.68 measured, 1.10 drawn) and **stays**: at
+  0.68 it is 0.71 device px at the naming draw and vanishes, taking the only
+  mark that says which triangle is the capstone. *Rejected because it would
+  score better against the photograph and read worse on screen.*
+- **A confident "12.7 % too wide" on the pyramid was withdrawn as the round's
+  own error** — an early rim sweep returned 336 instead of 348 px, and every
+  horizontal quantity divides by that radius. Nothing in `PY` moves; the trap
+  is written into the file.
+
+**Published miss:** the 1.25-unit gap *is* the note's (measured 0.1124 of r,
+within 2.4 % of ours). It is 1.30 device px at 84 px and the gap row reads 226
+against a 244 field — a **21 % dip, one row deep**. The detached capstone is
+not carryable at the sizes this app draws, and that is stated rather than
+papered over.
+
+**Six instrument faults found**, four of them in shipped judge code: a
+border-fit whose corners land 6–8 px onto blank paper (*the registration
+everything on the note hangs from*), the out-of-round eagle ellipse, a D1 that
+restates a stale obverse locus and fails code that no longer exists, a D8 whose
+own response test does not move its number (it self-declares UNTRUSTED), and a
+look-sheet rendering two sizes the app never draws while omitting the naming
+draw. The sixth was the round's own: a DoG segmenter that failed its null test
+and was discarded — **the eleventh instrument to fail at separating device from
+field in this project.**
+
+Suite 461. D9 0/180. Partition re-derived by the judge: 6/60, `buck.reverse`
+alone.
+
 ## v1.87.0 — 2026-08-24
 
 **Washington's portrait was 6.3 % of the note short, and the gate that should
