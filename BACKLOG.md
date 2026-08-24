@@ -7,6 +7,56 @@ reconsider after calibration.
 
 ## Where we are
 
+- 🔴 **DIME BRANCHES: round REVERTED by the judge, measurements KEPT. The next
+  round's brief is here.** The owner reported the branches "need significant
+  work"; the round confirmed it and measured it, then over-corrected into
+  something less recognisable, and **T1 rose while the drawing got worse** —
+  own score 0.336 → 0.451, margin 0.141 → 0.270, the first movement ever on
+  this face. Looking at it is what caught this. At 40× the coin's olive is a
+  **sprig**: lance-shaped leaves attached along the stem, alternating, pointing
+  up and out, with two small fruits. The round's version reads as a **tulip** —
+  a three-petal flower head on a bare stalk with two paddle leaves — and at
+  38–84 px both branches read as scattered specks. Recognising real currency is
+  the objective, so this fails §0 regardless of the gate.
+  **THE MEASUREMENTS ARE SOUND AND MUST BE REUSED — do not re-derive them.**
+  `_dr9branch.mjs` is kept (it floods the FIELD inward rather than
+  thresholding, which is what closes a proof's specular flutes and line-art's
+  hollow leaf bellies — a plain threshold called the shaft 0.2 units wide) and
+  it is **null-tested against `_dr8shaft.mjs`'s seven shaft widths by a wholly
+  different estimator**: mean error 0.00 sd 0.24 and −0.01 sd 0.35. It reports
+  that **`dime-rev-2.jpg` fails that null test by 63 units** — the file
+  *everything on this branch was originally drawn from*, and the same file
+  `_dr8shaft.mjs` already refuses to publish a width from.
+
+  | foliage rows (run ≥ 3.0 units) | olive | oak |
+  |---|---|---|
+  | proofbright | 28.25–57.75 (**29.50**) | 28.75–58.25 (**29.50**) |
+  | unc2005 | 29.50–58.00 (**28.50**) | 31.75–58.50 (**26.75**) |
+  | **ours (shipping)** | **22.00–66.00 (44.00)** | **24.75–65.00 (40.25)** |
+
+  At y 60 the coin carries 1.2/0.0 and 2.0/1.5 units — **bare stem**. Ours
+  carries 12.0 and 8.8, standing on E PLURIBUS UNUM and on the acorn. And
+  **ours is one object where the coin's is four**: eroded until the leaves let
+  go, the coin's olive breaks into four blobs on *both* references at centres
+  agreeing to 0.7 units; ours does not break at all — a single 197 u²
+  component, 37.9 × 22.1.
+  **Seven leaves a side is CONFIRMED, not the error.** One isolated blade is
+  ≈20 u²; the four olive groups are 49/52/20/38 → 2+2+1+2 = 7, independently on
+  both references. D4's blocked count was never the problem.
+  Four claims in `coins.js` are refuted and should be retracted when the art is
+  re-authored: **"bigger leaves, not more of them"** (the trade that caused
+  what the owner saw); **"olive blade 18.6 × 5.5"** (extrapolates to 14.52×6.75
+  and 11.63×5.56); **"one uniform factor cannot hit both"** for the oak
+  (11.8/8.6 = 1.372 v 5.5/4.2 = 1.310, a 4.7 % difference — 1.34 lands inside
+  2.5 % on both, and was never checked); and **the stem refusal** (stem
+  measures 15.9, sd 0.6 over ten reads, against our 14.3).
+  **CONSTRAINTS FOR THE RE-AUTHORING ROUND, since the numbers alone led one
+  round astray:** the branch must read as a sprig of foliage *attached to a
+  stem* at 38 px — not a flower, not detached blobs. Reduce the span to the
+  measured ≈28.5–29.5 and open the field **without** detaching leaves from the
+  stem and **without** dropping below seven a side. The render at 38/48/54/84
+  is the gate; T1 is not, and this round is the proof.
+
 - ✅ **WITHDRAWN: "the quarter obverse's D3 rests on ONE struck photograph."**
   It rests on **three**. The quarter-obverse round settled the pool with
   numbers: `quarter-obv.jpg` v `quarter-obv-2.jpg` design NCC **0.9959** (one
