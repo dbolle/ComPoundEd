@@ -3,6 +3,72 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.92.0 — 2026-08-24
+
+**Dime reverse Loop 3: the oak leaf's outline, and why two previous rounds
+called their own result a bead chain.**
+
+Both earlier attempts measured the leaf's **aspect** (1.6:1) and its **sinus
+depth** (45–55 %) — and neither measured the quantity that actually decides the
+shape. This round measured the **width profile along the midrib**: 28 bins, on
+the one oak blade that is an isolated component on *both* usable references,
+the two files agreeing to **0.06 of their own maximum half-width** across the
+whole run.
+
+- **The coin's lobe is broad and its sinus is a narrow slot.** Ours was the
+  reverse — a circle on a spine, **which is a bead chain at any depth.** That is
+  why deepening the sinuses never worked.
+- **The coin's leaf has a lobe-free neck** for its first fifth, at under a fifth
+  of its width. Ours reached half its width by a sixth along.
+- **Four lobe pairs plus a terminal, not three.** An earlier count of "four"
+  included the terminal; the path drew three plus a terminal.
+
+Re-authored inside the same measured 12.0 × 7.5 box — the reach line, `lk`, `wk`
+and every footprint number untouched. The oak now breaks into **4 pieces at
++1.2 erosion where it was 3**, largest mass **218 → 131 u²** (references
+211 / 70). A first draft at 39–43 % sinus read as a comb and is recorded too.
+
+**D10 closed, and the contradiction was never in the coin.** Reach (13.8),
+petiole (3.3) and blade length (13.1) refused to add up by ~2.5 units. On the
+one blade isolated on both files at zero erosion, the gap to the fitted
+centreline is **1.50 and 1.52** — agreement to 0.02, which nothing else on this
+face achieves — so the coin's petiole there is **~0.5 units**, not 2.5–3.0 and
+not the 4.4 that built the TV aerial. Eroding by 1.2 moves the coin's reading
+**+2.41 / +1.99**, about *twice* what was eroded. **The disagreement was between
+two estimators, one of which reads a bevel skirt as air.**
+
+**Two refusals, both with numbers:**
+
+- **D11/D12 are one defect and it was not fixed.** The oak's lowest outboard
+  blade is not at the wrong height — the mirrored angle has the **wrong sign**.
+  Two estimators on two files put it at **+20° to +37° up-and-out**, where the
+  ladder mirrors the olive's −13° down-and-out. And the oak carries **no inboard
+  foliage below y 53** on either file (the acorn is there) while the olive
+  carries it to y 57. **The two branches are not mirror images at the foot.**
+  Refused because seven a side cannot be spent: moving that node forces every
+  side assignment above it, and two ladder rows were authored as an
+  *opposite-side pair*. Only two of the oak's seven nodes are isolated well
+  enough to measure — *"exactly the position the round was in when it averaged
+  two references and drew a TV aerial."*
+- **Refused though it measured better:** scaling the oak blade's width by `lk`
+  as well as its length. Drawn aspect 1.47–1.80 against a measured 1.40–1.63, so
+  a uniform scale is closer on paper — but it widens every blade by up to 12 %,
+  and "bigger leaves" is the trade that got an earlier round reverted.
+
+**The two olive fruits were verified present** (they survived the revert),
+centres agreeing to 0.9 units on both files. The files disagree on **size by
+1.9× in both axes on both berries** — published, not averaged.
+
+Acorn separability **2 / 2 / 2 objects at +0 / +0.3 / +0.6 erosion, unchanged**.
+T1 32/32, reported not cited. Partition re-derived by the judge: 6/60,
+`dime.reverse` alone. Suite 461. Cost stated: emitted face 32,969 → 42,545 bytes,
+the oak path being drawn 21×.
+
+**Judge's reservation:** at leaf scale the new lobes are closer to the coin than
+the blob they replace, but they read more angular than the coin's rounded
+projections, and at whole-branch scale the repetition is regular where the
+coin's is not. No comb artefact survives at 38–84 px, which is what decided it.
+
 ## v1.91.0 — 2026-08-24
 
 **Instruments only, no art. Every measuring device that held its own copy of

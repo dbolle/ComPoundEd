@@ -4708,6 +4708,59 @@ function torch(tier, p, boxW) {
   // 1.24x. So one width multiplier is carried, on the terminal only, and the
   // "one blade size for seven nodes" finding is answered without inventing six
   // more constants. Length is left uniform, which the 1.26x above supports.
+  //
+  // ⚠️ ONE LADDER FOR BOTH BRANCHES IS WRONG AT THE FOOT, AND THE CHANGE IS
+  // REFUSED (round 34, ledger D11 and D12). What is known is written down here
+  // so the next round starts from the measurement instead of the suspicion.
+  //
+  // THE OAK'S LOWEST OUTBOARD LEAF POINTS UP AND OUT; THE OLIVE'S POINTS DOWN
+  // AND OUT. Row 2 of this table (`[51.4, -13]`) is mirrored onto both, and on
+  // the oak it is refuted by two independent estimators on two independent
+  // files:
+  //
+  //   · PCA of the isolated blade (the only oak blade that is a separate
+  //     component on both files at zero erosion): principal axis +29° on
+  //     proofbright, +37° on unc2005, with the NARROW end — the leaf's own
+  //     base, see `OAK` — at the INBOARD, LOW end on both. Base (17.4, 56.8)
+  //     and (18.1, 57.3).
+  //   · the per-row runs, which use no fitting at all: the outboard run's INNER
+  //     edge marches inboard as y increases (proofbright 22.4 at y 48 → 18.0 at
+  //     y 58; unc2005 23.9 at y 49 → 17.9 at y 58) while its OUTER edge peaks
+  //     at y 52-55. A blade based low and inboard with its tip high and
+  //     outboard, at +20° to +26°.
+  //
+  //   The olive's own lowest outboard mass does the opposite on both files —
+  //   19.8 at y 50 out to 33.1 at y 54, i.e. DOWN and out — so `-13` is the
+  //   olive's number and always was. THE TWO BRANCHES ARE NOT MIRROR IMAGES AT
+  //   THE FOOT. That is what the row 57 disagreement is: coin `18.6-24.3` and
+  //   `18.3-23.1`, ours `24.8-25.4 26.5-27.4`.
+  //
+  // AND THE OAK PUTS ITS ACORN WHERE THE OLIVE PUTS A LEAF. Row 1 (`[57.5, 38]`,
+  // inboard) is right on the olive — proofbright carries inboard olive foliage
+  // at offset 4.2-12.6 on every row from y 52 to y 57 — and wrong on the oak,
+  // which has NO inboard foliage below y 53 on either file (proofbright y 53
+  // `13.5-17.9`, y 54 `14.4-17.5`, y 55 `15.0-17.2`: the stem and nothing else;
+  // unc2005 the same). What the oak has at y 56-58 inboard is the ACORN, at
+  // offset 7.5-11.5 and 7.0-9.9. Its lowest inboard LEAF is based four to five
+  // units higher, near y 52.5.
+  //
+  // WHY IT IS NOT CHANGED HERE. Seven a side is confirmed and not available to
+  // spend, so putting the 57.5 node outboard on the oak forces every side
+  // assignment above it, and rows 2 and 3 (51.4 and 50.5) were authored as an
+  // opposite-side PAIR: any reassignment lands them within 2 units of each
+  // other on the SAME side at similar angles, which merges them. Making that
+  // work means re-authoring the oak's seven nodes, and only TWO of the seven
+  // are isolated well enough to measure — the same position round 33 was in
+  // when it averaged two references and drew a TV aerial. Two measured nodes do
+  // not license five invented ones.
+  //
+  // WHAT WOULD SETTLE IT, so the next round does not start from scratch: a
+  // per-node base fix for the oak's five unmeasured leaves. The estimator that
+  // worked for the two that are measurable is the per-row run table plus a PCA
+  // whose narrow end identifies the base; what defeats it elsewhere is that the
+  // oak's foliage closes over its own stem from y 53 up, so the blades are one
+  // component. An erosion ladder that separates them without eating the
+  // petioles, or a third independent photograph, is the missing input.
   const LADDER = [
     // ay (base, on the stem), rot (degrees up from horizontal), terminal?
     [57.5, 38, 0], [51.4, -13, 0], [50.5, 33, 0], [47.3, 17, 0], [45.5, 45, 0],
@@ -5062,19 +5115,92 @@ function torch(tier, p, boxW) {
   // cutting to 52-53% of each lobe's crown, inside round 27's own measured
   // 45-55%. The scale factor is now 1.0: the path is authored at the size it
   // is drawn, so there is no second number to get wrong.
+  //
+  // ⚠️ THE OUTLINE ABOVE IS REPLACED (round 34, ledger D8) AND THE BOX IS NOT.
+  // 12.0 × 7.5 stands; only the outline between those bounds changed, so the
+  // reach line, `lk`, `wk` and every footprint number below are untouched.
+  //
+  // WHY A THIRD ATTEMPT AT THIS ONE OUTLINE. Round 27 drew three shallow bumps
+  // on a 2.05:1 body and named its own result a bead chain; round 30 fixed the
+  // ASPECT (1.6:1) and the sinus DEPTH (46-53%) and the leaf was still a bead
+  // chain. Both rounds measured the same two quantities and neither measured
+  // the one that decides it. Put ours beside the same leaf on both references
+  // at 110 px per viewBox unit — `judge/_dr10sprig.mjs`'s crop, tightened to
+  // the one oak blade that is an ISOLATED COMPONENT on both files — and the
+  // difference is not depth and not aspect:
+  //
+  //   · THE COIN'S LOBE IS BROAD AND ITS SINUS IS A NARROW SLOT. Ours was the
+  //     other way round: a lobe crown 3.2 units of midrib wide with 1.35 units
+  //     of gently falling shoulder either side, which is a circle, and three
+  //     circles on a spine is a bead chain WHATEVER their depth. On the coin
+  //     the crown holds its width across most of the lobe's pitch and the
+  //     wall into the sinus is steep — the field wedges IN as a slot rather
+  //     than scalloping the outline.
+  //   · THE COIN'S LEAF HAS A NECK. Its first fifth is 1.2-1.6 units wide and
+  //     carries no lobes at all; ours reached half its full width by the time
+  //     it was a sixth along. That neck is why the coin's blades sit visibly
+  //     clear of their own stem at a standoff our petioles never had to
+  //     supply — see `ped` below, where the same fact settles the standoff.
+  //   · FOUR LOBE PAIRS PLUS A TERMINAL, not three. Round 27's count was four
+  //     A SIDE INCLUDING the terminal and the path drew three plus a terminal;
+  //     drawing four laterals plus the terminal is what the crops show.
+  //
+  // MEASURED, and it is the measurement neither earlier round took: the WIDTH
+  // PROFILE ALONG THE MIDRIB. `_dr9branch.mjs`'s mask at zero extra erosion,
+  // the one oak blade isolated on both files (proofbright 15.95 × 9.92 at
+  // offset 24.4 y 53.0; unc2005 12.24 × 8.76 at 22.95, 53.6), PCA'd and cut
+  // into 28 bins from base to tip. As a fraction of each leaf's own maximum
+  // half-width, the two files agree to 0.06 over the whole run:
+  //
+  //     along  0.02 0.09 0.16 0.23 0.30 0.38 0.45 0.52 0.59 0.66 0.73 0.80 0.88 0.95
+  //     pooled .17  .15  .20  .36  .52  .68  .78  .82  .95  .89  .92  .91  .74  .48
+  //
+  // A fifth of the leaf at under a fifth of its width, then a steady climb, a
+  // broad flat crown over the outer half, and a rounded end — NOT a point.
+  // (The olive's lance IS pointed; that is one of the two things telling the
+  // branches apart, and it is not copied here.) The outline below is authored
+  // to that envelope with the lobes cut into it.
+  //
+  // THE SINUSES CUT TO 48-59% of the mean of their two neighbouring crowns —
+  // inside round 27's measured 45-55% and NOT deeper than it. Depth was never
+  // the variable; a first draft at 39-43% read as a comb, which is the same
+  // failure from the other side. What changed is the crown and the slot.
+  //
+  // WHAT WAS TRIED AND REJECTED THOUGH IT MEASURED BETTER: scaling the blade's
+  // WIDTH by `lk` as well as its length. The drawn aspect ratio runs 1.47 (the
+  // 11.0-unit crown blade) to 1.80 (the 13.5-unit foot blade) because `lk`
+  // scales x only, against 1.40 and 1.61 on the two isolated reference blades
+  // and 1.47-1.63 on the four crop reads — so a uniform scale is closer on
+  // paper and it is `ax: 15.9` all over again, one constant for a varying
+  // quantity. It is refused anyway: it widens every oak blade by up to 12% and
+  // "bigger leaves" is the exact trade that got round 29 reverted, the width
+  // reads it would be fitted to span 6.14 to 9.3 (a factor of 1.5), and this
+  // round has no way to show that the resulting merge risk is acceptable.
+  // Recorded so the next round does not have to rediscover it.
+  //
+  // WHAT THIS COSTS, stated: 1087 characters against 631, paid 21 times over
+  // (7 oak leaves × `struck()`'s three passes), so the dime reverse's emitted
+  // SVG goes from 32,969 bytes to 42,545. It is the largest face in the set
+  // either way. Two thirds of the extra was bought back by dropping the
+  // shoulder points either side of each sinus and setting the sinus's own
+  // tangent tension instead — the 2,208-character version with them is
+  // indistinguishable from this one at 110 px per viewBox unit.
   const OAK =
-    'M -6 -.4 C -5.3 -1.15 -4.7 -1.75 -4.15 -1.9' +
-    ' C -3.75 -2 -3.35 -1.85 -3.05 -1.55 C -2.95 -1.4 -2.88 -1.25 -2.8 -1.1' +
-    ' C -2.45 -1.95 -1.8 -3.15 -1.05 -3.35' +
-    ' C -.6 -3.45 -.28 -3.32 -.05 -3.05 C .1 -2.85 .25 -2.55 .4 -2' +
-    ' C .85 -2.95 1.45 -3.9 2.25 -4' +
-    ' C 2.85 -4.05 3.2 -3.88 3.45 -3.5 C 3.6 -3.25 3.75 -2.9 3.9 -2.35' +
-    ' C 4.5 -3.35 5.6 -2.85 6 0' +
-    ' C 5.6 2.85 4.5 3.35 3.9 2.35 C 3.75 2.9 3.6 3.25 3.45 3.5' +
-    ' C 3.2 3.88 2.85 4.05 2.25 4 C 1.45 3.9 .85 2.95 .4 2' +
-    ' C .25 2.55 .1 2.85 -.05 3.05 C -.28 3.32 -.6 3.45 -1.05 3.35' +
-    ' C -1.8 3.15 -2.45 1.95 -2.8 1.1 C -2.88 1.25 -2.95 1.4 -3.05 1.55' +
-    ' C -3.35 1.85 -3.75 2 -4.15 1.9 C -4.7 1.75 -5.3 1.15 -6 .4 Z';
+    'M -6 0 C -6 -.23 -5.44 -.55 -5.1 -.7 C -4.76 -.85 -4.08 -.83 -3.95 -.9' +
+    ' C -3.82 -.97 -3.55 -1.47 -3.3 -1.62 C -3.05 -1.77 -2.67 -1.87 -2.45 -1.8' +
+    ' C -2.22 -1.73 -2.03 -1.15 -1.95 -1.2 C -1.87 -1.25 -1.56 -2.26 -1.3 -2.55' +
+    ' C -1.04 -2.84 -.63 -3.08 -.4 -2.92 C -.17 -2.76 .03 -1.55 .1 -1.58' +
+    ' C .17 -1.61 .45 -3 .7 -3.35 C .95 -3.7 1.39 -3.94 1.62 -3.68 C 1.85 -3.42 2.03 -1.81 2.1 -1.78' +
+    ' C 2.17 -1.75 2.37 -2.94 2.6 -3.2 C 2.83 -3.46 3.26 -3.6 3.48 -3.35' +
+    ' C 3.7 -3.1 3.84 -1.76 3.9 -1.7 C 3.96 -1.64 4.13 -2.31 4.35 -2.42' +
+    ' C 4.57 -2.53 4.94 -2.75 5.22 -2.35 C 5.5 -1.95 6 -.63 6 0 C 6 .63 5.5 1.95 5.22 2.35' +
+    ' C 4.94 2.75 4.57 2.53 4.35 2.42 C 4.13 2.31 3.96 1.64 3.9 1.7' +
+    ' C 3.84 1.76 3.7 3.1 3.48 3.35 C 3.26 3.6 2.83 3.46 2.6 3.2 C 2.37 2.94 2.17 1.75 2.1 1.78' +
+    ' C 2.03 1.81 1.85 3.42 1.62 3.68 C 1.39 3.94 .95 3.7 .7 3.35 C .45 3 .17 1.61 .1 1.58' +
+    ' C .03 1.55 -.17 2.76 -.4 2.92 C -.63 3.08 -1.04 2.84 -1.3 2.55' +
+    ' C -1.56 2.26 -1.87 1.25 -1.95 1.2 C -2.03 1.15 -2.22 1.73 -2.45 1.8' +
+    ' C -2.67 1.87 -3.05 1.77 -3.3 1.62 C -3.55 1.47 -3.82 .97 -3.95 .9' +
+    ' C -4.08 .83 -4.76 .85 -5.1 .7 C -5.44 .55 -6 .23 -6 0 Z';
   // ⚠️ THIS BLOCK'S HEADLINE WAS WRONG AND IS RETRACTED. It read "THERE IS NO
   // ACORN ON THIS COIN, AND ONE WAS DRAWN (round 28)". There IS an acorn; it
   // was drawn in the wrong place. The reasoning below is kept intact because
@@ -5270,6 +5396,39 @@ function torch(tier, p, boxW) {
       // is 2.4 at the foot rather than the 3.6 the standoffs alone would ask
       // for — still 2.4x what shipped, and reading back at 3.3 against 4.28 and
       // 4.87 on the two files.
+      //
+      // ⚠️ THAT HYPOTHESIS IS NOW TESTED AND IT HOLDS: THE STANDOFF IS THE
+      // WRONG MEASUREMENT, AND ERRING SHORT WAS RIGHT (round 34, ledger D10).
+      //
+      // The test needed one blade that is an ISOLATED COMPONENT on both files
+      // at ZERO extra erosion, so the gap can be read off the mask instead of
+      // through a calibration. There is exactly one: the oak's lowest outboard
+      // blade — proofbright 15.95 × 9.92 centred (24.38, 52.95), unc2005
+      // 12.24 × 8.76 centred (22.95, 53.59), both isolated with bare field all
+      // round. Its least distance to the fitted centreline `stemC`:
+      //
+      //                      +0 erosion    +1.2 erosion    change
+      //     proofbright          1.50          3.91         +2.41
+      //     unc2005              1.52          3.51         +1.99
+      //     ours (this node)     1.26          4.65
+      //
+      // The two files agree to 0.02 at zero erosion, which nothing else on this
+      // face does. The stem's own half-width there is ~1.0, so the coin's
+      // PETIOLE at that node is about HALF A UNIT — against the 2.5-3.0 the
+      // erosion-matched standoff implies and the 4.4 that 818817d drew.
+      //
+      // WHY IT OVER-READS: 1.2 units of erosion move the coin's reading by 2.0
+      // to 2.4, i.e. about twice what was eroded, because a struck relief's
+      // bevel skirt is already sloping away and leaves before the flat does.
+      // ANY petiole fitted from erosion-matched standoffs is 1.5-3.5 too long,
+      // and that is the whole of the discrepancy this block could not resolve.
+      //
+      // AND THE ARITHMETIC CLOSES. Base to tip is 15.95 / 12.24 — the two files
+      // disagree by 30%, which is stated rather than averaged away — plus ~0.5
+      // of petiole, so REACH at that node is 12.7 to 16.5. The line below asks
+      // 15.88 there. It is inside the two files' own spread; there was never a
+      // 2.5-unit contradiction in the coin, only between two estimators, one of
+      // which reads a bevel skirt as air.
       const reach = 13.79 + 0.2181 * (L.ay - 47.39);
       const ped = L.end ? 0 : (mirror
         ? 2.4 * (1 - (0.45 * i) / (leaves - 2))
@@ -5312,6 +5471,33 @@ function torch(tier, p, boxW) {
     // read off the same centreline as everything else (16.46 at y 45.6, 16.23
     // at y 53.2), so the stalks reach the branch instead of stopping short of
     // it. The berries' own stalks therefore get 0.56 and 0.13 units shorter.
+    //
+    // ROUND 34 (ledger D9) WAS SENT TO CHECK WHETHER THE FRUITS SURVIVED THE
+    // REVERT AT ALL. THEY DID — the two calls below are in the shipped art and
+    // `_dr9branch.mjs`'s small-body pass finds the lower one isolated on our
+    // own render at (22.53, 57.48). Re-measured at ZERO erosion, as blobs in a
+    // window round each berry:
+    //
+    //                      upper                     lower
+    //     proofbright  (19.74, 42.50) 5.87 × 2.59  (22.18, 57.36) 4.55 × 2.53
+    //     unc2005      (20.57, 42.75) 3.09 × 1.45  (22.91, 58.01) 2.32 × 1.43
+    //     ours         merged                      (22.01, 57.12) 6.06 × 3.44
+    //
+    // THE CENTRES ARE THE MEASUREMENT AND THE SIZES ARE NOT. The two files put
+    // each berry within 0.9 units of the other and within 0.9 of what is drawn;
+    // they disagree with each other by a factor of 1.9 on its SIZE, in both
+    // axes, on both berries. That is the bevel skirt again (`_dr8shaft.mjs`
+    // records a factor of three on the stem) and it is published as a
+    // disagreement rather than averaged into a number: nothing here justifies
+    // changing `rx 1.75 ry 1.55`, which sits between the two files in length
+    // and above both in width, and the blob figures include each berry's stalk.
+    //
+    // WHAT IS WRONG AND IS NOT FIXED HERE: at zero erosion the UPPER berry is
+    // not a separate component in our drawing — it is swallowed by the olive
+    // blade above it, one blob 8.61 × 6.50 at (20.30, 43.37) — where both
+    // references keep it clear in open field. Its centre is measured and the
+    // blade that covers it is on the mirrored `LADDER`, so this is the same
+    // refusal recorded there: it cannot be fixed without moving a node.
     if (mirror && full) {
       g += `${fruit(20.2, 42.5, n2(stemC(45.6)), 45.6, f)}`
         + `${fruit(22.5, 57.5, n2(stemC(53.2)), 53.2, f)}`;
@@ -5352,6 +5538,18 @@ function torch(tier, p, boxW) {
     // photographs plainly show the stalk entering ABOVE the horizontal. 75 is
     // chosen on the picture, and the number is only what stops it being wrong
     // by more than the references disagree.
+    //
+    // ONE THING SEEN AT 60 px PER UNIT AND DELIBERATELY NOT DRAWN (round 34):
+    // on both references the acorn hangs on a short STALK curving up and
+    // outboard to the branch, at offset ~12-15 and y ~55.5-56.5, and ours
+    // floats free — which is the "attached, or merely placed near?" question
+    // this file has already got wrong twice. It is left alone because the mark
+    // is at the edge of what either photograph resolves: on proofbright at zero
+    // erosion it is a SEPARATE 3.21 × 1.46 component at (14.62, 56.77), i.e.
+    // the coin's own stalk does not bridge to the acorn on the mask either, and
+    // unc2005 does not carry it at all. Drawing a bridge where one reference
+    // shows a gap and the other shows nothing risks merging the one object on
+    // this face that has been broken three times. Recorded, not drawn.
     if (!mirror && full) g += acorn(x(8.8), 57.7, 75, 1.0);
     return `${stem(x)}${g}`;
   };
