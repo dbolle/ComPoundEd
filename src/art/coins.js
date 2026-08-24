@@ -40,25 +40,38 @@
 // size implies value. That conflict has to be drawn TRUE to be teachable.
 //
 // ─────────────────────────────────────────────────────────────────────────
-// THE IDEA: a coin at 190px and a coin at 26px are not the same drawing.
+// ⚠️ RETRACTED, AND IT WAS THE FIRST THING IN THIS FILE A READER MET.
 // ─────────────────────────────────────────────────────────────────────────
-// `coinSVG` is handed `size`, so it emits DIFFERENT GEOMETRY per size band.
-// Shrinking one drawing is what turns a portrait into a thumbprint; instead
-// each face is authored three times over, and detail is DELETED before it
-// can turn to mud:
+// This heading read "THE IDEA: a coin at 190px and a coin at 26px are not the
+// same drawing", and under it:
 //
-//   full  (size >= 76)  the drawing: hair mass, brow, eye, ear, coat,
-//                       feather and column lines, the full inscription
-//                       layout. 76 and not 96 because wave 1 draws at 84 —
-//                       see tierOf().
-//   mid   (size >= 44)  masses only: head, hair, beard, queue, coat. No
-//                       eye, no ear, no relief hairlines, and only the
-//                       coin's MAIN word if there are pixels for it.
-//   icon  (size <  44)  one bold mark scaled up to fill the field: the head
-//                       alone, re-centred, no neck, no coat, no words.
+//     "`coinSVG` is handed `size`, so it emits DIFFERENT GEOMETRY per size
+//      band. Shrinking one drawing is what turns a portrait into a thumbprint;
+//      instead each face is authored three times over, and detail is DELETED
+//      before it can turn to mud:
+//        full  (size >= 76)  the drawing … 76 and not 96 because wave 1 draws
+//                            at 84 — see tierOf().
+//        mid   (size >= 44)  masses only … No eye, no ear, no relief
+//                            hairlines, and only the coin's MAIN word …
+//        icon  (size <  44)  one bold mark scaled up to fill the field …
+//      The tier is chosen from the QUARTER's size, never the individual
+//      coin's, so a row drawn with one `size` is always one visual family."
 //
-// The tier is chosen from the QUARTER's size, never the individual coin's,
-// so a row drawn with one `size` is always one visual family.
+// THE OPPOSITE IS TRUE, and has been since v1.78.0. `coinSVG` authors ONE
+// drawing per face at `DRAW_SIZE = 380` and rewrites only the outer
+// width/height, so a coin at 380 px and a coin at 26 px ARE the same drawing,
+// byte for byte apart from two attributes — `tests/coins.spec.js` pins exactly
+// that. The tiers were not merely dropped, they were MEASURED AND LOST: at the
+// four sizes `src/screens/money.js` draws they scored 24/32 on T1 transfer
+// against 32/32 for one full-detail drawing scaled down (see the note above
+// `DRAW_SIZE` at the foot of this file for the full result).
+//
+// v1.93.0 removed the machinery this paragraph described. Nothing in this file
+// now branches on size except the DEVICE-PIXEL STROKE FLOORS in `sw()` and
+// `reliefOff()`, and those are computed from `boxW`, which is the DRAW_SIZE
+// box — so in practice they too are constant per denomination. IF YOU WANT A
+// SIZE-DEPENDENT MARK, `coinSVG`'s `size` argument is the only live quantity;
+// `boxW` will not give you one.
 //
 // ─────────────────────────────────────────────────────────────────────────
 // WHAT CARRIES IDENTITY, and none of it is colour
@@ -272,25 +285,20 @@ const P = (r, deg) => {
   return `${n2(50 + r * Math.cos(a))} ${n2(50 + r * Math.sin(a))}`;
 };
 
-// ─────────────────────────────────────────────────────────── size tiering
-
-// `full` is the tier where a face has enough pixels for a drawn feature;
-// `mid` is where only masses survive; `icon` is where even the mass has to
-// be enlarged and simplified to a glyph. Boundaries picked from the sizes
-// the app actually draws: 190 and 120 (a teaching card), 54 (a coin row),
-// 38 (a pile) and 26 (a wallet chip, the smallest anything is ever drawn).
-// 76 and not 96: `src/screens/money.js` draws the wave-1 recognition
-// question with `coinRow(q.coins, 84)` — ONE coin, alone, no sibling to
-// compare against. That single call is the hardest question the art is ever
-// asked and it was landing in `mid`, i.e. a bare silhouette with the eye,
-// the ear and the hair marks deleted. It now lands in `full`. The smallest
-// thing that draws at that call is the dime at 84 × 0.738 = 62px, which is
-// where the relief widths below were checked.
-function tierOf(size) {
-  if (size >= 76) return 'full';
-  if (size >= 44) return 'mid';
-  return 'icon';
-}
+// ⚠️ `tierOf(size)` REMOVED (v1.93.0). It returned 'full' / 'mid' / 'icon' at
+// 76 and 44 and had had NO CALLER since v1.78.0 — `coinSVG` set `tier` to the
+// literal 'full'. Several judge instruments keep their own private copy of it
+// (`_jq9well`, `_jn8tier`, `_jp10tier`, `_jq10tier*`, `_jq8contain-v2`,
+// `_jl1cap`, `_jb12tier`); none imported this one, so removing it cannot move
+// an instrument, but any of them still LABELLING a row "icon" or "mid" is
+// labelling it with a distinction the art no longer makes.
+//
+// The sizes it was tuned to are the useful residue and they are still the
+// sizes that matter: `src/screens/money.js` draws 38 (a pile), 48 and 54 (a
+// coin row) and 84 (the wave-1 recognition question — ONE coin, alone, no
+// sibling to compare against, the hardest question the art is ever asked). The
+// smallest thing that draws at that call is the dime at 84 × 0.738 = 62 px,
+// which is where the relief widths below were checked.
 
 // Stroke width in VIEWBOX units, with a DEVICE-PIXEL FLOOR. The viewBox is
 // 100 units mapped onto `boxW` real pixels, so one device pixel is
@@ -544,30 +552,28 @@ function fitOff(o, solid, rField) {
 // is drawn INSIDE it (a dark colonnade recess, a lit column edge, a window)
 // and carries its own colours, so it goes on last and untouched.
 //
-// At `icon` tier the whole motif is already filled in `deep` for contrast
-// against the field, so a dark shadow under a dark shape would only fatten
-// it. It keeps the lit edge, which is the half of the effect that still
-// works at 20px, and drops the other.
-//
 // `rField` is the field circle this massing is being struck inside, and it is
 // what stops the offset copy from printing on the rim. Omitted where there is
 // no field circle to respect (the $1 note).
 //
-// `mass` overrides the mid/full massing tone for ONE motif rather than for the
-// palette, which is the house idiom (`t.min ?? SHARED`): the quarter's eagle
-// asks for `p.deep` at every tier so its device-against-field reading does not
-// swing between tiers, and the other three motifs are byte-identical.
+// `mass` overrides the massing tone for ONE motif rather than for the palette:
+// the quarter's eagle asks for `p.deep` so its device-against-field reading
+// does not swing with size, and the other three motifs are byte-identical.
 //
-// NOTE for anyone tempted to read the `deep` layer as shading: at mid/full it
-// is drawn with the SAME geometry as the layer painted over it, so it is
-// entirely hidden and contributes nothing. The bevel is the offset white copy;
-// `deep` is dead paint at those tiers and always has been.
-function struck(solid, p, tier, boxW, detail = '', rField = 0, mass = null) {
+// NOTE for anyone tempted to read the `deep` layer as shading: it is drawn
+// with the SAME geometry as the layer painted over it, so it is entirely
+// hidden and contributes nothing. The bevel is the offset white copy; `deep`
+// is dead paint here and always has been.
+//
+// THE `icon` BRANCH IS GONE (v1.93.0). It returned a two-layer version at
+// opacity 0.5 under the note "At `icon` tier the whole motif is already filled
+// in `deep` for contrast against the field, so a dark shadow under a dark
+// shape would only fatten it. It keeps the lit edge, which is the half of the
+// effect that still works at 20px, and drops the other." That reasoning is
+// about 20 px rasters and may still be sound; it has simply had no way to run
+// since v1.78.0, when `tier` became the literal `'full'` on every call.
+function struck(solid, p, boxW, detail = '', rField = 0, mass = null) {
   const o = fitOff(reliefOff(boxW), solid, rField);
-  if (tier === 'icon') {
-    return `<g fill="#ffffff" opacity="0.5" transform="translate(${-o} ${-o})">${solid}</g>
-      <g fill="${p.deep}">${solid}</g>${detail}`;
-  }
   return `<g fill="#ffffff" opacity="0.42" transform="translate(${-o} ${-o})">${solid}</g>
     <g fill="${p.deep}">${solid}</g>
     <g fill="${mass ?? p.motif}">${solid}</g>${detail}`;
@@ -589,15 +595,17 @@ const shade = (x0, x1, y, p, op = 0.55) =>
 // shadow, while the column shafts catch the light. So: a dark recess, then
 // lit shafts standing in front of it, each with a highlight down its
 // leading edge — which is also, at no extra cost, what fluting looks like.
-function columns(centres, w, y0, y1, p, fine) {
+// The `fine` parameter is gone (v1.93.0): both callers passed
+// `full && boxW >= 130`, and `boxW` is the DRAW_SIZE box — 298.4 on the cent,
+// 332.2 on the nickel — at every displayed size, so the highlight was always
+// drawn. It is now unconditional, which is what it has always been.
+function columns(centres, w, y0, y1, p) {
   const h = n2(y1 - y0);
   return centres
     .map(
       (cx) =>
         `<rect x="${n2(cx - w / 2)}" y="${n2(y0)}" width="${n2(w)}" height="${h}" fill="${p.motif}"/>` +
-        (fine
-          ? `<rect x="${n2(cx - w / 2)}" y="${n2(y0)}" width="0.75" height="${h}" fill="#ffffff" opacity="0.55"/>`
-          : '')
+        `<rect x="${n2(cx - w / 2)}" y="${n2(y0)}" width="0.75" height="${h}" fill="#ffffff" opacity="0.55"/>`
     )
     .join('');
 }
@@ -658,18 +666,30 @@ function bayCentres(x0, x1, n, gapAtCentre = 0) {
 // 7.5–7.7 — the single constant behind D5-cap/D5-rim on the quarter and the
 // nickel, and the nickel's 1.47-unit D8 bevel breach.
 //
-// `icon` keeps the old, wider ring: a true 2.93-unit rim is 0.76 device px
-// on a 26px wallet chip — below a pixel — so the smallest tier trades a
-// little fidelity for a ring that exists. Note the reasoning has FLIPPED
-// direction: icon used to widen the FIELD because a 6-unit ring was a pixel
-// of mud; now it narrows it because a true-width ring would vanish.
+// ⚠️ RETIRED, NOT REFUTED (v1.93.0). `field` used to be a per-tier object,
+// `{ full: 44.07, mid: 44.07, icon: 42.5 }`, under this reasoning:
+//
+//     "`icon` keeps the old, wider ring: a true 2.93-unit rim is 0.76 device
+//      px on a 26px wallet chip — below a pixel — so the smallest tier trades
+//      a little fidelity for a ring that exists. Note the reasoning has
+//      FLIPPED direction: icon used to widen the FIELD because a 6-unit ring
+//      was a pixel of mud; now it narrows it because a true-width ring would
+//      vanish."
+//
+// The 0.76-device-px arithmetic is still correct and is the reason 42.5 is
+// written down here rather than deleted. What is gone is any way to reach it:
+// since v1.78.0 `tier` is the literal `'full'` on every call, so `full` was
+// the only branch ever indexed, `mid` was a duplicate of it, and 42.5 has not
+// been drawn on anything. `field` is now the single number it has been in
+// practice for fifteen versions. A future round that wants a small-size rim
+// must key it off `coinSVG`'s `size`, which is NOT threaded down here.
 const REEDED = { dime: true, quarter: true };
 
 const EDGE = {
-  penny: { field: { full: 44.07, mid: 44.07, icon: 42.5 } },
-  nickel: { field: { full: 44.07, mid: 44.07, icon: 42.5 } },
-  dime: { field: { full: 44.07, mid: 44.07, icon: 42.5 } },
-  quarter: { field: { full: 44.07, mid: 44.07, icon: 42.5 } },
+  penny: { field: 44.07 },
+  nickel: { field: 44.07 },
+  dime: { field: 44.07 },
+  quarter: { field: 44.07 },
 };
 
 // Tooth count and depth for a disc `boxW` px across. Count is capped at 64
@@ -2397,9 +2417,11 @@ const RELIEF = {
     // ⚠️ STALE SINCE v1.78.0, and left standing only because the sentence above
     // is the record of why the width is what it is. `coinSVG` now authors every
     // face once at DRAW_SIZE and rewrites only the outer width/height, so
-    // `boxW` is 380 at every displayed size and `fine` is ALWAYS true. These two
-    // cuts draw at 38 px as well as at 380. Nothing on this face may be
-    // justified by "it does not draw small" any more.
+    // `boxW` is 380 at every displayed size and `fine` was ALWAYS true. These
+    // two cuts draw at 38 px as well as at 380. Nothing on this face may be
+    // justified by "it does not draw small" any more. v1.93.0 finished the job
+    // this note started: `fine` no longer exists, and `grooveFine` is emitted
+    // unconditionally — the same bytes, with nothing left to mislead a reader.
     // So the five always-on cuts carry the tone and
     // these two carry the geometry. 0.35 viewBox / 0.98 = 0.36 local. Together
     // they put the 190 px duty at 0.348, which is the 1994-P's own 0.342.
@@ -2425,8 +2447,12 @@ const RELIEF = {
     // Against the coin's 0.350 / 0.409 / 0.443 on the three references, these
     // widths give 0.3619 at 190px and up (three lines) and 0.3499 at 84px (two
     // lines — the third crosses only one roll once `fine` is off, and is
-    // excluded and counted rather than averaged in). That is inside the band at
-    // 190, and 0.0001 under its lower edge at 84. Variant B gives 0.293 and
+    // excluded and counted rather than averaged in). ⚠️ That 84 px figure was
+    // never what the app drew: `fine` was never off, so all three lines are
+    // present at 84 px and the drawn duty there is the 0.3619 figure, not
+    // 0.3499. The 0.3499 row is the two-line hypothetical. That is inside the
+    // band at 190, and the 84 px row's "0.0001 under its lower edge" describes
+    // a drawing this file has not emitted since v1.78.0. Variant B gives 0.293 and
     // 0.249: it does not approach the coin, it leaves the band by 0.057 and
     // 0.101, and it is further away under every subset of the references —
     // including the 1932 alone, the only same-design high-resolution one.
@@ -2829,21 +2855,22 @@ const EYE_JEFFERSON =
 //   s / cy / cx     the head's scale and where its origin lands, chosen so
 //                   the crown clears the inscription band and the jaw sits
 //                   about two thirds of the way down the field.
-//   iconS / iconCy / iconCx
-//                   the head's placement at `icon` tier. This USED to say
-//                   these values "fill the disc on its own ... at about 86% of
-//                   its diameter", and that rule is now retired on three of the
-//                   four coins, because `judge/_jt1transfer.mjs` failed on it:
-//                   at 38px — `coinRow(opt.coins, 38)`, the pile a child counts
-//                   with — an 86%-of-the-disc head is a NICKEL, whatever man is
-//                   drawn in it, and the cent and the quarter both sorted as
-//                   one. The rule now is the dime's: the icon placement is the
-//                   full tier's measured-optimal placement, scaled about the
-//                   disc centre by k = EDGE.field.icon / EDGE.field.full
-//                   = 42.5/44.07 = 0.96437, which is the only thing that
-//                   actually differs between the tiers. The nickel still
-//                   carries the old numbers (they happen to equal its full-tier
-//                   trio) and is out of scope for this round.
+//   ⚠️ iconS / iconCy / iconCx / iconBust / iconWig — REMOVED v1.93.0.
+//                   These placed the head at `icon` tier, and `icon` has not
+//                   been emitted since v1.78.0 made `tier` the literal 'full'.
+//                   By the end they were three numbers per coin derived from a
+//                   ratio of two field radii that are now one number. THE
+//                   FINDING THAT PRODUCED THEM IS NOT DEAD AND IS RESTATED
+//                   HERE, because it is about 38 px and the app still draws 38
+//                   px: an "86% of the disc" head — a house rule, never a
+//                   measurement — made the CENT sort NEARER REAL NICKEL
+//                   PHOTOGRAPHS than real cent ones on `_jt1transfer.mjs`. A
+//                   big head low in a disc is what a nickel looks like,
+//                   whatever man is drawn in it. Any future rule that scales a
+//                   head to fill its disc reintroduces that error.
+//                   (Those T1 figures were measured against the stripped icon
+//                   drawing and cannot be quoted for today's art; 38 px now
+//                   gets the same drawing 380 px does.)
 //   neck            where the collar crosses, in local units below the
 //                   origin. On the cent it sits BELOW the beard: at 15 the
 //                   coat ate the beard whole and the cent lost the one
@@ -2879,37 +2906,29 @@ export const OBVERSE = {
     // x 9.3..13.0, y −11.2..−9.2, where the shared mark sits at x 2.6..9.4,
     // y −6.6..−2.6.
     //
-    // THE "86% OF THE FIELD" RULE IS RETIRED HERE, AND IT WAS THE CENT'S
-    // WHOLE T1 FAILURE. iconS/iconCy/iconCx used to enlarge the head to fill
-    // the icon disc on its own (1.253 against the full tier's 0.78 — sixty
-    // percent bigger). `src/screens/money.js` draws a pile at `coinRow(...,38)`,
-    // which is `icon`, so that enlargement IS the coin a child counts with, and
-    // `judge/_jt1transfer.mjs` scored it NEARER REAL NICKEL PHOTOGRAPHS THAN
-    // REAL CENT ONES: 0.084 cent against 0.165 nickel. A 1c-for-5c error in the
-    // exact task this app teaches.
+    // THE "86% OF THE FIELD" RULE IS RETIRED, AND IT WAS THE CENT'S WHOLE T1
+    // FAILURE — kept here because the *object* fact behind it still governs
+    // `s` below. This file measures the real cent's head at ~49% of the disc:
+    // the SMALLEST head in the set, high in the field over a big coat. An
+    // earlier `iconS` enlarged it to fill the disc (1.253 against `s` 0.78,
+    // sixty percent bigger), and `judge/_jt1transfer.mjs` then scored the cent
+    // NEARER REAL NICKEL PHOTOGRAPHS THAN REAL CENT ONES — 0.084 cent against
+    // 0.165 nickel, a 1c-for-5c error in the exact task this app teaches. The
+    // rule was house-invented ("fill the disc") and contradicted the
+    // measurement sitting twenty lines above it. `s: 0.78` is the measured
+    // placement and nothing may scale it up to fill anything.
     //
-    // The reason is the object, not the metric. This file measures the real
-    // cent's head at ~49% of the disc — the SMALLEST head in the set, high in
-    // the field over a big coat. Blowing it up to 86% makes it the BIGGEST, and
-    // a big head low in a disc is what a nickel looks like. The rule was
-    // house-invented ("fill the disc") and contradicted the measurement sitting
-    // twenty lines above it.
-    //
-    // DERIVED, NOT FITTED. The icon tier's only real difference is that its
-    // field circle is EDGE.penny.field.icon = 42.5 where full/mid is 44.07, so
-    // the placement that is measured-optimal at full tier is carried over
-    // scaled about the disc centre by k = 42.5/44.07 = 0.96437:
-    //     iconS  = 0.78 * k               = 0.7522
-    //     iconCy = 50 + (40.0 - 50) * k   = 40.3563
-    //     iconCx = 3.88 * k               = 3.7418
-    // That is the same rule the dime already follows (icon == full placement),
-    // with the one correction the dime does not need because it was written
-    // before the field circles diverged. T1 at 38px goes 0.084 -> 0.292 for
-    // the cent's own photographs and 0.165 -> 0.153 for the nickel's, i.e. the
-    // numerator moved (R2) and the coin sorts correctly with margin +0.087.
+    // ⚠️ The repair for that failure — `iconS 0.7522 / iconCy 40.3563 /
+    // iconCx 3.7418`, derived as the full-tier trio scaled by
+    // k = EDGE.penny.field.icon / .full = 42.5/44.07 = 0.96437 — is REMOVED
+    // (v1.93.0) along with the tier it applied to and the two field radii the
+    // ratio was taken between. Its published improvement (T1 at 38 px 0.084 ->
+    // 0.292 own, 0.165 -> 0.153 nickel, margin +0.087) was measured on the
+    // stripped icon drawing and does not describe today's 38 px render, which
+    // is the full drawing scaled down.
     who: 'Lincoln', dir: 1, bare: false, neck: 25, ear: [0.86, -11.7, -5.9],
-    eyeMark: EYE_LINCOLN, iconBust: true,
-    s: 0.78, cy: 40.0, cx: 3.88, iconS: 0.7522, iconCy: 40.3563, iconCx: 3.7418,
+    eyeMark: EYE_LINCOLN,
+    s: 0.78, cy: 40.0, cx: 3.88,
     // The coat, measured off the frozen bust mask — see coat() below for what
     // these are and coloringbook/shoulder-fix.md for the sweep that set them.
     // `back`/`front` are the two rim crossings in degrees from straight down;
@@ -2969,28 +2988,16 @@ export const OBVERSE = {
     // place, 6.5 units behind and 4.6 below where four references put the eye.
     who: 'Jefferson', dir: -1, bare: false, neck: 23, earMark: CURLS_JEFFERSON, hairLit: true,
     eyeMark: EYE_JEFFERSON,
-    // `iconWig` — see bust(). At `icon` this coin used to be a filled outline
-    // with 0.2% of its energy inside r ≤ 0.43 against the photographs' 25-27%;
-    // the wig is drawn as its own mass there now.
-    iconWig: true,
-    // ICON PLACEMENT, DERIVED — the fourth and last coin to take the rule, and
-    // the comment above OBVERSE named it as the one still carrying the old
-    // numbers ("the nickel still carries the old numbers ... and is out of
-    // scope for this round"). There is nothing nickel-specific about the
-    // derivation: `icon`'s field circle is EDGE.nickel.field.icon = 42.5 where
-    // full/mid is 44.07, and that is the ONLY thing that differs between the
-    // tiers, so the measured-optimal full-tier placement carries over scaled
-    // about the disc centre by k = 42.5/44.07 = 0.96437:
-    //     iconS  = 0.95 * k                = 0.91615
-    //     iconCy = 50 + (43.7 - 50) * k    = 43.9245
-    //     iconCx = -6.4 * k                = -6.1720
-    // Repeating the full-tier trio unscaled, which is what this line used to
-    // do, draws a full-tier head into a field circle 3.6% smaller — the same
-    // over-fill that failed T1 on the cent (0.084 own against 0.165 nickel) and
-    // on the quarter (0.115 against 0.276), in the same direction and for the
-    // same reason. Here it cost the thinnest margin in the set: at 38 px the
-    // nickel obverse scored 0.158 against its own photographs and 0.140
-    // against the dime's, a margin of 0.018.
+    // ⚠️ `iconWig: true` and the icon trio (`iconS 0.91615 / iconCy 43.9245 /
+    // iconCx -6.172`, derived as the full-tier placement scaled by
+    // k = 42.5/44.07 = 0.96437) are REMOVED, v1.93.0: `icon` has not been
+    // emitted since v1.78.0. What is worth carrying forward is the DEFECT they
+    // were answering — at `icon` this coin was a filled outline with 0.2% of
+    // its energy inside r <= 0.43 against the photographs' 25-27%, and at 38 px
+    // it held the thinnest T1 margin in the set (0.158 own against the dime's
+    // 0.140). 38 px is still drawn, so that number should be re-taken against
+    // the full drawing before anyone concludes the problem went away with the
+    // tier.
     //
     // THE SILHOUETTE WAS RE-MEASURED AND NOT TOUCHED, and that is a refusal
     // worth recording (§8). `judge/_nk17ladder.mjs` traces the device on
@@ -3024,7 +3031,7 @@ export const OBVERSE = {
     // REFUSES ITSELF on both ("11/11 crossings land on the brow/eye/nose
     // relief, not the hairline"). Round 3 measured that line on the two
     // references it had; this round has no better instrument, so it stands.
-    s: 0.95, cy: 43.7, cx: -6.4, iconS: 0.91615, iconCy: 43.9245, iconCx: -6.172,
+    s: 0.95, cy: 43.7, cx: -6.4,
     // Jefferson's back seam is almost entirely HIDDEN — the queue reaches
     // screen x 78.6 and the rim crossing is at 78.2 — so its bow is doing one
     // job only: keeping the sliver of cloth that shows below the hair out to
@@ -3075,14 +3082,14 @@ export const OBVERSE = {
   dime: {
     who: 'Roosevelt', dir: -1, bare: true, cut: true, hairLit: true,
     earMark: EAR_ROOSEVELT, eyeMark: EYE_ROOSEVELT,
-    // icon repeats s/cy/cx rather than carrying its own numbers. The old icon
-    // trio was fitted to the OLD outline and, held against the traced mask
-    // with the corrected one, scored 0.816 where the full tier scores 0.981 —
-    // it was correcting for a head that no longer exists. With a measured
-    // outline the accuracy-optimal placement is the same at every tier, and
-    // the dime's glyph was never one of the two that get enlarged to read
-    // small (the cent's and the quarter's are).
-    s: 0.97, cy: 45.3, cx: -2.7, iconS: 0.97, iconCy: 45.3, iconCx: -2.7,
+    // ⚠️ The icon trio is REMOVED (v1.93.0). On this coin it was a verbatim
+    // repeat of `s/cy/cx`, so its removal cannot move a mark even in principle.
+    // The finding it recorded stands and is general: an earlier icon trio had
+    // been FITTED to the old outline and, held against the traced mask with the
+    // corrected one, scored 0.816 where the measured placement scores 0.981 —
+    // it was correcting for a head that no longer existed. A fitted number
+    // outlives the thing it was fitted to; a measured one does not.
+    s: 0.97, cy: 45.3, cx: -2.7,
   },
   quarter: {
     // MEASURED. `s/cy/cx` are the placement-only optimum against the frozen
@@ -3136,36 +3143,27 @@ export const OBVERSE = {
     // the finding on `quarter-obv-3.png` and `quarter-obv-1932ngc.jpg` instead.
     // See CURLS_WASHINGTON.)
     //
-    // ICON PLACEMENT, and it failed T1 for the same reason the cent's did. The
-    // shipped trio ENLARGED the head (1.02 against the full tier's 0.98) and
-    // pushed it 3.6 units back (cx -4.0 against -0.4), which is precisely the
-    // direction of the nickel: Jefferson's head sits further back in the field
-    // than Washington's. `judge/_jt1transfer.mjs` scored the result nearer real
-    // NICKEL photographs than real quarter ones at 38px — the pile size —
-    // 0.115 quarter against 0.276 nickel.
+    // ⚠️ ICON PLACEMENT REMOVED (v1.93.0) — `iconS 0.9451 / iconCy 42.0921 /
+    // iconCx -0.3857`, the full-tier trio scaled by k = 42.5/44.07 = 0.96437.
+    // TWO THINGS IN THAT BLOCK ARE WORTH KEEPING and neither depends on a tier:
     //
-    // DERIVED, NOT FITTED, by the same k as the cent above: `icon`'s field
-    // circle is 42.5 where full/mid is 44.07, so the measured-optimal full-tier
-    // placement carries over scaled about the disc centre by k = 0.96437:
-    //     iconS  = 0.98 * k               = 0.9451
-    //     iconCy = 50 + (41.8 - 50) * k   = 42.0921
-    //     iconCx = -0.4 * k               = -0.3857
-    // `cut: true` is what makes this work at icon: Washington's truncation is
-    // part of HEAD.Washington, so unlike the other three heads this one still
-    // carries its bust down the field at a tier where bust() draws no neck and
-    // no coat. T1 at 38px goes 0.115 -> 0.332 against the quarter's own
-    // photographs and 0.276 -> 0.219 against the nickel's — numerator moved
-    // (R2) — and it sorts correctly with margin +0.113.
+    //  1. THE FAILURE MODE. The trio shipped before it ENLARGED the head (1.02
+    //     against `s` 0.98) and pushed it 3.6 units back (cx -4.0 against
+    //     -0.4), which is precisely the direction of the NICKEL — Jefferson's
+    //     head sits further back in the field than Washington's — and
+    //     `_jt1transfer.mjs` duly sorted the quarter nearer real nickel
+    //     photographs than real quarter ones at 38 px, 0.115 against 0.276.
+    //     Backwards-and-bigger turns this coin into the nickel.
+    //  2. THE REFUSAL (§8). A 108-cell grid sweep had cells reaching margin
+    //     0.265 at iconS 0.90, and they were NOT taken: 0.90 had no derivation
+    //     behind it, only a better score. That rule outlives the numbers.
     //
-    // WHAT I DID NOT TAKE. A grid sweep (108 cells, S 0.86-1.06 x cy 38-46 x
-    // cx -4..1.5, whole set printed in the round report) has cells reaching
-    // margin 0.265 at iconS 0.90. They are NOT taken: 0.90 has no derivation
-    // behind it, only a better score, and §8/rule 4 says a number whose only
-    // argument is its own score is refused. 0.9451 is where the geometry puts
-    // it and it passes.
+    // The improvement the trio published (T1 at 38 px 0.115 -> 0.332 own,
+    // 0.276 -> 0.219 nickel, margin +0.113) was measured on the icon drawing
+    // and is not a statement about today's 38 px render.
     who: 'Washington', dir: -1, bare: true, cut: true, hairLit: true,
     eye: [8.7, -2.7], earMark: CURLS_WASHINGTON,
-    s: 0.98, cy: 41.8, cx: -0.4, iconS: 0.9451, iconCy: 42.0921, iconCx: -0.3857,
+    s: 0.98, cy: 41.8, cx: -0.4,
   },
 };
 
@@ -3383,19 +3381,22 @@ const bowTie = (ox, y, k) =>
 // a face. What is NEVER deleted is the outline, the queue or the beard,
 // because those are the four identities and they are all silhouette.
 //
-// At `icon` the neck and coat are dropped and the head is re-centred to fill
-// the disc on its own: Lincoln's beard hangs low off a wavy crown,
-// Jefferson's queue drops behind a big smooth mass, Washington's back is
-// three bumps with a bow behind it, and Roosevelt is the small tight one
-// with nothing sticking out anywhere. Mass, not detail, is what a 19px disc
-// can show.
-function bust(id, tier, p, dim, boxW) {
+// THE `icon` PATH IS GONE (v1.93.0), with the whole of `OBVERSE.*.iconS /
+// iconCy / iconCx / iconWig / iconBust`. It read: "At `icon` the neck and coat
+// are dropped and the head is re-centred to fill the disc on its own:
+// Lincoln's beard hangs low off a wavy crown, Jefferson's queue drops behind a
+// big smooth mass, Washington's back is three bumps with a bow behind it, and
+// Roosevelt is the small tight one with nothing sticking out anywhere. Mass,
+// not detail, is what a 19px disc can show." Since v1.78.0 `tier` has been the
+// literal `'full'` on every call, so none of it ran and every number in it was
+// unreachable; the derivations that produced the icon trio are retracted beside
+// each coin in OBVERSE.
+function bust(id, p, dim, boxW) {
   const o = OBVERSE[id];
-  const icon = tier === 'icon';
-  const s = icon ? o.iconS : o.s;
-  const cy = icon ? o.iconCy : o.cy;
-  const cx = icon ? o.iconCx : o.cx;
-  const head = icon ? p.deep : p.motif;
+  const s = o.s;
+  const cy = o.cy;
+  const cx = o.cx;
+  const head = p.motif;
   // THE CONTOUR, and it is the most valuable line in the file. Wave 1 shows
   // ONE coin with no sibling, so the head's OUTLINE is what the child has to
   // read — beard, queue, crop or wig. A flat fill on a mid-tone field left
@@ -3413,12 +3414,20 @@ function bust(id, tier, p, dim, boxW) {
   // the head is the question. A bare neck is the same piece of person as the
   // head, so it takes the head's tone and no seam is drawn across the throat.
   const cloth = o.bare ? head : p.cloth;
-  // `fine` is a SECOND detail step inside `full`, taken from real pixels
-  // rather than from the tier: 130px is where a 1.3-unit line stops being a
-  // fleck and starts being a lock of hair. A teaching card at 190 gets the
-  // close-spaced work; the 84px recognition coin does not, and is cleaner
-  // for it.
-  const fine = boxW >= 130;
+  // ⚠️ RETRACTED (v1.93.0) — `const fine = boxW >= 130` stood here under:
+  //
+  //     "`fine` is a SECOND detail step inside `full`, taken from real pixels
+  //      rather than from the tier: 130px is where a 1.3-unit line stops being
+  //      a fleck and starts being a lock of hair. A teaching card at 190 gets
+  //      the close-spaced work; the 84px recognition coin does not, and is
+  //      cleaner for it."
+  //
+  // The 130 px observation may well still be true of PIXELS. It has not been
+  // true of THIS CODE since v1.78.0: `boxW` is the DRAW_SIZE box on every
+  // call — 380 / 332.2 / 298.4 / 280.5 — so `fine` was permanently true and
+  // "the 84px recognition coin does not [get the close-spaced work]" was
+  // false. It got it. `r.fine`, `r.grooveFine` and `r.faceFine` are now
+  // emitted unconditionally, which is what was already happening.
   const r = RELIEF[o.who];
   // THREE stroke groups, not two, and the middle one is the change this pass
   // turns on. `groove` is DARK line work drawn in `deep` rather than `ink`:
@@ -3429,7 +3438,7 @@ function bust(id, tier, p, dim, boxW) {
   const grooves =
     r.groove
       ? `<g fill="none" stroke="${p.ink}" stroke-linecap="round" stroke-linejoin="round" opacity="0.33">
-           ${r.groove}${fine ? r.grooveFine || '' : ''}</g>`
+           ${r.groove}${r.grooveFine || ''}</g>`
       : '';
   // and the face modelling, at two thirds of the jaw's weight — heavy enough
   // to be a shadow, light enough that no single one of them becomes a line
@@ -3437,7 +3446,7 @@ function bust(id, tier, p, dim, boxW) {
   const modelling =
     r.face
       ? `<g fill="none" stroke="${p.ink}" stroke-linecap="round" stroke-linejoin="round" opacity="0.28">
-           ${r.face}${fine ? r.faceFine || '' : ''}</g>`
+           ${r.face}${r.faceFine || ''}</g>`
       : '';
   // THE TWO TONE REGIONS, and they are the phase-2b change. Everything else in
   // this function draws LINES inside the outline; these draw AREAS, which is the
@@ -3453,25 +3462,22 @@ function bust(id, tier, p, dim, boxW) {
   // They go down between the head fill and the HAIR, so the hair's own dark
   // contour draws over the forehead plane's back edge and that edge never
   // becomes a second hairline.
-  const planes =
-    tier === 'full' && r.plane ? `<g fill="${p.cloth}" stroke="none">${r.plane}</g>` : '';
-  const shade =
-    tier === 'full' && r.shade ? `<g fill="${p.ink}" stroke="none" opacity="0.28">${r.shade}</g>` : '';
+  const planes = r.plane ? `<g fill="${p.cloth}" stroke="none">${r.plane}</g>` : '';
+  const shade = r.shade ? `<g fill="${p.ink}" stroke="none" opacity="0.28">${r.shade}</g>` : '';
   // `grooves`, `modelling`, `planes` and `shade` are EMPTY for the other three
   // heads and are concatenated with no separator of their own, so the cent, the
   // nickel and the quarter still emit byte for byte the string they emitted
   // before.
   const relief =
-    tier === 'full'
-      ? `${grooves}<g fill="none" stroke="${p.field}" stroke-linecap="round" stroke-linejoin="round" opacity="0.85">
-           ${r.base}${fine ? r.fine : ''}</g>${modelling}
+    `${grooves}<g fill="none" stroke="${p.field}" stroke-linecap="round" stroke-linejoin="round" opacity="0.85">
+           ${r.base}${r.fine}</g>${modelling}
          <g fill="${p.ink}" stroke="${p.ink}" stroke-linecap="round" stroke-linejoin="round" opacity="0.42">
-           ${o.eyeMark || eye(o.eye)}${o.earMark || ear(...o.ear)}${r.dark || ''}</g>`
-      // MID TIER WAS TRIED AND REFUSED, and it is recorded here because the
+           ${o.eyeMark || eye(o.eye)}${o.earMark || ear(...o.ear)}${r.dark || ''}</g>`;
+  // MID TIER WAS TRIED AND REFUSED, and it is recorded here because the
       // measurement that motivated it is still true and the next reader will
       // otherwise repeat the attempt. `src/screens/money.js` draws at 48 and at
-      // 54, both `mid`, and at `mid` this function emits NO line work at all —
-      // the `hairFill` comment below says so in as many words. On the nickel
+      // 54, and when those were `mid` this function emitted NO line work at all
+      // — the `hairFill` comment below says so in as many words. On the nickel
       // that leaves a head-shaped patch of `motif` with a wig-shaped patch of
       // `hair` inside it and nothing else, and `judge/_nk4energy.mjs` prices
       // it: at 48 px our inner three annuli (r ≤ 0.43) hold 0.083 of the
@@ -3494,8 +3500,11 @@ function bust(id, tier, p, dim, boxW) {
       //     The margin moves only because the DENOMINATOR falls; the numerator
       //     falls too. Appendix R2's own test says that is the wrong kind of
       //     move, and a 1-device-pixel dot is not a feature a child reads.
-      // Neither is drawn. The mid tier is left exactly as it was.
-      : '';
+      // Neither is drawn. ⚠️ And since v1.78.0 there is no `mid` to draw them
+      // at: 48 and 54 get the same full-detail drawing as 380. The probe
+      // numbers above were taken against a tier that no longer exists, so they
+      // are a record of a refusal, not of the current art. Anyone repeating the
+      // experiment must re-measure — the baseline moved.
   // THE BEVEL. The head is the highest relief on the coin, so it gets the
   // full struck treatment: a lit edge up-left, a cast shadow down-right, the
   // portrait over both. Computed in LOCAL units — the group is scaled by `s`
@@ -3506,23 +3515,25 @@ function bust(id, tier, p, dim, boxW) {
   const rx = n2(o.dir * ro);
   const ry = n2(ro);
   const bevel =
-    `<path d="${HEAD[o.who]}" transform="translate(${n2(-rx)} ${n2(-ry)})" fill="#ffffff" stroke="none" opacity="${icon ? 0.5 : 0.42}"/>` +
-    (icon ? '' : `<path d="${HEAD[o.who]}" transform="translate(${rx} ${ry})" fill="${p.deep}" stroke="none"/>`);
-  const rIn = EDGE[id].field[tier];
+    `<path d="${HEAD[o.who]}" transform="translate(${n2(-rx)} ${n2(-ry)})" fill="#ffffff" stroke="none" opacity="0.42"/>` +
+    `<path d="${HEAD[o.who]}" transform="translate(${rx} ${ry})" fill="${p.deep}" stroke="none"/>`;
+  const rIn = EDGE[id].field;
   // The neck is ALWAYS drawn, coat or no coat, and always in the head's own
   // tone — the throat is skin on every one of the four real coins. The
   // garment then goes over it from the collar down.
   // …except on the dime, where `cut` says the neck is already part of the
   // head path, ends in its own angled truncation and never reaches the rim.
   const strokeW = sw(1.15, 0.9, boxW);
-  // `iconBust` is a PER-COIN opt-in and only the cent sets it, so the other
-  // three heads emit byte for byte the string they emitted before — the same
-  // idiom `beard`, `hairLit` and `cut` already use. See OBVERSE.penny for the
-  // measurement: the cent is the coin with the SMALLEST head and the BIGGEST
-  // coat, and dropping the coat at `icon` deleted the larger half of what a
-  // child sees in a pile. The other three really are bare-necked or truncated
-  // at the rim, so there is nothing there for them to opt into.
-  const below = (icon && !o.iconBust) || o.cut
+  // ⚠️ `iconBust` REMOVED (v1.93.0). It was a per-coin opt-in only the cent
+  // set, recorded as: "the cent is the coin with the SMALLEST head and the
+  // BIGGEST coat, and dropping the coat at `icon` deleted the larger half of
+  // what a child sees in a pile. The other three really are bare-necked or
+  // truncated at the rim, so there is nothing there for them to opt into."
+  // The observation about the cent's coat is worth keeping; the flag it was
+  // attached to only ever changed the `icon` drawing, which has not been
+  // emitted since v1.78.0. `o.cut` — the dime's real, size-independent fact
+  // that its neck is already part of the head path — is all that is left.
+  const below = o.cut
     ? ''
     : `<g fill="${head}" stroke="${p.deep}" stroke-width="${strokeW}" stroke-linejoin="round">
          ${bareNeck(rIn, o.dir, s, cx, cy)}</g>` +
@@ -3544,13 +3555,8 @@ function bust(id, tier, p, dim, boxW) {
           (id === 'penny'
             ? `<g fill="${p.deep}" stroke="none">${bowTie(50 + cx + o.dir * 3.27 * s, cy + (o.neck + 3) * s, s)}</g>`
             : ''));
-  // Hair (and Lincoln's beard) as a darker mass over the head, at every tier
-  // that is not `icon`. At icon the whole bust is one flat shape already, so
-  // a second tone inside a 19px disc would only be noise.
-  //
-  // The queue and the ribbon go in with the hair, because that is what they
-  // are. At icon they rejoin the single mass instead, so the silhouette keeps
-  // its tail.
+  // Hair (and Lincoln's beard) as a darker mass over the head. The queue and
+  // the ribbon go in with the hair, because that is what they are.
   const tail = TAIL[o.who] || '';
   // THE HAIR'S TONE, and on the dime it is neither `hair` nor the face's own
   // silver: at full tier it is `cloth`, the LIGHTEST tone in the palette below
@@ -3562,66 +3568,51 @@ function bust(id, tier, p, dim, boxW) {
   // over-ear patch back down where the coin is darker. No new colour: `cloth` is
   // the coat tone the three silvers already share byte for byte, and the dime
   // has no coat to spend it on.
-  // At `mid` there is no line work at all, so it keeps the darker fill,
-  // which is the only channel a 40px coin has left.
-  const hairFill = o.hairLit && tier === 'full' ? p.cloth : p.hair;
+  // ⚠️ "At `mid` there is no line work at all, so it keeps the darker fill,
+  // which is the only channel a 40px coin has left." — retracted v1.93.0 with
+  // the `tier === 'full'` test it justified. There is no `mid`; the 40 px coin
+  // gets the full drawing. `hairLit` alone now selects the tone. (C2 in
+  // docs/FINDINGS-LEDGER.md — "`bust()`'s `hairFill` has the wrong sign at
+  // mid" — is therefore MOOT AS WRITTEN: the branch it names cannot run.)
+  const hairFill = o.hairLit ? p.cloth : p.hair;
   // LINCOLN'S BEARD IS ITS OWN MASS AND ITS OWN TONE. It used to ride inside
   // the hair group in `hair`, which put it at 0.818 of the cheek; on both
   // usable photographs the real beard is 0.548 and 0.626, the darkest thing on
   // the coin, because it is the deepest cut on the die. `deep` renders at
   // 0.717 and the grooves take the jaw the rest of the way. The other three
   // heads emit no beard at all, so their strings are unchanged byte for byte.
-  const beard = o.who === 'Lincoln' && !icon
+  const beard = o.who === 'Lincoln'
     ? `<g fill="${p.deep}" stroke="${p.deep}" stroke-width="${n2(sw(0.9, 0.7, boxW) / s)}" stroke-linejoin="round"><path d="${BEARD}"/></g>`
     : '';
-  const hair = icon
-    ? ''
-    : `<g fill="${hairFill}" stroke="${p.deep}" stroke-width="${n2(sw(0.9, 0.7, boxW) / s)}" stroke-linejoin="round"><path d="${HAIR[o.who]}"/>${tail}</g>${beard}`;
-  // `iconWig` — A SECOND MASS AT `icon`, and it is a PER-COIN OPT-IN that only
-  // the nickel sets, exactly as `iconBust`, `hairLit`, `cut` and `bare` are, so
-  // the cent, the dime and the quarter emit byte for byte what they emitted
-  // before at every tier.
+  const hair =
+    `<g fill="${hairFill}" stroke="${p.deep}" stroke-width="${n2(sw(0.9, 0.7, boxW) / s)}" stroke-linejoin="round"><path d="${HAIR[o.who]}"/>${tail}</g>${beard}`;
+  // ⚠️ `iconWig` REMOVED (v1.93.0) — a per-coin opt-in only the nickel set,
+  // drawn only at `icon`, which has not been emitted since v1.78.0. It filled
+  // the wig mass in `p.motif` over an `icon` head filled in `p.deep`.
   //
-  // The paragraph above this one asserts that "at icon the whole bust is one
-  // flat shape already, so a second tone inside a 19px disc would only be
-  // noise". MEASURED, that assertion is what the nickel's weakest gate number
-  // is made of. `judge/_nk4energy.mjs` prints the descriptor T1 actually scores
-  // — blurred gradient energy — as a radial histogram, and at 38 px our nickel
-  // obverse put 0.000 / 0.000 / 0.002 of its energy in the inner three annuli
-  // (r ≤ 0.43) where all three reference photographs put 0.25-0.27, while
-  // piling 0.446 into the 0.57-0.72 ring against their 0.22. That is the
-  // signature of an OUTLINE WITH NOTHING INSIDE IT, and it is why the nickel
-  // obverse carried both the lowest own-column score of the four obverses
-  // (0.158 at 38 px against the penny's 0.317 and the quarter's 0.332) and the
-  // thinnest margin in the whole set (0.018).
+  // ITS EVIDENCE IS THE PART WORTH KEEPING, because it is about 38 px and 38 px
+  // is a size the app still draws. `judge/_nk4energy.mjs` prints the descriptor
+  // T1 actually scores — blurred gradient energy — as a radial histogram, and
+  // at 38 px the nickel obverse of that era put 0.000 / 0.000 / 0.002 of its
+  // energy in the inner three annuli (r <= 0.43) where all three reference
+  // photographs put 0.25-0.27, while piling 0.446 into the 0.57-0.72 ring
+  // against their 0.22 — an OUTLINE WITH NOTHING INSIDE IT. `judge/_nk5look.mjs`
+  // reduces each reference to 38 device pixels and every one still shows the
+  // wig as a mass divided from the face; the disc is not 19 px either,
+  // `coinRow(ids, 38)` gives the nickel 33.2. The tone direction was measured
+  // too: wig/cheek 1.207-1.269 and 1.149-1.388 on two photographs, i.e. the wig
+  // is BRIGHTER than the face, which is what `hairLit` now carries at every
+  // size.
   //
-  // It is also not what the object looks like at that size. `judge/_nk5look.mjs`
-  // reduces each reference to 38 device pixels — the exact pixels a child sees
-  // in the pile — and every one of the three still shows the wig as a mass
-  // divided from the face; the disc is not 19 px either, `coinRow(ids, 38)`
-  // gives the nickel 33.2.
-  //
-  // TONE, and it is measured rather than picked. `p.motif` on `p.deep` puts the
-  // wig BRIGHTER than the face, which is the direction OBVERSE.nickel's own
-  // `hairLit` block established from two independent photographs (wig/cheek
-  // 1.207-1.269 and 1.149-1.388). It is no new colour — `motif` is the tone
-  // this same head is filled with at every other tier — and it is the only
-  // tone available here that is not the one it is drawn on: `hairFill` resolves
-  // to `p.hair` at icon, 0x77 against the icon head's 0x6b, a 12-level step
-  // that would be invisible at 33 px. `hairFill` has an open defect and is not
-  // touched; this is what that defect costs at this tier, reported.
-  //
-  // No stroke. The wig's outer edge IS the head's outline, already stroked by
-  // the enclosing group, so a second stroke would only double the contour that
-  // the histogram above says is over-weighted at this size.
-  const iconWig = icon && o.iconWig
-    ? `<g fill="${p.motif}" stroke="none"><path d="${HAIR[o.who]}"/></g>`
-    : '';
+  // Those numbers were taken against the STRIPPED icon drawing. v1.78.0 sends
+  // the full drawing to 38 px, so the histogram must be re-measured before it
+  // is quoted again — the inner annuli now carry the wig, the grooves and the
+  // hairline that the icon tier deleted.
   return `<g${dim ? ' opacity="0.42"' : ''}>
       ${below}
       <g fill="${head}" stroke="${p.deep}" stroke-width="${edgeW}" stroke-linejoin="round"
          transform="translate(${n2(50 + cx)} ${cy}) scale(${n2(o.dir * s)} ${n2(s)})">
-        ${bevel}<path d="${HEAD[o.who]}"/>${icon ? tail : ''}${iconWig}${planes}${shade}${hair}${relief}</g>
+        ${bevel}<path d="${HEAD[o.who]}"/>${planes}${shade}${hair}${relief}</g>
     </g>`;
 }
 
@@ -3753,29 +3744,34 @@ function bust(id, tier, p, dim, boxW) {
 //     stylisations of courses the coin has many more of, both are re-centred
 //     below but neither is re-counted, and at 38 px a dentil is 0.3 of a
 //     device pixel.
-function lincolnMemorial(tier, p, boxW) {
-  if (tier === 'icon') {
-    // §15.4: at 20px the twelve columns are one device pixel each. Four fat
-    // field-coloured gaps are NOT a colonnade at that size, they are the
-    // stripe artefact §16.1 names — measured, the old icon carried 1.9x the
-    // reference's along-band variation. The colonnade becomes ONE BLOCK,
-    // lifted to `motif` against the `deep` slabs above and below it, which
-    // is the one thing the blurred photograph does say: the colonnade zone
-    // is LIGHTER than the roof and terrace shadows that frame it.
-    return {
-      solid:
-        '<rect x="20.5" y="31" width="59" height="7.5"/>' +
-        '<rect x="16" y="38.5" width="68" height="4"/>' +
-        '<rect x="17.5" y="42.5" width="65" height="16"/>' +
-        '<rect x="13.5" y="58.5" width="73" height="7"/>',
-      detail: `<rect x="18.5" y="43.5" width="63" height="14" fill="${p.motif}"/>`,
-    };
-  }
-  const full = tier === 'full';
-  // A second detail step INSIDE `full`, taken from real pixels rather than
-  // from the tier: at 130px a 1.2-unit dentil is a dentil, and at 84 it is a
-  // speck of dirt on the die.
-  const fine = full && boxW >= 130;
+// ⚠️ THE `icon` SIMPLIFICATION IS REMOVED (v1.93.0). It returned four rects
+// and one lit block instead of the building, on this reasoning — kept because
+// §15.4 and §16.1 are still the rules, and because it is the clearest
+// statement in the file of what a colonnade costs at small sizes:
+//
+//     "§15.4: at 20px the twelve columns are one device pixel each. Four fat
+//      field-coloured gaps are NOT a colonnade at that size, they are the
+//      stripe artefact §16.1 names — measured, the old icon carried 1.9x the
+//      reference's along-band variation. The colonnade becomes ONE BLOCK,
+//      lifted to `motif` against the `deep` slabs above and below it, which is
+//      the one thing the blurred photograph does say: the colonnade zone is
+//      LIGHTER than the roof and terrace shadows that frame it."
+//
+// v1.78.0 answered that argument with a measurement rather than a refutation:
+// scored on T1 transfer at the four sizes money.js draws, the tiers scored
+// 24/32 and one full-detail drawing scaled down scored 32/32, and the penny
+// REVERSE was the biggest single winner (-0.063 -> +0.244 at 38 px). So the
+// simplification is not merely unreachable, it is known to have cost more than
+// it bought on this exact face. D7 in docs/FINDINGS-LEDGER.md is the same
+// argument, published and WONTFIX, for the stylobate steps.
+function lincolnMemorial(p) {
+  // ⚠️ RETRACTED (v1.93.0) — `const fine = full && boxW >= 130` stood here
+  // under "A second detail step INSIDE `full`, taken from real pixels rather
+  // than from the tier: at 130px a 1.2-unit dentil is a dentil, and at 84 it
+  // is a speck of dirt on the die." The dentil measurement stands; the gate
+  // never fired. `boxW` is the cent's DRAW_SIZE box, 298.4, at every displayed
+  // size, so `fine` was permanently true and the 1.2-unit dentils have been
+  // drawn at 38 px all along. Everything behind it is now unconditional.
 
   // TWELVE columns, and the count is a hard gate (§15.1): it is what makes
   // this building the Memorial. At `mid` a column is 1.5 device pixels, so
@@ -3870,7 +3866,7 @@ function lincolnMemorial(tier, p, boxW) {
     // at a 42px box the reference's colonnade band still carries 0.20 of
     // along-band high-frequency energy, and a flat block carried 0.00. Twelve
     // aliased columns are closer to the coin than eight clean ones or none.
-    columns(centres, 3.0, 43.2, 53.4, p, fine) +
+    columns(centres, 3.0, 43.2, 53.4, p) +
     // capital band and plinth band: the shafts have to stop on something
     `<rect x="22.1" y="41.85" width="55.8" height="1.35" fill="${p.motif}"/>` +
     `<rect x="22.1" y="53.4" width="55.8" height="1.0" fill="${p.motif}"/>` +
@@ -3891,12 +3887,10 @@ function lincolnMemorial(tier, p, boxW) {
     // he fills his opening exactly: the centre bay is 5.265 and the shafts are
     // 3.0, so the gap is 2.265 and he is 2.1 across it. He is drawn at the
     // measured size, with the same three pieces: head, seated mass, plinth.
-    (full
-      ? `<g fill="${p.motif}"><circle cx="50" cy="46.3" r="0.7"/>
+    (`<g fill="${p.motif}"><circle cx="50" cy="46.3" r="0.7"/>
            <path d="M 49.2 47 L 50.8 47 L 50.95 50.6 L 49.05 50.6 Z"/>
            <rect x="48.95" y="50.6" width="2.1" height="0.9"/></g>
-         <rect x="49.2" y="47" width="0.4" height="3.6" fill="#ffffff" opacity="0.45"/>`
-      : '') +
+         <rect x="49.2" y="47" width="0.4" height="3.6" fill="#ffffff" opacity="0.45"/>`) +
     // the attic divided into panels, and the dentil course under the
     // entablature — the two pieces of fine masonry the cent actually shows.
     //
@@ -3909,8 +3903,7 @@ function lincolnMemorial(tier, p, boxW) {
     // is a mistake; nothing measured it because nothing looked. Both are now
     // generated about x = 50, so the count and the pitch are the only free
     // numbers and the centring cannot drift again.
-    (fine
-      ? `<g fill="${p.deep}" opacity="0.5">${Array.from({ length: 8 }, (_, i) => 50 + (i - 3.5) * 5.16 - 0.4)
+    (`<g fill="${p.deep}" opacity="0.5">${Array.from({ length: 8 }, (_, i) => 50 + (i - 3.5) * 5.16 - 0.4)
           .map((x) => `<rect x="${n2(x)}" y="32.9" width="0.8" height="4.0"/>`)
           .join('')}</g>` +
         `<g fill="${p.deep}" opacity="0.45">${Array.from({ length: 21 }, (_, i) => 50 + (i - 10) * 2.76 - 0.55)
@@ -3922,8 +3915,7 @@ function lincolnMemorial(tier, p, boxW) {
         // lip instead of on the face it is cut into.
         `<g fill="${p.deep}" opacity="0.4">${[60.2, 61.4, 62.6]
           .map((y) => `<rect x="31" y="${y}" width="38" height="0.6"/>`)
-          .join('')}</g>`
-      : '') +
+          .join('')}</g>`) +
     // and the lines of light and shadow that turn a stack of slabs into
     // steps. Without these the whole base is one grey ramp.
     ledge(26.3, 73.7, 30.5) +
@@ -4054,24 +4046,25 @@ function lincolnMemorial(tier, p, boxW) {
 //   `judge/_jn1discs.json` and `coloringbook/_rvnorm.mjs` ARE rim fits and are
 //   sound: they agree with an independent rim fit to −0.38% / +0.18% / −0.04%
 //   of R and under 3 px of centre.
-function monticello(tier, p, boxW) {
-  if (tier === 'icon') {
-    // §15.4 again: three field-coloured slots at 23px are stripes, not a
-    // portico. One lit block under the pediment, and the stepped roofline —
-    // dome, pediment, wings, ends — carries the whole identity.
-    return {
-      solid:
-        '<path d="M 42 33 A 8 6.4 0 0 1 58 33 Z"/>' +
-        '<path d="M 50 33 L 64 42 L 36 42 Z"/>' +
-        '<rect x="35" y="41" width="30" height="18"/>' +
-        '<rect x="20" y="43.5" width="60" height="15.5"/>' +
-        '<rect x="12" y="46" width="76" height="13"/>' +
-        '<rect x="11.5" y="59" width="77" height="4"/>',
-      detail: `<rect x="36.5" y="43" width="27" height="15" fill="${p.motif}"/>`,
-    };
-  }
-  const full = tier === 'full';
-  const fine = full && boxW >= 130;
+// ⚠️ THE `icon` SIMPLIFICATION IS REMOVED (v1.93.0), and with it the last
+// place in this file that still drew a version of Monticello nobody could see.
+// It returned six rects and one lit block under "§15.4 again: three
+// field-coloured slots at 23px are stripes, not a portico. One lit block under
+// the pediment, and the stepped roofline — dome, pediment, wings, ends —
+// carries the whole identity." §15.4 stands as a rule. The drawing does not:
+// v1.78.0 measured the tiers at 24/32 on T1 against 32/32 for one full-detail
+// drawing scaled down, and it closed the nickel's thinnest obverse margin
+// (48 px, 0.014 -> 0.187) in the process.
+//
+// One number in it was load-bearing elsewhere and is preserved: the icon dome
+// sprang at 33.0 against a pediment apex of 33.0, which is the arrangement the
+// two photographs show and which THE DOME block below cites as evidence that
+// round 27's springing had the wrong sign.
+function monticello(p) {
+  // `fine` (`full && boxW >= 130`) and `full` (`tier === 'full'`) removed
+  // v1.93.0 — both permanently true; see the retraction beside THE RAKING
+  // CORNICES below, which is the comment that asserted the opposite and misled
+  // a round.
   // FOUR columns across the portico. Measured centres 39.07 46.23 53.90
   // 61.20; `bayCentres(35.4, 64.6, 4, 0.4)` puts them at 39.05 46.25 53.75
   // 60.95, a worst error of 0.25 units = 0.034 of one gap.
@@ -4248,14 +4241,12 @@ function monticello(tier, p, boxW) {
     // does not. The pediment stays 0.35 wider than the clear opening each
     // side — the coin's is too, and now it tucks behind the shafts instead of
     // erasing them.
-    (full
-      ? `<path d="M 47.2 48.6 L 50 46.2 L 52.8 48.6 Z" fill="${p.motif}"/>` +
+    (`<path d="M 47.2 48.6 L 50 46.2 L 52.8 48.6 Z" fill="${p.motif}"/>` +
         `<rect x="47.75" y="49" width="4.5" height="9.5" fill="${p.motif}"/>` +
         `<rect x="48.6" y="50.4" width="2.8" height="8.1" fill="${p.deep}"/>` +
         `<g fill="${p.deep}" opacity="0.5"><rect x="41.1" y="49" width="3.1" height="9.5"/>
-           <rect x="55.8" y="49" width="3.1" height="9.5"/></g>`
-      : '') +
-    columns(centres, 2.6, 44.4, 57.6, p, fine) +
+           <rect x="55.8" y="49" width="3.1" height="9.5"/></g>`) +
+    columns(centres, 2.6, 44.4, 57.6, p) +
     `<rect x="35.6" y="43.3" width="28.8" height="1.1" fill="${p.motif}"/>` +
     `<rect x="35.6" y="57.6" width="28.8" height="0.9" fill="${p.motif}"/>` +
     // the end bays: a pilaster either side of each end window. They keep the
@@ -4279,14 +4270,15 @@ function monticello(tier, p, boxW) {
     // wing windows: two tall ones a side at the MEASURED 22.0 and 30.5,
     // spanning 49.0..55.5 — the pair drawn before sat at 29.5 and 34, both
     // crowded against the portico with the outer half of each wing blank.
-    `<g fill="${p.deep}">${(full ? [22.0, 30.5] : [26.5])
+    // (The `mid`/`icon` fallback of a single window at 26.5 went with the
+    // tiers in v1.93.0; it was unreachable.)
+    `<g fill="${p.deep}">${[22.0, 30.5]
       .flatMap((x) => [x, 100 - x])
       .map((x) => `<rect x="${n2(x - 1.5)}" y="49" width="3" height="6.5"/>`)
       .join('')}</g>` +
-    (fine
-      ? // the balustrade along the wing roofs (measured top 39.0), the
-        // pediment's fanlight, and two lit ribs over the dome
-        `<g fill="${p.deep}" opacity="0.45">${[21, 24, 27, 30, 33, 67, 70, 73, 76, 79]
+    // the balustrade along the wing roofs (measured top 39.0), the
+    // pediment's fanlight, and two lit ribs over the dome
+    (`<g fill="${p.deep}" opacity="0.45">${[21, 24, 27, 30, 33, 67, 70, 73, 76, 79]
           .map((x) => `<rect x="${x}" y="39" width="1" height="1.8"/>`)
           .join('')}</g>` +
         `<path d="M 47.9 41.5 A 2.1 2.1 0 0 1 52.1 41.5 Z" fill="${p.deep}" opacity="0.6"/>` +
@@ -4298,27 +4290,28 @@ function monticello(tier, p, boxW) {
            <path d="M 51.0 26.6 C 53.6 27.8 56.1 29.9 57.5 32.4"/></g>` +
         `<g fill="#ffffff" opacity="0.4">${[22, 30.5, 69.5, 78]
           .map((x) => `<rect x="${n2(x - 1.9)}" y="48.3" width="3.8" height="0.6"/>`)
-          .join('')}</g>`
-      : '') +
+          .join('')}</g>`) +
     // THE RAKING CORNICES. `ledge` only draws horizontals, so the two sloping
     // edges of the gable had no lit edge of their own and the pediment read as
-    // a plain wedge. Gated on `full`, which since v1.78.0 is the only gate
-    // there is.
+    // a plain wedge.
     //
-    // ⚠️ THE REASON THIS BLOCK USED TO GIVE FOR NOT USING `fine` IS NOW FALSE,
-    // and it is left corrected rather than deleted because it was load-bearing
-    // for where marks on this face were put. It said: "at the sizes money.js
-    // draws, the nickel's box is 73.4 / 42 / 33.2 px, so `fine` (>=130) is
-    // NEVER true in the app — anything put behind it is invisible to a child."
-    // That was true of the tier system. v1.78.0 replaced it: `coinSVG` authors
-    // ONE drawing at `DRAW_SIZE = 380` and then rewrites only the outer
-    // width/height, so the nickel's `boxW` is 332.2 at every displayed size and
-    // `fine = full && boxW >= 130` is ALWAYS TRUE. Everything behind `fine` on
-    // this face — the wing balustrade, the fanlight, the two dome ribs, the
-    // window sills and the white flute down each shaft — draws at 38 px today.
-    // Nothing here relies on it being off; the next round should not either.
-    (full
-      ? // The roof BEHIND the gable, shaded so the gable stands proud of it.
+    // ⚠️ THIS IS THE COMMENT THAT MISLED A ROUND, and it is kept — corrected —
+    // rather than deleted, because a silently removed false claim teaches the
+    // next reader nothing. It said: "at the sizes money.js draws, the nickel's
+    // box is 73.4 / 42 / 33.2 px, so `fine` (>=130) is NEVER true in the app —
+    // anything put behind it is invisible to a child." A later round read that
+    // as licence to treat everything behind `fine` as free.
+    //
+    // It was true of the tier system and false from v1.78.0 on: `coinSVG`
+    // authors ONE drawing at `DRAW_SIZE = 380` and rewrites only the outer
+    // width/height, so the nickel's `boxW` is 332.2 at EVERY displayed size and
+    // `fine` was ALWAYS TRUE. Everything it gated on this face — the wing
+    // balustrade, the fanlight, the two dome ribs, the window sills and the
+    // white flute down each shaft — draws at 38 px today and did then.
+    // v1.93.0 removed `fine` and `full` outright so the claim cannot be made
+    // again: there is no size gate on this face, and any mark added here is
+    // seen by a child at 38 px.
+    (// The roof BEHIND the gable, shaded so the gable stands proud of it.
         // Drawn as the two corners the pediment does not cover rather than as
         // a line on the pediment: a white chevron stroke was tried first and
         // read as a scratch across a flat panel, because a lit line needs
@@ -4330,8 +4323,7 @@ function monticello(tier, p, boxW) {
         // the drum's cornice, lit along its top so the dome reads as sitting
         // ON something rather than growing out of the roof
         ledge(39.6, 60.4, 32.0) +
-        shade(40.4, 59.6, 35.2, p, 0.4)
-      : '') +
+        shade(40.4, 59.6, 35.2, p, 0.4)) +
     ledge(34, 66, 41.5) +
     ledge(19, 81, 40.8) +
     // The end pavilions' lit top, drawn only on the RETURNS that are exposed
@@ -4366,7 +4358,7 @@ function monticello(tier, p, boxW) {
 // branch does carry an acorn — it was in the wrong place, not absent. See the
 // block below `OAK` for the full sequence, which is worth reading before
 // trusting any single re-measurement on this face.
-function torch(tier, p, boxW) {
+function torch(p) {
   // A flame with THREE tongues, not one blob: a single teardrop over a
   // shaft is a lightbulb, and the tongues are what a child sees first.
   // MEASURED off `coloringbook/ref/dime-rev-2.jpg`. ⚠️ THE DIME HAS ONE
@@ -4964,54 +4956,35 @@ function torch(tier, p, boxW) {
       + STEM_YS.slice().reverse().map((y) => ` L ${P(y, -1)}`).join('')
       + ' Z"/>';
   };
-  if (tier === 'icon') {
-    // THE BRANCHES ARE DRAWN AT ICON TIER, and until this pass they were not.
-    // The comment above this function said "at icon size the branches go
-    // entirely and the bar plus its flame is the whole drawing". Phase 6
-    // reduced the PHOTOGRAPH to the 19 device pixels the icon really gets
-    // (§22.7) and it is a dense dark cluster filling the field; the drawing
-    // was a pale disc with a thin vertical bar. Measured inside r < 33, ink
-    // coverage was 0.174 against the coin's 0.678, and the ink's bounding box
-    // was 5.0x taller than wide against the coin's 1.0. A bar is not what the
-    // dime looks like from across a table, and it is the only reverse in the
-    // set that was missing most of its own motif.
-    //
-    // The leaves are plain ellipses here, not the olive/oak pair the larger
-    // tiers draw: a leaf is 1.1 DEVICE PIXELS at this size, so a lobe cannot
-    // exist, and the five of them per side are not read as five leaves. They
-    // are read as the toned mass they add up to, which is exactly what §15.4
-    // says a repeated element becomes when it stops resolving.
-    //
-    // COST, stated because it is a real one (coloringbook/discriminability.md
-    // §4): this makes the dime reverse slightly MORE like the quarter reverse.
-    // The reverse-only discriminability minimum moves 0.0808 -> 0.0794, −1.7%,
-    // and the closest reverse pair changes from nickel/dime to dime/quarter.
-    // Two denser variants were measured and rejected: they bought less ink
-    // fidelity and cost 5–6%.
-    const iconBranch = (mirror) => {
-      const f = mirror ? -1 : 1;
-      const x = (v) => n2(50 + f * v);
-      let g = '';
-      for (let i = 0; i < 5; i++) {
-        const L = leafAt(i, 5); // one ellipse serves both plants here
-        // `rx 7.25` is the coin's own blade half-length, the same 14.5 the
-        // olive draws at mid and full.
-        const s = seat(L, f, 7.25);
-        g += `<g transform="translate(${s.cx} ${s.cy}) rotate(${s.rot})">` +
-          '<ellipse cx="0" cy="0" rx="7.25" ry="3.15"/></g>';
-      }
-      return `${stem(x)}${g}`;
-    };
-    return {
-      solid: `${flame}<rect x="44.15" y="32.6" width="11.7" height="6" rx="1.5"/>
-        <rect x="45.3" y="38" width="9.4" height="32"/>
-        <rect x="45.65" y="69.4" width="8.7" height="9" rx="1.6"/>
-        ${iconBranch(false)}${iconBranch(true)}`,
-      detail: '',
-    };
-  }
-  const full = tier === 'full';
-  const fine = full && boxW >= 130;
+  // ⚠️ THE `icon` DRAWING IS REMOVED (v1.93.0). It drew the flame, three
+  // rounded rects for the torch and five plain ellipses per side, and its
+  // reasoning is worth keeping in full because it is the strongest small-size
+  // measurement anyone took on this face and it is about 19 device pixels, not
+  // about a tier:
+  //
+  //     "THE BRANCHES ARE DRAWN AT ICON TIER, and until this pass they were
+  //      not. The comment above this function said 'at icon size the branches
+  //      go entirely and the bar plus its flame is the whole drawing'. Phase 6
+  //      reduced the PHOTOGRAPH to the 19 device pixels the icon really gets
+  //      (§22.7) and it is a dense dark cluster filling the field; the drawing
+  //      was a pale disc with a thin vertical bar. Measured inside r < 33, ink
+  //      coverage was 0.174 against the coin's 0.678, and the ink's bounding
+  //      box was 5.0x taller than wide against the coin's 1.0. A bar is not
+  //      what the dime looks like from across a table, and it is the only
+  //      reverse in the set that was missing most of its own motif. …
+  //      The leaves are plain ellipses here, not the olive/oak pair the larger
+  //      tiers draw: a leaf is 1.1 DEVICE PIXELS at this size, so a lobe cannot
+  //      exist … COST, stated because it is a real one
+  //      (coloringbook/discriminability.md §4): this makes the dime reverse
+  //      slightly MORE like the quarter reverse. The reverse-only
+  //      discriminability minimum moves 0.0808 -> 0.0794, -1.7%, and the
+  //      closest reverse pair changes from nickel/dime to dime/quarter."
+  //
+  // "Ink coverage 0.174 against the coin's 0.678" is a live target for the
+  // drawing below, which is what 38 px now renders. The ellipse simplification
+  // and its discriminability cost are gone with the tier.
+  // `fine` (`full && boxW >= 130`) and `full` removed v1.93.0: the dime's
+  // `boxW` is 280.5 at every displayed size, so both were permanently true.
   // An olive leaf is a long narrow BLADE, not a pip. Measured on
   // `coloringbook/ref/dime-rev-2.jpg` through the frozen disc fit, the coin's
   // top-left blade runs (30.6, 44.0) to (38.6, 27.2) — 18.6 viewBox units long
@@ -5302,10 +5275,11 @@ function torch(tier, p, boxW) {
     //
     // ⚠️ "BIGGER LEAVES, NOT MORE OF THEM" IS RETRACTED (round 30) — see the
     // ladder block. The count was right all along and the size was the error.
-    const leaves = full ? 7 : 5;
-    // `mid` draws 5 leaves where `full` draws 7, so its leaves are the larger
-    // ones; the 1.13 ratio is the old 1.38/1.22, unchanged by this pass.
-    const K = full ? 1 : 1.13;
+    // (The `mid` fallback — 5 leaves at K 1.13 instead of 7 at K 1 — went with
+    // the tiers in v1.93.0. It was unreachable, and D4 on this face is about
+    // the SEVEN, which is what every size has been drawing.)
+    const leaves = 7;
+    const K = 1;
     let g = '';
     for (let i = 0; i < leaves; i++) {
       const L = leafAt(i, leaves);
@@ -5498,7 +5472,7 @@ function torch(tier, p, boxW) {
     // references keep it clear in open field. Its centre is measured and the
     // blade that covers it is on the mirrored `LADDER`, so this is the same
     // refusal recorded there: it cannot be fixed without moving a node.
-    if (mirror && full) {
+    if (mirror) {
       g += `${fruit(20.2, 42.5, n2(stemC(45.6)), 45.6, f)}`
         + `${fruit(22.5, 57.5, n2(stemC(53.2)), 53.2, f)}`;
     }
@@ -5550,7 +5524,7 @@ function torch(tier, p, boxW) {
     // unc2005 does not carry it at all. Drawing a bridge where one reference
     // shows a gap and the other shows nothing risks merging the one object on
     // this face that has been broken three times. Recorded, not drawn.
-    if (!mirror && full) g += acorn(x(8.8), 57.7, 75, 1.0);
+    if (!mirror) g += acorn(x(8.8), 57.7, 75, 1.0);
     return `${stem(x)}${g}`;
   };
   // THE SHAFT TAPERS, AND IT WAS DRAWN AS A RECTANGLE (round 28).
@@ -5646,11 +5620,9 @@ function torch(tier, p, boxW) {
     `<g fill="${p.deep}" opacity="0.5"><rect x="45.4" y="40.1" width="9.2" height="1.0"/>
        <rect x="46.16" y="53.0" width="7.68" height="1.0"/>
        <rect x="44.15" y="36.9" width="11.7" height="1.0"/></g>` +
-    (fine
-      ? `<g fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.42" stroke-linecap="round">
+    `<g fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.42" stroke-linecap="round">
            <path d="M 50 19.8 C 51.29 22.2 51.72 24.7 51.08 27.0"/>
-           <path d="M 47.6 24.4 C 46.9 26.4 46.9 28.4 47.6 30.0"/></g>`
-      : '');
+           <path d="M 47.6 24.4 C 46.9 26.4 46.9 28.4 47.6 30.0"/></g>`;
   // ONE TONE AT EVERY TIER, the same move and the same reasoning the eagle
   // carries (see `mass: p.deep` at the end of `eagle()`): `struck()` masses the
   // icon tier in `deep` and every larger tier in `motif`, a 36-grey-level step
@@ -5730,9 +5702,10 @@ function torch(tier, p, boxW) {
 // not, and adding one to look "more heraldic" would teach a coin that does
 // not exist.
 const WING_R = 35.4;
-function eagle(tier, p, boxW) {
-  const full = tier === 'full';
-  const fine = full && boxW >= 130;
+function eagle(p) {
+  // `fine` (`full && boxW >= 130`), `full` and every `tier !== 'icon'` test
+  // removed v1.93.0: the quarter's `boxW` is 380 at every displayed size and
+  // `tier` was the literal 'full', so all of them were permanently true.
   const x = (f, v) => n2(50 + f * v);
   // THE WING. `v` is distance from the coin's vertical axis, so one authored
   // path mirrors exactly; the sweep flag flips with `f` because a mirrored
@@ -5843,10 +5816,16 @@ function eagle(tier, p, boxW) {
   // whose tip is the lowest-front point. The hook is the whole difference
   // between a bird of prey and a duck at 84px.
   //
-  // `hp` scales about the head's own centre so the icon tier's 1.30 still lands
-  // on the same feature, without a transform group that `struck()` would have
-  // to carry through three passes.
-  const hs = tier === 'icon' ? 1.3 : 1;
+  // ⚠️ `hs` WAS `tier === 'icon' ? 1.3 : 1` and is now the constant 1
+  // (v1.93.0). The 1.30 enlargement, and the sweep that set it
+  // (1.00/1.18/1.30/1.45 giving boundary d(ink) 0.0988/0.0957/0.0895/0.0895),
+  // applied only to `icon`, which has not been emitted since v1.78.0 — and the
+  // block above already records that the sweep was run on the ELLIPSE head and
+  // "its numbers do not transfer to the outline below". Two reasons not to
+  // trust it, so it is retired rather than promoted to every size. The
+  // ARGUMENT survives and is a real one at 38 px: a 3-unit feature is under one
+  // device pixel and a head is what makes an animal.
+  const hs = 1;
   const HC = [48.2, 26.6];
   const hp = (px, py) => `${n2(HC[0] + hs * (px - HC[0]))} ${n2(HC[1] + hs * (py - HC[1]))}`;
   const anatomy = `<path d="M ${hp(42.9, 27.6)}
@@ -6056,17 +6035,15 @@ function eagle(tier, p, boxW) {
   // lengths are the largest that keep every start clear of the body outline.
   const BLADE = [13 / Math.hypot(13, 22), 22 / Math.hypot(13, 22)];
   const GROOVE_LEN = [22, 20, 17, 10];
-  const primaries = tier !== 'icon'
-    ? TRAIL.slice(1, 5)
-        .map(([v1, y1], i) => {
-          const L = GROOVE_LEN[i];
-          const v0 = v1 - L * BLADE[0], y0 = y1 - L * BLADE[1];
-          return [1, -1]
-            .map((f) => `<path d="M ${x(f, v0)} ${n2(y0)} L ${x(f, v1)} ${n2(y1)}"/>`)
-            .join('');
-        })
-        .join('')
-    : '';
+  const primaries = TRAIL.slice(1, 5)
+    .map(([v1, y1], i) => {
+      const L = GROOVE_LEN[i];
+      const v0 = v1 - L * BLADE[0], y0 = y1 - L * BLADE[1];
+      return [1, -1]
+        .map((f) => `<path d="M ${x(f, v0)} ${n2(y0)} L ${x(f, v1)} ${n2(y1)}"/>`)
+        .join('');
+    })
+    .join('');
   // The coverts are as prominent on the coin as the primaries are, and gating
   // them at `fine` (130px) meant the 84px recognition draw carried one and not
   // the other — an asymmetry with nothing in the object behind it. They now
@@ -6080,17 +6057,15 @@ function eagle(tier, p, boxW) {
   // the eye had one uninterrupted grey field from the leading edge to the
   // blades. The two existing rows are unchanged; two more are interleaved
   // between them on the same family of curves.
-  const coverts = tier !== 'icon'
-    ? [1, -1]
-        .map(
-          (f) =>
-            `<path d="M ${x(f, 6)} 36 C ${x(f, 11)} 33.5 ${x(f, 15)} 30 ${x(f, 17.6)} 25"/>` +
-            `<path d="M ${x(f, 7)} 38.5 C ${x(f, 12.5)} 35.8 ${x(f, 17)} 32 ${x(f, 20.1)} 27"/>` +
-            `<path d="M ${x(f, 8)} 41 C ${x(f, 14)} 38 ${x(f, 19)} 34 ${x(f, 22.6)} 29"/>` +
-            `<path d="M ${x(f, 9.4)} 43.6 C ${x(f, 15.8)} 40.4 ${x(f, 21)} 36.2 ${x(f, 25)} 31.2"/>`
-        )
-        .join('')
-    : '';
+  const coverts = [1, -1]
+    .map(
+      (f) =>
+        `<path d="M ${x(f, 6)} 36 C ${x(f, 11)} 33.5 ${x(f, 15)} 30 ${x(f, 17.6)} 25"/>` +
+        `<path d="M ${x(f, 7)} 38.5 C ${x(f, 12.5)} 35.8 ${x(f, 17)} 32 ${x(f, 20.1)} 27"/>` +
+        `<path d="M ${x(f, 8)} 41 C ${x(f, 14)} 38 ${x(f, 19)} 34 ${x(f, 22.6)} 29"/>` +
+        `<path d="M ${x(f, 9.4)} 43.6 C ${x(f, 15.8)} 40.4 ${x(f, 21)} 36.2 ${x(f, 25)} 31.2"/>`
+    )
+    .join('');
   // FEATHER SEPARATIONS ARE CUT, SO THEY ARE DARK (round 3's finding, kept).
   // This group used to stroke in `p.field` — field-coloured slots cut out of
   // the massing, which makes the groove the BRIGHTEST thing on the wing. That
@@ -6106,34 +6081,27 @@ function eagle(tier, p, boxW) {
   // Drawn from `mid` up rather than `full` up, for the same reason the wreath
   // now is: at 44px a 1.4-unit line is 0.6 device pixels and reads as tone
   // across the wing, which is what the photograph shows at that size.
-  const detail = tier !== 'icon'
-    ? // ONE DARK DOT, and it is worth more than any other mark on this
-      // motif: an eye is what turns a silhouette into an animal, and a child
-      // finds it before they find the wings.
-      // moved with the skull: the ladder puts the coin's eye at (47.6, 24.5)
-      // and the old (46.6, 26.1) sat below and in front of the widened head.
+  // ONE DARK DOT, and it is worth more than any other mark on this
+  // motif: an eye is what turns a silhouette into an animal, and a child
+  // finds it before they find the wings.
+  // moved with the skull: the ladder puts the coin's eye at (47.6, 24.5)
+  // and the old (46.6, 26.1) sat below and in front of the widened head.
+  const detail =
       `<circle cx="47.4" cy="25.4" r="1" fill="${p.ink}" opacity="0.8"/>` +
       `<g fill="none" stroke="${p.ink}" stroke-linecap="round" opacity="0.45">
          <g stroke-width="1.1">${primaries}</g>
          <g stroke-width="1">${coverts}</g>
          <g stroke-width="1.2">
            <path d="M 47.6 42 L 45.4 58"/><path d="M 52.4 42 L 54.6 58"/></g>
-         ${
-           fine
-             ? `<g stroke-width="0.9" opacity="0.85">
+         ${`<g stroke-width="0.9" opacity="0.85">
                   <path d="M 46 37.6 q 4 1.6 8 0"/><path d="M 45.6 41.6 q 4.4 1.6 8.8 0"/>
                   <path d="M 48 46 q 2 1.4 4 0"/><path d="M 48 50.4 q 2 1.4 4 0"/></g>
-                <g stroke-width="0.9"><path d="M 47.6 31.6 q 2.4 1.4 3.4 3"/></g>`
-             : ''
-         }
+                <g stroke-width="0.9"><path d="M 47.6 31.6 q 2.4 1.4 3.4 3"/></g>`}
        </g>` +
       // the arrows' own bindings, so the bundle reads as a bundle
-      (fine
-        ? `<g fill="${p.deep}" opacity="0.5"><rect x="40" y="62.6" width="1.2" height="2"/>
+      `<g fill="${p.deep}" opacity="0.5"><rect x="40" y="62.6" width="1.2" height="2"/>
              <rect x="45" y="62.6" width="1.2" height="2"/><rect x="55" y="62.6" width="1.2" height="2"/>
-             <rect x="60" y="62.6" width="1.2" height="2"/></g>`
-        : '')
-    : '';
+             <rect x="60" y="62.6" width="1.2" height="2"/></g>`;
   // ONE TONE AT EVERY TIER (round 3's finding, kept). The coin's own
   // device-against-field reading is flat across sizes — measured on
   // `ref/quarter-rev-2.png` reduced to 26, 44, 54 and 84 device pixels it runs
@@ -6143,6 +6111,12 @@ function eagle(tier, p, boxW) {
   // the swing rather than adding a compensating tone somewhere else.
   return { solid, detail, mass: p.deep };
 }
+// ⚠️ NONE OF THE FOUR TAKES A SIZE ANY MORE (v1.93.0). Each used to be
+// `(tier, p, boxW)`; `tier` was the literal 'full' and `boxW` was only ever
+// read by the `fine` gate, which was permanently true. A reverse motif is now
+// a pure function of the palette — there is no size input to reach for, which
+// is the honest statement of what these drawings are. `struck()` keeps `boxW`
+// because `reliefOff()` genuinely uses it.
 const REVERSE_MOTIF = { penny: lincolnMemorial, nickel: monticello, dime: torch, quarter: eagle };
 
 // ──────────────────────────────────────────────────────────── the value
@@ -6319,32 +6293,40 @@ const INSCRIPTION = {
     // is a whole cap height of band error on top of the flip.
     main: { kind: 'arc', text: 'LIBERTY', size: 7.6, centre: 332, rOff: 3.01, adv: 0.5642 },
     rest: [
-      // `min: 62` — IN GOD WE TRUST IS PRESENT AT THE NAMING DRAW, and until
-      // this round it was not present at ANY size the app renders.
-      // `INS_REST_MIN` is 110 box pixels; `coinRow(q.coins, 84)` gives the
-      // nickel 73.4, so on the largest coin this app has ever drawn a child
-      // saw LIBERTY, a bare left rim, and nothing else. Every nickel
-      // photograph in T1's pool shows the opposite: at 38 px reduction IN GOD
-      // WE TRUST is still legible as a band of marks up the left, and it is
-      // the LARGER of the two obverse legends — 15 glyphs over a 93° span
-      // against LIBERTY's 7 over 40° (both hand-read off `_jl1grid-nkobv-*`,
-      // quoted above). This block's own first sentence says the two are the
-      // same height on the coin; drawing one and not the other at the size the
-      // recognition question is asked contradicts that measurement.
+      // ⚠️ RETRACTED IN FULL (v1.93.0) — `min: 62` was a NO-OP, and so was the
+      // condition it was written to fix. The block that stood here read:
       //
-      // 62 is not a new number: it is `INS_MAIN_MIN`, the floor the same
-      // paragraph set for the line that carries the layout, chosen so the
-      // legend is present at exactly the size the recognition question is
-      // asked at and absent below it. At 84 px the ink cap is 5.55 × 0.734 =
-      // 4.1 device pixels, the same cap LIBERTY already draws at that size —
-      // so this adds no mark smaller than one the coin already carries.
+      //     "`min: 62` — IN GOD WE TRUST IS PRESENT AT THE NAMING DRAW, and
+      //      until this round it was not present at ANY size the app renders.
+      //      `INS_REST_MIN` is 110 box pixels; `coinRow(q.coins, 84)` gives
+      //      the nickel 73.4, so on the largest coin this app has ever drawn a
+      //      child saw LIBERTY, a bare left rim, and nothing else. …
+      //      62 is not a new number: it is `INS_MAIN_MIN` … chosen so the
+      //      legend is present at exactly the size the recognition question is
+      //      asked at and absent below it. …
+      //      THE DATE IS NOT GIVEN A FLOOR. It stays at 110 deliberately: a
+      //      year is not a recognition feature (a child cannot use it to tell
+      //      a nickel from a dime), our YEAR is not the year on any coin in
+      //      their pocket, and at 84 px it would add four glyphs of noise to
+      //      the one quadrant where LIBERTY already sits."
       //
-      // THE DATE IS NOT GIVEN A FLOOR. It stays at 110 deliberately: a year is
-      // not a recognition feature (a child cannot use it to tell a nickel from
-      // a dime), our YEAR is not the year on any coin in their pocket, and at
-      // 84 px it would add four glyphs of noise to the one quadrant where
-      // LIBERTY already sits.
-      { kind: 'arc', text: 'IN GOD WE TRUST', size: 7.6, centre: 182, rOff: 3.34, adv: 0.5672, min: 62 },
+      // `coinRow(q.coins, 84)` has not handed this code 73.4 since v1.78.0.
+      // `boxW` is the nickel's DRAW_SIZE box, 332.2, at 38, 48, 54, 84 and 380
+      // alike, so `boxW >= INS_REST_MIN` (110) was already true everywhere:
+      // IN GOD WE TRUST was ALREADY on the 84 px nickel, the child never saw a
+      // bare left rim, and `min: 62` changed nothing. The DATE paragraph is
+      // false in the other direction from the same cause — the date is drawn
+      // at 84 px and always was, "deliberately at 110" notwithstanding.
+      //
+      // WHAT SURVIVES, all of it measured and none of it size-dependent:
+      // IN GOD WE TRUST is the LARGER of the two obverse legends — 15 glyphs
+      // over a 93° span against LIBERTY's 7 over 40°, both hand-read off
+      // `_jl1grid-nkobv-*` and quoted above — and its ink cap at the 84 px
+      // draw is 5.55 × 0.734 = 4.1 device pixels, the same cap LIBERTY already
+      // draws there. Whether the date is four glyphs of noise beside LIBERTY
+      // is a live art question about a mark that IS on the screen; it was
+      // never a description of the code.
+      { kind: 'arc', text: 'IN GOD WE TRUST', size: 7.6, centre: 182, rOff: 3.34, adv: 0.5672 },
       { kind: 'arc', text: YEAR, size: 7.6, centre: 18, rOff: 3.01, adv: 0.5642 },
     ],
   },
@@ -6511,10 +6493,9 @@ const INSCRIPTION = {
     // silhouette laid on each photograph at its own fitted disc) shows the
     // outline tracking the coin's within about a unit everywhere except the
     // truncation, which runs ~2 units low. So NOTHING BELOW TOUCHES THE BUST —
-    // `OBVERSE.quarter` is unchanged, and with it the v1.74.0 icon-tier
-    // derivation (iconS 0.9451 / iconCy 42.0921 / iconCx -0.3857 = the full
-    // tier scaled by k = 42.5/44.07) still holds exactly, because the full-tier
-    // placement it is derived FROM has not moved.
+    // `OBVERSE.quarter` is unchanged. (It also used to note that the v1.74.0
+    // icon-tier derivation still held; that trio was removed in v1.93.0 with
+    // the tier, so there is nothing left for `s/cy/cx` to hold for.)
     //
     // WHAT IS ACTUALLY WRONG IS THE TYPE, all three lines, and two of the three
     // faults are size rather than position. Read off a polar unwrap of
@@ -6583,12 +6564,20 @@ const INSCRIPTION = {
   },
 };
 
-// Below 62px a 6-unit word is under 4 device px and turns to fur; below
-// 110px the secondary lines do the same. Wave 1 draws the quarter at 84 and
-// the dime at 62, so the main line — the one that carries the layout — is
-// present at exactly the size the recognition question asks.
-const INS_MAIN_MIN = 62;
-const INS_REST_MIN = 110;
+// ⚠️ RETRACTED (v1.93.0). This paragraph used to introduce `INS_MAIN_MIN = 62`
+// and `INS_REST_MIN = 110` with:
+//
+//     "Below 62px a 6-unit word is under 4 device px and turns to fur; below
+//      110px the secondary lines do the same. Wave 1 draws the quarter at 84
+//      and the dime at 62, so the main line — the one that carries the layout
+//      — is present at exactly the size the recognition question asks."
+//
+// The MEASUREMENT stands (a 6-unit word under 4 device px does turn to fur).
+// The behaviour it describes has not existed since v1.78.0: the floors were
+// compared against `boxW`, and `boxW` is the DRAW_SIZE box on every call, so
+// "the quarter at 84 and the dime at 62" were both 380 and 280.5. Both floors
+// were permanently satisfied and both constants are removed; every line they
+// gated was already drawn at every size. Nothing rendered changed.
 
 // THE REVERSE LEGEND, and it is the most legible lettering on any real coin.
 // Every US reverse names the country round one edge and the DENOMINATION IN
@@ -6628,38 +6617,55 @@ const INS_REST_MIN = 110;
 // for bottom legends and its INNER edge for top ones, and each says which.
 //
 // ─────────────────────────────────────────────────────────────────────────
-// THE PRESENCE FLOOR — `min`, in BOX PIXELS, per coin
+// THE PRESENCE FLOOR — REMOVED v1.93.0, with the section it stood under
 // ─────────────────────────────────────────────────────────────────────────
-// Below `min` the words are deleted rather than shrunk, because a blurred word
-// reads as damage to the coin. The number is compared against `box.w`, NOT
-// against the `size` argument, and those differ by the coin's own diameter:
-// `coinRow(q.coins, 84)` — the draw where a child is asked to name ONE coin,
-// alone — gives the quarter 84 box pixels but the nickel 73.4, the cent 66.0
-// and the dime 62.0. A single shared floor is therefore not one rule, it is
-// four different rules, and the shared 135 stranded three of the four coins
-// with NO reverse legend at the naming size.
+// ⚠️ RETRACTED. This section defined `min`, a per-coin floor in box pixels,
+// and said in as many words:
 //
-// So each coin's floor is one unit below its own box at that draw — 84 / 73 /
-// 65 / 61 — the unit of slack being there so a rounding change in `coinPx`
-// can never strand a coin by a tenth of a pixel. The rule is the one round 4
-// wrote for the quarter and for the obverse's 62: the legend is present at
-// exactly the size the recognition question is asked at, and absent below it.
+//     "Below `min` the words are deleted rather than shrunk, because a
+//      blurred word reads as damage to the coin. The number is compared
+//      against `box.w`, NOT against the `size` argument, and those differ by
+//      the coin's own diameter: `coinRow(q.coins, 84)` … gives the quarter 84
+//      box pixels but the nickel 73.4, the cent 66.0 and the dime 62.0. A
+//      single shared floor is therefore not one rule, it is four different
+//      rules, and the shared 135 stranded three of the four coins with NO
+//      reverse legend at the naming size.
 //
-// COIN-ART-METHOD §16.1 says a floor is empirical, so it was measured rather
-// than argued (`coloringbook/judge/_jl1floor.mjs`): the reference photograph
-// reduced to that same box, sampled along the frozen band, against the same
-// reference at the same reduction in a LETTER-FREE sector. At each coin's own
-// floor the reference legend still carries more along-band HF than its own
-// bare field — quarter 1.58×, nickel 1.23× (E PLURIBUS UNUM) and 1.77×
-// (UNITED STATES OF AMERICA), cent 1.18× — so §16's "below the floor draw the
-// tone the letters make" does not apply there: at those sizes the tone the
-// letters make IS a row of letter-sized marks. What had made OUR marks
-// unreadable was not the size, it was the cap height: at the naming draw this
-// file used to give the dime's top legend 2.0 device pixels of cap. It now
-// gives it 4.9.
+//      So each coin's floor is one unit below its own box at that draw — 84 /
+//      73 / 65 / 61 … the legend is present at exactly the size the
+//      recognition question is asked at, and absent below it."
 //
-// The interior legends are different and keep their own, higher floors — see
-// `flats`/`arcs` below.
+// THE FIRST SENTENCE OF THAT IS THE ERROR AND EVERYTHING ELSE FOLLOWS FROM
+// IT. `box.w` HAD stopped tracking the requested size before those four
+// floors were written. v1.78.0 made `coinSVG` author at DRAW_SIZE and rewrite
+// only the outer width/height, so the `box.w` these floors were compared
+// against is 380 / 332.2 / 298.4 / 280.5 — the quarter's, nickel's, cent's
+// and dime's DRAW box — at 38 px and at 380 px alike. `coinRow(q.coins, 84)`
+// has not handed this function 84, 73.4, 66.0 or 62.0 since. So:
+//   · the shared 135 was NOT stranding anybody — every coin cleared it;
+//   · 84 / 73 / 65 / 61 were four no-ops replacing one no-op;
+//   · "absent below it" never happened at any size the app draws.
+// All four are removed, along with the shared fallback `REV_TEXT_MIN = 135`.
+// Every legend was already emitted at every size and still is; the render is
+// byte-identical.
+//
+// WHAT SURVIVES, because it is a measurement and not a mechanism: COIN-ART-
+// METHOD §16.1 says a floor is empirical, and `coloringbook/judge/
+// _jl1floor.mjs` measured one — the reference photograph reduced to a coin's
+// naming box, sampled along the frozen band, against the same reference at
+// the same reduction in a LETTER-FREE sector. At each coin's naming size the
+// reference legend still carries more along-band HF than its own bare field:
+// quarter 1.58×, nickel 1.23× (E PLURIBUS UNUM) and 1.77× (UNITED STATES OF
+// AMERICA), cent 1.18×. That is the evidence that a legend BELONGS at the
+// naming draw, and it is the reason removing these floors is not a loss: they
+// were arguing for a deletion the measurement did not support. What had made
+// OUR marks unreadable was never the size, it was the cap height — this file
+// used to give the dime's top legend 2.0 device pixels of cap at the naming
+// draw and now gives it 4.9.
+//
+// If a future round wants a size-dependent legend back, `boxW` is not the
+// quantity to test: `coinSVG`'s `size` argument is, and it is not threaded in
+// here. Adding a gate on `box.w` again would silently do nothing.
 const REV_TEXT = {
   // ── the cent ──────────────────────────────────────────────────────────
   // top     UNITED STATES OF AMERICA, band inner 35.6, CAP 6.6, span 168°
@@ -6777,9 +6783,17 @@ const REV_TEXT = {
   // PROPORTIONAL ones, and "E PLURIBUS" contains a space and an I. The natural
   // ink widths are therefore measured per string, not derived.
   //
-  // `min` 120 is the dime's floor for the same words, inherited rather than
-  // tuned: at 120 box pixels a 4.13 cap is 5.0 device pixels, where the dime's
-  // 3.50 cap is 4.2. Below that §16 says draw nothing, and nothing is drawn.
+  // ⚠️ RETRACTED (v1.93.0). This paragraph read:
+  //
+  //     "`min` 120 is the dime's floor for the same words, inherited rather
+  //      than tuned: at 120 box pixels a 4.13 cap is 5.0 device pixels, where
+  //      the dime's 3.50 cap is 4.2. Below that §16 says draw nothing, and
+  //      nothing is drawn."
+  //
+  // The cap arithmetic is still right. "Nothing is drawn" was not: the floor
+  // was tested against `boxW`, and the cent's `boxW` is 298.4 at every
+  // displayed size, so E PLURIBUS / UNUM have been drawn at every size the app
+  // renders. The two `min: 120` entries are removed as no-ops.
   penny: {
     top: 'UNITED STATES OF AMERICA',
     bottom: 'ONE CENT',
@@ -6789,10 +6803,9 @@ const REV_TEXT = {
     bOff: 2.77, // 44.07 − 2.77 = 41.30, the coin's OUTER edge = its baseline
     badv: 0.73, // 7 advances at r 41.30 -> 98.4° centres, 113.2° of ink = the coin's 113.1°
     flats: [
-      { text: 'E PLURIBUS', x: 49.7, y: 23.55, size: 5.49, ls: -0.6789, min: 120 },
-      { text: 'UNUM', x: 49.77, y: 28.6, size: 5.49, ls: -0.6414, min: 120 },
+      { text: 'E PLURIBUS', x: 49.7, y: 23.55, size: 5.49, ls: -0.6789 },
+      { text: 'UNUM', x: 49.77, y: 28.6, size: 5.49, ls: -0.6414 },
     ],
-    min: 65,
   },
   // ── the nickel ────────────────────────────────────────────────────────
   // top     E PLURIBUS UNUM, band inner 36.8, CAP 5.8, span 88°
@@ -6863,7 +6876,6 @@ const REV_TEXT = {
     flats: [
       { text: 'MONTICELLO', x: 50.75, y: 66.35, size: 5.19, ls: 1.87 },
     ],
-    min: 73,
   },
   // ── the dime ──────────────────────────────────────────────────────────
   // top     UNITED STATES OF AMERICA, band 34.2..42.4, CAP 8.2, span 200°
@@ -6877,9 +6889,15 @@ const REV_TEXT = {
   // round its rim in tall narrow letters.
   // E PLURIBUS UNUM is set FLAT across the middle of this reverse, through the
   // torch, not on the rim — read off `_jl1grid-dmrev-epu.png`: baseline y 67.1,
-  // cap top 63.6, ink x 21.1..81.6. It gets its own, higher floor because its
-  // 3.5-unit cap is half the band legends' and lands under 2.2 device pixels
-  // at the naming draw, which is the case §16 says to draw nothing for.
+  // cap top 63.6, ink x 21.1..81.6.
+  // ⚠️ RETRACTED (v1.93.0): "It gets its own, higher floor because its 3.5-unit
+  // cap is half the band legends' and lands under 2.2 device pixels at the
+  // naming draw, which is the case §16 says to draw nothing for." The cap
+  // arithmetic holds; the consequence never did. The `min: 120` it describes
+  // was compared against the dime's `boxW`, which is 280.5 at every displayed
+  // size, so this legend has been drawn at the naming draw and everywhere
+  // else. If it should not be there at 38 px, that is now an open art
+  // question, not something the code already handles.
   dime: {
     top: 'UNITED STATES OF AMERICA',
     bottom: 'ONE DIME',
@@ -6889,8 +6907,7 @@ const REV_TEXT = {
     bs: 10.93,
     bOff: 1.67, // 44.07 − 1.67 = 42.40, the coin's OUTER edge
     badv: 1.1796, // 7 advances at r 42.40 -> 122.0°, the reference's 122°
-    flats: [{ text: 'E PLURIBUS UNUM', x: 50.8, y: 67.1, size: 4.67, ls: 0.51, min: 120 }],
-    min: 61,
+    flats: [{ text: 'E PLURIBUS UNUM', x: 50.8, y: 67.1, size: 4.67, ls: 0.51 }],
   },
   // ── the quarter ───────────────────────────────────────────────────────
   // Round 4's frozen band target (`judge/_jq4band.json`, read off a polar
@@ -6916,8 +6933,13 @@ const REV_TEXT = {
   // centred 269° with its inner edge at r 34.0, UNUM centred 270° at r 28.3,
   // cap about 2.1 units on both — a THIRD of the top legend's. At 84 box pixels
   // that is 1.8 device pixels of cap, which is §16's "draw the tone the letters
-  // make, and draw nothing else there", so it carries its own floor of 190 and
-  // appears only on the largest draw.
+  // make, and draw nothing else there".
+  // ⚠️ RETRACTED (v1.93.0): "so it carries its own floor of 190 and appears
+  // only on the largest draw." It appears on EVERY draw. `min: 190` was tested
+  // against the quarter's `boxW`, which is 380 at 38, 48, 54, 84 and 380
+  // alike. Two 2.1-unit caps have been rendering at every size since v1.78.0;
+  // whether they should is an unanswered art question, and the honest place to
+  // answer it is by looking at the 38 px render (§0.1 D12).
   quarter: {
     top: 'UNITED STATES OF AMERICA',
     bottom: 'QUARTER DOLLAR',
@@ -6930,16 +6952,18 @@ const REV_TEXT = {
     bOff: 1.17,
     badv: 0.606, // 13 advances at r 42.90 -> 94.0°, the coin's ~94°
     arcs: [
-      { text: 'E PLURIBUS', off: 10.07, size: 2.8, centre: 269, adv: 0.93, min: 190 },
-      { text: 'UNUM', off: 15.77, size: 2.8, centre: 270, adv: 1.37, min: 190 },
+      { text: 'E PLURIBUS', off: 10.07, size: 2.8, centre: 269, adv: 0.93 },
+      { text: 'UNUM', off: 15.77, size: 2.8, centre: 270, adv: 1.37 },
     ],
-    min: 84,
   },
 };
-// Kept as the fallback for a denomination that has no measured floor of its
-// own. All four coins now override it; it is the number a fifth would inherit
-// until somebody rendered its legend against its own photograph.
-const REV_TEXT_MIN = 135;
+// ⚠️ RETRACTED (v1.93.0). `const REV_TEXT_MIN = 135` stood here, introduced as
+// "the fallback for a denomination that has no measured floor of its own … the
+// number a fifth would inherit until somebody rendered its legend against its
+// own photograph." It could not do that job: it was compared against `boxW`,
+// the DRAW_SIZE box, whose smallest value across the five denominations is the
+// dime's 280.5. A fifth denomination would have inherited a floor it cleared
+// by 145 px. Removed with the four per-coin floors above.
 
 // EVERY OFFSET BELOW CARRIES THE 3.07-UNIT MOVE OF THE FIELD CIRCLE
 // (41.0 → 44.07, the EDGE note above). The baselines were authored and judged
@@ -6971,31 +6995,31 @@ const REV_TEXT_MIN = 135;
 // free centre to the ink edge (`judge/_jl3fit.mjs`) and looking at the overlay,
 // and the answers are not close: the cent's best-fit radius is 33x the coin's,
 // the nickel's outer edge holds to 0.05 units across 86° of arc.
-function inscriptionOf(id, side, rField, p, boxW) {
+// EVERY LEGEND IS DRAWN AT EVERY SIZE, and the size floors that used to gate
+// them are gone (v1.93.0). They were `boxW < min` tests, and `boxW` has been
+// the DRAW_SIZE box on every call since v1.78.0 collapsed the tiers — 471.2 /
+// 380 / 332.2 / 298.4 / 280.5 for buck / quarter / nickel / penny / dime. The
+// largest floor this file ever held was 190, so every one of the eleven tests
+// was permanently true and removing them is byte-identical. See the retracted
+// claims beside `min: 62`, `min: 120` and `min: 190` in the specs above.
+function inscriptionOf(id, side, rField, p) {
   if (side === 'reverse') {
     const t = REV_TEXT[id];
-    const floor = t ? t.min ?? REV_TEXT_MIN : 0;
-    if (!t || boxW < floor) return '';
+    if (!t) return '';
     return (
       arcText(t.top, rField - (t.tOff ?? 7.67), t.ts ?? 4.5, p.ink, 0.6, 270, false, t.tadv ?? 0.82) +
       arcText(t.bottom, rField - (t.bOff ?? t.bs * 0.9 + 3.67), t.bs, p.ink, 0.66, 90, true, t.badv ?? 0.82) +
       (t.arcs ?? [])
-        .map((a) => (boxW < (a.min ?? floor) ? '' : arcText(a.text, rField - a.off, a.size, p.ink, 0.6, a.centre, a.rev, a.adv ?? 0.82)))
+        .map((a) => arcText(a.text, rField - a.off, a.size, p.ink, 0.6, a.centre, a.rev, a.adv ?? 0.82))
         .join('') +
       (t.flats ?? [])
-        .map((f) => (boxW < (f.min ?? floor) ? '' : flatText(f.text, f.x, f.y, f.size, p.ink, 0.6, f.ls)))
+        .map((f) => flatText(f.text, f.x, f.y, f.size, p.ink, 0.6, f.ls))
         .join('')
     );
   }
   const spec = INSCRIPTION[id];
-  if (!spec || boxW < INS_MAIN_MIN) return '';
-  // A `rest` LINE MAY CARRY ITS OWN FLOOR, exactly as every reverse `arcs` and
-  // `flats` entry above already may (`a.min ?? floor`). The obverse branch was
-  // the only one without it, and that asymmetry is what kept IN GOD WE TRUST
-  // off the nickel at the naming draw — see OBVERSE/INSCRIPTION.nickel. Absent
-  // `min` the line falls back to INS_REST_MIN, so the cent, the dime and the
-  // quarter emit byte for byte the string they emitted before at every size.
-  const lines = [spec.main, ...spec.rest.filter((l) => boxW >= (l.min ?? INS_REST_MIN))];
+  if (!spec) return '';
+  const lines = [spec.main, ...spec.rest];
   return lines
     .map((l) =>
       l.kind === 'arc'
@@ -7005,28 +7029,31 @@ function inscriptionOf(id, side, rField, p, boxW) {
     .join('');
 }
 
-function discSVG(id, box, attrs, tier, side, withValue, size) {
+// `size` was the last parameter and nothing in the body read it (it was handed
+// DRAW_SIZE unconditionally); removed v1.93.0. `box` carries everything.
+function discSVG(id, box, attrs, side, withValue) {
   const p = PALETTE[id];
   const e = EDGE[id];
-  const rField = e.field[tier];
+  const rField = e.field;
   const outline = outlineOf(id, box.w);
   const reverse = side === 'reverse';
   // The motif is dimmed under the value scaffold so the digits stay the
   // first thing read — the whole reason the scaffold exists.
-  const rev = reverse ? REVERSE_MOTIF[id](tier, p, box.w) : null;
+  const rev = reverse ? REVERSE_MOTIF[id](p) : null;
   const motif = reverse
-    ? `<g${withValue ? ' opacity="0.42"' : ''}>${struck(rev.solid, p, tier, box.w, rev.detail, rField, rev.mass)}</g>`
-    : bust(id, tier, p, withValue, box.w);
+    ? `<g${withValue ? ' opacity="0.42"' : ''}>${struck(rev.solid, p, box.w, rev.detail, rField, rev.mass)}</g>`
+    : bust(id, p, withValue, box.w);
   // The inscription sits just inside the field edge, the way a struck coin
   // sets it — but only where the glyphs are big enough to be WORDS.
   // LIBERTY is 7 characters and still reads at 120px; E PLURIBUS UNUM is 15
   // and turns to a smear below about 150, so it has its own, higher, floor.
   // A blurred word is worse than no word: it reads as damage.
-  // Drawn at mid tier as well as full, and that is a change of mind: the
-  // previous pass deleted every word below 96px, which meant the layout —
+  // Drawn at every size, and that is a change of mind twice over: the pass
+  // before last deleted every word below 96px, which meant the layout —
   // channel 3, one of the four things that actually transfers — was absent
-  // from the only screen that asks the child to name a coin.
-  const inscription = tier === 'icon' ? '' : inscriptionOf(id, side, rField, p, box.w);
+  // from the only screen that asks the child to name a coin. The `icon`
+  // exception that survived that change went with the tiers in v1.93.0.
+  const inscription = inscriptionOf(id, side, rField, p);
   // Filled AND stroked in one element: the contour never needs redrawing on
   // top, and on a reeded coin the toothed path is the single longest string in
   // the file, so emitting it twice was doubling the cost of the dime and the
@@ -7186,27 +7213,21 @@ const FEATURES = (p) =>
     `<ellipse cx="53.1" cy="25.55" rx="0.62" ry="0.42"/>` +
   `</g>`;
 
-// The tiers, and what each one can actually carry (see the scale note in the
-// obverse branch): at icon the oval is 9 x 13 device pixels and the wig/face
-// step has nowhere to live, so the head is ONE light mass; the coat stays at
-// every tier because "dark below, light above" is the last thing to survive.
-//
-// That one mass is `cloth`, the WIG's tone, not `body` the face's — so no
-// tone changes across the icon/mid boundary and only the face, jabot and
-// features appear there, which is what D10 is for. `body` was tried first for
-// the extra 31 grey levels against the ground; it reads no better at 9 x 13
-// px and it costs 0.012 on D13's icon portrait window.
+// ⚠️ THE `icon` VIGNETTE IS REMOVED (v1.93.0). It emitted head + neck + coat
+// and nothing else, under: "at icon the oval is 9 x 13 device pixels and the
+// wig/face step has nowhere to live, so the head is ONE light mass; the coat
+// stays at every tier because 'dark below, light above' is the last thing to
+// survive. That one mass is `cloth`, the WIG's tone, not `body` the face's —
+// so no tone changes across the icon/mid boundary … `body` was tried first for
+// the extra 31 grey levels against the ground; it reads no better at 9 x 13 px
+// and it costs 0.012 on D13's icon portrait window." The "dark below, light
+// above" observation is the durable part and it holds at every size.
 // No `boxW` parameter, unlike `bust()`: NOTHING here is stroked and nothing
 // carries a device-pixel floor, so there is no width for a box to set. That is
 // the house rule for a motif ("no motif detail is ever a stroke, so none of it
 // can thin away") and it is also what keeps D6's numerator where it was —
 // every mark this function emits is a fill.
-function vignette(p, tier) {
-  const icon = tier === 'icon';
-  if (icon) {
-    return `<g fill="${p.cloth}"><path d="${VIGNETTE.head}"/><path d="${VIGNETTE.neck}"/></g>` +
-      `<g fill="${p.ink}"><path d="${VIGNETTE.coat}"/></g>`;
-  }
+function vignette(p) {
   // FIVE tones, and every VERTICALLY ADJACENT PAIR differs, which is the
   // whole point. Iteration 4 filled face, throat and jabot all in `body` and
   // the three fused into a single pale wedge running from the hairline to
@@ -7224,12 +7245,13 @@ function vignette(p, tier) {
     // wig/face boundary right, and the face rendered as a narrow strip.
     `<g fill="${p.ink}"><path d="${VIGNETTE.coat}"/></g>` +
     `<g fill="${p.field}"><path d="${VIGNETTE.jabot}"/></g>` +
-    (tier === 'full' ? FEATURES(p) : '');
+    FEATURES(p);
 }
 
-function noteSVG(box, attrs, tier, side, withValue) {
+// `small` (`tier === 'icon'`) is gone, v1.93.0 — it was false on every call
+// since v1.78.0. Every `small ? '' : X` below is now just X.
+function noteSVG(box, attrs, side, withValue) {
   const p = PALETTE.buck;
-  const small = tier === 'icon';
   const reverse = side === 'reverse';
   // Hand-drawn scallop border: the thing that most obviously says "this is
   // an illustration". Same wave the app's other art uses.
@@ -7301,7 +7323,7 @@ function noteSVG(box, attrs, tier, side, withValue) {
   // numbers rather than guessed at here.
   const CORNERS = [[8.8, 15.6], [90.4, 15.6], [8.8, 45.7], [90.4, 45.7]];
   const frame = `<rect x="1.4" y="1.4" width="97.2" height="53.2" rx="5" fill="${p.body}"/>
-    ${small ? '' : `<path d="${wave(8, 2.2, 10)}" fill="none" stroke="${p.rim}" stroke-width="1" opacity="0.75"/>
+    ${`<path d="${wave(8, 2.2, 10)}" fill="none" stroke="${p.rim}" stroke-width="1" opacity="0.75"/>
        <path d="${wave(48, 2.2, 10)}" fill="none" stroke="${p.rim}" stroke-width="1" opacity="0.75"/>`}
     <rect x="5" y="5" width="90" height="46" rx="3.5" fill="none" stroke="${p.rim}" stroke-width="${sw(1.6, 0.8, box.w)}"/>
     <rect x="1.4" y="1.4" width="97.2" height="53.2" rx="5" fill="none" stroke="${p.rim}" stroke-width="${sw(2.6, 1.0, box.w)}"/>
@@ -7503,9 +7525,9 @@ function noteSVG(box, attrs, tier, side, withValue) {
     return `<svg viewBox="0 0 100 56" width="${box.w}" height="${box.h}" ${attrs} xmlns="http://www.w3.org/2000/svg">
       ${frame}
       <ellipse cx="50.05" cy="31.38" rx="9.75" ry="15.75" fill="${p.motif}" stroke="${p.rim}" stroke-width="${sw(1.4, 0.8, box.w)}"/>
-      ${vignette(p, tier)}
+      ${vignette(p)}
       <ellipse cx="50.05" cy="31.38" rx="9.75" ry="15.75" fill="none" stroke="${p.rim}" stroke-width="${sw(1.4, 0.8, box.w)}"/>
-      ${small || withValue ? '' : `<text x="77.5" y="33" text-anchor="middle" font-family="${FONT}" font-size="11"
+      ${withValue ? '' : `<text x="77.5" y="33" text-anchor="middle" font-family="${FONT}" font-size="11"
           font-weight="800" letter-spacing="1.6" fill="${p.ink}" opacity="0.8">ONE</text>
         <path d="${wave(41, 1.6, 5, 61, 87)}" fill="none" stroke="${p.rim}" stroke-width="1" opacity="0.7"/>`}
       ${withValue ? valueNote(p) : ''}
@@ -7655,9 +7677,8 @@ function noteSVG(box, attrs, tier, side, withValue) {
     const hw = PY.topHW + ((PY.baseHW - PY.topHW) * i) / COURSES;
     return `<path d="M ${n2(PY.axis - hw + 0.25)} ${n2(y)} h ${n2(2 * hw - 0.5)}"/>`;
   };
-  const pyramidCut = small
-    ? ''
-    : `<g fill="none" stroke="${p.field}" stroke-width="${sw(0.45, 0.5, box.w)}" opacity="0.75">
+  const pyramidCut =
+    `<g fill="none" stroke="${p.field}" stroke-width="${sw(0.45, 0.5, box.w)}" opacity="0.75">
          ${Array.from({ length: COURSES - 1 }, (_, i) => courseLine(i + 1)).join('')}</g>
        <circle cx="${PY.axis}" cy="21.55" r="0.55" fill="${p.field}"/>`;
   // The Great Seal's eagle: wings RAISED, which is the pose that tells it
@@ -7784,33 +7805,34 @@ function noteSVG(box, attrs, tier, side, withValue) {
   // tail: emerges from behind the shield at +6.20 and reaches +11.05, spreading
   // to a half-width of 1.35 at the bottom.
   const ETAIL = 'M -1.15 6.2 L 1.15 6.2 C 1.55 8.3 1.55 9.9 1.4 10.75 C 0.9 11.05 -0.9 11.05 -1.4 10.75 C -1.55 9.9 -1.55 8.3 -1.15 6.2 Z';
-  // ICON. The crescent wings are 1.5 units thick, which is 0.7 device px in a
-  // 47-px note: at icon they would not be there at all. The icon tier keeps the
-  // SAME tips, the same 70-degree outer edges and the same lower limit, and
-  // fills the crescent in to the body, so the silhouette's outline is the same
-  // shape at every tier and only its interior changes (§3 D10: no tier pop).
-  // The icon wing's outer edge is a STRAIGHT chord from the tip to the lower
-  // primaries, and deliberately: on a 47-px note the whole crescent is 3.5
-  // device px, a bow of a third of a pixel is nothing, and a bezier whose
-  // tangent AT THE TIP is shallower than its chord reads as a shallower wing
-  // to the envelope fit (62.4 deg against the chord's 70.9). Straight here,
-  // bowed at mid/full where there are pixels to carry it.
+  // ⚠️ `EWICON` / `EBODYICON` REMOVED (v1.93.0), and the reason they are gone
+  // is stronger than "unreachable": THEY HELD A SECOND, UNTESTABLE COORDINATE
+  // SET FOR THIS FACE. The block that stood here said so itself —
   //
-  // DEAD SINCE v1.78.0 AND LEFT ALONE ON PURPOSE. `coinSVG` hardcodes
-  // `tier = 'full'`, so `small` is false on every call and neither of the two
-  // constants below is ever emitted — round 17 confirmed it on all 180 renders
-  // in the partition. They therefore still carry the OLD wing tips (-7.32,
-  // -6.20) that `EW` no longer does, and the sentence above about "the SAME
-  // tips" is true of the code as written and false of the drawing. Correcting
-  // unreachable strings would change no pixel and would put a second,
-  // untestable set of wing coordinates into a face that has just been shown to
-  // have carried one wrong set for three rounds. If tiers ever come back, both
-  // of these must be re-derived, not scaled.
-  const EWICON = 'M -7.32 -6.2 C -6.08 -2.62 -4.84 0.98 -3.6 4.55 L -1.3 2.9 L 1.3 2.9 L 3.6 4.55 C 4.84 0.98 6.08 -2.62 7.32 -6.2 C 5.2 -4.3 2.6 -2.2 1.5 0.1 L -1.5 0.1 C -2.6 -2.2 -5.2 -4.3 -7.32 -6.2 Z';
-  const EBODYICON = 'M -1.93 0.62 L 1.93 0.62 L 1.93 4.3 C 1.93 5.75 1.5 6.05 1.15 6.4 C 1.45 8.3 1.45 9.9 1.3 10.75 C 0.87 11.05 -0.87 11.05 -1.3 10.75 C -1.45 9.9 -1.45 8.3 -1.15 6.4 C -1.5 6.05 -1.93 5.75 -1.93 4.3 Z';
-  const sealArt = small
-    ? `<path d="${EHEAD}"/><path d="${EWICON}"/><path d="${EBODYICON}"/>`
-    : `<path d="${EHEAD}"/>
+  //     "DEAD SINCE v1.78.0 AND LEFT ALONE ON PURPOSE. `coinSVG` hardcodes
+  //      `tier = 'full'`, so `small` is false on every call and neither of the
+  //      two constants below is ever emitted — round 17 confirmed it on all
+  //      180 renders in the partition. They therefore still carry the OLD wing
+  //      tips (-7.32, -6.20) that `EW` no longer does … Correcting unreachable
+  //      strings would change no pixel and would put a second, untestable set
+  //      of wing coordinates into a face that has just been shown to have
+  //      carried one wrong set for three rounds."
+  //
+  // Round 17 was right that CORRECTING them was the wrong move. Keeping them
+  // was the other wrong move: a superseded wing tip sitting in the file is the
+  // same trap as an instrument holding its own copy of the subject (ledger
+  // lesson 9), and this face has been burned by exactly that. Deleting is the
+  // third option and it is free — the partition reads 0/60.
+  //
+  // The DESIGN argument they carried is worth one sentence, because it is
+  // about 47 device pixels and not about a tier: the crescent wings are 1.5
+  // units thick, i.e. 0.7 device px on a 47-px note, and a bezier whose tangent
+  // at the tip is shallower than its chord reads as a shallower wing to the
+  // envelope fit (62.4 deg against the chord's 70.9). If a small-size variant
+  // is ever wanted again, its wings must be RE-DERIVED from `EW`, never scaled
+  // from anything recovered out of git history.
+  const sealArt =
+    `<path d="${EHEAD}"/>
        <path d="${EW[0]}"/>
        <path d="${EW[1]}"/>
        <path d="${ESHIELD}"/>
@@ -7844,9 +7866,8 @@ function noteSVG(box, attrs, tier, side, withValue) {
   // stripes, not thirteen, for the reason the pyramid draws seven courses and
   // not thirteen: 1.3 units of pitch is 3.1 device px at the largest size the
   // app draws and 0.6 at mid. The miss is published, not the gate moved (§8).
-  const sealCut = small
-    ? ''
-    : `<g transform="${SEAL_FIT}"><g fill="none" stroke="${p.field}" stroke-width="0.9" opacity="0.85">
+  const sealCut =
+    `<g transform="${SEAL_FIT}"><g fill="none" stroke="${p.field}" stroke-width="0.9" opacity="0.85">
          <path d="M -1.93 2.83 h 3.86"/><path d="M -0.64 3.3 v 2.7"/><path d="M 0.64 3.3 v 2.7"/></g></g>`;
   // NO BEVEL, AND SO NO `struck()` HERE ANY MORE — which is the decision this
   // note's own OBVERSE already made and wrote down, and which never crossed to
@@ -7883,7 +7904,7 @@ function noteSVG(box, attrs, tier, side, withValue) {
     ${roundel(PYR)}
     ${roundel(EAG)}
     <g${withValue ? ' opacity="0.42"' : ''}><g fill="${p.motif}">${pyramid}${seal}</g>${pyramidCut}${sealCut}</g>
-    ${small || withValue ? '' : `<text x="50" y="32" text-anchor="middle" font-family="${FONT}" font-size="9"
+    ${withValue ? '' : `<text x="50" y="32" text-anchor="middle" font-family="${FONT}" font-size="9"
         font-weight="800" letter-spacing="0.6" fill="${p.ink}" opacity="0.8">ONE</text>`}
     ${withValue ? valueNote(p) : ''}
   </svg>`;
@@ -7978,16 +7999,15 @@ export function coinSVG(denomId, size = 40, opts = {}) {
   // Author at DRAW_SIZE so every stroke floor and inscription minimum sees the
   // size the art was measured at, then scale the finished SVG.
   const drawBox = coinPx(denomId, DRAW_SIZE);
-  const tier = 'full';
   const side = opts.side === 'reverse' ? 'reverse' : 'obverse';
   const a11y = opts.decorative
     ? 'aria-hidden="true" focusable="false"'
     : `role="img" aria-label="${esc(opts.label ?? coinLabel(denomId))}"`;
   const cls = opts.className ? ` ${opts.className}` : '';
-  const attrs = `class="coin-art${cls}" data-denom="${denomId}" data-value="${FACE_VALUE[denomId]}" data-side="${side}" data-tier="${tier}" ${a11y}`;
+  const attrs = `class="coin-art${cls}" data-denom="${denomId}" data-value="${FACE_VALUE[denomId]}" data-side="${side}" data-tier="full" ${a11y}`;
   const svg = denomId === 'buck'
-    ? noteSVG(drawBox, attrs, tier, side, opts.value === true)
-    : discSVG(denomId, drawBox, attrs, tier, side, opts.value === true, DRAW_SIZE);
+    ? noteSVG(drawBox, attrs, side, opts.value === true)
+    : discSVG(denomId, drawBox, attrs, side, opts.value === true);
   // Only the outer element's width/height change; the viewBox and every path
   // are untouched, which is what makes this one drawing rather than a variant.
   return svg.replace(/^(<svg[^>]*?)width="[\d.]+" height="[\d.]+"/,

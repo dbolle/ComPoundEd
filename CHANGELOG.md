@@ -3,6 +3,56 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.94.0 — 2026-08-24
+
+**Tier-era dead code removed — and twelve comments in it were false.**
+
+Purely subtractive: **the byte-identity partition reads 0/60 at every one of
+eleven steps**, and a stronger 240-cell grid (12 sizes including four the app
+never draws, value on and off) is byte-identical too. Code lines
+**1658 → 1540**; the *file* got longer, because a retraction is longer than the
+claim it corrects.
+
+Removed: `iconS`, `iconCy`, `iconCx`, `iconWig`, `iconBust`, `tierOf`,
+`INS_MAIN_MIN`, `INS_REST_MIN`, `REV_TEXT_MIN`, all 11 `min:` gates, all 12
+`tier ===` branches, `EWICON`/`EBODYICON`, `EDGE.field`'s per-tier object, and
+**`tier` the parameter itself** — from `struck`, `bust`, all four motifs,
+`discSVG`, `vignette`, `noteSVG` and `coinSVG`. The brief undercounted: there
+were **five** `fine` declarations, not two.
+
+**The dead code was not inert — it was misinformation.** Twelve false claims
+retracted beside their corrections rather than deleted, including:
+
+- *"`fine` (≥130) is NEVER true in the app — anything put behind it is invisible
+  to a child."* **This is the comment that misled a round.** `boxW` is 332.2 at
+  every size; the balustrade, fanlight, dome ribs, sills and shaft flutes all
+  draw at 38 px.
+- *"a coin at 190 px and a coin at 26 px are not the same drawing… `coinSVG`
+  emits DIFFERENT GEOMETRY per size band"* → byte-identical apart from two
+  attributes, pinned by `tests/coins.spec.js`.
+- The nickel round's **entire justification for `min: 62`**: *"until this round
+  it was not present at ANY size… a child saw LIBERTY, a bare left rim, and
+  nothing else."* IN GOD WE TRUST was already there and `min: 62` changed
+  nothing. Its companion claim — *"THE DATE IS NOT GIVEN A FLOOR… at 84 px it
+  would add four glyphs of noise"* — was also false: the date draws at 84 px and
+  always did.
+- *"the shared 135 stranded three of the four coins with NO reverse legend at
+  the naming size"* → nothing was ever stranded; four floors replaced one no-op.
+- *"at 84 it is a speck of dirt on the die"* (the dentils) → they drew at 38 px.
+
+Measurements were **kept wherever they survive the correction** — the 130 px
+legibility observation, the icon energy histogram, the ink-coverage figures, an
+earlier refusal, and the rim arithmetic all remain, several because they are
+cited elsewhere as evidence.
+
+**Found on the way, and not on the list:** `_jd14d1resp.mjs`'s response test
+**anchors on a string that no longer exists**, so it **fails open** — the third
+instance of that failure mode. **Seven live instruments keep a private
+`tierOf`** and still print rows labelled "icon"/"mid": distinctions the art no
+longer makes. And ledger **C2 is moot as written** — *"`hairFill` has the wrong
+sign at mid"* names a branch that could never run; the live question is what
+that sign does at 48 and 54 px, which has never been tested.
+
 ## v1.93.0 — 2026-08-24
 
 **The primary gate scored four denominations, its control sorted a photograph
@@ -66,6 +116,44 @@ declared bounds. Reported, not edited: it is hashed into two rounds' frozen
 sets. **54.1 % of registrations sit on a search bound**, so thin-margin rows are
 the ones to distrust. And **T1 itself cannot run in a worktree** — the same
 defect that made another instrument unrunnable, in the primary gate.
+**Tier-era dead code removed from `src/art/coins.js`. Zero pixels moved:
+the byte-identity partition reads 0 of 60 cells changed, and a wider
+240-cell grid (12 sizes × value on/off × 5 ids × 2 sides) is also identical.**
+
+v1.78.0 replaced the three-tier system with one drawing per face authored at
+`DRAW_SIZE = 380`, but left the machinery in place. Since then `tier` has been
+the literal `'full'` on every call and `boxW` has been the 380 px box at every
+displayed size — 471.2 / 380 / 332.2 / 298.4 / 280.5 for the note, quarter,
+nickel, cent and dime. Everything keyed on either was frozen, and some of it was
+**actively misleading**: a comment asserting "`fine` (>=130) is NEVER true in the
+app — anything put behind it is invisible to a child" had already been read by a
+later round as licence to treat those marks as free. They draw at 38 px.
+
+Removed, all verified at 0 code references afterwards: `tierOf()`; the `tier`
+parameter itself, threaded through `struck`, `bust`, all four reverse motifs,
+`discSVG`, `vignette` and `noteSVG`; **12** `tier === 'icon' / 'mid' / !== 'icon'`
+branches, including four whole `icon` drawings (the Memorial, Monticello, the
+torch, the note vignette); `fine` in five places; **11** `min:` size gates plus
+`INS_MAIN_MIN`, `INS_REST_MIN` and `REV_TEXT_MIN`; the per-coin `iconS / iconCy /
+iconCx` trios, `iconWig`, `iconBust`; `EDGE.field`'s per-tier object; `EWICON` /
+`EBODYICON`; and two parameters that had quietly gone unused (`discSVG`'s `size`,
+`boxW` on all four reverse motifs).
+
+**Comments were retracted beside their corrections, never silently deleted**
+(COIN-JUDGE §1.1). Nine false claims are now quoted with the fact next to them,
+including the file's own opening paragraph ("a coin at 190px and a coin at 26px
+are not the same drawing" — they are the same drawing) and two cases where a
+round's stated justification was a no-op: the nickel's `min: 62` and the note's
+`EWICON`, which held a **second, superseded set of wing tips** for a face that
+had already shipped one wrong set for three rounds.
+
+**Two things that look dead and are not**, reported rather than removed:
+`_jd14d1resp.mjs` anchors its response test on the dime's now-deleted `iconS`
+string, and seven judge instruments keep private copies of `tierOf` and still
+label rows "icon"/"mid".
+
+Code lines (non-comment, non-blank) 1658 → **1540**. Test suite green, 461/461.
+`_jq9well.mjs` D9: 180 renders, 0 faulty.
 
 ## v1.92.0 — 2026-08-24
 
@@ -135,68 +223,6 @@ coin's is not. No comb artefact survives at 38–84 px, which is what decided it
 
 ## v1.91.0 — 2026-08-24
 
-**Instruments only, no art. Every measuring device that held its own copy of
-the subject has been found, and the numbers they published are corrected in
-public rather than quietly replaced.**
-
-`src/art/coins.js` is untouched — this release changes nothing a child sees.
-
-**The one bug, in eleven places.** *An instrument must never hold its own copy
-of the subject.* A scorer that pastes our coordinates keeps scoring after the
-art moves, and it fails silently, in whichever direction the stale copy points.
-
-- **`_jb14d1.mjs` — RETIRED.** Both sides of its IoU were literals, so its
-  published `D1 IoU 0.1496 FAIL` could not move for any reason. Recomputed
-  from the live SVG the same comparison is **0.8834**, and against the
-  border-registered target **0.9872 PASS**.
-- **`_jb3seal.mjs` — RETIRED.** Its `OURS` was circles r16 at cx 30/70; the
-  note draws ellipses at (23.13, 27.88) and (76.88, 27.75). **Five of its six
-  published buck D2 FAILs are PASSes** — D2a IoU 0.9989, D2b 0.9991, centres
-  0.007/0.005, semi-axes +0.06 %, separation 53.75 exact.
-- **`_jb8geom.mjs` — REPAIRED, and six rows retracted.** Its response test
-  substituted `cx="70"`, a string the art stopped emitting at v1.83.0, so it
-  matched nothing and printed *DID NOT MOVE — UNTRUSTED* on every run. Its D8b
-  locus was the same dead circles, and it printed `0.000 % outside` because the
-  wrong circle was bigger and happened to overlap. Now: response translates the
-  whole device (0.0000 % → 15.8974 %) with a zero-translate null test, and D8b
-  is scored against the roundel measured on the photographs.
-- **`_jq8contain-v2.mjs` — REPAIRED.** `RESPONSE=1` threw on a missing source
-  anchor, so D8's ability to move had gone unchecked. The injection is now
-  defined on the emitted SVG, is asserted to have moved 94 of 98 marks, and
-  0.0000 % → 4.1890 %.
-- **`_jc5corner.mjs`** (BEARD knot 7 at (−17.28, 8.63); drawn since v1.63.0 at
-  (−18.85, 4.00)) and **`_jb15look.mjs`** (sheets 26/54/190 where the app draws
-  38/48/54/84) — **RETIRED**, both superseded.
-
-**The disc is fitted at the rim.** `_rimfit.mjs` replaces about ten private
-copies of `R = √(area/π)`. It is checked against synthetic discs of *known*
-radius — 80 / 137.5 / 220 recovered to 0.014 px, centre to 0.007 px — then
-response-tested, then null-tested against `_dr1disc.mjs`'s independent
-estimator to a mean of **−0.078 %**. Freshly measured area error: nickel-rev-2
-**−31.71 %**, dime-rev-proofbright **−28.84 %**, quarter-obv-2 −4.55 %.
-`_nk3over.mjs` is repointed and now prints the error it used to carry.
-
-**Frozen evidence is guarded.** `_freeze.mjs` — create if absent, no-op on
-identical bytes, refuse a change without `JUDGE_REFREEZE=1`. Wired into the
-three CLI flags that used to overwrite hashed artefacts unconditionally.
-
-**A registration correction with a live consequence.** `_jp1discs.json`'s
-`penny-rev-artwork.jpg` entry is not a fit (p95 13.93 % of R, 244 of 720 rays
-on the search bound) and carried no flag, and `_jp15rev.mjs` preferred it over
-the good drawn-rim fit ten lines below in the same file — registering that
-reference at **R 44.3 % too large and cy 40.32 px off**. The frozen file is
-untouched; the correction is published beside it and served by `_jpdiscs.mjs`,
-which refuses the bad entry.
-
-**Two findings closed by refutation, which is also a result.** The note's
-printed-border ratio is **2.6352 / 2.6393**, not the published 2.5610 / 2.5827
-— the fit was bleeding uniformly onto blank paper, which compresses a wide
-rectangle's aspect. And `_jq42indep.mjs`'s background-NCC is not an
-independence statistic at all: pairs known to share one photographic plate
-score 0.039 and 0.106 where the pair suspected of sharing one scores 0.459.
-
-## v1.91.0 — 2026-08-24
-
 **Paying the instrument debt: eleven ledger items closed, and eight published
 numbers corrected.**
 
@@ -260,166 +286,6 @@ keeps the eval libraries out of the repo, so **63 of 286 instruments cannot run
 in any worktree or clone** — §1.1's promise that any published number can be
 reproduced does not currently hold for 22 % of the library (**A22**, owner
 decision).
-## v1.91.0 — 2026-08-24
-
-**The primary gate was scoring four denominations out of five, its reference
-pool had never been audited, and it was counting one photograph twice. The note
-now has a gate of its own.**
-
-Instrument round, no art changed and no kid-facing behaviour changed.
-Findings ledger items **A1, A2, A3** closed, **A21–A28** opened, `D15` added.
-
-**The pool had never been audited.** `judge/_jt4pool.mjs` (new) sweeps all 78
-images in `coloringbook/ref/`, every within-face pair, with duplicate evidence
-that uses **no disc fit** — `_jrefintake.mjs`'s header records why: a
-registration disagreement once made two byte-identical files score
-`INDEPENDENT`. Two statistics of different kinds must agree before it says
-`SAME IMAGE`: a 64×64 mean-absolute-difference over each image's content box,
-and the Hamming distance of a 64-bit difference hash. What it found:
-
-| pair | MADbox | dHash | design NCC | in T1? |
-|---|---|---|---|---|
-| `dime-rev.jpg` + `dime-rev-2.jpg` | **1.4** | **1** | 0.995 | **both** — A2 |
-| `nickel-obv.jpg` + `nickel-obv-unc2004.jpg` | **5.0** | **3** | 0.997 | one — new |
-| `quarter-obv.jpg` + `quarter-obv-2.jpg` | 2.5 | 2 | 0.996 | one — known |
-| `quarter-rev.jpg` + `quarter-rev-5.jpg` | 1.3 | 1 | 0.995 | neither |
-| the four `qp19*-pad.png` / `qp19*.png` pairs | 3.5–5.0 | 0–2 | **0.019–0.991** | neither |
-
-That last row is the point of the whole method: `qp1964-obv-pad.png` and
-`qp1964-obv.png` are the same image and their *registered* design NCC is
-**0.019** — "different design". A fit-based duplicate detector certifies
-duplicates as independent, and this pool contains a live example of it.
-
-**Two pool corrections, with the before/after published rather than silently
-improved — and one that was made and then RETRACTED.**
-
-- `dime-rev.jpg` **removed** (A2). Exactly **one cell** of the transfer table
-  moved, by 0.001 — penny reverse, dime column, 54 px, 0.290 → 0.289 —
-  *because a duplicate adds nothing*. But the **control** did move: T1's
-  published dime-reverse control figure was **0.995**, which is a photograph
-  sorted against **itself**. The true values are **0.647 / 0.776 / 0.779**.
-  A duplicate was not inflating the score; it was hollowing out the check on
-  the score.
-- `dime-rev-proofbright.png` **added** (A3). 2000×2000, independent of both
-  remaining files (MADbox 86–113, dHash 24–47).
-- `nickel-obv-4.jpg` **was removed and has been put back** (A21), and this is
-  the most useful thing in the round. It was dropped because this round's new
-  fitter disagreed with `_rvdisc.fit` by **14.8 % of R** and re-sorted it as a
-  **dime**, and because `_jn1discs.json` records the nickel round's own chroma
-  fit at `p95resid_pctR: 62.13, ambiguous: true`. Then the decisive test was
-  run, which should have come first: leave-one-out **under the registration T1
-  itself uses**. It comes back **nickel, 0.671**.
-
-  Chasing that discrepancy found the actual bug — **in the new fitter, not the
-  reference**. It took the last pixel unlike the background along each ray, so a
-  single stray light pixel out in the surround set the radius. Flooding the
-  background in from the frame and keeping the largest component instead:
-  dR **14.78 % → 3.13 %**, centre **19.12 % → 3.82 %**, p95 **12.22 % → 2.59 %**
-  — and `nickel-rev-proof.png` came along with it, 3.16 % → **0.15 %**, p95
-  13.05 % → **0.81 %**. Two references were about to be blamed for a bug in the
-  instrument that measured them.
-
-**T1 is 32/32 before and after**, and the only transfer cell that changed is
-the 0.001 above. The control went from 4 tests per face to **11**.
-
-**T1's control was sampling one file per class.** It held out `POOL[id][0]`
-only — 8 tests where the pool supports 22 — so the files it never tested
-included the one that cannot be fitted. It is now leave-one-out over every
-reference: **11/11 per face**.
-
-**The note now has a gate: `judge/_jt5note.mjs`.** The ledger said T1 "cannot
-be fixed by adding a row — it registers via `discOf()` and samples a disc."
-That is true of the *file* and false of the *method*: T1's circle lives in one
-function, the map from grid (u,v) to source pixels. Make that map per-subject —
-fitted rim for a coin, fitted printed border for a note — and everything
-downstream is unchanged. T5 scores all five subjects in two modes:
-**A (design)** normalises the aspect away and asks whether our *printing* sorts
-right; **B (shape-aware)** keeps the true aspect and asks the question a child
-faces. Mode B's coin rows are advisory — every coin has the same support, which
-inflates coin-against-coin correlation — and it exists for the note row.
-
-**T5, on the fixed pool:**
-
-| | total | coins | **buck** |
-|---|---|---|---|
-| mode A (design) | 36/40 | **32/32** | **4/8** |
-| mode B (shape) | 33/40 | 26/32 *(advisory)* | **7/8** |
-
-Control: mode A **26/26** (gates), mode B note rows **4/4** (gates), mode B
-coin rows **21/22** (advisory — see below). Null test **52/52**.
-
-**The control gates the same way the verdicts are quoted, and that had to be
-fixed mid-round.** Mode B's coin rows were declared advisory *before* any number
-was seen — in shape mode every coin has the same support, so the identical zeros
-outside it are a large common term in every coin-against-coin correlation, which
-inflates all of them and compresses the margins to near nothing. Its control was
-nevertheless blocking the whole file, including the note verdict, on a
-quarter-against-nickel margin of **0.016**. A statistic that may not fail a round
-may not gate one either. §0.1's advisory/gate split now reaches the controls.
-
-Mode A's coins are **32/32 — the same verdict T1 reaches, from an independent
-implementation** that shares no code with it (own disc fit, own Sobel, own grid,
-own registration search). That agreement is the evidence for both.
-
-**The note fails the design question on its reverse, at every size the app
-draws.** With the aspect normalised away, our note reverse is nearer photographs
-of a **cent** than of a $1 note at 38, 48, 54 and 84 px. The obverse passes all
-four but by 0.011 at 38 px. Ledger `D13` — "the note's left half is empty" — now
-has a number beside it: an empty field with one central device *is* a coin.
-
-**And the note is the wrong shape** (new ledger item `D15`). Fitted with the
-same code that fits the photographs, our printed border is **1.8353** against
-their **2.4812–2.6411** (mean 2.5643, −28.4 %), and our paper is **1.7944**
-against the physical note's **2.3525** (−23.7 %). The registration is trustworthy
-to about 2 % against that outside ruler — the background-bounding-box paper
-aspect on the four photographs errs −1.72 % on average. `coins.js:146` says the
-box is deliberate (it preserves the old `.coin.buck` CSS layout), so this is an
-owner decision, not a bug — but T5 prices it: resampling our render to the
-photographs' border ratio, **changing no printing at all**, moves the shape-aware
-score from **0.267 to 0.726**.
-
-**Every number above is gated by tests the instrument runs on itself first**,
-each with its prediction written before the result:
-
-- *stretch our render to the photographs' aspect* — mode A **+0.0002** (its null
-  held: A really is aspect-blind, so A's buck failure is about the printing and
-  not the box), mode B **+0.4582**;
-- *paste our quarter obverse inside the note's border* — mode A flips to
-  `quarter` (0.428 against buck 0.216), mode B stays `buck`. The two modes
-  measure different things, demonstrably;
-- *blank the note, frame intact* — mode A **collapses to 0.000** and sorts as a
-  penny. Mode B also fails, so **mode B is not a silhouette-only test**; had it
-  passed, this file would have printed that it was.
-
-Registration is checked against estimators that share no code with it: the disc
-against `_rvdisc.fit` (mean |ΔR| **0.28 %**, mean centre offset **0.32 % of R**,
-n=22 — the `_dr9branch.mjs` standard), the printed border against a background
-bounding box with no edge model and against the note's physical dimensions
-(mean error **−1.72 %**, worst 3.48 %).
-
-**One limit stated rather than buried:** the registration search inherits T1's
-bounds (rot ±8°, translation ±0.03R), and **1293 of 2392 registrations sit ON a
-bound** — overwhelmingly the low-NCC cells, where a note and a coin have no
-alignment to find and the search simply runs to its edge (median NCC among them
-0.118). An NCC at a bound is a *lower* bound, so such a cell can only be
-understated; 187 of them are above 0.25. That makes the **thin-margin** rows the
-ones to distrust, not the confident ones. The bounds are not widened here
-because that would change T1's method and the two are meant to be quotable
-together.
-
-`_bxEt1note.mjs`'s 8/8 stands as what it measures and is **not** the note's
-transfer score: it never asks "note vs coin", and it fits the photographs with
-`fit2` while hard-coding our own frame — the ledger's A4/A5/A17 rule. Its
-header carries the correction beside the original text, not over it.
-
-**Still open, and named rather than fixed:** `_jq20indep.bestReg`'s refine is
-not anchored (it rebuilds its offsets inside the loop that reassigns `best`, so
-the search walks outside its declared bounds — translations of 0.055 and 0.075
-against a declared 0.03); and **T1 cannot run in a worktree**, because it
-imports three gitignored modules. Both are reported, not edited: that file is
-hashed into two rounds' frozen sets, and §1.1 says a specialist reports an
-instrument and the judge fixes it.
-
 ## v1.90.0 — 2026-08-24
 
 **A petiole is not a free parameter, because the leaf's total reach is measured

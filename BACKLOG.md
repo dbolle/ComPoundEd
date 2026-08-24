@@ -7,6 +7,24 @@ reconsider after calibration.
 
 ## Where we are
 
+- 🟢 **TIER-ERA DEAD CODE removed from `src/art/coins.js` (v1.93.0). No art
+  changed — the byte-identity partition reads 0/60, and a wider 240-cell grid
+  is identical too.** Ledger items **B1–B5 all FIXED**, each with a verify
+  command. `tier` and `boxW`-keyed gates are gone: `tierOf`, the `tier`
+  parameter, 12 branches, four whole `icon` drawings, `fine` ×5, 11 `min:`
+  gates, the icon placement trios, `EDGE.field`'s per-tier object, and
+  `EWICON`/`EBODYICON` — which held a **second, superseded set of wing tips**.
+  Code lines 1658 → 1540; nine false comments retracted beside their
+  corrections rather than deleted.
+  **New, from B6 — things that look dead and are not:**
+  - **`_jd14d1resp.mjs`'s response anchor is now stale** (it patched the dime's
+    `iconS` string). The response test fails open — the A11/A13 pattern.
+  - **Seven instruments keep a private `tierOf`** and still print rows labelled
+    "icon"/"mid", a distinction the art no longer makes.
+  - **C2 (`hairFill`'s sign at `mid`) is moot as written** — that branch could
+    not run. The real open question is what the sign does at the 48 and 54 px
+    the app actually draws.
+
 - 🟢 **STALE INSTRUMENTS closed (v1.91.0). No art changed.** Ten of the
   fourteen ledger items this round owned are FIXED, with a verification command
   beside each in `docs/FINDINGS-LEDGER.md`. Four instruments retired by MOVE at

@@ -141,17 +141,45 @@ v1.78.0 removed the tier system: `coinSVG` authors at `DRAW_SIZE = 380` and
 rewrites only the outer `width`/`height`. So `boxW` is the 380 px box **at every
 displayed size** (nickel: 332.2 at 38, 48, 54, 84 and 380 alike).
 
-| # | Finding | Status |
-|---|---|---|
-| B1 | `iconS` (12 refs), `iconCy` (11), `iconCx` (11), `iconWig` (5), `iconBust` (4), `tierOf` (2) | **OPEN** |
-| B2 | `INS_MAIN_MIN` (3), `INS_REST_MIN` (4), and **11 `min:` gates** — all evaluated at 332.2, permanently true. The nickel round's `min: 62` is a **no-op**. | **OPEN** |
-| B3 | `fine = boxW >= 130` in two places — **permanently true**. A comment asserting the opposite ("`fine` is NEVER true in the app") already misled one round. | **OPEN** |
-| B4 | **12 `tier === 'icon' / 'mid'` branches** — `tier` is hardcoded `'full'`. Confirmed unreachable across 180 renders by the note round. | **OPEN** |
-| B5 | `EWICON` / `EBODYICON` — unreachable, and still carrying superseded coordinates. | **OPEN** |
+| # | Finding | Status | Verify |
+|---|---|---|---|
+| B1 | `iconS` (12 refs), `iconCy` (11), `iconCx` (11), `iconWig` (5), `iconBust` (4), `tierOf` (2) | **FIXED** v1.93.0 | `grep -c 'iconS\|iconCy\|iconCx\|iconWig\|iconBust\|tierOf' src/art/coins.js` — 0 outside retraction comments |
+| B2 | `INS_MAIN_MIN` (3), `INS_REST_MIN` (4), and **11 `min:` gates** — all evaluated at 332.2, permanently true. The nickel round's `min: 62` is a **no-op**. | **FIXED** v1.93.0 | `grep -nE '\bmin:' src/art/coins.js` → nothing outside comments |
+| B3 | `fine = boxW >= 130` in two places — **permanently true**. A comment asserting the opposite ("`fine` is NEVER true in the app") already misled one round. | **FIXED** v1.93.0 — the false claim is **retracted beside its correction**, not deleted (see THE RAKING CORNICES in `monticello()`) | `grep -n 'const fine' src/art/coins.js` → nothing |
+| B4 | **12 `tier === 'icon' / 'mid'` branches** — `tier` is hardcoded `'full'`. Confirmed unreachable across 180 renders by the note round. | **FIXED** v1.93.0 — the `tier` parameter itself is gone from `struck`, `bust`, all four reverse motifs, `discSVG`, `vignette`, `noteSVG` | `grep -nE "tier === '\|tier !== '" src/art/coins.js` → nothing outside comments |
+| B5 | `EWICON` / `EBODYICON` — unreachable, and still carrying superseded coordinates. | **FIXED** v1.93.0 | `grep -c EWICON src/art/coins.js` → 1, in the retraction |
 
 **Why this is not cosmetic:** B3 already caused a false comment that a round
 reasoned from. Dead branches carrying *stale numbers* are a trap, because the
 next round reads them as evidence.
+
+### B6 — what the subtractive round found that was NOT dead
+
+Recorded because a purely-subtractive round is well placed to notice these and
+nothing else will.
+
+- **`_jd14d1resp.mjs` anchors on deleted source.** Line 25 is
+  `const anchor = 's: 0.97, cy: 45.3, cx: -2.7, iconS: 0.97, iconCy: 45.3, iconCx: -2.7,'`
+  and it rewrites that string to perturb the dime for a D1 response test. The
+  icon trio is gone, so **the anchor now matches nothing** and the response test
+  is a no-op — the A11/A13 failure mode again (a stale anchor that fails open).
+  Not edited: instruments are the judge's (§1.1). **OPEN.**
+- **Seven live instruments keep a private `tierOf`** and still label rows
+  "icon"/"mid": `_jq9well`, `_jn8tier`, `_jp10tier`, `_jq10tier`,
+  `_jq10tier-v2`, `_jq8contain-v2` (which *exports* it, and `_jq8depthrun`
+  imports it), `_jl1cap`; `_jb12tier` hardcodes the 44/76 boundaries. None
+  imported `coins.js`'s copy, so removing it moved nothing — but every row they
+  print under a tier heading is a distinction the art no longer makes.
+  `_jq9well` prints `{"obverse/icon":0,"obverse/mid":0,...}` today. **OPEN.**
+- **`hairFill`'s known defect (C2) is moot as written.** C2 says "`bust()`'s
+  `hairFill` has the wrong sign at mid". The `mid` branch could not run, so
+  there is no live defect to fix — but it also means the sign was never tested
+  at 48 and 54 px, which the app *does* draw with the full drawing. **Re-open as
+  a question about the drawing, not the branch.**
+- **`REV_TEXT_MIN = 135` could never have done its stated job.** It was
+  documented as "the number a fifth denomination would inherit". Compared
+  against `boxW`, whose smallest value is the dime's 280.5, a fifth denomination
+  would have cleared it by 145 px. Removed with the rest.
 
 ---
 
