@@ -5312,31 +5312,121 @@ function eagle(tier, p, boxW) {
        <path d="M 34 61.9 L 30 62.9 L 30 64.9 L 34 65.9 Z"/>`;
   // The tail fan, short and behind the arrows: on the coin it is almost
   // entirely hidden by the bundle, so it stops at 66, not 68.6.
+  //
+  // ⚠️ OPEN, MEASURED, AND DELIBERATELY NOT MOVED — routed to the judge.
+  // This mark draws almost nothing. Rasterised on its own at 12 px per
+  // viewBox unit against the union of `arrows` and `anatomy`, the tail's
+  // 85.0 square units are 67.7% covered, and the 27.5 that survive are the
+  // strip y 58.6..61.6 directly under the body, where they read as more leg.
+  // It is sized to what covers it rather than to itself — the pattern that
+  // has now produced four defects on other faces.
+  //
+  // And the coin's tail is NOT hidden. On `qp1963-rev-pad.png` a shingled
+  // fan sits BELOW the bundle, about 15 units wide and reaching y ≈ 70 —
+  // 4 units past the bundle's own lower edge at 66.2 — with the same
+  // structure fainter on `qp1964-rev-pad.png`. Ours is 7.6 wide and stops
+  // at 66.6.
+  //
+  // WHY IT IS NOT FIXED HERE. The two files that show it are the two cameo
+  // proofs, whose disc fits are the worst in the pool (p95 4.79% and 11.05%
+  // of R against 0.15% and 0.32% for `quarter-rev-2.png` and
+  // `quarter-rev-3.jpg`) and which `_jq42indep.mjs` was written specifically
+  // to test for a SHARED photographic setup. Neither rim-fitted photograph
+  // shows the fan at ladder magnification. Two possibly-dependent references
+  // at 5–11% registration error are not enough to hang a new 15-unit mass in
+  // the middle of the lower third on, and that mass is exactly the size of
+  // change that gets a round reverted for looking worse. Reported, not
+  // guessed at.
   const tail = `<path d="M 46.2 56 L 53.8 56 C 55 60 54.8 63.4 53.4 66.4
       Q 51.7 64.6 50 66.6 Q 48.3 64.6 46.6 66.4 C 45.2 63.4 45 60 46.2 56 Z"/>`;
   // THE OLIVE WREATH sweeping across the bottom, two branches meeting under
   // the tail. Parametric, so the leaves sit ON the stem instead of beside it
   // — the failure that made the last version's sprigs read as two small
   // animals crouching under the bird.
+  //
+  // ⚠️ THE LEAVES USED TO LIE ALONG THE STEM, AND SO THE WREATH WAS SOLID.
+  // That is arithmetic, not an impression. In the f = +1 frame the stem's
+  // tangent is (32 − 8t, −30t), so the branch heads −8.9° at t 0.16 and
+  // −48.3° at t 0.92; the leaves were set at −(14 + 34t), i.e. −19.4° to
+  // −45.3°, which is within 3° of the stem at four of the six stations and
+  // 10.5° at the worst. Six ellipses 10.4 units long laid end to end along
+  // their own stem, at centre spacings of 4.67 / 4.99 / 5.15 / 5.09 / 4.67,
+  // MUST overlap — 5.4 units of every 10.4, 52% of each leaf — and a 3.2-unit
+  // ribbon ran the whole length underneath and unioned what was left. The
+  // wreath was one closed region with no field inside it anywhere.
+  //
+  // It is the darkest mark on the lower half of the coin and at 38, 48 and
+  // 54 px it reads as a filled chevron. Ink at the right coordinates is not
+  // the right object drawn there; the contact sheet
+  // (`judge/_qr1look.mjs`, control row first) is where that shows.
+  //
+  // WHAT THE COIN DOES. On `qp1963-rev-pad.png` — the 1963 cameo proof, a
+  // frosted device on a black mirror field, and the best SHAPE reference in
+  // this pool — and on `quarter-rev-2.png` at its frozen rim fit (p95 0.15%
+  // of R), the blades RADIATE from the stem, alternate to either side of it,
+  // and struck field shows between every adjacent pair. Read off ladder crops
+  // at 26–30 px per viewBox unit (`judge/_qr3grid.mjs`), a blade is about
+  // 7 units long and 3 across against the 10.4 × 5.2 drawn here, and the stem
+  // is 1 to 1.5 units, not 3.2.
+  //
+  // WHAT THIS CHANGE IS NOT. The stem's Bézier is UNTOUCHED — P0 (50, 79.6),
+  // C (±16, 79.6), P1 (±28, 64.6) — so the wreath runs exactly where it ran.
+  // This is an edge treatment, the same kind of change as the wing's
+  // trailing-edge scallops above and for the same reason: no instrument here
+  // can gate this outline. D2 is UNMEASURED on this face, and round 2's
+  // finding that every segmenter family is monotone with no plateau was
+  // re-derived this round on both cameo proofs — the device fraction inside
+  // r 40 falls 0.996 → 0.010 (1963) and 0.987 → 0.016 (1964) across
+  // thresholds 0..250 without a step anywhere. A silhouette this round cannot
+  // measure is a silhouette this round does not move.
+  //
+  // MEASURED AND NOT MOVED, so it is on the page instead: on the proof ladder
+  // the coin's branch tips reach Y ≈ 57–59 at |x − 50| ≈ 27–29, where ours
+  // top out at Y 60.93. About 2 to 4 units low. Moving P1 moves the outline.
+  const LEAF_T = [0.12, 0.28, 0.44, 0.6, 0.76, 0.92];
+  const LEAF_RX = 3.4, LEAF_RY = 1.5;
+  const LEAF_OUT = 55;   // degrees off the stem's own tangent, alternating sides
+  const STEM_HW = 0.7;   // half-width of the stem ribbon; it was 1.6
   const wreath = [1, -1]
     .map((f) => {
-          const P0 = [50, 79.6];
-          const C = [50 + f * 16, 79.6];
-          const P1 = [50 + f * 28, 64.6];
+          // authored in the f = +1 frame and mirrored on emission, so the two
+          // branches are the same arithmetic and an angle only has to be
+          // reasoned about once (the sign convention the scallops use above).
+          const P0 = [50, 79.6], C = [66, 79.6], P1 = [78, 64.6];
+          const mx = (x) => n2(50 + f * (x - 50));
           const at = (t) => [
             (1 - t) ** 2 * P0[0] + 2 * (1 - t) * t * C[0] + t * t * P1[0],
             (1 - t) ** 2 * P0[1] + 2 * (1 - t) * t * C[1] + t * t * P1[1],
           ];
-          let g = `<path d="M ${n2(P0[0])} ${n2(P0[1] + 1.6)}
-            Q ${n2(C[0])} ${n2(C[1] + 1.8)} ${n2(P1[0])} ${n2(P1[1] + 1.6)}
-            L ${n2(P1[0] - f * 2.6)} ${n2(P1[1] - 0.8)}
-            Q ${n2(C[0] - f * 1.8)} ${n2(C[1] - 1.6)} ${n2(P0[0])} ${n2(P0[1] - 1.6)} Z"/>`;
-          for (const t of [0.16, 0.32, 0.48, 0.64, 0.79, 0.92]) {
-            const [cx, cy] = at(t);
-            const rot = f * -(14 + 34 * t);
-            g += `<ellipse cx="0" cy="0" rx="5.2" ry="2.6"
-              transform="translate(${n2(cx + f * 2)} ${n2(cy - 3.6)}) rotate(${n1(rot)})"/>`;
-          }
+          const tan = (t) => [
+            2 * (1 - t) * (C[0] - P0[0]) + 2 * t * (P1[0] - C[0]),
+            2 * (1 - t) * (C[1] - P0[1]) + 2 * t * (P1[1] - C[1]),
+          ];
+          // the end cap is perpendicular to the tangent AT P1, which is steep
+          // (24, −30): a half-width of 0.7 there is (0.55, 0.44), not (0, 0.7).
+          let g = `<path d="M ${mx(P0[0])} ${n2(P0[1] + STEM_HW)}
+            Q ${mx(C[0])} ${n2(C[1] + STEM_HW)} ${mx(P1[0] + 0.55)} ${n2(P1[1] + 0.44)}
+            L ${mx(P1[0] - 0.55)} ${n2(P1[1] - 0.44)}
+            Q ${mx(C[0] - 0.8)} ${n2(C[1] - STEM_HW)} ${mx(P0[0])} ${n2(P0[1] - STEM_HW)} Z"/>`;
+          LEAF_T.forEach((t, i) => {
+            const [sx, sy] = at(t);
+            const [dx, dy] = tan(t);
+            // THE PHASE OF THE ALTERNATION IS NOT ARBITRARY, and it was checked
+            // both ways. Starting on the OUTER side puts the terminal blade on
+            // the inner one, pointing up and in, which is what the tip spray
+            // does on both proofs — and it is also the safer of the two: the
+            // wreath's topmost ink rises 64.85 -> 60.93 and its greatest radius
+            // falls 36.70 -> 35.88, against the bottom legend's cap inner edge
+            // at 36.65 (baseline 42.90 less a 6.25-unit cap; NOT 42.90 less the
+            // 8.93 font-size, which would have said this collides and does not).
+            const A = Math.atan2(dy, dx) + ((i % 2 ? -1 : 1) * LEAF_OUT * Math.PI) / 180;
+            // 0.8 rather than 1.0 of the half-length so the blade's base OVERLAPS
+            // the stem: two shapes that meet on the coin have to overlap in a
+            // drawing, or the join shows as a hairline of field.
+            const cx = sx + LEAF_RX * 0.8 * Math.cos(A), cy = sy + LEAF_RX * 0.8 * Math.sin(A);
+            g += `<ellipse cx="0" cy="0" rx="${LEAF_RX}" ry="${LEAF_RY}"
+              transform="translate(${mx(cx)} ${n2(cy)}) rotate(${n1((f * A * 180) / Math.PI)})"/>`;
+          });
           return g;
         })
         .join('');

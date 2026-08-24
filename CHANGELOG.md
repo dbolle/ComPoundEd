@@ -3,6 +3,68 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.86.0 — 2026-08-24
+
+**The quarter's wreath was not a wreath. It was a solid crescent, and the
+arithmetic said so exactly.**
+
+Eighth face of the sweep. In the branch's own frame the stem heads −8.9° at
+t 0.16 and −48.3° at t 0.92, and the leaves were set at −19.4° to −45.3° —
+**within 3° of the stem at four of the six stations.** Six ellipses **10.4
+units long** laid end-to-end along their own stem at centre spacings of
+4.67–5.15 must overlap: **5.4 units of every 10.4, 52 % of each leaf.** A
+3.2-unit ribbon ran the full length underneath and unioned what was left. The
+result was **one closed region with zero field inside it anywhere**, and at
+38/48/54 px it was the darkest mark on the coin, reading as a filled chevron.
+
+The cameo proof settles what the coin does: blades **radiate** from the stem,
+**alternate sides**, and struck field shows between every adjacent pair. A
+blade is ~7 × 3 units against our 10.4 × 5.2, and the stem 1–1.5 against 3.2.
+Now: blades radiate 55° off the tangent, alternating, 6.8 × 3.0; stem 1.4.
+
+**The Bézier is untouched** — an edge treatment, because D2 is UNMEASURED here.
+Alternation *phase* was checked both ways: starting outward puts the terminal
+blade pointing up-and-in, as both proofs show, and drops max radius 36.70 →
+35.88 against the bottom legend's real cap inner edge of **36.65** — computed
+from the 6.25-unit cap height, *not* the 8.93 font-size, which would have
+falsely reported a collision.
+
+**T1 32/32**; quarter reverse own score 0.338 → **0.397**, margin 0.144 →
+**0.223**. Partition re-derived by the judge: 6/60, `quarter.reverse` alone.
+D9 0/180, D8 0.0000 %, suite 461. Reported, not cited — the picture was the
+gate, and at every app size the chevron is now a wreath with separable leaves.
+
+**Refused, with the number: the tail.** Rasterised alone against the union of
+the arrows and the anatomy, **67.7 % of its 85.0 sq units is covered**, and the
+27.5 that survive read as leg — it is sized to what covers it. The coin's tail
+is *not* hidden: a shingled fan below the bundle, ~15 units wide, reaching 4
+units past it. Refused anyway, because **the only two files that show it are
+the two cameo proofs** — the worst disc fits in the pool (p95 4.79 % and
+11.05 % against 0.15 %/0.32 %) and the exact pair suspected of a shared
+photographic setup — and neither rim-fitted photograph shows it at ladder
+magnification.
+
+**The pool is NOT the healthiest in the project**, contradicting this sweep's
+brief: `quarter-rev-6.jpg` is a **2006 Nebraska state quarter** and
+`quarter-rev-5.jpg` is the **same photograph** as `quarter-rev.jpg` (raw NCC
+0.9850). Effective pool **three files, one unusable for geometry**. Both facts
+were already published elsewhere — a re-derivation, not a discovery. Unlike the
+obverse, **no `coins.js` comment on this face cites either bad file.**
+
+**Two instruments failed their own checks and said so.** A lace metric scores
+bare field 26.5–30.5 against wreath 29.4–33.8 while a **solid** control scores
+*higher* than field — the photograph column is surface texture, so only the
+our-art column means anything (4.0 → **17.2** alternations per 100 units). And
+D2 remains UNMEASURED: device fraction inside r 40 falls 0.996 → 0.010 across
+thresholds, **monotone, no plateau** — segmentation still fails on a cameo
+proof.
+
+⚠️ **Handoff, not fixed here.** `coins.js` records *"the ladder puts the coin's
+eye at (47.6, 24.5)"* and the code draws `cx="47.4" cy="25.4"` — a **0.92-unit
+gap between a recorded measurement and the drawn constant**, on the mark the
+file itself calls "worth more than any other mark on this motif". Same family
+as the nickel's missing `eyeMark`.
+
 ## v1.85.0 — 2026-08-24
 
 **No leaf on the dime was attached to anything.**
