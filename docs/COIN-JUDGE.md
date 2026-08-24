@@ -72,12 +72,34 @@ below its own pediment apex) were found by looking during this review.
 
 **PRIMARY — the objective itself.**
 
-- **T1 TRANSFER.** At every size `money.js` actually draws (38, 48, 84), each
-  face must be nearer the **correct denomination's photographs** than any
+- **T1 TRANSFER.** At every size `money.js` actually draws (38, 48, 54, 84),
+  each face must be nearer the **correct denomination's photographs** than any
   other denomination's. Instrument: `judge/_jt1transfer.mjs`, which runs a
-  **control first** — it must sort real photographs 4/4 before it is permitted
-  to say anything about our art — and reports nothing if that control fails.
-  A confusion here is a real defect. Everything else is subordinate to this.
+  **control first** — it must sort real photographs correctly before it is
+  permitted to say anything about our art — and reports nothing if that control
+  fails. A confusion here is a real defect. Everything else is subordinate to
+  this. Since 2026-08-24 the control is **leave-one-out over every reference**
+  (11/11 per face), not one held-out file per denomination: the old form ran 4
+  tests where the pool supports 22, and 14 of its 22 references had never been
+  sorted at all.
+
+- **T5 TRANSFER, FIVE SUBJECTS.** T1 scores **four denominations**: its
+  `POOL_BY_SIDE` has no `buck` row, so the "32/32" quoted across this project's
+  history is 4 x 2 faces x 4 sizes and **the $1 note has never been in it**.
+  `judge/_jt5note.mjs` is T1's method with a **per-subject registration** — the
+  fitted rim for a coin, the fitted printed border for a note — and it scores
+  all five in two modes that are quoted together or not at all:
+  **mode A (design)** normalises the aspect away and asks whether our
+  *printing* sorts right; **mode B (shape-aware)** keeps the true aspect and
+  asks the question a child actually faces, rectangle against discs. Mode B's
+  **coin** rows are advisory only (every coin has the same support, which
+  inflates coin-against-coin correlation and compresses those margins to near
+  nothing); mode B exists for the note row. **Its control gates the same way its
+  verdicts are quoted** — mode A wholly, mode B on the note rows only: a
+  statistic that may not fail a round may not gate one either, and blocking a
+  note verdict on a quarter-vs-nickel margin of 0.015 is that mistake.
+  **T1 and T5 are quoted together.** T1 alone is a statement about four fifths
+  of the set.
 
 **GATES — safety and the things a child actually reads.**
 

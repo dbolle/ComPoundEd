@@ -39,6 +39,24 @@
 //   * A denomination with one usable reference gets a weaker verdict than one
 //     with four, and the count is printed beside every row.
 //
+// WHAT THIS FILE STILL CANNOT DO, stated where a reader will see it:
+//
+//   * IT SCORES FOUR DENOMINATIONS, NOT FIVE. `POOL_BY_SIDE` has no `buck` row,
+//     so "T1 32/32" is 4 denominations x 2 faces x 4 sizes and the $1 note —
+//     one fifth of the set, and the only subject that is not round — is not in
+//     it. That is not a missing row: this file's registration is `discOf()` and
+//     it samples a DISC. `_jt5note.mjs` is the same method with a per-subject
+//     registration (disc for a coin, printed border for a note) and it scores
+//     all five. **Quote T1 with T5 or quote neither.**
+//   * IT CANNOT RUN IN A WORKTREE. It imports `../_rvnorm.mjs`, and through
+//     `_jq20indep.mjs` also `../_qtedge.mjs` and `../_rvdisc.mjs`; all three are
+//     matched by `coloringbook/*` in .gitignore. This is exactly the defect the
+//     findings ledger records as A5 against `_jb3seal.mjs`, sitting unnoticed in
+//     the PRIMARY GATE. Fixing it means moving those three modules into
+//     `judge/`, which changes the hash of every instrument that imports them, so
+//     it is reported here and not done here. `_jt5note.mjs` deliberately depends
+//     on nothing outside `judge/`.
+//
 // Run: node coloringbook/judge/_jt1transfer.mjs
 import sharp from 'sharp';
 import { readFileSync, writeFileSync, unlinkSync, mkdirSync } from 'node:fs';
@@ -135,10 +153,77 @@ const REF = new URL('../ref/', import.meta.url).pathname;
 // promoted to primary.
 //
 // A child sees both faces. Both are tested.
+//
+// ── THE POOL WAS NEVER AUDITED UNTIL 2026-08-24, and it was counting one
+// photograph twice. `_jt4pool.mjs` now sweeps every file in
+// `coloringbook/ref/` and every within-denomination pair, with a duplicate check that uses NO DISC FIT
+// (`_jrefintake.mjs`'s header says why: a registration disagreement once made
+// two BYTE-IDENTICAL files score `INDEPENDENT`). What it found, and what
+// changed here:
+//
+//   REMOVED  dime-rev.jpg
+//            `dime-rev.jpg` and `dime-rev-2.jpg` are ONE photograph —
+//            registration-free MADbox 1.4 and dHash Hamming 1 of 64, two
+//            statistics of different kinds; design NCC 0.995. Every
+//            dime-reverse T1 figure ever published as n=3 was n=2, and the
+//            CONTROL row for the dime reverse was a photograph sorted against
+//            ITSELF at 0.995. The higher-resolution of the two is kept.
+//
+//   ADDED    dime-rev-proofbright.png
+//            The best shape reference on that face — 2000x2000, deep relief,
+//            the file `_dr9branch.mjs` measures its erosion bias against — and
+//            it had never been in the pool at all.
+//
+//   KEPT — and the near-miss is worth more than the change would have been.
+//            `nickel-obv-4.jpg` was REMOVED from this pool and then PUT BACK.
+//
+//            It was dropped because `_jt5note.mjs`'s disc fitter disagreed with
+//            `_rvdisc.fit` by 14.8 % of R and 19.1 % of R on the centre, because
+//            `_jn1discs.json` records the nickel round's own chroma fit at
+//            `p95resid_pctR: 62.13, ambiguous: true`, and because held out and
+//            re-sorted under `_jt5note`'s registration it came back **dime**.
+//            Looking at it: low-contrast silver on pale ground, coin near the
+//            frame edge, content box aspect 1.045 where every other coin file
+//            in the pool is 0.99-1.02.
+//
+//            THE DECISIVE TEST WAS THEN RUN, WHICH SHOULD HAVE BEEN RUN FIRST:
+//            leave-one-out under **the registration T1 itself uses**. It sorts
+//            **nickel, 0.671**, comfortably. And chasing that discrepancy found
+//            the actual bug — in the NEW fitter, not the reference. It took the
+//            last pixel unlike the background along each ray, so one stray light
+//            pixel out in the surround set the radius. Flooding the background
+//            in from the frame and keeping the largest component instead:
+//            dR 14.78 % -> **3.13 %**, centre 19.12 % -> **3.82 %**, p95
+//            12.22 % -> **2.59 %**, and `nickel-rev-proof.png` came along with
+//            it (3.16 % -> 0.15 %, p95 13.05 % -> 0.81 %).
+//
+//            What survives as a finding: this is still the least well registered
+//            file in the pool — 3.1 % against under 1 % for every other — and
+//            `_jn1disc.mjs`'s chroma route cannot fit it at all. That is
+//            recorded (ledger A21). It is not a reason to change a published
+//            number, and it very nearly was.
+//
 // Excluded with reasons: penny-rev-artwork.jpg is a plaster model with no
 // fittable disc (the project's own EXCLUDED list); quarter-rev-6.jpg is a 2006
 // Nebraska state quarter; quarter-rev-5.jpg is the same photograph as
-// quarter-rev.jpg at design NCC 0.9950, so it would count one image twice.
+// quarter-rev.jpg (MADbox 1.3, dHash 1, design 0.995); quarter-obv-2.jpg is the
+// same photograph as quarter-obv.jpg (MADbox 2.5, dHash 2, design 0.996);
+// nickel-obv-unc2004.jpg is the same photograph as nickel-obv.jpg (MADbox 5.0,
+// dHash 3, design 0.997 — found by this sweep, not previously recorded);
+// nickel-obv-3.png is an engraved LINE DRAWING of Jefferson, not a coin.
+//
+// THE NET EFFECT ON THIS FILE'S NUMBERS, so nobody has to diff two runs:
+// exactly ONE cell of the transfer table moved, by 0.001 (penny reverse, dime
+// column, 54 px, 0.290 -> 0.289), because the file removed was a duplicate of
+// one that stayed. T1 is 32/32 before and after. What moved is the CONTROL,
+// which is the point: the dime-reverse control was 0.995 and is now
+// 0.647 / 0.776 / 0.779, and it now runs 11 tests per face instead of 4.
+//
+// STILL AVAILABLE AND NOT ADDED — `_jt4pool.mjs` prints the full list with its
+// numbers. Thirteen vetted, independent, same-design files sit unused while
+// three rows carry n=2 (dime obverse, quarter obverse, quarter reverse). Adding a reference changes what this gate MEANS, so it is a
+// deliberate act for the judge, not a side effect of a bug fix. The evidence is
+// published; the decision is not taken here.
 export const POOL_BY_SIDE = {
   obverse: {
     penny: ['penny-obv.jpg', 'penny-obv-2.jpg', 'penny-obv-3.jpg', 'penny-obv-4.png'],
@@ -149,7 +234,7 @@ export const POOL_BY_SIDE = {
   reverse: {
     penny: ['penny-rev.jpg', 'penny-rev-2.png', 'penny-rev-1991d.png'],
     nickel: ['nickel-rev.jpg', 'nickel-rev-2.png', 'nickel-rev-proof.png'],
-    dime: ['dime-rev.jpg', 'dime-rev-2.jpg', 'dime-rev-unc2005.png'],
+    dime: ['dime-rev-2.jpg', 'dime-rev-unc2005.png', 'dime-rev-proofbright.png'],
     quarter: ['quarter-rev-2.png', 'quarter-rev-3.jpg'],
   },
 };
@@ -235,23 +320,31 @@ if (process.argv[1] && process.argv[1].endsWith('_jt1transfer.mjs')) {
     console.log('descriptor: registered NCC on blurred gradient energy (the same one');
     console.log('_jq42indep.mjs uses), not raw greyscale — v1 used raw greyscale and');
     console.log('scored 3/12 on this control.\n');
+    // EVERY photograph is held out, not just the first. Until 2026-08-24 this
+    // loop held out `POOL[id][0]` only, so the control was 4 tests where the
+    // pool supports 22 — and the untested files included `nickel-obv-4.jpg`,
+    // which this repository's own `_jn1discs.json` records as unfittable
+    // (p95 62 % of R, `ambiguous: true`) and which sorts as a DIME when it is
+    // held out. A control that samples one file per class is a control that
+    // cannot find a bad file.
     let cpass = 0, ctot = 0;
     for (const id of IDS) {
       if (POOL[id].length < 2) { console.log(`${id.padEnd(9)} only ${POOL[id].length} reference — cannot hold one out`); continue; }
-      const held = POOL[id][0];
-      const h = await featOfRef(held);
-      const sc = [];
-      for (const t of IDS) {
-        const others = POOL[t].filter((f) => f !== held);
-        const vs = [];
-        for (const f of others) vs.push(designSim(h, await featOfRef(f)));
-        sc.push(Math.max(...vs));
+      for (const held of POOL[id]) {
+        const h = await featOfRef(held);
+        const sc = [];
+        for (const t of IDS) {
+          const others = POOL[t].filter((f) => f !== held);
+          const vs = [];
+          for (const f of others) vs.push(designSim(h, await featOfRef(f)));
+          sc.push(vs.length ? Math.max(...vs) : -2);
+        }
+        const best = IDS[sc.indexOf(Math.max(...sc))];
+        const ok = best === id; ctot++; if (ok) cpass++;
+        console.log(`${(id + ' ' + held).padEnd(34)} ` + sc.map((v) => v.toFixed(3).padStart(9)).join('') + `   ${ok ? 'OK' : '!! sorted as ' + best}`);
       }
-      const best = IDS[sc.indexOf(Math.max(...sc))];
-      const ok = best === id; ctot++; if (ok) cpass++;
-      console.log(`${id.padEnd(9)} ` + sc.map((v) => v.toFixed(3).padStart(9)).join('') + `   ${ok ? 'OK' : '!! sorted as ' + best}`);
     }
-    console.log(`\nCONTROL: ${cpass}/${ctot} photographs sorted correctly.`);
+    console.log(`\nCONTROL: ${cpass}/${ctot} photographs sorted correctly (leave-one-out over EVERY reference).`);
     if (cpass < ctot) {
       console.log('  !! THE TEST CANNOT SORT REAL COINS. Reporting nothing about our art —');
       console.log('     that would be a measurement of the instrument, not of the drawing.');

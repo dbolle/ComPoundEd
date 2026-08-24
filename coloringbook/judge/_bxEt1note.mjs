@@ -1,5 +1,26 @@
 // BUCK — the transfer test T1 CANNOT RUN ON THIS FACE, and its substitute.
 //
+// ── CORRECTION, 2026-08-24, written beside the original and not over it
+// (COIN-JUDGE.md §1.1). The title above is wrong, and so is the paragraph
+// beginning "It cannot simply be added". T1's disc is in ONE function — the map
+// from grid (u,v) to source pixels. Everything downstream is shape-agnostic.
+// `_jt5note.mjs` makes that map per-subject (fitted rim for a coin, fitted
+// printed border for a note) and scores the buck against the four coins on
+// T1's own question, with a leave-one-out control over all five subjects and a
+// null test that offers every coin photograph to the note question.
+//
+// This file's 8/8 stands as what it measures — our obverse against the note's
+// obverse photographs, our reverse against its reverse ones — and that is a
+// strictly easier question than the one a child faces. It never asks
+// "note vs COIN". Two of its own choices are also superseded there: it fits the
+// photographs with `fit2` but HARD-CODES 0.05/0.95 and 5/56/51/56 for our own
+// render (T1's fourth published fault, in a new place), and it holds a copy of
+// our frame rectangle, which the findings ledger's cross-cutting rule forbids.
+// `_jt5note.mjs` fits both sides with the same code.
+//
+// Not retired: it is not wrong, it is narrow, and it runs in seconds.
+// Do not quote its 8/8 as the note's transfer score.
+//
 // `_jt1transfer.mjs`'s `POOL_BY_SIDE` has four keys: penny, nickel, dime,
 // quarter. THERE IS NO `buck` ROW. "T1 32/32" is 4 denominations x 2 faces x 4
 // sizes; the $1 note is not one of the 32. The primary gate of §0.1 is

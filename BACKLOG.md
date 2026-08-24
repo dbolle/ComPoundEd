@@ -31,6 +31,62 @@ reconsider after calibration.
   - **A21 — three instruments still hold stale copies of our art**
     (`_sw7gen.mjs`'s `OVAL` is the load-bearing one: `coatPath()` and
     `outsideOval()` are computed from it).
+- 🟢 **INSTRUMENT DEBT: the primary gate scored four denominations out of five,
+  and its reference pool had never been audited.** v1.91.0. Ledger **A1, A2, A3**
+  closed; **A21–A28** and **D15** opened. No art changed.
+  - **`_jt4pool.mjs` (new) audits the pool with no disc fit.** Two statistics of
+    different kinds must agree before it calls a duplicate — a content-box MAD
+    and a difference-hash Hamming distance — because `_jrefintake.mjs` records
+    that a fit-based detector once passed two byte-identical files as
+    `INDEPENDENT`. The pool still contains a live example: `qp1964-obv-pad.png`
+    and `qp1964-obv.png` are the same image (MADbox 3.5, dHash **0**) and their
+    registered design NCC is **0.019**.
+  - **Two pool corrections, before/after published.** `dime-rev.jpg` removed
+    (one photograph with `dime-rev-2.jpg`: MADbox 1.4, dHash 1) — **exactly one
+    transfer cell moved, by 0.001, but the dime-reverse CONTROL was 0.995, a
+    photograph sorted against itself; the true values are 0.647/0.776/0.779.**
+    `dime-rev-proofbright.png` added. T1 is **32/32** before and after; its
+    control is now leave-one-out over every reference, **11/11 per face**, where
+    it used to hold out one file per class and so never tested 14 of 22.
+  - **And one correction RETRACTED, which matters more than if it had stood.**
+    `nickel-obv-4.jpg` was removed — this round's new fitter disagreed with
+    `_rvdisc` by 14.8 % of R and re-sorted it as a *dime*, and `_jn1discs.json`
+    records it `ambiguous: true` at p95 62 %. Then the decisive test was run,
+    which should have come first: leave-one-out **under the registration T1
+    actually uses**. It sorts **nickel, 0.671**. Chasing the discrepancy found
+    the real bug — **in the new fitter**, which let one stray background pixel
+    set the radius. Fixed by flooding rather than thresholding: dR 14.78 % →
+    **3.13 %**, p95 12.22 % → **2.59 %**, and `nickel-rev-proof.png` improved
+    with it (3.16 % → 0.15 %). Two references were nearly blamed for a bug in
+    the instrument measuring them (`A21`).
+  - **`_jt5note.mjs` (new) gives the note a real gate.** The ledger said T1 could
+    not be extended because it samples a disc. T1's circle is in ONE function —
+    the map from grid (u,v) to source pixels — and making it per-subject (rim for
+    a coin, printed border for a note) leaves everything downstream unchanged.
+    Control mode A **26/26**, mode B note rows **4/4**, null **52/52** (every
+    coin photograph offered to the note question comes back "coin"). Mode A
+    (design, aspect normalised away) **coins 32/32 — the same verdict T1 reaches
+    from an independent implementation** — **buck 4/8**. Mode B (shape-aware)
+    buck **7/8**; its coin rows are advisory and so is its control, which had to
+    be fixed mid-round: it was blocking the note verdict on a quarter-vs-nickel
+    margin of 0.016. **A statistic that may not fail a round may not gate one.**
+  - 🔴 **What it found in the art, for whoever takes the note next.**
+    **Our note reverse sorts as a PENNY at all four sizes** once the aspect is
+    normalised away, which puts a number on `D13` ("the left half is empty" — an
+    empty field with one central device *is* a coin). And **the note is the wrong
+    rectangle** (`D15`): our printed border fits at **1.8353** against the
+    photographs' **2.5643**, our paper at **1.7944** against the physical note's
+    **2.3525**. `coins.js:146` says the box is deliberate — it preserves the old
+    `.coin.buck` CSS layout — so this is an **owner decision**, and T5 prices it:
+    resampling to the right aspect, changing no printing, moves the shape-aware
+    score **0.267 → 0.726**.
+  - **Still open, reported not edited** (both in files hashed into other rounds'
+    frozen sets): `_jq20indep.bestReg`'s refine is unanchored and walks outside
+    its declared search bounds; and **T1 cannot run in a worktree**, because it
+    imports three gitignored modules — the ledger's A5 defect, in the primary
+    gate. Thirteen vetted references also sit unused while three T1 rows carry n=2;
+    the evidence is published and the decision left to the judge, because
+    enlarging the pool changes what the gate means.
 
 - 🔴 **DIME LEAVES loop 2: REVERTED by the judge, measurements KEPT.** Mixed
   result and the render decided it. **The olive improved** — the stem became

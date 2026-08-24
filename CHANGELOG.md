@@ -3,6 +3,70 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.93.0 — 2026-08-24
+
+**The primary gate scored four denominations, its control sorted a photograph
+against itself, and its pool had never been audited.**
+
+Three ledger items closed (A1, A2, A3), eight opened.
+
+**The pool audit.** A new instrument sweeps all 78 images and every
+within-face pair, using **no registration at all** — a content-box MAD and a
+64-bit dHash, two statistics of different kinds, both required to agree.
+
+| pair | MAD | dHash/64 | design NCC | in T1? |
+|---|---|---|---|---|
+| `dime-rev.jpg` + `dime-rev-2.jpg` | 1.4 | 1 | 0.995 | **both** |
+| `nickel-obv.jpg` + `nickel-obv-unc2004.jpg` | 5.0 | 3 | 0.997 | one — **never recorded anywhere** |
+| `quarter-obv.jpg` + `quarter-obv-2.jpg` | 2.5 | 2 | 0.996 | one |
+| `quarter-rev.jpg` + `quarter-rev-5.jpg` | 1.3 | 1 | 0.995 | neither |
+
+**Why registration-free matters, proved in-pool:** `qp1964-obv-pad.png` and
+`qp1964-obv.png` are the *same image*, and their **registered** design NCC is
+**0.019**. A duplicate detector that registers first cannot see duplicates.
+
+**The transfer table barely moved — the control is where the damage was.**
+Removing the duplicate changed exactly **one of 32 cells** (penny reverse, dime
+column, 54 px, 0.290 → 0.289), *because a duplicate adds nothing.* But the
+dime-reverse **control** fell **0.995 → 0.647 / 0.776 / 0.779**: the published
+figure was a photograph sorted against itself. And the control held out only
+`POOL[id][0]`, so it ran **8 tests where the pool supports 22** and had **never
+sorted 14 of its 22 references**. Now leave-one-out, 11/11 per face.
+
+**T1 can be extended after all.** Its circle was one function — the map from
+grid (u,v) to source pixels — not a property of the method. Making that
+per-subject (fitted rim / fitted printed border) leaves everything downstream
+unchanged. Two modes are quoted together: **A** normalises aspect away, **B**
+keeps it. Control A 26/26, null 52/52, **coins 32/32 from an implementation
+sharing no code with T1**, buck **4/8** (A) and **7/8** (B).
+
+Each response test had its prediction written **before** the run: stretching to
+the photographs' aspect moves A by **+0.0002** (null holds) and B by **+0.4582**;
+a quarter pasted into the frame flips A to `quarter`; a blank note collapses A
+to 0.000 **and** fails B — so B is not silhouette-only.
+
+**A retraction that is the most useful thing in the round.** It removed
+`nickel-obv-4.jpg` on three converging signals, then ran the decisive test it
+should have run first — leave-one-out under T1's own registration — which sorts
+it correctly at 0.671. **Put back.** Chasing the discrepancy found the real bug:
+**its own new fitter let a single stray background pixel set the radius.**
+Flooding instead of thresholding took the error 14.78 % → **3.13 %** and fixed a
+second reference too. *Two references were nearly blamed for a bug in the
+instrument measuring them.*
+
+**Art findings, reported not touched:** our note **reverse sorts as a PENNY at
+all four app sizes** in mode A; and **the note is the wrong rectangle** — paper
+aspect **1.7944 against the physical 2.3525** — where correcting aspect alone
+moves the shape score **0.267 → 0.726**. `coins.js` says the box is deliberate,
+so it is an owner decision (ledger D15).
+
+**Opened:** `_jq20indep.bestReg`'s refine is **unanchored** — it rebuilds its
+offsets inside the loop that reassigns `best`, so the search walks outside its
+declared bounds. Reported, not edited: it is hashed into two rounds' frozen
+sets. **54.1 % of registrations sit on a search bound**, so thin-margin rows are
+the ones to distrust. And **T1 itself cannot run in a worktree** — the same
+defect that made another instrument unrunnable, in the primary gate.
+
 ## v1.92.0 — 2026-08-24
 
 **Dime reverse Loop 3: the oak leaf's outline, and why two previous rounds
@@ -196,6 +260,165 @@ keeps the eval libraries out of the repo, so **63 of 286 instruments cannot run
 in any worktree or clone** — §1.1's promise that any published number can be
 reproduced does not currently hold for 22 % of the library (**A22**, owner
 decision).
+## v1.91.0 — 2026-08-24
+
+**The primary gate was scoring four denominations out of five, its reference
+pool had never been audited, and it was counting one photograph twice. The note
+now has a gate of its own.**
+
+Instrument round, no art changed and no kid-facing behaviour changed.
+Findings ledger items **A1, A2, A3** closed, **A21–A28** opened, `D15` added.
+
+**The pool had never been audited.** `judge/_jt4pool.mjs` (new) sweeps all 78
+images in `coloringbook/ref/`, every within-face pair, with duplicate evidence
+that uses **no disc fit** — `_jrefintake.mjs`'s header records why: a
+registration disagreement once made two byte-identical files score
+`INDEPENDENT`. Two statistics of different kinds must agree before it says
+`SAME IMAGE`: a 64×64 mean-absolute-difference over each image's content box,
+and the Hamming distance of a 64-bit difference hash. What it found:
+
+| pair | MADbox | dHash | design NCC | in T1? |
+|---|---|---|---|---|
+| `dime-rev.jpg` + `dime-rev-2.jpg` | **1.4** | **1** | 0.995 | **both** — A2 |
+| `nickel-obv.jpg` + `nickel-obv-unc2004.jpg` | **5.0** | **3** | 0.997 | one — new |
+| `quarter-obv.jpg` + `quarter-obv-2.jpg` | 2.5 | 2 | 0.996 | one — known |
+| `quarter-rev.jpg` + `quarter-rev-5.jpg` | 1.3 | 1 | 0.995 | neither |
+| the four `qp19*-pad.png` / `qp19*.png` pairs | 3.5–5.0 | 0–2 | **0.019–0.991** | neither |
+
+That last row is the point of the whole method: `qp1964-obv-pad.png` and
+`qp1964-obv.png` are the same image and their *registered* design NCC is
+**0.019** — "different design". A fit-based duplicate detector certifies
+duplicates as independent, and this pool contains a live example of it.
+
+**Two pool corrections, with the before/after published rather than silently
+improved — and one that was made and then RETRACTED.**
+
+- `dime-rev.jpg` **removed** (A2). Exactly **one cell** of the transfer table
+  moved, by 0.001 — penny reverse, dime column, 54 px, 0.290 → 0.289 —
+  *because a duplicate adds nothing*. But the **control** did move: T1's
+  published dime-reverse control figure was **0.995**, which is a photograph
+  sorted against **itself**. The true values are **0.647 / 0.776 / 0.779**.
+  A duplicate was not inflating the score; it was hollowing out the check on
+  the score.
+- `dime-rev-proofbright.png` **added** (A3). 2000×2000, independent of both
+  remaining files (MADbox 86–113, dHash 24–47).
+- `nickel-obv-4.jpg` **was removed and has been put back** (A21), and this is
+  the most useful thing in the round. It was dropped because this round's new
+  fitter disagreed with `_rvdisc.fit` by **14.8 % of R** and re-sorted it as a
+  **dime**, and because `_jn1discs.json` records the nickel round's own chroma
+  fit at `p95resid_pctR: 62.13, ambiguous: true`. Then the decisive test was
+  run, which should have come first: leave-one-out **under the registration T1
+  itself uses**. It comes back **nickel, 0.671**.
+
+  Chasing that discrepancy found the actual bug — **in the new fitter, not the
+  reference**. It took the last pixel unlike the background along each ray, so a
+  single stray light pixel out in the surround set the radius. Flooding the
+  background in from the frame and keeping the largest component instead:
+  dR **14.78 % → 3.13 %**, centre **19.12 % → 3.82 %**, p95 **12.22 % → 2.59 %**
+  — and `nickel-rev-proof.png` came along with it, 3.16 % → **0.15 %**, p95
+  13.05 % → **0.81 %**. Two references were about to be blamed for a bug in the
+  instrument that measured them.
+
+**T1 is 32/32 before and after**, and the only transfer cell that changed is
+the 0.001 above. The control went from 4 tests per face to **11**.
+
+**T1's control was sampling one file per class.** It held out `POOL[id][0]`
+only — 8 tests where the pool supports 22 — so the files it never tested
+included the one that cannot be fitted. It is now leave-one-out over every
+reference: **11/11 per face**.
+
+**The note now has a gate: `judge/_jt5note.mjs`.** The ledger said T1 "cannot
+be fixed by adding a row — it registers via `discOf()` and samples a disc."
+That is true of the *file* and false of the *method*: T1's circle lives in one
+function, the map from grid (u,v) to source pixels. Make that map per-subject —
+fitted rim for a coin, fitted printed border for a note — and everything
+downstream is unchanged. T5 scores all five subjects in two modes:
+**A (design)** normalises the aspect away and asks whether our *printing* sorts
+right; **B (shape-aware)** keeps the true aspect and asks the question a child
+faces. Mode B's coin rows are advisory — every coin has the same support, which
+inflates coin-against-coin correlation — and it exists for the note row.
+
+**T5, on the fixed pool:**
+
+| | total | coins | **buck** |
+|---|---|---|---|
+| mode A (design) | 36/40 | **32/32** | **4/8** |
+| mode B (shape) | 33/40 | 26/32 *(advisory)* | **7/8** |
+
+Control: mode A **26/26** (gates), mode B note rows **4/4** (gates), mode B
+coin rows **21/22** (advisory — see below). Null test **52/52**.
+
+**The control gates the same way the verdicts are quoted, and that had to be
+fixed mid-round.** Mode B's coin rows were declared advisory *before* any number
+was seen — in shape mode every coin has the same support, so the identical zeros
+outside it are a large common term in every coin-against-coin correlation, which
+inflates all of them and compresses the margins to near nothing. Its control was
+nevertheless blocking the whole file, including the note verdict, on a
+quarter-against-nickel margin of **0.016**. A statistic that may not fail a round
+may not gate one either. §0.1's advisory/gate split now reaches the controls.
+
+Mode A's coins are **32/32 — the same verdict T1 reaches, from an independent
+implementation** that shares no code with it (own disc fit, own Sobel, own grid,
+own registration search). That agreement is the evidence for both.
+
+**The note fails the design question on its reverse, at every size the app
+draws.** With the aspect normalised away, our note reverse is nearer photographs
+of a **cent** than of a $1 note at 38, 48, 54 and 84 px. The obverse passes all
+four but by 0.011 at 38 px. Ledger `D13` — "the note's left half is empty" — now
+has a number beside it: an empty field with one central device *is* a coin.
+
+**And the note is the wrong shape** (new ledger item `D15`). Fitted with the
+same code that fits the photographs, our printed border is **1.8353** against
+their **2.4812–2.6411** (mean 2.5643, −28.4 %), and our paper is **1.7944**
+against the physical note's **2.3525** (−23.7 %). The registration is trustworthy
+to about 2 % against that outside ruler — the background-bounding-box paper
+aspect on the four photographs errs −1.72 % on average. `coins.js:146` says the
+box is deliberate (it preserves the old `.coin.buck` CSS layout), so this is an
+owner decision, not a bug — but T5 prices it: resampling our render to the
+photographs' border ratio, **changing no printing at all**, moves the shape-aware
+score from **0.267 to 0.726**.
+
+**Every number above is gated by tests the instrument runs on itself first**,
+each with its prediction written before the result:
+
+- *stretch our render to the photographs' aspect* — mode A **+0.0002** (its null
+  held: A really is aspect-blind, so A's buck failure is about the printing and
+  not the box), mode B **+0.4582**;
+- *paste our quarter obverse inside the note's border* — mode A flips to
+  `quarter` (0.428 against buck 0.216), mode B stays `buck`. The two modes
+  measure different things, demonstrably;
+- *blank the note, frame intact* — mode A **collapses to 0.000** and sorts as a
+  penny. Mode B also fails, so **mode B is not a silhouette-only test**; had it
+  passed, this file would have printed that it was.
+
+Registration is checked against estimators that share no code with it: the disc
+against `_rvdisc.fit` (mean |ΔR| **0.28 %**, mean centre offset **0.32 % of R**,
+n=22 — the `_dr9branch.mjs` standard), the printed border against a background
+bounding box with no edge model and against the note's physical dimensions
+(mean error **−1.72 %**, worst 3.48 %).
+
+**One limit stated rather than buried:** the registration search inherits T1's
+bounds (rot ±8°, translation ±0.03R), and **1293 of 2392 registrations sit ON a
+bound** — overwhelmingly the low-NCC cells, where a note and a coin have no
+alignment to find and the search simply runs to its edge (median NCC among them
+0.118). An NCC at a bound is a *lower* bound, so such a cell can only be
+understated; 187 of them are above 0.25. That makes the **thin-margin** rows the
+ones to distrust, not the confident ones. The bounds are not widened here
+because that would change T1's method and the two are meant to be quotable
+together.
+
+`_bxEt1note.mjs`'s 8/8 stands as what it measures and is **not** the note's
+transfer score: it never asks "note vs coin", and it fits the photographs with
+`fit2` while hard-coding our own frame — the ledger's A4/A5/A17 rule. Its
+header carries the correction beside the original text, not over it.
+
+**Still open, and named rather than fixed:** `_jq20indep.bestReg`'s refine is
+not anchored (it rebuilds its offsets inside the loop that reassigns `best`, so
+the search walks outside its declared bounds — translations of 0.055 and 0.075
+against a declared 0.03); and **T1 cannot run in a worktree**, because it
+imports three gitignored modules. Both are reported, not edited: that file is
+hashed into two rounds' frozen sets, and §1.1 says a specialist reports an
+instrument and the judge fixes it.
 
 ## v1.90.0 — 2026-08-24
 
