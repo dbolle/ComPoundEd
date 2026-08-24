@@ -3,6 +3,63 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.87.0 — 2026-08-24
+
+**Washington's portrait was 6.3 % of the note short, and the gate that should
+have caught it was scoring our own ellipse against a copy of itself.**
+
+Ninth face of the sweep. Both references proved independent **by reading them**
+rather than by a correlation: two different physical notes — different serials,
+districts, series and signatures.
+
+**The defect began as a false claim.** "The obverse has no printed-border
+fiducial" was asserted once and repeated twice in `coins.js`, and every
+geometric number on this face was consequently registered on the *paper box*
+with a 5.9 % caveat. The note does have one: the border-fit instrument was
+scanning *inward* to the first threshold crossing instead of taking the
+**darkest** line in the band, and landing on the wrong rule. Re-fitted, border
+ratios agree **2.4973 / 2.4812 — 0.65 % apart** against a 1 % gate.
+
+Re-fitting the vignette on that fiducial:
+
+| | cx | cy | rx | ry |
+|---|---|---|---|---|
+| bill-obv.jpg | 50.00 | 31.50 | 10.00 | 15.75 |
+| bill-obv-2.jpg | 50.00 | 31.25 | 9.75 | 15.75 |
+| **the frozen locus** | 50.05 | **30.30** | 9.75 | **14.00** |
+
+Two references agreeing to ≤0.25 units on every parameter. **The portrait was
+28.0 units tall where the note's is 31.5** — on the most identifying device on
+the face. `cy` and `ry` corrected; **`cx` and `rx` refused**, their deltas being
+smaller than the sweep step and the two-reference spread. D1 0.8769 → **0.9872**.
+
+**D1 could not see it because it scored our ellipse against a copy of our
+ellipse and reported 1.0000.**
+
+**Rejected because it scored better:** the corner numerals. Ours measure cap
+height 7.30 against the note's 11.4/8.2, and a corrected font-size put the ink
+*exactly* on the measured centres — then it was reverted after looking at
+38/48/54/84, because the 9.6-unit glyph tangles with the scallop wave, and
+moving that wave needs evidence this round does not have.
+
+**And the round's own eye was overruled by its instrument:** it claimed the
+numeral pair was asymmetric at 8.8 v 90.4; the render-diff put the ink at
+9.00/90.60, symmetric about 49.80 — a fifth of a device pixel.
+
+**Another false comment removed:** "that is where the Treasury seal sits, not a
+legend the note carries" — the note *does* carry ONE there, overprinted across
+the seal, which is why D5 had never scored it. Scored for the first time:
+cap-top passes, baseline **FAILs** at 3.2× gate, X extent **FAILs** at +25.4 %.
+Not repairable at this size and said so.
+
+**Open and unmeasurable, stated plainly:** where the coat meets the oval —
+inside the vignette the coat and the engraved ground are the same tone with no
+boundary at any threshold, on 16 of 20 columns. Committed as a failure report
+rather than deleted.
+
+Suite 461. D9 0/180. Partition re-derived by the judge: 6/60, `buck.obverse`
+alone.
+
 ## v1.86.0 — 2026-08-24
 
 **The quarter's wreath was not a wreath. It was a solid crescent, and the

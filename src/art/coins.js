@@ -6541,10 +6541,20 @@ function discSVG(id, box, attrs, tier, side, withValue, size) {
 // D7's own classification (`_jb8geom.mjs`: "a fitted contour has many knots"),
 // which is what they are — a shoulder line, a throat, a ruffle.
 //
-// `coat` closes on the FROZEN OVAL ITSELF, so the mass cannot leave a sliver
-// of ground between itself and the vignette rule at any tier, and its two
-// shoulder ends are computed on the ellipse at 166 and 14 degrees rather than
-// read off the ladder. The closure is FOUR arc commands rather than one:
+// `coat` closes on the OVAL ITSELF, so the mass cannot leave a sliver of ground
+// between itself and the vignette rule at any tier. That anchoring is real but
+// it is by DUPLICATED LITERAL, not by reference: the ellipse's rx/ry appear
+// again inside four `A` commands in the path string. When the oval was
+// re-fitted this round (cy 30.30 -> 31.38, ry 14.00 -> 15.75) the coat did not
+// follow, and the four arcs had to be re-derived by hand. The shoulder ends
+// used to be computed at 166 and 14 degrees; holding those ANGLES on the new
+// ellipse would have dropped the shoulder line 1.5 units, so what is held
+// instead is the shoulder's own Y — the ends stay at Y 33.69, which is where
+// the photographs put them, and their X moves out to 40.40 / 59.70, the points
+// at that Y on the new ellipse (theta 8.43 / 171.57 degrees). The three
+// waypoints are the new ellipse at 45 / 90 / 135 degrees. Every one of the five
+// is on the curve to 1.1 parts in a thousand.
+// The closure is FOUR arc commands rather than one:
 // `_jqgeom.flattenPath` records a single knot at an `A` command's endpoint and
 // `turns()` then measures the CHORD there, so one 200-degree arc scores as a
 // "knot turn" no eye can see. Split four ways the worst remaining chord on
@@ -6557,7 +6567,7 @@ const VIGNETTE = {
   head: 'M 49.1 17.75 C 49.83 17.7 50.74 17.68 51.5 17.85 C 52.24 18.02 52.99 18.32 53.6 18.75 C 54.21 19.18 54.74 19.8 55.15 20.45 C 55.57 21.11 55.85 21.9 56.05 22.7 C 56.26 23.55 56.36 24.52 56.35 25.4 C 56.34 26.25 56.26 27.2 56 27.9 C 55.78 28.48 55.33 28.84 55.05 29.35 C 54.76 29.86 54.59 30.45 54.3 30.95 C 54.01 31.45 53.72 31.99 53.3 32.35 C 52.89 32.7 52.35 33.08 51.85 33.1 C 51.35 33.12 50.75 32.77 50.3 32.45 C 49.85 32.12 49.51 31.58 49.15 31.15 C 48.81 30.75 48.59 30.14 48.2 29.95 C 47.85 29.78 47.32 30.03 46.95 29.95 C 46.62 29.88 46.35 29.56 46.05 29.55 C 45.75 29.54 45.45 29.92 45.15 29.9 C 44.82 29.88 44.45 29.63 44.15 29.35 C 43.77 29 43.41 28.43 43.15 27.85 C 42.85 27.19 42.6 26.35 42.55 25.55 C 42.5 24.71 42.65 23.77 42.9 22.95 C 43.14 22.15 43.52 21.36 44 20.7 C 44.46 20.06 45.1 19.5 45.7 19.05 C 46.24 18.64 46.81 18.27 47.4 18.05 C 47.95 17.85 48.48 17.79 49.1 17.75 Z',
   neck: 'M 49.35 31.4 C 49.97 30.76 52.51 30.54 53.15 31.1 C 53.74 31.62 53.46 33.36 53.3 34.4 C 53.15 35.39 52.9 36.78 52.3 37.2 C 51.81 37.54 50.8 37.55 50.3 37.2 C 49.68 36.77 49.35 35.28 49.2 34.3 C 49.05 33.35 48.81 31.96 49.35 31.4 Z',
   face: 'M 51.6 21.1 C 52.13 21.08 52.75 21.27 53.2 21.55 C 53.63 21.82 54.01 22.24 54.25 22.7 C 54.51 23.18 54.56 23.8 54.65 24.4 C 54.75 25.06 54.82 25.81 54.8 26.5 C 54.78 27.19 54.7 27.9 54.55 28.55 C 54.41 29.18 54.2 29.78 53.95 30.35 C 53.71 30.91 53.47 31.52 53.1 31.95 C 52.76 32.34 52.3 32.8 51.85 32.85 C 51.4 32.9 50.82 32.52 50.4 32.2 C 49.97 31.87 49.6 31.39 49.3 30.9 C 48.98 30.37 48.75 29.72 48.55 29.1 C 48.35 28.46 48.15 27.78 48.1 27.1 C 48.05 26.4 48.1 25.63 48.25 24.95 C 48.39 24.29 48.65 23.61 48.95 23.05 C 49.23 22.54 49.52 22.02 49.95 21.7 C 50.39 21.37 51.05 21.12 51.6 21.1 Z',
-  coat: 'M 40.59 33.69 C 40.59 33.69 42.39 33.78 43.2 33.65 C 43.95 33.53 44.61 33.01 45.3 33 C 45.97 32.99 46.68 33.34 47.3 33.55 C 47.87 33.74 48.39 34.08 48.9 34.2 C 49.35 34.31 49.77 34.26 50.2 34.3 C 50.62 34.34 51.04 34.45 51.45 34.45 C 51.85 34.45 52.25 34.37 52.65 34.3 C 53.06 34.22 53.44 34.09 53.9 34 C 54.47 33.89 55.18 33.64 55.8 33.7 C 56.42 33.76 56.99 34.35 57.6 34.35 C 58.23 34.35 59.51 33.69 59.51 33.69 A 9.75 14 0 0 1 56.94 40.2 A 9.75 14 0 0 1 50.05 44.3 A 9.75 14 0 0 1 43.16 40.2 A 9.75 14 0 0 1 40.59 33.69 Z',
+  coat: 'M 40.4 33.69 C 40.4 33.69 42.39 33.78 43.2 33.65 C 43.95 33.53 44.61 33.01 45.3 33 C 45.97 32.99 46.68 33.34 47.3 33.55 C 47.87 33.74 48.39 34.08 48.9 34.2 C 49.35 34.31 49.77 34.26 50.2 34.3 C 50.62 34.34 51.04 34.45 51.45 34.45 C 51.85 34.45 52.25 34.37 52.65 34.3 C 53.06 34.22 53.44 34.09 53.9 34 C 54.47 33.89 55.18 33.64 55.8 33.7 C 56.42 33.76 56.99 34.35 57.6 34.35 C 58.23 34.35 59.7 33.69 59.7 33.69 A 9.75 15.75 0 0 1 56.94 42.52 A 9.75 15.75 0 0 1 50.05 47.13 A 9.75 15.75 0 0 1 43.16 42.52 A 9.75 15.75 0 0 1 40.4 33.69 Z',
   jabot: 'M 51.45 33.7 C 51.88 33.71 52.44 34.05 52.75 34.4 C 53.07 34.77 53.25 35.36 53.3 35.9 C 53.36 36.49 53.16 37.21 53 37.8 C 52.85 38.34 52.71 38.94 52.4 39.3 C 52.13 39.61 51.69 39.93 51.35 39.9 C 51 39.87 50.59 39.47 50.35 39.1 C 50.07 38.67 50 37.98 49.9 37.4 C 49.8 36.81 49.67 36.14 49.75 35.6 C 49.82 35.12 49.96 34.62 50.25 34.3 C 50.53 33.99 51.04 33.69 51.45 33.7 Z',
 };
 
@@ -6661,11 +6671,51 @@ function noteSVG(box, attrs, tier, side, withValue) {
   // numeral CENTRES sit at X 8.8 / 90.4 and Y 12.0 / 42.1. These are baselines,
   // so each is its centre plus half a 10-unit cap height.
   //
-  // CAVEAT, and it is the judge's own: the obverse has NO printed-border
-  // fiducial — both obverse border fits land on blank paper — so this
-  // registration is the paper box and the two obverse photographs' paper
-  // ratios differ by 5.9%. A count of 4 does not turn on that; the positions
-  // carry it.
+  // THE CAVEAT THAT USED TO BE HERE IS WITHDRAWN. It read: "the obverse has NO
+  // printed-border fiducial — both obverse border fits land on blank paper — so
+  // this registration is the paper box and the two obverse photographs' paper
+  // ratios differ by 5.9%." That is r0's claim and it is not true of the note;
+  // it was true of the instrument. `judge/_bx2fit.mjs` fits the border by
+  // scanning INWARD from the paper edge to the first crossing of a threshold
+  // midway between the paper's own p90 and the darkest line in the band, rather
+  // than taking the darkest line in the band (which on `bill-obv-2.jpg` is the
+  // rule under FEDERAL RESERVE NOTE, 8 units in). It lands on the engraved
+  // frame on both obverse photographs — edge greys 90/110/83/146 and
+  // 79/87/83/72 against paper p90s of 236 and 212, i.e. nowhere near blank
+  // paper — and the two fitted border ratios are 2.4973 and 2.4812, agreeing to
+  // 0.65% against gate R0b's 1.0%. The overlays are published
+  // (`bx2-bill-obv*.png`) and were read back.
+  //
+  // So the obverse HAS a working fiducial and every geometric number on this
+  // face can be registered on it. The first thing that showed is the D1 locus,
+  // below.
+  //
+  // THE NUMERALS' SIZE IS STILL UNMEASURED IN THIS DRAWING, and that is a
+  // refusal, not an oversight. r0 justified the COUNT (four, not two) and the
+  // CENTRES; `font-size="10"` was authored and no instrument has ever compared
+  // it to the note. Measured this round — ours by render-diff off the live art
+  // (`judge/_bxBnum.mjs`), the note's by hand off a 1-unit ladder on both
+  // photographs through the border fiducial (`bxA-corners-*.png`):
+  //
+  //                       ours          note (both refs agree)
+  //   ink centre X        9.00 / 90.60  11.0 / 89.4
+  //   cap height          7.30          11.4 (top pair) / 8.2 (bottom pair)
+  //   glyph centre Y      11.95 / 42.05 13.8 / 43.7
+  //
+  // Two things follow. The pair is NOT asymmetric — 8.8 and 90.4 look it, but
+  // the glyph's side bearing puts the INK at 9.00 and 90.60, symmetric about
+  // 49.80, and that 0.2-unit offset is a fifth of a device pixel at the naming
+  // draw. The eye that reported an asymmetry was wrong and the render-diff
+  // corrected it. What IS wrong is the size: ours is 25% short of the note's
+  // mean cap height and the note's four numerals are not one size, so a single
+  // `font-size` is a constant standing in for a varying quantity.
+  // The correction was applied (font-size 13, CORNERS moved to put the ink at
+  // the measured centres — which it did, to 0.00 units) AND REVERTED after
+  // looking at 38/48/54/84 and 380: the 9.6-unit glyph runs into the scallop
+  // wave, whose X span 10..90 is wider than any legend band on the note and is
+  // a mark this round has no measurement for. Fixing the numeral would mean
+  // moving the wave on evidence I do not have. Routed to the judge with both
+  // numbers rather than guessed at here.
   const CORNERS = [[8.8, 15.6], [90.4, 15.6], [8.8, 45.7], [90.4, 45.7]];
   const frame = `<rect x="1.4" y="1.4" width="97.2" height="53.2" rx="5" fill="${p.body}"/>
     ${small ? '' : `<path d="${wave(8, 2.2, 10)}" fill="none" stroke="${p.rim}" stroke-width="1" opacity="0.75"/>
@@ -6686,16 +6736,42 @@ function noteSVG(box, attrs, tier, side, withValue) {
     // note's width. On the note the portrait is DEAD CENTRE; ours was in the
     // left third because that is where a rectangle divided in half puts it.
     //
-    // The four numbers are the buck r0 judge's frozen D1 locus, read off the
-    // rectified obverse at a 1-unit ladder on a 3840px source, +-0.5 units:
-    // cx 50.05 cy 30.30 rx 9.75 ry 14.00. An independent second read this
-    // round off `_jk9-portrait-obv2.png` gave 50.95 / 30.45 / 9.95 / 14.95 —
-    // agreeing within about a unit on every one.
+    // THE FROZEN D1 LOCUS WAS ITSELF WRONG, and this is the correction.
     //
-    // CAVEAT: the obverse has no printed-border fiducial (both obverse border
-    // fits land on blank paper), so this is registered on the PAPER box, whose
-    // two photographs disagree by 5.9%. The 16-unit centre error it replaces
-    // survives that by an order of magnitude; sub-unit precision here does not.
+    // r0 froze cx 50.05 cy 30.30 rx 9.75 ry 14.00, read off a 1-unit ladder
+    // registered on the PAPER BOX, with the caveat that the obverse had no
+    // printed-border fiducial and the two photographs' paper ratios differ by
+    // 5.9%. The fiducial exists (see the frame comment above). Re-fitted on it,
+    // by the ring-contrast sweep the reverse round used on the two seals —
+    // maximise mean(ring at 1.10x) - mean(ring at 0.94x), which finds the
+    // light/dark STEP the vignette's boundary is — `judge/_bx4vig.mjs` gives
+    //
+    //                    cx      cy      rx      ry     ry/rx
+    //   bill-obv.jpg     50.00   31.50   10.00   15.75  1.575
+    //   bill-obv-2.jpg   50.00   31.25    9.75   15.75  1.615
+    //   mean             50.00   31.38    9.88   15.75  1.595
+    //   r0's frozen locus 50.05  30.30    9.75   14.00  1.436
+    //
+    // The two photographs agree to 0.25 units or better on EVERY parameter,
+    // with no parameter on a sweep bound and a 6.9-grey-level margin to the
+    // best differently-centred candidate. That is four times better agreement
+    // than the paper-box registration could reach, and it is the registration,
+    // not the note, that was the 5.9%.
+    //
+    // cy and ry MOVED; cx and rx DID NOT. |Δcy| = 1.08 and |Δry| = 1.75 against
+    // a two-reference spread of 0.25 and 0.00 — provable. |Δcx| = 0.05 and
+    // |Δrx| = 0.13 are both smaller than the sweep's own 0.25-unit step and
+    // smaller than the spread, so they are refused: they cannot be resolved.
+    //
+    // What it cost the drawing: the portrait vignette was 28.0 units tall where
+    // the note's is 31.5 — three and a half units, 6.3% of the note's height,
+    // missing from the single most identifying device on this face, at the
+    // bottom, where the coat is. D1 as a number could not see it, because D1
+    // scored our ellipse against a target that was a copy of our ellipse:
+    // `_swBd1.mjs` reported 1.0000 and it was a tautology. Against the note
+    // itself the old drawing scores IoU 0.8769 and this one scores 0.9872,
+    // where the two references' own agreement — the ceiling this face can
+    // claim — is 0.9656.
     //
     // ── THE PORTRAIT IS NO LONGER A COIN'S PROFILE ────────────────────────
     //
@@ -6799,9 +6875,38 @@ function noteSVG(box, attrs, tier, side, withValue) {
     // 62.60..95.00 and crosses the printed border by 0.80 units; at 11pt it
     // runs 63.40..91.30 and clears the vignette by 3.60 and the border by
     // 2.90. Its lower rule moves to 61..87 to clear the new bottom-right
-    // corner numeral. It is still not a legend the note carries in that
-    // position — that is where the Treasury seal sits — and that remains D5's
-    // row, not this round's.
+    // corner numeral.
+    //
+    // "IT IS STILL NOT A LEGEND THE NOTE CARRIES IN THAT POSITION — THAT IS
+    // WHERE THE TREASURY SEAL SITS" USED TO STAND HERE. IT IS FALSE, and it is
+    // the reason D5 never scored this legend: a row cannot be run against a
+    // reference the comment says does not exist. The note carries the word ONE
+    // in exactly this position, as large outlined capitals overprinted ACROSS
+    // the green Treasury seal — the seal is behind it, not instead of it. Read
+    // off a 1-unit ladder on both obverse photographs through the border
+    // fiducial (`bxD-one.png`, `bxD-one2.png`), the two agree:
+    //
+    //                     ours (render-diff)   note (mean of 2 refs)
+    //   X extent          63.40..91.30 (27.9)  66.5..88.75 (22.25)
+    //   ink centre X      77.35                77.6
+    //   cap top Y         25.10                25.25
+    //   baseline Y        33.00                37.80
+    //   cap height         7.90                12.55
+    //
+    // Scored against that for the first time, D5's three clauses read: cap-top
+    // PASS (0.15 units, gate +-1.5), baseline FAIL (4.80 units, 3.2x the gate),
+    // X extent FAIL (+25.4%, gate +-15%). Our centre X is right to a quarter of
+    // a unit and our cap TOP is right to 0.15; what is wrong is that the word
+    // is two-thirds as tall and a quarter too wide.
+    //
+    // NOT REPAIRABLE BY CHANGING font-size, and the number says why. The note's
+    // ONE is a CONDENSED OUTLINE face at 22.25 x 12.55 (aspect 1.77); ours is a
+    // normal-width solid one at 27.9 x 7.9 (aspect 3.53). Scaling ours to the
+    // note's cap height needs font-size 17.5, at which the three glyphs alone —
+    // letter-spacing already at zero — measure 39.3 units wide against the
+    // note's 22.25, 77% over, and would cross the printed border. The height
+    // and the width cannot both be met in this typeface. Left as a stylisation,
+    // which §0 permits, with the miss published rather than the row skipped.
     //
     // 61..87 rather than 63..87 for a reason worth writing down: the rule is
     // one of the marks §3's D6 row excludes BY NAME as "the scallop border
@@ -6814,9 +6919,9 @@ function noteSVG(box, attrs, tier, side, withValue) {
     // is reported rather than fixed.
     return `<svg viewBox="0 0 100 56" width="${box.w}" height="${box.h}" ${attrs} xmlns="http://www.w3.org/2000/svg">
       ${frame}
-      <ellipse cx="50.05" cy="30.3" rx="9.75" ry="14" fill="${p.motif}" stroke="${p.rim}" stroke-width="${sw(1.4, 0.8, box.w)}"/>
+      <ellipse cx="50.05" cy="31.38" rx="9.75" ry="15.75" fill="${p.motif}" stroke="${p.rim}" stroke-width="${sw(1.4, 0.8, box.w)}"/>
       ${vignette(p, tier)}
-      <ellipse cx="50.05" cy="30.3" rx="9.75" ry="14" fill="none" stroke="${p.rim}" stroke-width="${sw(1.4, 0.8, box.w)}"/>
+      <ellipse cx="50.05" cy="31.38" rx="9.75" ry="15.75" fill="none" stroke="${p.rim}" stroke-width="${sw(1.4, 0.8, box.w)}"/>
       ${small || withValue ? '' : `<text x="77.5" y="33" text-anchor="middle" font-family="${FONT}" font-size="11"
           font-weight="800" letter-spacing="1.6" fill="${p.ink}" opacity="0.8">ONE</text>
         <path d="${wave(41, 1.6, 5, 61, 87)}" fill="none" stroke="${p.rim}" stroke-width="1" opacity="0.7"/>`}

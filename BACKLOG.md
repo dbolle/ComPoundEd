@@ -7,6 +7,35 @@ reconsider after calibration.
 
 ## Where we are
 
+- 🔴🔴 **T1 — THE PRIMARY GATE — HAS NO `buck` ROW. "32/32" NEVER INCLUDED THE
+  $1 NOTE.** `POOL_BY_SIDE` in `_jt1transfer.mjs` is `{penny, nickel, dime,
+  quarter}`, so 32 = **4** denominations × 2 faces × 4 sizes. The judge repeated
+  "T1 32/32" in eight commit messages and to the owner as though it covered the
+  set; it covers **four fifths of it**. This is the third instance of the exact
+  locus fault that file documents about its own predecessors — an instrument
+  pointed at the wrong place — and it is the most consequential, because §0
+  names T1 the primary gate. It cannot be extended by adding a row: T1
+  registers via `discOf()` and samples a **disc**, and a note is not a disc.
+  The note round wrote `_bxEt1note.mjs` (obverse-vs-reverse, control 4/4 first,
+  8/8) as a stopgap; a real note gate needs a rectangular registration.
+- 🔴 **T1's dime-reverse pool counts ONE PHOTOGRAPH TWICE.** It lists
+  `dime-rev.jpg` *and* `dime-rev-2.jpg`, which measure **raw NCC 0.9977**
+  (judge-verified) and are the same shoot. Every T1 dime-reverse figure
+  published as **n=3 is really n=2**, including the ones used to accept and to
+  reject rounds on that face. The quarter pools are clean — they happen to
+  exclude both bad quarter files — so this is the only contaminated row.
+- ✅ **Five of six published buck D2 FAILs are PASSes**, as suspected.
+  Recomputed from the **live** SVG against the judge's own frozen target: D2a
+  IoU 0.9989, D2b 0.9991, centres 0.007/0.005, semi-axes +0.06 %, separation
+  53.75 exact. The sixth is **real**: D2d-eagle ry/rx 1.3941 v a predicted
+  1.3145, **+6.06 %**, and it fails because the gate assumes one anisotropy for
+  two rims the note draws differently (1.281 / 1.394).
+  Cause of the false FAILs: `_jb3seal.mjs` and `_jb14d1.mjs` both carry
+  **stale hardcoded copies of our own geometry** (`_jb14d1.mjs`'s `OURS` left
+  `coins.js` at v1.83.0), and `_jb3seal.mjs` cannot even run in a worktree —
+  it imports a gitignored helper. Both still ship and still publish false
+  verdicts. **An instrument holding its own copy of the subject is the bug.**
+
 - 🔴 **DIME BRANCHES: round REVERTED by the judge, measurements KEPT. The next
   round's brief is here.** The owner reported the branches "need significant
   work"; the round confirmed it and measured it, then over-corrected into
