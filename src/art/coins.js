@@ -4652,9 +4652,66 @@ function torch(tier, p, boxW) {
   /** half the branch's width at height `y`, closing to a point at both ends */
   const stemHW = (y) => (0.9 + 0.0056 * (y - SC.top))
     * Math.max(0, Math.min(1, (y - SC.top) / 1.7, (SC.tip - y) / 3));
+  // ⚠️ THE TERMINAL LEAF'S ANGLE IS CHANGED FROM THE TABLE'S 77 TO 86, AND THE
+  // TABLE'S OWN TIP FOR THAT ROW IS THEREFORE NOT REPRODUCED (round 33). This
+  // is the one number here that is NOT the table's, and it is the only way the
+  // crown reads as the coin's, so it is written down rather than hidden.
+  //
+  // THE CROWN WAS A FORK WHERE THE COIN HAS ONE APEX. Read off
+  // `judge/_dr12leaf.mjs`'s row table — every device run on every row, which is
+  // a quantity no blob metric can see, because the fork's two prongs average to
+  // a blob centre in the middle of the gap between them (ours read 16.93, 34.14
+  // at up 84; proofbright reads 16.73, 33.9 at up 79 — indistinguishable, and
+  // the drawing was still wrong):
+  //
+  //     row   proofbright              unc2005            ours (before)
+  //     y 27  15.3-16.4                --                 13.1-14.4  20.6-21.3
+  //     y 28  12.9-13.5  14.6-17.4     16.4-17.1          12.8-15.2  19.7-21.4
+  //     y 29  12.6-18.1                15.4-17.8          12.7-15.9  18.9-21.6
+  //     y 30  12.4-18.6  19.4-21.3     13.9-18.3          12.5-16.6  18.0-21.6
+  //     y 31  12.3-21.4                13.8-18.9 20.1-21.3 12.3-17.1 17.3-21.7
+  //
+  // Both references come to a SINGLE CENTRAL MARK at offset 15.3–17.4 and widen
+  // downward; ours had two prongs with 6.2 units of BARE FIELD between them at
+  // y 27 and nothing in the middle at all. That is a tuning fork, and it is the
+  // same shape of defect as the tulip stamen that got round 29 reverted.
+  //
+  // A leaf at 77° inboard from a base at offset 16.6 puts its blade at
+  // 12.4-15.3 by y 28 — it cannot produce the coin's 14.6-17.4 mark, whatever
+  // its length. At 86° it produces 14.4-17.2. The blade's own measured
+  // standoff is 0.00 on BOTH files, so the terminal is SESSILE — it sits on the
+  // end of the stem, and `ped` below is 0 for it and no petiole is drawn.
+  //
+  // WHAT THIS COSTS, stated: the table's row 7 has its tip at (13.2, 26.8), an
+  // inboard-leaning spike, and proofbright does show a small run at 12.9-13.5
+  // on y 28 which is probably it. At 86° we draw the central apex instead. Both
+  // marks exist on the coin and we have seven nodes to spend; the central one
+  // is the one that is 1.1 units wide on the reference's topmost row and the
+  // one whose absence made a fork. WHAT I COULD NOT DETERMINE: whether the
+  // coin's crown is three blades (in, centre, out) or two, which is what would
+  // settle this — the runs merge by y 29 on both files and neither erosion
+  // level separates them.
+  //
+  // WIDTH IS THE COLUMN THAT VARIES, AND IT IS ALMOST ALL THE TERMINAL.
+  // `_dr12leaf.mjs`'s six zero-erosion reads span 5.56–9.57 wide (1.72x) but
+  // only 11.63–15.52 long (1.26x). Extrapolating each isolated olive blob's PCA
+  // width back to zero erosion from the +0.8/+1.2 pair:
+  //
+  //                       terminal    y41 lateral   y52 lateral
+  //     proofbright         9.36         6.74          6.72
+  //     unc2005             7.90         5.55          7.13
+  //
+  // The six LATERALS sit at 5.6–7.1 around a drawn 6.3 — that is inside the two
+  // files' own disagreement and is not a number worth fitting seven times. The
+  // TERMINAL is 8.6 mean, 1.35x the laterals, and on the oak the same thing is
+  // visible on the crops: its terminal reads 13.9 x 9.3 against a 7.5 mean,
+  // 1.24x. So one width multiplier is carried, on the terminal only, and the
+  // "one blade size for seven nodes" finding is answered without inventing six
+  // more constants. Length is left uniform, which the 1.26x above supports.
   const LADDER = [
-    // ay (base, on the stem), rot (degrees up from horizontal)
-    [57.5, 38], [51.4, -13], [50.5, 33], [47.3, 17], [45.5, 45], [40.0, 72], [39.5, 77],
+    // ay (base, on the stem), rot (degrees up from horizontal), terminal?
+    [57.5, 38, 0], [51.4, -13, 0], [50.5, 33, 0], [47.3, 17, 0], [45.5, 45, 0],
+    [40.0, 72, 0], [39.5, 86, 1],
   ];
   const leafAt = (i, n) => {
     // `n` is 7 at every size the app draws. The 5-leaf form survives only for
@@ -4674,7 +4731,7 @@ function torch(tier, p, boxW) {
     // two move 0.86, which is the whole of what "attach it to the branch"
     // means here.
     const ay = n2(48.5 + (r[0] - 48.5) * 0.94);
-    return { ay, ax: n2(stemC(ay)), rot: r[1], out: i % 2 === 1 };
+    return { ay, ax: n2(stemC(ay)), rot: r[1], end: r[2] === 1, out: i % 2 === 1 };
   };
   // A blade's BASE is on the stem; the glyph is drawn about its own CENTRE, so
   // the centre is half a blade-length out along the direction the leaf leaves
@@ -4694,6 +4751,61 @@ function torch(tier, p, boxW) {
     return {
       cx: n2(50 + f * (L.ax + dir * reach * Math.cos(a))),
       cy: n2(L.ay - reach * Math.sin(a)),
+      rot: n1(f * dir === 1 ? -L.rot : L.rot - 180),
+    };
+  };
+  // THE PETIOLE IS NOT COLLINEAR WITH ITS BLADE, AND WHEN IT WAS THE BLADE ATE
+  // THE STEM (round 33). This is the fault that nobody in thirty-two rounds had
+  // named, and it is the reason the branch reads as one mass:
+  //
+  // A blade seated at angle `rot` carries its own WIDTH perpendicular to that
+  // angle, so half a blade-width `w` projects onto the OFFSET axis as
+  // `w · sin(rot)` — and the blade flares from a point at its base, so its
+  // widest excursion toward the stem happens a short way along it, where the
+  // flare rate overtakes `cot(rot)`. For the lowest inboard leaf at 38° this
+  // put the blade's outboard shoulder back at offset ~15.4 — inside the stem,
+  // which runs 15.2 to 17.2 — so the leaf and the stem were one object.
+  //
+  // On BOTH references the stem is a separate mark with bare field on each side
+  // through the whole of the leafy span. Proofbright's olive at y 52 reads
+  // `4.5-12.4 | 15.8-16.6 | 19.3-31.5`, three runs; unc2005's reads
+  // `4.5-12.8 | 20.9-29.5`, i.e. an even wider bare band inboard of its stem.
+  // Ours read `6.5-27.8` — one run, 21 units wide, the stem inside it.
+  //
+  // TWO THINGS OPEN THAT BAND and the previous attempt at this subject
+  // (818817d, reverted) conflated them:
+  //   · TILTING THE PETIOLE toward the horizontal, `rot × 0.35`, so the blade
+  //     starts further out along the offset axis for the same standoff. This is
+  //     geometry and it is free; it is worth `ped · (1 − cos rot)`, about half a
+  //     unit at 38°, and it is kept.
+  //   · LENGTHENING THE PETIOLE, which is worth the rest — and is the part that
+  //     turned the oak into a TV aerial when it was applied to both branches
+  //     alike. See `ped` in `branch` for why only the olive gets it.
+  //
+  // ⚠️ AND THE TILT IS NOT FREE ON THE OAK, WHICH IS WHERE THE ACORN LIVES.
+  // Tilting an INBOARD leaf's petiole toward the horizontal lowers its base by
+  // `ped · (sin rot − sin 0.35rot)` — 1.0 unit at the 38° bottom node. Applied
+  // to the oak, that walked the lowest inboard blade straight down onto the
+  // acorn: `_dr12leaf.mjs`'s small-blob pass in the window (offset 4..15,
+  // y 52..64) found TWO objects before, `(10.78, 53.61) 11.1 × 4.54` and
+  // `(9.19, 57.56) 5.03 × 4.2` — the leaf and the acorn, the acorn matching
+  // proofbright's `(9.53, 57.07) 6.16 × 3.85` — and ONE afterwards,
+  // `(9.95, 54.94) 11.04 × 7.48`, area 55 where there had been 29 and 15. That
+  // is the v1.84.1 regression again, and it is why `tilt` is per-branch: the
+  // OLIVE, whose bottom node has no acorn under it, is tilted; the OAK is not.
+  const PTILT = 0.35;
+  /** the far end of leaf `L`'s petiole, in (offset, y) */
+  const stalkEnd = (L, ped, tilt) => {
+    const a = (L.rot * tilt * Math.PI) / 180;
+    return [L.ax + (L.out ? 1 : -1) * ped * Math.cos(a), L.ay - ped * Math.sin(a)];
+  };
+  /** a blade whose base is at (`ox`,`oy`) in offset space, `half` back from its centre */
+  const seatOn = (L, f, ox, oy, half) => {
+    const dir = L.out ? 1 : -1;
+    const a = (L.rot * Math.PI) / 180;
+    return {
+      cx: n2(50 + f * (ox + dir * half * Math.cos(a))),
+      cy: n2(oy - half * Math.sin(a)),
       rot: n1(f * dir === 1 ? -L.rot : L.rot - 180),
     };
   };
@@ -4868,8 +4980,13 @@ function torch(tier, p, boxW) {
     + ' C -3.9 -3.35 -6.1 -2.4 -7.25 0'
     + ' C -6.1 2.4 -3.9 3.35 -1.6 3.1'
     + ' C 1.4 2.75 4.4 1.35 7.25 0 Z';
-  const olive = (x, y, rot) =>
-    `<g transform="translate(${x} ${y}) rotate(${rot})"><path d="${BLADE}"/></g>`;
+  // `w` widens the blade about its own midrib WITHOUT lengthening it — the
+  // terminal leaf is the branch's broadest and is not its longest (see the
+  // width table above `LADDER`). It is applied after the rotation, so it is
+  // width in the LEAF's frame, not in the coin's.
+  const olive = (x, y, rot, l, w) =>
+    `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${n2(l)} ${n2(w)})">`
+    + `<path d="${BLADE}"/></g>`;
   // THE OLIVE BRANCH CARRIES OLIVES, AND WE DREW NONE. Nothing in this file
   // has ever mentioned them; `grep -n olive` returns leaves and this comment.
   // They are plain on both references — two small ovals hanging outboard of
@@ -5020,8 +5137,9 @@ function torch(tier, p, boxW) {
   // this face, and I cannot tell whether unc2005's 8.37 is a lobe-tip span or
   // two leaves that never separated. 7.5 is the mean of four leaves read off
   // the crops instead, and where those two numbers disagree it is a choice.
-  const oak = (x, y, rot, k) =>
-    `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${n2(k)})"><path d="${OAK}"/></g>`;
+  const oak = (x, y, rot, l, w) =>
+    `<g transform="translate(${x} ${y}) rotate(${rot}) `
+    + `scale(${n2(l)} ${n2(w)})"><path d="${OAK}"/></g>`;
   // OLIVE LEFT, OAK RIGHT — the way round the real dime has them; the
   // previous layout had it backwards, and it also hung every leaf off the
   // INSIDE of its stem at a downward angle, which packed them into each
@@ -5076,11 +5194,113 @@ function torch(tier, p, boxW) {
       // …and the petiole SHORTENS as the leaf climbs: on both references the
       // crown leaf sits straight on the end of the stem, which is why the top
       // of the branch is a tight pair and the foot is a spray.
-      const ped = (mirror ? 1.0 : 2.6) * (1 - (0.8 * i) / (leaves - 1));
-      const half = (mirror ? 7.25 : 6.0) * K;
-      const s = seat(L, f, ped + half), b = seat(L, f, ped + 0.7);
-      g += stalk(50 + f * L.ax, L.ay, b.cx, b.cy, 0.55, 0.4);
-      g += mirror ? olive(s.cx, s.cy, s.rot) : oak(s.cx, s.cy, s.rot, K);
+      //
+      // ⚠️ THE TWO BRANCHES DO NOT GET THE SAME PETIOLE, AND AVERAGING THEIR
+      // REFERENCES IS WHAT MADE AN AERIAL (round 33; 818817d, reverted, did
+      // exactly that). `_dr12leaf.mjs` measures a blade's STANDOFF — the least
+      // distance from its own blob to the fitted centreline, on a mask eroded
+      // past the petiole so that what is read is the GAP a child sees:
+      //
+      //             proofbright        unc2005        agree?
+      //     olive   3.19 4.28 4.87   2.93 5.83 4.28    yes, six reads, 2.9–5.8
+      //     oak     7.39 3.91        3.51              NO
+      //
+      // The olive's two photographs bracket each other on every node. The oak's
+      // do not: proofbright carries a high blade at standoff 7.39 that unc2005
+      // does not resolve at all, and the only node both files agree on reads
+      // 3.91 / 3.51. The previous round took the mean of all three, got 4.4,
+      // gave it to BOTH plants, and the oak came out as leaves floating at the
+      // ends of straight bars — which is precisely what the coin's oak does not
+      // do; its foliage sits close to its own stem.
+      //
+      // WHEN TWO REFERENCES OF THE SAME FEATURE DISAGREE BY A FACTOR OF TWO,
+      // THE HONEST OUTPUT IS THE CONSERVATIVE VALUE AND A PUBLISHED
+      // DISAGREEMENT, NOT THEIR MEAN DRESSED AS A MEASUREMENT. So:
+      //
+      //   · THE OAK'S LATERAL PETIOLES DO NOT MOVE AT ALL. Its ramp is the one
+      //     the drawing already shipped, and the calibration says it was close:
+      //     a drawn `ped` reads back through this instrument at `ped + 0.9`, so
+      //     the node the two files agree on is drawn at 2.25 and reads 3.18
+      //     against their 3.91 / 3.51. It is ~0.5 short, and 0.5 short is the
+      //     right side to be on when the alternative measurement is 7.39.
+      //   · THE OLIVE IS LENGTHENED, 1.0 → 3.6 at the foot. Ours was 2.6 units
+      //     short — the single biggest error on this branch — and this is the
+      //     change that lets the stem show between the leaves. The ramp is
+      //     fitted, not guessed: it puts 3.6 at the node whose blade lands at
+      //     y 51.7 (the coin wants 3.68 there) and 2.30 at the node landing at
+      //     y 39.9 (the coin wants 2.16). The two outboard nodes come out at
+      //     3.28 and 2.63 against a merged read wanting 3.4–4.9, i.e. short,
+      //     and they are left short.
+      //   · THE TERMINAL IS SESSILE ON BOTH PLANTS: its measured standoff is
+      //     0.00 on both files, so `ped` is 0 and no petiole is drawn for it.
+      //
+      // ⚠️ AND THE PETIOLE IS NOT A FREE PARAMETER, WHICH IS THE WHOLE OF WHY
+      // THE PREVIOUS ROUND MADE AN AERIAL. A leaf's TOTAL REACH from the stem
+      // is `ped + blade`, and reach is measured: `LADDER`'s table was read as
+      // base-on-stem AND tip, on two files, and its length column is exactly
+      // that quantity — 16.7, 16.5, 11.3, 15.0, 11.8, 12.2, 13.0 from the foot
+      // to the crown. It falls as the leaf climbs, and one line fits it:
+      //
+      //     reach(ay) = 13.79 + 0.2181 (ay − 47.39)   residual RMS 1.7
+      //
+      // Lengthening a petiole without shortening its blade therefore does not
+      // move the leaf out from the stem — it throws the whole leaf outward.
+      // 818817d put `ped` at 4.4 on a 12.0-long oak blade: reach 16.4 against a
+      // measured 12.3 at those nodes, i.e. a third too far, and a blade that
+      // far out on a bar IS an aerial. THE SHIPPED DRAWING WAS ALREADY OVER at
+      // the crown for the same reason (14.7–15.1 against 12.2–13.8) and that is
+      // what made the crown pair read as a tulip cup.
+      //
+      // So reach is set from the line and the BLADE takes the difference. At
+      // the foot that puts our olive tip at offset 3.17, y 48.1 against the
+      // table's (3.1, 47.2); at the crown it puts the outboard tip at
+      // (20.9, 29.1) against (20.3, 28.4) and the terminal apex at (15.8, 27.9)
+      // against proofbright's topmost run of 15.3–16.4 on y 27. None of those
+      // four points was reproducible with one blade length.
+      //
+      // WHAT I COULD NOT DETERMINE, and it is a real inconsistency rather than
+      // a missing measurement: reach (13.8 mean), petiole (standoff − 0.9, so
+      // 3.3 mean) and isolated blade length (13.1 mean, from the zero-erosion
+      // extrapolations) DO NOT ADD UP — they are ~2.5 units apart, and no
+      // assignment satisfies all three. The most likely culprit is the
+      // standoff: it is read on an eroded mask, and erosion eats a struck
+      // coin's bevel skirt before it eats ours, so the coin's standoffs are
+      // inflated relative to the calibration taken from our own flat fill.
+      // That is an argument for erring SHORT on the petiole, and the ramp below
+      // is 2.4 at the foot rather than the 3.6 the standoffs alone would ask
+      // for — still 2.4x what shipped, and reading back at 3.3 against 4.28 and
+      // 4.87 on the two files.
+      const reach = 13.79 + 0.2181 * (L.ay - 47.39);
+      const ped = L.end ? 0 : (mirror
+        ? 2.4 * (1 - (0.45 * i) / (leaves - 2))
+        : 2.6 * (1 - (0.8 * i) / (leaves - 1)));
+      const blade = reach - ped;
+      const half = (blade * K) / 2;
+      // ⚠️ "THE TERMINAL IS THE BROADEST" IS HALF RETRACTED, AND THE HALF THAT
+      // FAILS IS THE OLIVE'S. That finding came from the crown BLOB's PCA width
+      // extrapolated to zero erosion (9.36 / 7.90), and the blob is not one
+      // blade: on both files the crown carries separate flanker tips on y 28
+      // and y 30 that merge into it by y 31, and it never splits under erosion
+      // (proofbright holds one component at +1.2, +1.6, +2.0 and +2.4, its
+      // width shrinking 7.11 → 4.46 with a fixed centre) because the blades
+      // OVERLAP. A cluster's width is not a blade's width. Drawn at 1.35 the
+      // olive's crown measured 10.06 x 8.28 at +1.2 against 12.42 x 7.09 and
+      // 10.84 x 5.40 — outside BOTH files on width; at 1.0 it lands between
+      // them, and at 40x beside the references it stops being a spade.
+      // The OAK's 1.24 stands, because that one is not a blob at all: its
+      // terminal was read off the crops directly at 13.9 x 9.3 against a 7.5
+      // mean (`judge/_dr2grid.mjs 58 88 20 82 22`).
+      const wk = L.end && !mirror ? 1.24 : 1;
+      // …and the glyphs are authored 14.5 and 12.0 long, so this is the factor
+      // that makes the drawn blade the length the line asks for.
+      const lk = (blade * K) / (mirror ? 14.5 : 12.0);
+      const [px, py] = stalkEnd(L, ped, mirror ? PTILT : 1);
+      const s = seatOn(L, f, px, py, half);
+      if (ped > 0.15) {
+        const b = seatOn(L, f, px, py, 0.7);
+        g += stalk(50 + f * L.ax, L.ay, b.cx, b.cy, 0.55, 0.4);
+      }
+      g += mirror ? olive(s.cx, s.cy, s.rot, lk, wk) : oak(s.cx, s.cy, s.rot, lk, wk);
     }
     // The two olives, outboard of the stem on the OLIVE branch only. Each
     // hangs on a stalk back to the stem, which both references show and which

@@ -3,6 +3,70 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.90.0 — 2026-08-24
+
+**A petiole is not a free parameter, because the leaf's total reach is measured
+too — which is why the previous attempt built an aerial.**
+
+Loop 2b of the dime-reverse refinement, after Loop 2 was reverted for turning
+the oak into a TV antenna and merging the acorn.
+
+`reach = ped + blade`, and `LADDER`'s length column **is** reach — it was read
+as base-on-stem *and* tip, on two files: 16.7, 16.5, 11.3, 15.0, 11.8, 12.2,
+13.0 foot→crown. One line fits it (`reach(ay) = 13.79 + 0.2181(ay − 47.39)`,
+residual RMS 1.7).
+
+So lengthening a petiole without shortening its blade does not move the leaf
+*off* the stem — **it throws the whole leaf outward**. The reverted round put
+`ped` at 4.4 on a 12.0 oak blade: reach 16.4 where the coin measures 12.3. *An
+aerial by construction.* The shipped drawing was already over at the crown for
+the same reason (14.7–15.1 against 12.2–13.8) — **that is what made the crown a
+tulip.** Reach now comes from the line and the blade takes the difference.
+
+**The three carried findings, one of them half-retracted:**
+
+- **The collinearity tilt is kept** (a blade at `rot` projects its width onto
+  the offset axis magnified by 1/sin(rot)), but is now **per-branch, olive
+  only** — see the acorn below.
+- **The crown is one apex.** Terminal `rot` 77 → 86 and **sessile**, matching
+  its measured 0.00 standoff. 77° inboard *cannot* produce the coin's central
+  mark from a base at offset 16.6 whatever its length; 86° can. Our y29 run is
+  `15.3-16.6` against proofbright's `15.3-16.4`. The 6.2 units of bare field
+  between two prongs are gone.
+- **"Width varies 1.72×" is RETRACTED for the olive.** That spread came from the
+  crown *blob's* PCA width, and the blob is a **cluster**: proofbright's olive
+  crown holds one component at every erosion level with a fixed centre —
+  overlapping blades never split. Drawn at 1.35 the crown measured 8.28 wide
+  against 7.09 and 5.40, **outside both files**; at 1.0 it lands between them.
+  The **oak's 1.24 stands** — that one was a direct crop read.
+
+**The acorn nearly died again, and the round caught it itself.** Applying the
+tilt to both branches lowers an inboard leaf's base by `ped·(sin rot − sin
+0.35rot)` — 1.0 unit at the 38° bottom node — which walked the lowest oak blade
+onto the acorn: **two objects became one of area 55.** Hence per-branch tilt.
+Final: the acorn measures **byte-identically to before**, `(9.19, 57.56)
+5.03 × 4.2`, separate at +0, +0.3 and +0.6 erosion. **That test is now permanent
+in the instrument** — the old windows excluded the acorn (offset > 6.5, area
+≥ 6), which is exactly how the previous round lost it unseen.
+
+**Oak petioles do not move.** Its two references disagree 2× (7.39/3.91 v 3.51);
+ours reads back 0.5 short, and short is the right side to err.
+
+**Rejected because it scored better:** terminal width ×1.35 on the olive — what
+the blob extrapolation asks for, and the picture and the run table both say it
+draws a spade.
+
+**Could not determine, stated plainly:** reach (13.8 mean), petiole (3.3) and
+isolated blade length (13.1) **do not add up** — about 2.5 units apart, and no
+assignment satisfies all three. Most likely the standoff, since erosion eats a
+struck coin's bevel before it eats our flat fill. Reach was chosen over petiole
+length, at a stated cost: the olive stem stands alone on 9 of 21 rows where
+proofbright has it on 20.
+
+T1 reported not cited: 32/32, dime reverse 0.419 → 0.444. Partition re-derived
+by the judge: 6/60 `dime.reverse` alone. D9 clean. Suite 461. Acorn
+separability confirmed by the judge at 40×.
+
 ## v1.89.0 — 2026-08-24
 
 **The dime's stem: the branches do not sweep, and the tulip had a stamen.**

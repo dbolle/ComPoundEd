@@ -62,11 +62,16 @@ const FILES = [
   ['ours', 165, 0],
 ];
 
+// The default window is the whole leafy span of one branch. `ACORN` narrows it
+// to the patch of field the acorn sits in — see section 4 below.
+const BRANCH = { y0: 24, y1: 63, o0: 6.5, o1: 99 };
+const ACORN = { y0: 52, y1: 64, o0: 4.0, o1: 15.0 };
 /** blobs with standoff, recomputed from scratch so the label sets agree */
-function blobStats(dev, mirror, minArea) {
+function blobStats(dev, mirror, minArea, win = BRANCH) {
   const lab = new Int32Array(W * H).fill(-1); const out = [];
-  const keep = (x, y) => Math.hypot(x - 50, y - 50) < 33.0 && y > 24 && y < 63
-    && (mirror ? x < 50 : x > 50) && Math.abs(x - 50) > 6.5;
+  const keep = (x, y) => Math.hypot(x - 50, y - 50) < 33.0 && y > win.y0 && y < win.y1
+    && (mirror ? x < 50 : x > 50)
+    && Math.abs(x - 50) > win.o0 && Math.abs(x - 50) < win.o1;
   for (let j = 0; j < H; j++) {
     for (let i = 0; i < W; i++) {
       const k = j * W + i;
@@ -140,5 +145,47 @@ if (process.argv[1] && process.argv[1].endsWith('_dr12leaf.mjs')) {
       console.log(`   y ${String(y).padStart(2)}  ${cells.join('| ')}`);
     }
     console.log(`         ${FILES.map(([f]) => f.slice(0, 14).padEnd(30)).join('| ')}`);
+  }
+
+  // 4. THE ACORN, WHICH THIS ROUND FAMILY HAS NOW BROKEN TWICE. Round 28
+  //    deleted it, v1.84.1 restored it, and 818817d merged it into the leaf
+  //    above by lengthening the oak's petioles. It is the smallest object on
+  //    this face and every window above excludes it — `BRANCH` starts at
+  //    offset 6.5 and needs 6 u2, and the acorn is ~14 u2 at offset 9. So it
+  //    gets its own window and its own minimum, and the test is not "is there
+  //    ink there" but "is it a SEPARATE COMPONENT": coverage is not
+  //    identification, which is the argument v1.84.1 had to overturn.
+  //    Both references carry it (proofbright (9.5, 57.1) 6.16 x 3.85,
+  //    unc2005 (8.4, 57.9) 3.53 x 2.76) and so must we.
+  console.log('\n=== 4. THE ACORN NEIGHBOURHOOD — oak only, offset 4..15, y 52..64,');
+  console.log('    components of area >= 1 u2. TWO objects is the pass: the lowest');
+  console.log('    inboard leaf, and the acorn below and inboard of it. ONE means');
+  console.log('    they have merged, which is the v1.84.1 regression ===');
+  for (const ERO of [0, 0.3, 0.6]) {
+    console.log(`  +${ERO} erosion`);
+    for (const [f] of FILES) {
+      const bs = blobStats(ERO ? erodeBy(masks[f], ERO) : masks[f], false, 1.0, ACORN);
+      console.log(`    ${f.padEnd(26)} ${bs.length} object(s)  `
+        + (bs.map((b) => `(${b.o}, ${b.y}) ${b.len}x${b.wid} a${b.area}`).join('  ') || '(none)'));
+    }
+  }
+
+  // 5. IS THE CROWN BLOB ONE BLADE OR A CLUSTER? This decides whether its PCA
+  //    width may be quoted as a blade width — round 33 quoted it as one, drew
+  //    the terminal 1.35x broad on the strength of it, and had to retract. A
+  //    cluster whose members overlap never splits under erosion; it just
+  //    shrinks. Printed as a ladder so the reader can see which it is.
+  console.log('\n=== 5. THE CROWN BLOB UNDER DEEPENING EROSION, y 24..40. A blade');
+  console.log('    shrinks and stays one component; so does a cluster of OVERLAPPING');
+  console.log('    blades — so a stable single component is NOT evidence of one blade,');
+  console.log('    and the per-row runs in section 3 are what must settle it ===');
+  for (const [nm, mir] of [['OLIVE', true], ['OAK', false]]) {
+    for (const [f] of FILES) {
+      const row = [1.2, 1.6, 2.0, 2.4].map((e) => {
+        const bs = blobStats(erodeBy(masks[f], e), mir, 2, { y0: 24, y1: 40, o0: 6.5, o1: 99 });
+        return `+${e}: ${bs.length}x [${bs.map((b) => `${b.len}x${b.wid}`).join(' ')}]`;
+      });
+      console.log(`  ${nm.padEnd(6)} ${f.padEnd(26)} ${row.join('  ')}`);
+    }
   }
 }
