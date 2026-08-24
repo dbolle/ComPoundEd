@@ -22,7 +22,9 @@
 //
 //   node coloringbook/judge/_jb10d13.mjs [json]
 import sharp from 'sharp';
-import { writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { JUDGE } from './_paths.mjs';
+import { freezeWrite } from './_freeze.mjs';
 import { fitBorder, grey } from '../_blfit.mjs';
 import { homography, uv2px, at } from '../_blnorm.mjs';
 const { coinSVG, coinPx } = await import('../../src/art/coins.js');
@@ -176,5 +178,9 @@ for (const file of REF.reverse) {
     `mean/field ${m.meanOverField.toFixed(6)} vs ${base.ref.meanOverField.toFixed(6)}  ${m.meanOverField === base.ref.meanOverField ? 'BIT-IDENTICAL' : 'DIFFERS — the locus depends on our art'}`);
 }
 
+// GUARDED, 2026-08-24 (ledger A14, WRITERS.md) — see _freeze.mjs. This flag
+// used to overwrite a hashed artefact with no check at all.
 if (process.argv[2] === 'json')
-  writeFileSync(new URL('./_jb10d13.json', import.meta.url), JSON.stringify({ generated: 'coloringbook/judge/_jb10d13.mjs', WIN, TIERS, rows }, null, 2) + '\n');
+  freezeWrite(join(JUDGE, '_jb10d13.json'),
+    JSON.stringify({ generated: 'coloringbook/judge/_jb10d13.mjs', WIN, TIERS, rows }, null, 2) + '\n',
+    '_jb10d13.json');

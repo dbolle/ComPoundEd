@@ -50,6 +50,7 @@
 //   node coloringbook/judge/_jp15rev.mjs ladder <ref> h|v <a0,a1,b0,b1> [step]
 import sharp from 'sharp';
 import { readFileSync } from 'node:fs';
+import { disc as jpdisc } from './_jpdiscs.mjs';
 
 const HERE = new URL('.', import.meta.url).pathname;
 const P = (f) => new URL('../ref/' + f, import.meta.url).pathname;
@@ -60,7 +61,19 @@ const FITTED = {
   'penny-rev-1991d.png': { cx: 175.81, cy: 173.47, R: 174.13, p95pctR: 1.02, via: 'rim ray-cast + Kasa' },
   'penny-rev-artwork.jpg': { cx: 249.78, cy: 262.62, R: 174.89, p95pctR: 0.33, via: 'drawn-rim line, inner edge' },
 };
-const DISC = (f) => FROZEN[f] ?? FITTED[f] ?? (() => { throw new Error('no disc for ' + f); })();
+// ── CORRECTED 2026-08-24 (ledger A15). This line used to read
+//       const DISC = (f) => FROZEN[f] ?? FITTED[f] ?? …
+//   and FROZEN WON. `_jp1discs.json` does have an entry for
+//   `penny-rev-artwork.jpg` — cx 250.52, cy 222.30, R 252.41 — but it is not a
+//   fit: p95 13.93% of R with 244 of 720 rays ending on the search-window
+//   bound, because Gasparro's model is a DRAWING on paper and there is no
+//   struck rim for a flood or edge fit to find. So blend/grid/crop registered
+//   that reference at R 44.3% too large and cy 40.32 px off, while the `discs`
+//   subcommand ten lines below printed the good drawn-rim fit and gave the
+//   reader the impression it was the one in use. The precedence is now
+//   explicit and goes through `_jpdiscs.mjs`, which refuses an entry the
+//   correction sheet flags unusable rather than silently preferring it.
+const DISC = (f) => (FITTED[f] ? { ...FITTED[f], source: 'fitted here' } : jpdisc(f));
 const REFS = ['penny-rev-2.png', 'penny-rev.jpg', 'penny-rev-1991d.png', 'penny-rev-artwork.jpg'];
 
 const grey = async (f) => {

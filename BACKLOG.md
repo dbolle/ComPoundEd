@@ -7,6 +7,31 @@ reconsider after calibration.
 
 ## Where we are
 
+- 🟢 **STALE INSTRUMENTS closed (v1.91.0). No art changed.** Ten of the
+  fourteen ledger items this round owned are FIXED, with a verification command
+  beside each in `docs/FINDINGS-LEDGER.md`. Four instruments retired by MOVE at
+  their original hash; `_rimfit.mjs`, `_freeze.mjs`, `_jpdiscs.mjs` added.
+  **What is still open and needs an owner:**
+  - **A22 — 63 of 286 instruments cannot run outside the main checkout.**
+    `.gitignore` keeps the eval libraries (`_blnorm`, `_blfit`, `_pylib`,
+    `_pyeval`, `_rvnorm`, `_qtedge`, `_x6lib`, …) out of the repo, and
+    `_jp0hash.mjs` prints MISSING for 6 of the penny round's own frozen
+    libraries. §1.1's promise that any published number can be reproduced does
+    not hold for 22 % of the library. **Track them, or say plainly that it does
+    not hold.**
+  - **A6 — the note's border ratio is 2.6352/2.6393, not 2.5610/2.5827**, and
+    the shared anisotropy constant `1.3145` is 2.5–3.6 % low. This is the
+    registration everything on the note hangs from; it touches `EAG.ry`,
+    `PYR.ry`, the obverse vignette and the D2d gate. `_jb1fit.mjs` cannot be
+    repaired in-repo — it is a wrapper around a gitignored library.
+  - **A9 — nine instruments still register on the area disc**
+    (`_jc5unc`, `_jd2proof`, `_jd2rule`, `_jl4mode`, `_jl4fieldtest`,
+    `_nk17ladder`, `_nk17eye`, `_nk17grid`, `_nk1cmp`, `_nk2env`). Each needs
+    its own re-derivation, not a blind repoint.
+  - **A21 — three instruments still hold stale copies of our art**
+    (`_sw7gen.mjs`'s `OVAL` is the load-bearing one: `coatPath()` and
+    `outsideOval()` are computed from it).
+
 - 🔴 **DIME LEAVES loop 2: REVERTED by the judge, measurements KEPT.** Mixed
   result and the render decided it. **The olive improved** — the stem became
   visible between the leaves for the first time, which is exactly what the

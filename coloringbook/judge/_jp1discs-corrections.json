@@ -1,0 +1,75 @@
+{
+  "_readme": [
+    "CORRECTION SHEET for _jp1discs.json. Published BESIDE the frozen file, never into it:",
+    "COIN-JUDGE.md 1.1 — 'a corrected history entry sits next to the published one with both",
+    "values and the reason'. _jp1discs.json is hashed in _jp0hashes.json (roundTarget,",
+    "sha256 de72c3e35287a49d) and is left byte-identical so the penny round's numbers stay",
+    "reproducible. Read both through _jpdiscs.mjs, which merges them and refuses an entry",
+    "flagged unusable.",
+    "",
+    "Two defects in the frozen file, ledger A15, both confirmed 2026-08-24:",
+    "  1. penny-rev-1991d.png has NO entry at all, though it is a live reference.",
+    "  2. penny-rev-artwork.jpg's entry is UNUSABLE and carries no flag. Its p95 residual is",
+    "     13.93% of R with 244 of 720 rays terminating at the search-window end — a search",
+    "     bound, not a fit (COIN-JUDGE 4.1). Every other entry in the file is p95 <= 2.13%,",
+    "     and the two entries with a 3.4% / 5.2% A-vs-B disagreement DO carry a 'note'. The",
+    "     single worst entry is the only silent one.",
+    "",
+    "CONSEQUENCE, found while checking this: _jp15rev.mjs resolved discs as",
+    "`FROZEN[f] ?? FITTED[f]`, so its blend/grid/crop subcommands registered",
+    "penny-rev-artwork.jpg on the frozen R 252.41 / cy 222.30 instead of the good drawn-rim",
+    "fit R 174.89 / cy 262.62 that sits ten lines below in the same file — R 44.3% too large",
+    "and the centre 40.3 px off — while its own `discs` subcommand printed the good fit. That",
+    "precedence is corrected in _jp15rev.mjs; the frozen entry is untouched."
+  ],
+  "corrections": {
+    "penny-rev-1991d.png": {
+      "cx": 175.81,
+      "cy": 173.47,
+      "R": 174.13,
+      "p95pctR": 1.02,
+      "via": "rim ray-cast to the outermost non-background run, Kasa, trimmed 3x",
+      "source": "coloringbook/judge/_jp15rev.mjs FITTED, penny reverse face-review sweep 2026-08-23",
+      "reason": "ABSENT from _jp1discs.json. This is an addition, not a correction of a published number.",
+      "rederived": {
+        "on": "2026-08-24",
+        "by": "node coloringbook/judge/_jp15rev.mjs discs",
+        "cx": 175.75,
+        "cy": 173.47,
+        "R": 174.09,
+        "p95pctR": 1.04,
+        "dRpct": 0.024
+      }
+    },
+    "penny-rev-artwork.jpg": {
+      "cx": 249.78,
+      "cy": 262.62,
+      "R": 174.89,
+      "p95pctR": 0.33,
+      "via": "drawn-rim LINE, inner edge: walk in from 1.15R to the first dark pixel",
+      "source": "coloringbook/judge/_jp15rev.mjs FITTED, penny reverse face-review sweep 2026-08-23",
+      "supersedes": {
+        "cx": 250.52,
+        "cy": 222.3,
+        "R": 252.41,
+        "p95pctR": 13.93,
+        "via": "B edge",
+        "why": "not a fit: 244 of 720 rays ended at the search-window end. Gasparro's model is a DRAWING on paper, so there is no struck rim for a flood or edge fit to find; the detector locked onto the page.",
+        "delta": "R +44.3%, cy -40.32 px against the drawn-rim fit"
+      },
+      "caveat": "This fit locks onto the INNER edge of a hand-drawn line of finite width, so its SCALE carries roughly a percent of bias. Use it for RATIOS (feature height / building height), never for an absolute viewBox number. That caveat is why the entry is usable but not authoritative.",
+      "rederived": {
+        "on": "2026-08-24",
+        "by": "node coloringbook/judge/_jp15rev.mjs discs",
+        "cx": 249.78,
+        "cy": 262.67,
+        "R": 174.88,
+        "p95pctR": 0.36,
+        "dRpct": 0.008
+      }
+    }
+  },
+  "unusable": {
+    "penny-rev-artwork.jpg": "the _jp1discs.json entry only — see corrections above for the replacement"
+  }
+}

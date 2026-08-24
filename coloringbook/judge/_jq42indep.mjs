@@ -1,5 +1,39 @@
 // ROUND 4, TASK 1 — INDEPENDENCE OF EVERY QUARTER REFERENCE PAIR.
 //
+// ⚠️ 2026-08-24 — THE BACKGROUND-NCC COLUMN BELOW IS NOT EVIDENCE OF
+// INDEPENDENCE, IN EITHER DIRECTION. Read it as decoration until it is
+// replaced. The RAW / disc-normalised NCC columns — "is this the same
+// PHOTOGRAPH" — are unaffected and are the ones that caught all four
+// same-photograph traps.
+//
+// What was tested (ledger A16/A23). The largest off-diagonal in the obverse
+// background matrix, `qp1963-obv-pad.png` vs `quarter-proof-ebay.jpg` at
+// 0.459, was investigated as a possible shared rig. It is not one: a 1963
+// CoinWeek plate on teal velvet (ring mean RGB 4.6/32.8/31.9) against a 1998-S
+// eBay seller photo on neutral grey (180.3/184.1/181.3), different coins,
+// publishers, decades, formats and framings (R/W 0.3155 vs 0.4499). The 0.459
+// reproduces exactly (0.458759) and means nothing.
+//
+// WHY THE STATISTIC CANNOT WORK HERE, with the calibration that settles it:
+//
+//   qp1963-obv-pad vs qp1963-rev-pad    0.039   <- SAME plate, byte-verified
+//   qp1964-obv-pad vs qp1964-rev-pad    0.106   <- SAME plate
+//   qp1963-obv-pad vs qp1964-obv-pad   -0.082   <- same publisher, same pipeline
+//   qp1963-obv-pad vs quarter-proof-ebay 0.459  <- different publisher, decade, coin
+//
+// It ranks known shared setups BELOW unrelated ones. The reason is that over a
+// four-fold-symmetric corner mask the NCC of two backgrounds is close to the
+// cosine of the angle between their brightness GRADIENTS: r = 0.803 against
+// cos(delta ramp direction) across the 15 informative pairs, slope 0.417. Two
+// unrelated vignettes that merely both have a ramp give E|cos| = 2/pi ~ 0.64.
+// And 10 of the 15 quarter references have no measurable background at all —
+// 96-98% of their annulus is `normalise()`'s out-of-bounds fill constant 255,
+// so their entire rows read +-0.01 by construction, which is a degenerate
+// answer printed as a measurement (COIN-JUDGE PY5).
+//
+// No published number is contaminated: no instrument averages a measurement
+// over both accused files.
+//
 // The same-photograph trap has hit FOUR times out of four: two dime references
 // at NCC 0.9931; quarter-rev.jpg vs quarter-rev-5.jpg at 0.9850; a byte-
 // identical duplicate; and quarter-rev-6.jpg, which is a Nebraska state

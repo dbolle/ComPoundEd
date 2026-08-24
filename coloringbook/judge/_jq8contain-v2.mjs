@@ -34,7 +34,8 @@
 //
 // Run: node coloringbook/judge/_jq8contain-v2.mjs [srcModule]
 //      COIN=penny  ... -> full per-tier table for one coin
-//      RESPONSE=1  ... -> response test (eagle head moved out of the field)
+//      RESPONSE=1  ... -> response + null test (the device shoved out of the
+//                         field; repaired 2026-08-24, see the block at the end)
 //      SELFTEST=1  ... -> the field-radius regression that v1 fails
 import { readFileSync, writeFileSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -260,14 +261,71 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   }
 
   if (process.env.RESPONSE) {
-    const code = readFileSync(join(ROOT, 'src/art/coins.js'), 'utf8');
-    const anchor = '<circle cx="50" cy="27.8" r="${rHead}"/>';
-    if (!code.includes(anchor)) throw new Error('RESPONSE anchor missing — fix the test before trusting D8');
-    const moved = await loadCoins(code.replace(anchor, '<circle cx="50" cy="7.8" r="${rHead}"/>'));
+    // ── REPAIRED 2026-08-24 (ledger A11) ─────────────────────────────────────
+    // The old test substituted a literal into the SOURCE of coins.js:
+    //
+    //   const anchor = '<circle cx="50" cy="27.8" r="${rHead}"/>';
+    //   if (!code.includes(anchor)) throw new Error('RESPONSE anchor missing…');
+    //
+    // That string is no longer anywhere in coins.js, so `RESPONSE=1` threw and
+    // the response test had not run for an unknown number of rounds. It failed
+    // CLOSED, which is the one thing it got right — but a guard that cannot run
+    // is not a guard, and D8's ability to move was therefore unverified while
+    // D8 verdicts kept being published.
+    //
+    // The anchor was the same defect the ledger calls A4/A5/A17: AN INSTRUMENT
+    // HOLDING ITS OWN COPY OF THE SUBJECT. A response test that names a
+    // coordinate in the art is guaranteed to rot the next time the art moves,
+    // and it rots into silence.
+    //
+    // The replacement injects a defect that is defined on the EMITTED SVG and
+    // is valid for any content: everything after the last centred field circle
+    // is wrapped in a translate group, which pushes the whole device out of the
+    // field. Nothing about the drawing is named. Three things are asserted
+    // before the number is believed:
+    //
+    //   · the wrap found an insertion point at all (else throw);
+    //   · the wrap MOVED the geometry — mark count identical, centroids all
+    //     changed (else throw: a no-op injection proves nothing);
+    //   · a ZERO translate leaves every number bit-identical (the null test —
+    //     otherwise the harness itself is perturbing the measurement).
+    const SHOVE = 12;                      // units, well past any field radius
+    function inject(svg, dx, dy) {
+      // The emitted order on every coin in the set is:
+      //   blank | field FILL circle | the device | field RING circle | lettering
+      // so "the device" is exactly what lies BETWEEN the first and the last
+      // centred circle over r 35. Wrapping that span translates the device and
+      // leaves the blank, both field circles and the legend where they are —
+      // which is the defect the gate exists to catch. Nothing here names a
+      // coordinate of the drawing; the span is found in the SVG being scored.
+      const fields = [];
+      for (const m of svg.matchAll(/<circle\b[^>]*>/g)) {
+        const g = (k) => Number((m[0].match(new RegExp(`\\b${k}="([-\\d.]+)"`)) || [])[1]);
+        if (Math.abs(g('cx') - 50) < 1e-6 && Math.abs(g('cy') - 50) < 1e-6 && g('r') > 35) fields.push(m);
+      }
+      if (fields.length < 2) throw new Error(`RESPONSE: expected a field fill AND a field ring, found ${fields.length} centred circles over r 35 — cannot place the injection`);
+      const a = fields[0].index + fields[0][0].length, b = fields[fields.length - 1].index;
+      if (b <= a) throw new Error('RESPONSE: the two field circles are adjacent — no device between them');
+      return svg.slice(0, a) + `<g transform="translate(${dx} ${dy})">` + svg.slice(a, b) + '</g>' + svg.slice(b);
+    }
+    const shoved = (dx, dy) => ({ ...mod, coinSVG: (id, size, o) => inject(mod.coinSVG(id, size, o), dx, dy) });
+
+    // assert the injection is real, on the exact draw the test scores
+    const probe = mod.coinSVG('quarter', 380, { side: 'reverse' });
+    const a0 = marks(probe), a1 = marks(inject(probe, SHOVE, 0));
+    if (a0.length !== a1.length) throw new Error(`RESPONSE: injection changed the mark count ${a0.length} -> ${a1.length} — not a pure translate`);
+    const nMoved = a0.filter((m, i) => (m.bbox.x0 + m.bbox.x1) / 2 !== (a1[i].bbox.x0 + a1[i].bbox.x1) / 2).length;
+    if (nMoved === 0) throw new Error('RESPONSE: the injected translate moved NOTHING — the test is a no-op, fix it before trusting D8');
+
     const base = worstOf(await measure(mod, 'quarter'), (x) => x.side === 'reverse');
-    const after = worstOf(await measure(moved, 'quarter'), (x) => x.side === 'reverse');
-    console.log(`\nRESPONSE TEST: eagle head moved 20 units up, outside the field circle.`);
+    const after = worstOf(await measure(shoved(SHOVE, 0), 'quarter'), (x) => x.side === 'reverse');
+    const nullRun = worstOf(await measure(shoved(0, 0), 'quarter'), (x) => x.side === 'reverse');
+    console.log(`\nRESPONSE TEST: the whole quarter-reverse device translated +${SHOVE} units in x, out of the field circle.`);
+    console.log(`  injection is real: ${nMoved} of ${a0.length} marks moved, mark count unchanged`);
     console.log(`  quarter reverse worst % outside field: ${base.pctOutField.toFixed(4)} -> ${after.pctOutField.toFixed(4)}`);
     console.log(after.pctOutField > base.pctOutField + 0.1 ? '  RESPONSE TEST PASS' : '  RESPONSE TEST FAIL — D8 is UNTRUSTED');
+    const nullOk = nullRun.pctOutField === base.pctOutField && nullRun.maxr === base.maxr;
+    console.log(`  NULL TEST: a ZERO translate gives ${nullRun.pctOutField.toFixed(4)}% (max r ${nullRun.maxr.toFixed(3)})` +
+      `  ${nullOk ? 'bit-identical to the unwrapped draw, as it must be' : '*** THE HARNESS ITSELF PERTURBS D8 — UNTRUSTED ***'}`);
   }
 }

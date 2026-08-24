@@ -102,6 +102,24 @@ strings — and none was edited, because `src/art/coins.js`, `BACKLOG.md` and
 `CHANGELOG.md` were out of scope for the cull. Add `retired/` when you follow
 one.
 
+## The 2026-08-24 stale-instrument round — four more, all DRIFT
+
+Each was superseded by a named live successor, so the method survives; each is
+here because it published a number against art that no longer exists.
+
+| file | why | successor |
+|---|---|---|
+| `_jb14d1.mjs` | **Both sides of its IoU were literals.** `OURS` was `{cx 34, cy 28, rx 17, ry 21}`, last true at v1.83.0; `NOTE` was the r0 ladder read. Its `D1 IoU 0.1496 FAIL` could not move for any reason — not for a change in the art, not for a change in the reference. | `_bxCrecord.mjs`, which parses the emitted SVG |
+| `_jb3seal.mjs` | `OURS` was circles r16 at cx 30/70; the note draws ellipses at (23.13, 27.88) and (76.88, 27.75). Five of the six D2 FAIL rows it published are PASSes. Also imports the gitignored `../_blnorm.mjs`. | `_bxCrecord.mjs` for the verdicts; its own output `_jb4target.json` stays live as the frozen target |
+| `_jb15look.mjs` | Sheets 26 / 54 / 190. `src/screens/money.js` draws 38, 48, 54 and 84 — two of its three sizes are sizes no child ever sees, and the 84 px naming draw was not on it. | `_jb16look.mjs`, which sheets exactly 38/48/54/84 |
+| `_jc5corner.mjs` | Queries `BEARD` knot 7 at (−17.28, 8.63). The drawn knot 7 is (−18.85, 4.00); the old value survives only inside a comment. Removed by `88324fc` (v1.63.0). Also imports the gitignored `../_nkbuild.mjs`. | `_jh8ours.mjs` |
+
+All four re-hash identically at their new path (`e3ed115e5a64da59`,
+`bd2ac2aa4e128082`, `7ab2409bc2ea5a02`, `88feed07d80b645e`). Nothing was edited
+on the way in, so the numbers they published are still reproducible — which
+matters here, because those numbers are wrong and the correction has to be
+checkable against the thing that produced them.
+
 ## The three that were already here
 
 `_jq5letter.mjs`, `_jq8contain.mjs` and `_jqvalley.mjs` predate the 2026-08-22

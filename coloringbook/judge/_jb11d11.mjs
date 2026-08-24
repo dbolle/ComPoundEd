@@ -19,7 +19,9 @@
 // 64 wide and 36 tall inside the 64x64 grid, so nothing leans on size.
 //
 //   node coloringbook/judge/_jb11d11.mjs [json]
-import { writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { JUDGE } from './_paths.mjs';
+import { freezeWrite } from './_freeze.mjs';
 import { rasterise, upN, mad, ncc, N, ICON_SIZE, SIDES, key } from '../_x6lib.mjs';
 const mod = await import('../../src/art/coins.js');
 
@@ -98,5 +100,12 @@ console.log(`  this run:            ${m4o.mad.toFixed(4)} ${m4o.a}/${m4o.b} ; ${
   console.log(`  note's worst pair ${Math.min(...before).toFixed(4)} -> ${Math.min(...after).toFixed(4)}`);
 }
 
+// GUARDED, 2026-08-24 (ledger A14, WRITERS.md). This flag used to overwrite a
+// hashed artefact unconditionally: one mistyped argument replaced the frozen
+// evidence for a published round while the round's hash file still asserted the
+// old bytes. `freezeWrite` creates, no-ops on identical bytes, and refuses a
+// CHANGE unless JUDGE_REFREEZE=1 is set deliberately.
 if (process.argv[2] === 'json')
-  writeFileSync(new URL('./_jb11d11.json', import.meta.url), JSON.stringify({ generated: 'coloringbook/judge/_jb11d11.mjs', N, ICON_SIZE, pairs, m4, m4o, m4r, m5, m5o, m5r, mb }, null, 2) + '\n');
+  freezeWrite(join(JUDGE, '_jb11d11.json'),
+    JSON.stringify({ generated: 'coloringbook/judge/_jb11d11.mjs', N, ICON_SIZE, pairs, m4, m4o, m4r, m5, m5o, m5r, mb }, null, 2) + '\n',
+    '_jb11d11.json');

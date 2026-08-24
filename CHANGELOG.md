@@ -3,6 +3,134 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.91.0 — 2026-08-24
+
+**Instruments only, no art. Every measuring device that held its own copy of
+the subject has been found, and the numbers they published are corrected in
+public rather than quietly replaced.**
+
+`src/art/coins.js` is untouched — this release changes nothing a child sees.
+
+**The one bug, in eleven places.** *An instrument must never hold its own copy
+of the subject.* A scorer that pastes our coordinates keeps scoring after the
+art moves, and it fails silently, in whichever direction the stale copy points.
+
+- **`_jb14d1.mjs` — RETIRED.** Both sides of its IoU were literals, so its
+  published `D1 IoU 0.1496 FAIL` could not move for any reason. Recomputed
+  from the live SVG the same comparison is **0.8834**, and against the
+  border-registered target **0.9872 PASS**.
+- **`_jb3seal.mjs` — RETIRED.** Its `OURS` was circles r16 at cx 30/70; the
+  note draws ellipses at (23.13, 27.88) and (76.88, 27.75). **Five of its six
+  published buck D2 FAILs are PASSes** — D2a IoU 0.9989, D2b 0.9991, centres
+  0.007/0.005, semi-axes +0.06 %, separation 53.75 exact.
+- **`_jb8geom.mjs` — REPAIRED, and six rows retracted.** Its response test
+  substituted `cx="70"`, a string the art stopped emitting at v1.83.0, so it
+  matched nothing and printed *DID NOT MOVE — UNTRUSTED* on every run. Its D8b
+  locus was the same dead circles, and it printed `0.000 % outside` because the
+  wrong circle was bigger and happened to overlap. Now: response translates the
+  whole device (0.0000 % → 15.8974 %) with a zero-translate null test, and D8b
+  is scored against the roundel measured on the photographs.
+- **`_jq8contain-v2.mjs` — REPAIRED.** `RESPONSE=1` threw on a missing source
+  anchor, so D8's ability to move had gone unchecked. The injection is now
+  defined on the emitted SVG, is asserted to have moved 94 of 98 marks, and
+  0.0000 % → 4.1890 %.
+- **`_jc5corner.mjs`** (BEARD knot 7 at (−17.28, 8.63); drawn since v1.63.0 at
+  (−18.85, 4.00)) and **`_jb15look.mjs`** (sheets 26/54/190 where the app draws
+  38/48/54/84) — **RETIRED**, both superseded.
+
+**The disc is fitted at the rim.** `_rimfit.mjs` replaces about ten private
+copies of `R = √(area/π)`. It is checked against synthetic discs of *known*
+radius — 80 / 137.5 / 220 recovered to 0.014 px, centre to 0.007 px — then
+response-tested, then null-tested against `_dr1disc.mjs`'s independent
+estimator to a mean of **−0.078 %**. Freshly measured area error: nickel-rev-2
+**−31.71 %**, dime-rev-proofbright **−28.84 %**, quarter-obv-2 −4.55 %.
+`_nk3over.mjs` is repointed and now prints the error it used to carry.
+
+**Frozen evidence is guarded.** `_freeze.mjs` — create if absent, no-op on
+identical bytes, refuse a change without `JUDGE_REFREEZE=1`. Wired into the
+three CLI flags that used to overwrite hashed artefacts unconditionally.
+
+**A registration correction with a live consequence.** `_jp1discs.json`'s
+`penny-rev-artwork.jpg` entry is not a fit (p95 13.93 % of R, 244 of 720 rays
+on the search bound) and carried no flag, and `_jp15rev.mjs` preferred it over
+the good drawn-rim fit ten lines below in the same file — registering that
+reference at **R 44.3 % too large and cy 40.32 px off**. The frozen file is
+untouched; the correction is published beside it and served by `_jpdiscs.mjs`,
+which refuses the bad entry.
+
+**Two findings closed by refutation, which is also a result.** The note's
+printed-border ratio is **2.6352 / 2.6393**, not the published 2.5610 / 2.5827
+— the fit was bleeding uniformly onto blank paper, which compresses a wide
+rectangle's aspect. And `_jq42indep.mjs`'s background-NCC is not an
+independence statistic at all: pairs known to share one photographic plate
+score 0.039 and 0.106 where the pair suspected of sharing one scores 0.459.
+
+## v1.91.0 — 2026-08-24
+
+**Paying the instrument debt: eleven ledger items closed, and eight published
+numbers corrected.**
+
+No pixel changes — `src/art/coins.js` is byte-identical and the partition reads
+**0/60**. What changed is that the gates now measure the art instead of
+measuring copies of themselves.
+
+**The cross-cutting bug, killed:** *an instrument must never hold its own copy
+of the subject.* It was worse than recorded. `_jb14d1.mjs` had **both** sides of
+its IoU as literals, so `D1 IoU 0.1496 FAIL` could not move for any reason
+whatsoever. Recomputed live: **0.8834**, and **0.9872 PASS** against the
+border-registered target. Retired by move, hash intact.
+
+**A false gate constant, not a false drawing.** `_jb3seal.mjs`'s five buck D2
+FAILs are PASSes. Its sixth — D2d-eagle **+6.06 %** — was believed real. It is
+not: the note's printed-border fit **bleeds uniformly outward onto paper**,
+which compresses a wide rectangle's aspect because the top and bottom errors
+share a sign. Independent sub-pixel rule fits give **2.6352 / 2.6393** (two
+photographs agreeing to 0.09 %) against the published 2.5610 / 2.5827, so the
+shared anisotropy **1.3145 is 2.5–3.6 % low**. At the corrected value the eagle
+reads **+3.5 % — a PASS.** *All six FAILs were the instruments' fault.*
+
+**Published numbers now corrected** (old → right): buck D1 `0.1496 FAIL` →
+0.8834 / **0.9872 PASS**; five buck D2 rows **FAIL → PASS**; D2d-eagle
++6.06 % → **+3.5 % PASS**; six `_jb8geom` D8b rows `0.000 %, depth −3.294` →
+max ρ 0.7360 / 0.8872; note border ratio 2.5610 / 2.5827 → **2.6352 / 2.6393**;
+anisotropy 1.3145 → **1.3475**; `_jp1discs.json`'s `penny-rev-artwork.jpg`
+R 252.41 → **174.89**, cy 222.30 → **262.62**; and any note D1 reported as
+**1.0000** was ours-vs-ours.
+
+**Gates that could not fail, now able to:** `_jq8contain-v2.mjs`'s `RESPONSE=1`
+**threw** on a missing anchor, so D8's ability to move was unverified while D8
+verdicts kept shipping (0 → 4.1890 %, with the injection asserted real — 94 of
+98 marks moved — and a zero-translate null test). `_jb8geom.mjs` had **two**
+stale self-copies, one a `svg.replace(/cx="70"/)` that matched nothing.
+`_jh8locus.mjs` now fails loudly on a stale anchor instead of carrying on.
+
+**A canonical rim fitter, tested against ground truth:** `_rimfit.mjs` recovers
+a **known** radius on synthetic discs (80 / 137.5 / 220 → 0.014 px), is
+null-tested against an independent estimator to **−0.078 %**, and demonstrates
+the failure it replaces on a synthetic annulus (rim exact, area **−19.65 %**).
+Fresh per-file area error: `nickel-rev-2.png` **−31.71 %**,
+`dime-rev-proofbright.png` **−28.84 %**, and five more. **Nine instruments still
+register on area** and are named — each needs its own re-derivation, not a
+blind repoint. Seven suspected files were false positives of the grep.
+
+**Frozen artefacts are now protected** by `_freeze.mjs` (create if absent,
+no-op on identical bytes, refuse a change without `JUDGE_REFREEZE=1`) — wired
+into three instruments, one of which was an unrecorded fourth instance.
+
+**A16 REFUTED, and the instrument was the problem.** The 0.459 "shared setup"
+signal reproduces exactly but is ≈ cos(57°) between two unrelated background
+ramps — the two files are different coins, publishers, decades and formats.
+**Calibration: pairs known to share one plate score 0.039 and 0.106.** The
+statistic ranks shared setups *below* unrelated ones, and 10 of 15 references
+have no measurable background at all. No published number was contaminated.
+
+**Two new items raised** rather than left implicit: three instruments still hold
+stale copies of our art, one of them load-bearing (**A21**); and `.gitignore`
+keeps the eval libraries out of the repo, so **63 of 286 instruments cannot run
+in any worktree or clone** — §1.1's promise that any published number can be
+reproduced does not currently hold for 22 % of the library (**A22**, owner
+decision).
+
 ## v1.90.0 — 2026-08-24
 
 **A petiole is not a free parameter, because the leaf's total reach is measured

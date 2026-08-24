@@ -13,21 +13,30 @@
 //
 // This version works on a boolean grid at the render's own resolution, so the
 // neighbour test is exact by construction.
+// ── THE THIRD FAILURE, FIXED 2026-08-24 (ledger A10) ───────────────────────
+//  3. The private `discOf()` below registered the PHOTOGRAPH by AREA:
+//         R = sqrt(count(|grey - bg| > 25) / PI)
+//     That is the radius of a circle with the mask's area, not the rim. On the
+//     two references this file crops it reads
+//         nickel-obv-proof.png   area 1401.38 vs rim 1412.97   -0.82 %
+//         nickel-obv-5.JPG       area  467.41 vs rim  473.54   -1.29 %
+//     so the crop box was 0.8-1.3 % too tight, the coin filled slightly more of
+//     the tile than it should, and our outline was drawn correspondingly small
+//     against it — the SAME DIRECTION as the 6.0 % blank-radius error recorded
+//     below, on top of it. That error was found and fixed; this one was left,
+//     and every overlay this file has produced since carries it.
+//
+//     The registration is now `_rimfit.mjs`, which recovers a known radius on a
+//     synthetic disc to 0.014 px and agrees with `_dr1disc.mjs`'s independent
+//     rim fitter to a mean of -0.078 %. Its area fit is still computed, and is
+//     PRINTED, as the error term — never as a coordinate.
 import sharp from 'sharp';
+import { join } from 'node:path';
 import { coinSVG } from '../../src/art/coins.js';
-const REF = new URL('../ref/', import.meta.url).pathname;
+import { fitRim } from './_rimfit.mjs';
+import { REF as REF_DIR, JUDGE } from './_paths.mjs';
+const REF = REF_DIR + '/';
 const N = 720;
-
-async function discOf(file){
-  const {data,info}=await sharp(REF+file).greyscale().raw().toBuffer({resolveWithObject:true});
-  const px=(x,y)=>data[y*info.width+x]; const b=[];
-  for(let x=0;x<info.width;x++)b.push(px(x,0),px(x,info.height-1));
-  for(let y=0;y<info.height;y++)b.push(px(0,y),px(info.width-1,y));
-  b.sort((p,q)=>p-q); const bg=b[b.length>>1];
-  let n=0,sx=0,sy=0;
-  for(let y=0;y<info.height;y++)for(let x=0;x<info.width;x++) if(Math.abs(px(x,y)-bg)>25){n++;sx+=x;sy+=y;}
-  return {cx:sx/n,cy:sy/n,R:Math.sqrt(n/Math.PI),w:info.width,h:info.height};
-}
 
 const png = await sharp(Buffer.from(coinSVG('nickel', N, {side:'obverse'}))).flatten({background:'#ffffff'}).png().toBuffer();
 const { data, info } = await sharp(png).greyscale().raw().toBuffer({resolveWithObject:true});
@@ -67,7 +76,8 @@ if (frac > 0.25) { console.log('!! OUTLINE IS NOT AN OUTLINE — extraction brok
 
 const B=560, tiles=[], names=[];
 for (const f of ['nickel-obv-proof.png','nickel-obv-5.JPG']) {
-  const d=await discOf(f);
+  const d=await fitRim(f);
+  console.log(`  ${f}  rim R ${d.R.toFixed(2)} (p95 ${d.p95pctR}% of R)  |  the AREA fit this file used to register on: ${d.areaR.toFixed(2)}, ${d.areaErrPct>0?'+':''}${d.areaErrPct}%`);
   const L=Math.max(0,Math.round(d.cx-d.R)),T=Math.max(0,Math.round(d.cy-d.R));
   const S=Math.round(Math.min(2*d.R,d.w-L,d.h-T));
   const base=await sharp(REF+f).extract({left:L,top:T,width:S,height:S}).resize(B,B,{fit:'fill'}).png().toBuffer();
@@ -78,5 +88,5 @@ for (const f of ['nickel-obv-proof.png','nickel-obv-5.JPG']) {
 const WW=tiles.length*(B+10)+10,HH=B+40;
 const txt=names.map((n,i)=>`<text x="${10+i*(B+10)}" y="24" font-family="monospace" font-size="14" fill="#111">our outline on ${n}</text>`).join('');
 await sharp(Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${WW}" height="${HH}"><rect width="${WW}" height="${HH}" fill="#fff"/>${txt}</svg>`))
- .composite(tiles.map((b,i)=>({input:b,left:10+i*(B+10),top:32}))).png().toFile('coloringbook/judge/_nk3over.png');
+ .composite(tiles.map((b,i)=>({input:b,left:10+i*(B+10),top:32}))).png().toFile(join(JUDGE,'_nk3over.png'));
 console.log('wrote _nk3over.png');

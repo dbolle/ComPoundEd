@@ -30,7 +30,7 @@
 // on the way out; the pristine baseline is coloringbook/judge/_jh8-before-coins.js.
 //
 // Run: node coloringbook/judge/_jh8locus.mjs [src]
-import { readFileSync, writeFileSync, unlinkSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'node:fs';
 import * as E from '../_pyeval.mjs';
 
 const SRC = process.argv[2] || 'src/art/coins.js';
@@ -96,21 +96,56 @@ const cases = [
 
 console.log('\n=== RESPONSE / NULL TESTS — D1 under a gross mutation of each path ===');
 console.log(`  baseline                                        IoU ${base.iou.toFixed(8)}  inter ${base.inter}  oursOnly ${base.oursOnly}  refOnly ${base.refOnly}`);
+// ── REPAIRED 2026-08-24 (ledger A13) ────────────────────────────────────────
+// Every one of the four guards below used to `console.log(...); continue;`.
+// The third case is labelled "the RESPONSE test — must MOVE", and on the art as
+// it stands its end marker is not found, so the instrument printed
+//
+//     HEAD.Lincoln  (the RESPONSE test — must MOVE): end marker not found
+//
+// and carried on to a clean exit. The check that D1 CAN move never ran, and
+// nothing in the output said the run was worthless. §4: an instrument that
+// cannot fail is worth nothing — and one that CANNOT RUN ITS OWN FAILURE CHECK
+// and exits 0 is worse, because it looks like a pass.
+//
+// Now: a missing anchor is a STALE ANCHOR and is recorded as a failure, a
+// mutation that does not change the source text is a no-op and is recorded as a
+// failure, and the run ends by asserting that the response case both RAN and
+// MOVED. If it did not, the process exits non-zero with UNTRUSTED on stdout.
+const RESPONSE_CASE = 'HEAD.Lincoln  (the RESPONSE test — must MOVE)';
+const outcome = new Map();
 for (const [name, s, e, body] of cases) {
   const start = s.slice(0, s.indexOf('\n', s.indexOf('[')) + 1);
   const iStart = text.indexOf(start);
-  if (iStart < 0) { console.log(`  ${name}: START MARKER NOT FOUND — mutation skipped`); continue; }
+  if (iStart < 0) { outcome.set(name, 'STALE ANCHOR: start line not in the source'); continue; }
   // find the literal line that begins the array and the array's end
   const iOpen = text.indexOf(s);
-  if (iOpen < 0) { console.log(`  ${name}: marker not found`); continue; }
+  if (iOpen < 0) { outcome.set(name, 'STALE ANCHOR: opening literal not in the source'); continue; }
   const iEnd = text.indexOf(e, iOpen);
-  if (iEnd < 0) { console.log(`  ${name}: end marker not found`); continue; }
+  if (iEnd < 0) { outcome.set(name, 'STALE ANCHOR: end marker not in the source'); continue; }
   const mutated = text.slice(0, iOpen + start.length - 1) + body + text.slice(iEnd);
+  if (mutated === text) { outcome.set(name, 'NO-OP: the mutation left the source byte-identical'); continue; }
   const file = 'src/art/_jh8tmp.js';
+  if (existsSync(file)) throw new Error(`${file} already exists — a previous run died mid-mutation. Delete it by hand and check src/art/ is clean before trusting anything here.`);
   writeFileSync(file, mutated);
   try {
     const r = await iouOf(file);
     const same = r.iou === base.iou && r.inter === base.inter && r.oursOnly === base.oursOnly && r.refOnly === base.refOnly;
-    console.log(`  ${name.padEnd(46)} IoU ${r.iou.toFixed(8)}  inter ${r.inter}  oursOnly ${r.oursOnly}  refOnly ${r.refOnly}   ${same ? 'BIT-IDENTICAL -> outside the locus' : 'MOVED -> inside the locus'}`);
+    outcome.set(name, same ? 'BIT-IDENTICAL -> outside the locus' : 'MOVED -> inside the locus');
+    console.log(`  ${name.padEnd(46)} IoU ${r.iou.toFixed(8)}  inter ${r.inter}  oursOnly ${r.oursOnly}  refOnly ${r.refOnly}   ${outcome.get(name)}`);
   } finally { unlinkSync(file); }
+}
+for (const [name, o] of outcome) if (!o.startsWith('BIT-IDENTICAL') && !o.startsWith('MOVED')) console.log(`  ${name.padEnd(46)} ${o}`);
+if (existsSync('src/art/_jh8tmp.js')) throw new Error('the mutant was left behind in src/art/ — an instrument must leave the repo byte-identical (judge/WRITERS.md)');
+
+const resp = outcome.get(RESPONSE_CASE);
+console.log('\n=== §4 VERDICT ON THIS INSTRUMENT ===');
+if (resp === 'MOVED -> inside the locus') {
+  console.log('  the response case ran and D1 MOVED — the metric is shown to be capable of failing.');
+} else {
+  console.log(`  the response case did NOT establish that D1 can move: "${resp ?? 'the case never ran'}".`);
+  console.log('  *** THIS INSTRUMENT IS UNTRUSTED. Every number above is a search-bound-shaped answer ***');
+  console.log('  *** until the anchor is re-derived from the art as it stands. Repair the anchor,   ***');
+  console.log('  *** do not delete the check.                                                       ***');
+  process.exitCode = 1;
 }
