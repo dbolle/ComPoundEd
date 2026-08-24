@@ -7,6 +7,42 @@ reconsider after calibration.
 
 ## Where we are
 
+- 🔴 **DIME LEAVES loop 2: REVERTED by the judge, measurements KEPT.** Mixed
+  result and the render decided it. **The olive improved** — the stem became
+  visible between the leaves for the first time, which is exactly what the
+  round's best finding was for. **The oak over-corrected**: petioles became long
+  straight bars with leaves floating at their ends, reading as a **TV antenna**
+  rather than foliage, where the coin's oak sits close to its own stem. And the
+  **acorn regressed** — it was a distinct blob in open field and is now merged
+  into the leaf above it, which is the feature the owner specifically had
+  restored in v1.84.1. T1 rose (0.419 → 0.461) and was again not the arbiter.
+  **KEEP AND REUSE — `_dr12leaf.mjs` is retained:**
+  - **THE COLLINEARITY FAULT, which nobody had named, and which is the real
+    reason the stem disappears.** A blade at angle `rot` projects its width onto
+    the offset axis magnified by **1/sin(rot)**, so the 38° lowest inboard leaf
+    at 8.3 wide covered **13.5 units of offset** and swallowed the stem. Both
+    references show the stem as a **separate mark with bare field on both sides
+    from y 41 to y 61** (pb y52: `4.5-12.4 | 15.8-16.6 | 19.3-31.5`); ours read
+    `5.3-28.5`. One constant — putting the petiole at `rot × 0.35` rather than
+    collinear with the blade — moved our inboard edge to 12.97 against the
+    coin's 12.4/12.8. **This finding is sound and should be carried forward.**
+  - **The crown was a fork where the coin has one apex.** `rot` 72/77 put the
+    two tips 7.8 apart with **6.2 units of bare field between them at y 27**;
+    both references come to a single point at offset 15.8–16.9 and widen
+    downward. The crown springs at y 40.5/41.0, not 39.5/40.0, and the terminal
+    leaf's measured standoff is **0.00 on both files — it is sessile.**
+  - **One blade size for seven nodes is wrong.** Six zero-erosion reads run
+    11.63–15.52 long and **5.56–9.57 wide** — width varies **1.72×**, length
+    only 1.26× — and the drawn blade had been sized off the two narrowest only.
+  - Measured standoffs: olive 3.19/4.28/4.87 (pb), 2.93/5.83/4.28 (unc); oak
+    **7.39/3.91 (pb) but 3.51 (unc)** — note the oak's own references disagree
+    by 2×, which is very likely why the oak overshot and the olive did not.
+  **FOR LOOP 2b:** keep the collinearity tilt and the crown apex; treat the oak
+  petiole length as **unresolved** (its two references disagree 7.39 v 3.51) and
+  err short — the coin's oak foliage sits close to the stem. **The acorn must
+  remain a separately readable blob**; check it explicitly at 40× before
+  concluding.
+
 - 🔴🔴 **T1 — THE PRIMARY GATE — HAS NO `buck` ROW. "32/32" NEVER INCLUDED THE
   $1 NOTE.** `POOL_BY_SIDE` in `_jt1transfer.mjs` is `{penny, nickel, dime,
   quarter}`, so 32 = **4** denominations × 2 faces × 4 sizes. The judge repeated
