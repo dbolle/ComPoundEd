@@ -131,7 +131,8 @@ round.
 
 | # | Finding | Status |
 |---|---|---|
-| D1 | **Quarter obverse wig: the direction field is measured wrong** (median 10.3°, worst 37.8°, 9 of 14 outside the between-reference spread) and correcting marks *individually* puts **8 centreline crossings** into a wig that had 0. **Must be re-authored as a set.** **R2 applies**: expect advisory numbers to move the wrong way mid-way. | **OPEN — largest art item** |
+| D1 | **Quarter obverse wig: the direction field was measured wrong** and correcting marks *individually* put **8 centreline crossings** into a wig that had 0. **Re-authored as a set at v1.96.0**: every mark is an **integral curve of one measured field**, so non-crossing is a property of the construction (0 crossings, verified). The smoothing scale is chosen by leave-one-out over the three references — sigma 1.0, floor **9.08°**, curve nearly flat. **The published metric was asking the wrong question of a curved mark** (its chord midpoint is up to 2.99 units off the mark): metric A median 10.3 → 9.0° and sign **12:2 shallow → 7:7**; new metric B (drawn tangent, 9 stations a mark) **14.3 → 2.3°, 84/126 → 8/126 stations out, 10/14 → 0/14 marks**. **R2 regressions published:** T1 quarter-obv 0.573 → 0.562 (32/32 held), crown tone ~1.336 → ~1.301, eight pairs crowd by ≤0.50 units. Re-spacing (ridge duty 0.462, above the 0.350–0.443 band) and shortening (−45 % length) both refused with numbers. Verify: `node coloringbook/judge/_qw1field.mjs` · `node coloringbook/judge/_qw2gen.mjs` · `node coloringbook/judge/_qo5field.mjs` | **FIXED** v1.96.0 |
+| D1a | **The quarter's wig is not one laminar family.** At x 44–52, y 22–34 (the temple, in front of every mark we draw) the measured field runs **−57° to −82°** — a near-vertical strand family the drawing does not draw at all. At the nape the three references disagree by **28°** (grooves[4]: 80.0 and 52.2, third at coherence 0.095) because the coin has a rolled **curl** and a direction field is the wrong model for a spiral. Recorded as unmeasured, not guessed. Needs a fourth high-resolution same-design reference, or a curl model. | **OPEN** (new) |
 | D2 | **Quarter reverse eye: 0.92-unit gap between a recorded measurement and the drawn constant** — file says (47.6, 24.5), code draws (47.4, 25.4), on the mark the file calls the most important on that motif. | **OPEN** |
 | D3 | Quarter obverse is the last face on the shared `EYE_MARK`; its shape has no derivation. The eye is ~3 viewBox units and the brow merges at every threshold. | **BLOCKED** (resolution) |
 | D4 | **Dime obverse ear: too small and 2–4 units too low on all nine references** — three instruments refused themselves. | **BLOCKED** |
@@ -180,14 +181,26 @@ round.
     It looked exactly like a clean bill of health. **Null-test the instrument
     against a case where you KNOW the answer is non-zero, before you publish a
     zero.**
-19. **A SEARCH THAT DEPENDS ON LOOP NESTING ORDER IS NOT A MEASUREMENT.**
+19. **A METRIC CAN ENCODE A SHAPE ASSUMPTION AND NOBODY NOTICES UNTIL THE
+    SHAPE CHANGES.** The quarter wig's direction gate compared a mark's CHORD
+    with the coin at that chord's MIDPOINT. That is the same question only for
+    a STRAIGHT mark. When the marks became curves the midpoint moved up to 2.99
+    units off the mark — onto a neighbour — and `_qo5field`'s own null test
+    refused to report on art that was closer to the coin. Publish the old
+    metric, say what it now measures, and add the one that asks the question.
+20. **IF INDIVIDUAL CORRECTION MAKES A FAMILY CROSS, THE FAMILY IS THE OBJECT.**
+    Fourteen marks rotated one at a time gave 0.1° and a starburst. The same
+    fourteen drawn as integral curves of one field gave 2.3° and zero crossings,
+    because two integral curves of a single-valued field cannot cross. The gate
+    was never the enemy; treating members of a comb as independent was.
+21. **A SEARCH THAT DEPENDS ON LOOP NESTING ORDER IS NOT A MEASUREMENT.**
     `bestReg`'s `dv` drifted 0.075 R and its `du` only 0.045, for no reason
     except that `dv` is the inner loop and gets nine rebuilds to `du`'s three.
-20. **AN INSTRUMENT MAY NOT WRITE THE SUBJECT.** WRITERS.md said "does not
+22. **AN INSTRUMENT MAY NOT WRITE THE SUBJECT.** WRITERS.md said "does not
     write" about the evidence trail. `_sw8sync.mjs` wrote `src/art/coins.js`.
     The rule is wider than the file it was written in: **running any instrument,
     in any order, must leave the repository byte-identical** — art included.
-21. **A CORRECTION SHEET MUST BE ABLE TO REFUSE.** `penny-rev.jpg` has no
+23. **A CORRECTION SHEET MUST BE ABLE TO REFUSE.** `penny-rev.jpg` has no
     publishable disc: three fitters disagree by 3.39 % of R. A sheet that can
     only *correct* forces you to invent a number in order to say a thing cannot
     be measured.

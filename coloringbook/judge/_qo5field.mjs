@@ -20,14 +20,14 @@
 //   N2 a flat field must produce no direction
 //   N3 stripes at the strand pitch buried under a strong low-frequency ramp —
 //      the exact confound that defeated v1 — must still come back correct
-//   N4 our own render must return the chord angles _qo4marks.mjs reads off the
-//      emitted path data
+//   N4 our own render must return the TANGENT the emitted path data draws at
+//      its own mid-arc point (CORRECTED v1.96.0 — see the note beside the test)
 //
 // CONVENTION: screen frame, 0 = +x (right), positive = DOWN, modulo 180.
 //
 // Run: node coloringbook/judge/_qo5field.mjs
 import { STRUCK, disc, grey, atVB, ours, atVBours } from './_qo1zoom.mjs';
-import { MARKS } from './_qo4marks.mjs';
+import { MARKS, toView } from './_qo4marks.mjs';
 
 const D2R = Math.PI / 180;
 const X0 = 38, Y0 = 10, X1 = 86, Y1 = 62, PPU = 10;      // viewBox window and resolution
@@ -105,11 +105,57 @@ for (const want of [-70, -40, -7.3, 0, 10.9, 48, 54.1, 75]) {
 }
 const o = await ours(2000);
 const oursBand = bandpass(build((X, Y) => atVBours(o, X, Y)));
+// ⚠️ CORRECTED 2026-08-24 (v1.96.0). N4 used to compare the tensor's reading at
+// a mark's midpoint with that mark's CHORD angle. That is only the same question
+// when the mark is straight, and it silently encoded the assumption that they
+// are: once `RELIEF.Washington`'s wig was re-authored as integral curves of this
+// very field, lit[4] read 15.2 against a chord of 23.9 and lit[6] 48.6 against
+// 40.6, and this instrument refused to report on art that is CLOSER to the coin
+// than the art it was written for. The tensor measures a LOCAL direction, so the
+// thing it must reproduce is the LOCAL TANGENT. For a straight mark the two are
+// identical, so nothing about the round-11 measurement is weakened by the fix.
+const tangentAtMid = (m) => {
+  const toks = m.d.match(/[MmLlCcQqZz]|[-+]?(?:\d*\.\d+|\d+\.?)/g);
+  let i = 0, cmd = '', cx = 0, cy = 0; const P = [];
+  const num = () => parseFloat(toks[i++]);
+  while (i < toks.length) {
+    if (/[A-Za-z]/.test(toks[i])) cmd = toks[i++];
+    if (cmd === 'M') { cx = num(); cy = num(); P.push([cx, cy]); cmd = 'L'; }
+    else if (cmd === 'L') { cx = num(); cy = num(); P.push([cx, cy]); }
+    else if (cmd === 'C') {
+      const x1 = num(), y1 = num(), x2 = num(), y2 = num(), x3 = num(), y3 = num();
+      for (let t = 1; t <= 100; t++) {
+        const u = t / 100, v = 1 - u;
+        P.push([v * v * v * cx + 3 * v * v * u * x1 + 3 * v * u * u * x2 + u * u * u * x3,
+          v * v * v * cy + 3 * v * v * u * y1 + 3 * v * u * u * y2 + u * u * u * y3]);
+      }
+      cx = x3; cy = y3;
+    } else throw new Error('_qo5field: N4 cannot flatten command ' + cmd);
+  }
+  const S = P.map(toView);   // the LIVE head transform, not a copy of it
+  // AND SAMPLED AT THE MID-ARC POINT, NOT THE CHORD MIDPOINT. A curved mark's
+  // chord midpoint need not lie on the mark at all: measured on the re-authored
+  // wig it is up to 2.99 viewBox units away (lit6 2.99, groove6 2.86, groove3
+  // 2.08), far enough to be sitting on a NEIGHBOURING mark. At lit6's chord
+  // midpoint this tensor reads 51 deg at every window from sigma 0.5 to 1.1 — it
+  // is not a window artefact, it is the wrong place. The same fact is why the
+  // published chord-vs-chord-midpoint metric below is still printed but is no
+  // longer the question this face is judged on.
+  const cum = [0];
+  for (let k = 1; k < S.length; k++) cum.push(cum[k - 1] + Math.hypot(S[k][0] - S[k - 1][0], S[k][1] - S[k - 1][1]));
+  const half = cum[cum.length - 1] / 2;
+  let bi = 1; while (bi < cum.length - 1 && cum[bi] < half) bi++;
+  const a = S[Math.max(0, bi - 3)], b = S[Math.min(S.length - 1, bi + 3)];
+  let t = Math.atan2(b[1] - a[1], b[0] - a[0]) / D2R;
+  while (t > 90) t -= 180; while (t <= -90) t += 180;
+  return { at: S[bi], deg: +t.toFixed(1) };
+};
 for (const idx of [0, 3, 4, 6]) {
   const m = MARKS.find((k) => k.group.startsWith('lit') && k.i === idx);
-  const t = tensorAt(oursBand, m.mid[0], m.mid[1], 1.1);
-  const ok = Math.abs(dev(t.deg, m.deg)) < 8; if (!ok) bad++;
-  console.log(`  N4 our lit[${idx}] at (${m.mid[0].toFixed(1)},${m.mid[1].toFixed(1)}) -> ${String(t.deg).padStart(6)} vs authored chord ${String(m.deg).padStart(6)}  coh ${t.coh}  ${ok ? 'ok' : '!! FAIL'}`);
+  const tan = tangentAtMid(m);
+  const t = tensorAt(oursBand, tan.at[0], tan.at[1], 1.1);
+  const ok = Math.abs(dev(t.deg, tan.deg)) < 8; if (!ok) bad++;
+  console.log(`  N4 our lit[${idx}] at its MID-ARC point (${tan.at[0].toFixed(1)},${tan.at[1].toFixed(1)}) -> ${String(t.deg).padStart(6)} vs the authored TANGENT there ${String(tan.deg).padStart(6)} (chord ${String(m.deg).padStart(6)})  coh ${t.coh}  ${ok ? 'ok' : '!! FAIL'}`);
 }
 if (bad) { console.log(`\n!! ${bad} null tests failed — nothing reported.`); process.exit(1); }
 console.log('  all null tests pass.\n');

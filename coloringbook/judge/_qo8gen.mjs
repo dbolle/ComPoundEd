@@ -10,6 +10,15 @@
 // the two tightest reference agreements. See RELIEF.Washington in coins.js.
 // DO NOT PASTE THE OUTPUT unless the whole family is being re-authored.
 //
+// ⚠️ SUPERSEDED AT v1.96.0 — the family HAS now been re-authored, by
+// `_qw2gen.mjs`, which draws each mark as an INTEGRAL CURVE of the field this
+// file rotates against. This file is kept because the refusal it records is what
+// named that construction; it is history, not a tool. Its `FIELD` table is a
+// frozen copy of the 2026-08-23 measurement taken at the OLD marks' midpoints,
+// so its rows no longer describe any mark this repository draws, and its
+// arithmetic would now mostly report "unresolved — LEFT ALONE" for the right
+// reason. Read `_qw1field.mjs` and `_qw2gen.mjs` instead.
+//
 // THE RULE IS STATED BEFORE THE NUMBERS, and it is the same rule the queue-fold
 // taper was accepted under (`RELIEF.Washington.dark`): a mark moves only if the
 // references RESOLVE it. Concretely, a mark is rotated iff

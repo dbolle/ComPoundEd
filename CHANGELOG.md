@@ -39,6 +39,87 @@ present but naming no successor, red.**
 v3 verified working: response 0.0000 % → **4.1890 %**, injection asserted real,
 zero-translate null test bit-identical.
 
+## v1.97.0 — 2026-08-24
+
+**The quarter obverse's wig is re-authored as one comb: every mark is now an
+integral curve of the coin's own measured direction field, and the wig still has
+zero centreline crossings.**
+
+Ledger **D1**, the largest open art item, and the first round to change art
+since v1.92.0.
+
+**Round 11 measured the fault and refused the fix, correctly.** Rotating each of
+the fourteen wig marks rigidly to the direction measured at its own midpoint
+took the error to 0.1 deg — and put **eight centreline crossings** into a wig
+that had none, because the marks are an interleaved stack and turning members of
+a stack individually makes them converge. Its refusal named the remedy: crossing
+is not a property of the target angles, it is a property of treating fourteen
+marks as fourteen independent objects. **Two integral curves of one
+single-valued field cannot cross.**
+
+**So the field had to become a field.** `judge/_qw1field.mjs` measures
+theta(X, Y) over the whole wig on a 0.5-unit grid — 3358 nodes inside the hair
+mass — carrying orientation as a double-angle vector so it averages and smooths
+with no wrap-around case. **The smoothing scale is measured, not chosen:** build
+the field from two references, score it against the third where the third
+resolves, sweep sigma. The leave-one-out minimum is sigma 1.0 at **9.08 deg**,
+and the curve is nearly flat (9.33 at 0, 9.30 at 2.0, 12.90 at 8.0). That floor
+is the honest error bar — no drawing can follow this field more closely than a
+perfect tracing of two references follows the third.
+
+**`judge/_qw2gen.mjs` draws each mark as a streamline** from its own former
+midpoint, out to its own former arc length, fitted with two or three
+C1-joined cubics. Widths untouched; total drawn length 206.8 → 206.4 units
+(−0.2 %); seeds unmoved. Re-running the generator on the result re-derives it —
+it is a fixed point, not a nudge.
+
+**The published metric was asking a question the new marks cannot answer.** It
+compares a mark's *chord* angle with the coin's direction at that chord's
+*midpoint*; for a curve tangent to a curving field the chord matches nowhere in
+particular, and its chord midpoint need not lie on the mark at all — on the new
+marks it is up to **2.99 units away**. Both metrics are published:
+
+| | before | after |
+|---|---|---|
+| **A** chord vs coin at the chord midpoint | median 10.3°, worst 37.8°, 9/14 out, sign **12:2 shallow** | median 9.0°, worst 28.4°, 5/14 out, sign **7:7** |
+| **B** drawn tangent vs coin, 9 stations per mark | median 14.3°, worst 60.9°, **84/126** stations out, 10/14 marks | median **2.3°**, worst 20.0°, **8/126** stations out, **0/14** marks |
+
+Metric A's median moves 1.3°. What it destroys is the finding it was raised on:
+the error was one-sided 12:2 and is now 7:7, so there is no systematic
+under-rotation left. Metric B is the one that shows the change, and 2.3° is well
+inside the 9° the references support.
+
+**Numbers that moved the wrong way, published and not tuned around** (R2):
+
+- **T1** quarter-obverse self-score **0.573 → 0.562**, margin 0.379 → 0.368, at
+  every size. Still **32/32**, still the widest margin on the obverse sheet.
+- **The crown tone**, by 0.035. The streamlines pull `base[0]` and `base[1]`
+  into more overlap, so the lit union over the `wigCrown` patch shrinks: mean
+  grey 198.07 → 192.95, so ~1.336 → ~1.301 against the coin's 1.421. `wigMid`
+  and `wigBack` are unmoved.
+- **Eight pairs of marks crowd**, worst 0.50 units of overlap (0.42 device px at
+  84). **Re-spacing the seeds to open them was refused with a number:** it does
+  reduce the worst overlap to 0.17 and leaves metric B at 2.4 — and it takes
+  ridge duty to **0.462, above the coin's own 0.350–0.443 band**. As drawn,
+  ridge duty is 0.362 → 0.391 and cut duty 0.359 → 0.409, both still in band.
+  Shortening the marks instead throws away up to 45 % of a mark's length and
+  empties the front of the wig; also refused, also with its numbers.
+
+**`_qo5field.mjs`'s own N4 null test had the straight-mark assumption baked in.**
+It compared the tensor's reading at a mark's midpoint with that mark's *chord*,
+so the published instrument refused to report on art that is closer to the coin
+than the art it was written for. Corrected to the local *tangent* at the
+mark's *mid-arc* point — identical for a straight mark, so nothing about the
+round-11 measurement is weakened.
+
+**Said plainly, because it is not resolved:** the coin's wig is not one laminar
+family. At x 44–52, y 22–34 — the temple, in front of everything this drawing
+draws — the field runs −57° to −82°, a near-vertical family we do not draw at
+all. At the nape the references disagree by 28° because the coin has a rolled
+*curl* there and a direction field is the wrong model for a spiral.
+
+Verified: T1 32/32, D9 56/56, zero centreline crossings, suite green.
+
 ## v1.95.0 — 2026-08-24
 
 **Instrument debt: an instrument was editing the art, five response tests were

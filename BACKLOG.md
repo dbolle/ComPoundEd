@@ -7,6 +7,43 @@ reconsider after calibration.
 
 ## Where we are
 
+- 🟢 **THE QUARTER OBVERSE WIG IS RE-AUTHORED AS ONE COMB (v1.96.0). Ledger
+  D1 FIXED** — the largest open art item, and the first art change since
+  v1.92.0. Every wig mark is now an **integral curve of the coin's own measured
+  direction field**, so **zero centreline crossings** is a property of the
+  construction rather than a gate to argue past.
+  - **The field is now a field, and its smoothing scale is measured.**
+    `judge/_qw1field.mjs` measures theta(X, Y) on a 0.5-unit grid over 3358
+    nodes; leave-one-out cross-validation over the three references picks
+    sigma 1.0 at **9.08 deg**, and the curve is nearly flat. That is the floor:
+    no drawing can follow this field more closely than a perfect tracing of two
+    references follows the third.
+    Verify: `node coloringbook/judge/_qw1field.mjs`
+  - **The published metric was asking the wrong question of a curved mark.** Its
+    chord midpoint is up to 2.99 units off the mark itself. Metric A
+    10.3 → 9.0 deg median and — the finding it was raised on — sign 12:2
+    shallow → **7:7**. Metric B (drawn tangent, nine stations a mark)
+    **14.3 → 2.3 deg median, 84/126 → 8/126 stations out, 10/14 → 0/14 marks**.
+    Verify: `node coloringbook/judge/_qw2gen.mjs` · `node coloringbook/judge/_qo5field.mjs`
+  - **Regressions published, not tuned around (R2):** T1 quarter-obverse
+    0.573 → 0.562 (still 32/32), crown tone ~1.336 → ~1.301 against the coin's
+    1.421, and eight pairs of marks crowd by up to 0.50 units.
+  - **Two alternatives refused with numbers.** Re-spacing the seeds opens the
+    crowding to 0.17 but takes ridge duty to 0.462, **above** the coin's
+    0.350–0.443 band; shortening the marks costs up to 45 % of a mark's length
+    and empties the front of the wig. As drawn, ridge duty 0.362 → 0.391 and cut
+    duty 0.359 → 0.409, both in band.
+  **What this round found and did NOT close:**
+  - **The coin's wig is not one laminar family.** At x 44–52, y 22–34 — the
+    temple, in front of everything we draw — the field runs −57° to −82°, a
+    near-vertical strand family this drawing does not draw at all. Recorded as
+    unmeasured; drawing it is a new mark set, not a correction to these.
+  - **At the nape the references disagree by 28°** (grooves[4]: 80.0 and 52.2,
+    the third at coherence 0.095) because the coin has a rolled **curl** there.
+    A direction field is the wrong model for a spiral. Three references cannot
+    settle it — this one wants a fourth, high-resolution, same-design.
+  - **D3 is untouched**: the shared `EYE_MARK` still has no derivation.
+
 - 🟢 **INSTRUMENT DEBT: the library was editing the art, and five of its
   response tests were dead (v1.95.0). No art changed** — `src/art/coins.js` is
   byte-identical to v1.94.0. Ledger **A9, A24, A25, A27, A28, A29, A30, A35

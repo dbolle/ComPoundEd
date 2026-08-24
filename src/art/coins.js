@@ -2316,27 +2316,27 @@ const RELIEF = {
   // near-horizontal at the crown to steeply down-and-back at the occiput, but
   // the swing is +1.4 -> +38.8 (37.4 deg), not -7.3 -> +54.1 (61.4 deg).
   //
-  // AND THE DRAWING DOES NOT FOLLOW IT. Measured at each of our own 14 wig
-  // marks' midpoints, ours minus the coin is ONE-SIDED: 12 of 14 negative
-  // (drawn too shallow), median 10.3 deg, worst 37.8 deg, and 9 of the 14 are
-  // out by more than the spread between the references at that same point.
-  // Our marks span -1 .. +22.2 deg where the coin's field spans +1.4 .. +38.8.
-  // Nine of nine RESOLVED marks are too shallow; the five unresolved ones split
+  // AND THE DRAWING DID NOT FOLLOW IT. Measured at each of our own 14 wig
+  // marks' midpoints, ours minus the coin was ONE-SIDED: 12 of 14 negative
+  // (drawn too shallow), median 10.3 deg, worst 37.8 deg, and 9 of the 14 out
+  // by more than the spread between the references at that same point. Our
+  // marks spanned -1 .. +22.2 deg where the coin's field spans +1.4 .. +38.8.
+  // Nine of nine RESOLVED marks were too shallow; the five unresolved ones split
   // three shallow to two steep. That is a systematic under-rotation, not noise.
   //
-  // ⚠️ THE OBVIOUS CORRECTION WAS BUILT, MEASURED, AND REFUSED, and the reason
-  // is the round's main finding. `judge/_qo8gen.mjs` rotates each resolved mark
+  // ⚠️ THE OBVIOUS CORRECTION WAS BUILT, MEASURED, AND REFUSED, and the refusal
+  // was round 11's main finding. `judge/_qo8gen.mjs` rotates each resolved mark
   // RIGIDLY ABOUT ITS OWN CHORD MIDPOINT to the direction measured there —
   // length, width, curvature and midpoint all preserved, so D6 is unchanged by
   // construction — and every one of its four self-checks passes (chord angle to
   // 0.03 deg, length to 0.011 units, every point still inside the HAIR mass with
-  // 2.9-4.9 local units of clearance). Applied, it takes the direction error
+  // 2.9-4.9 local units of clearance). Applied, it took the direction error
   // from median 10.3 deg to 0.1 and from 9-of-14 out to 0-of-14.
-  //   It also puts EIGHT CENTRELINE CROSSINGS into a wig that had ZERO:
+  //   It also put EIGHT CENTRELINE CROSSINGS into a wig that had ZERO:
   //   groove1xgroove5, groove1xlit5, groove3xgroove4, groove3xlit6,
   //   groove4xgroove6, groove4xlit6, groove6xlit6, lit0xlit1. A die's cuts do
   //   not cross; crossed strokes read as hatching, and the overlay at 380 px
-  //   shows the family collapsing into a starburst.
+  //   showed the family collapsing into a starburst.
   //   The cause is structural, and it is why no smaller version works either:
   //   these marks are an INTERLEAVED STACK — groove, ridge, groove, ridge — and
   //   turning individual members of a stack necessarily makes them converge.
@@ -2344,15 +2344,121 @@ const RELIEF = {
   //   WRONG four: the two tightest reference agreements (grooves[6] spread 4.1,
   //   lit[0] spread 4.6) are exactly the two it has to throw away, and which
   //   four survive depends on the order they are tried in. §8/rule 4.
-  // Turning this field means re-authoring the family — re-spaced so it stays
-  // non-crossing while everywhere tangent to a field that swings 37 deg across
-  // the head. That is its own round. The measurement above is the brief for it.
+  //
+  // ════════════════════════════════════════════════════════════════════════
+  // ROUND 12 RE-AUTHORED THE FAMILY AS INTEGRAL CURVES OF ONE FIELD, and the
+  // refusal above names the construction that resolves it.
+  //
+  // CROSSING IS NOT A PROPERTY OF THE TARGET ANGLES. It is a property of
+  // treating fourteen marks as fourteen independent objects. Two integral
+  // curves of a single-valued direction field cannot cross, so if every mark is
+  // drawn as a STREAMLINE of the coin's own measured field, non-crossing stops
+  // being a gate to argue past and becomes a theorem about the construction.
+  // (It is still checked — `judge/_qw2gen.mjs` S4 — because a theorem about the
+  // continuum is not a proof about a Bezier fitted to a sampled polyline.)
+  //
+  // THE FIELD HAD TO BECOME A FIELD FIRST. `_qo5field` measured FOURTEEN POINTS.
+  // `judge/_qw1field.mjs` measures a continuous theta(X, Y) over the whole wig
+  // on a 0.5-unit grid — 3358 nodes inside the hair mass — carrying orientation
+  // as the double-angle vector coh*(cos 2t, sin 2t) so that it averages, smooths
+  // and interpolates with no wrap-around case and falls to zero confidence where
+  // the references disagree rather than returning a confident mean.
+  //
+  // THE SMOOTHING SCALE IS MEASURED, NOT CHOSEN. Build the field from TWO
+  // references at smoothing sigma, score it against the THIRD wherever the third
+  // resolves, sweep sigma. Leave-one-out median error:
+  //
+  //     sigma   0.0   0.5   1.0   1.5   2.0   3.0   4.0   6.0   8.0
+  //     error  9.33  9.22  9.08  9.12  9.30  9.85 10.63 12.20 12.90
+  //
+  // The minimum is sigma 1.0 and THE CURVE IS ALMOST FLAT: the three references
+  // support a field, and they support it at ~9 deg and no better. That floor is
+  // the honest error bar on this whole exercise — no drawing can follow this
+  // field more closely than a perfect tracing of two references follows the
+  // third. Between-reference worst deviation over the same nodes: median 8.9,
+  // p75 15.8, p90 26.2. Null tests N1-N4 are _qo5field's; N5 executes
+  // `_qo5field.mjs` and asserts this port reproduces its fourteen published
+  // numbers (worst 0.05 deg, the printing ulp); N6 pushes a synthetic field of
+  // concentric arcs of KNOWN centre through grid + regulariser + integrator and
+  // requires the integrated curve to stay on the true arc (0.035 units over 16).
+  //
+  // ⚠️ THE PUBLISHED METRIC WAS ASKING A QUESTION THE NEW MARKS CANNOT ANSWER,
+  // and this is why the round's headline numbers look modest. It compares a
+  // mark's CHORD angle with the coin's direction at that chord's MIDPOINT. For a
+  // straight mark that is the right question. For a mark tangent to a curving
+  // field it is not: such a curve's chord matches the field nowhere in
+  // particular, and its chord midpoint need not even lie ON the mark — measured
+  // on the marks below it is up to 2.99 viewBox units away (lit6 2.99, groove6
+  // 2.86, groove3 2.08), far enough to be sitting on a NEIGHBOURING mark.
+  // So both metrics are published and neither is hidden:
+  //
+  //   METRIC A, the published one (chord vs coin at the chord midpoint)
+  //     before  median 10.3  worst 37.8   9 of 14 outside the spread   12:2 shallow
+  //     after   median  9.0  worst 28.4   5 of 14 outside the spread    7:7
+  //
+  //   METRIC B, the drawn TANGENT vs the coin at NINE STATIONS along each mark
+  //   (126 comparisons, same references, same coherence gate, same spread test)
+  //     before  median 14.3  worst 60.9   84 of 126 stations out   10 of 14 marks
+  //     after   median  2.3  worst 20.0    8 of 126 stations out    0 of 14 marks
+  //
+  // Metric A's median moves only 1.3 deg. What it does do is destroy the finding
+  // it was raised on: the error was ONE-SIDED 12:2 and is now 7:7, so there is
+  // no systematic under-rotation left to correct. Metric B is the one that shows
+  // the change, and 2.3 deg is well inside the 9 deg the references support.
+  //
+  // WHAT IS HELD FIXED AND WHY. Stroke widths untouched — round 9/10's duty
+  // argument is about width and pitch, not direction. Arc length held per mark
+  // (total 206.8 -> 206.4 units, -0.2 %), so D6 is not moved under cover of a
+  // direction fix. Seeds held at each mark's own current midpoint, because the
+  // pitch of this family was set by measurement (`_jw14gen`) and moving the
+  // marks up or down the head would spend that measurement on taste.
+  //
+  // ⚠️ THE MARKS CROWD, AND RE-SPACING THEM WAS REFUSED WITH A NUMBER. The
+  // field converges toward the nape, so integral curves through fixed seeds
+  // converge too: eight pairs are tighter than before, worst groove0xlit3 and
+  // groove1xlit5 at 0.50 units of overlap (0.42 device px at 84), and lit0xlit1
+  // -0.74 -> -1.15 (those two are DESIGNED to overlap — they own the wigCrown
+  // patch). `_qw2gen.mjs space` re-spaces the seeds instead, pushing each pair
+  // apart along the field normal until it stops: it does reduce the worst
+  // overlap 0.50 -> 0.17 and leaves metric B unchanged at 2.4 — and it takes
+  // RIDGE DUTY to 0.462, ABOVE the coin's own 0.350-0.443 band, because bunching
+  // the rolls shortens the span the duty is measured over. As drawn, ridge duty
+  // is 0.362 -> 0.391, still inside the band and now nearer the 1932's 0.409;
+  // cut duty 0.359 -> 0.409. The crowding is the price of keeping the measured
+  // duty, and the duty is the measured thing. `_qw2gen.mjs sep`, which shortens
+  // the marks instead, throws away up to 45 % of a mark's length and empties the
+  // front of the wig; also refused, also with its numbers.
+  //
+  // THIS IS A FIXED POINT, not a nudge in a direction. Re-running the generator
+  // on the marks below re-derives them: metric B before 2.3 / after 2.4.
+  //
+  // WHAT MOVED THE WRONG WAY, published rather than buried: T1's quarter-obverse
+  // self-score 0.573 -> 0.562 and its margin 0.379 -> 0.368 at every size (still
+  // 32/32, still the widest margin on the obverse sheet). Two marks now carry
+  // three cubic segments and eleven carry two where all fourteen were single
+  // cubics — every join takes the streamline's own unit tangent from both sides,
+  // so it is C1 and no knot is a corner. Ridge and cut duty as above.
+  //
+  // WHAT COULD NOT BE DETERMINED. The coin's wig is not one laminar family: at
+  // x 44-52, y 22-34 — the temple, in front of everything drawn here — the field
+  // runs -57 to -82 deg, a near-vertical family sweeping down off the crown that
+  // this drawing does not draw at all, and at the nape the references disagree
+  // by 28 deg (grooves[4]: 80.0 and 52.2, with the third at coherence 0.095)
+  // because the coin has a rolled CURL there and a direction field is the wrong
+  // model for a spiral. Both are recorded as unmeasured, not guessed.
   Washington: {
     // THE CUTS, drawn first, in `ink` at 0.33 over the wig: the die cuts and
     // the light sits on what is left standing. They are ARCS, not bars — the
     // first cut of this family was a set of straight parallels and it read as
     // a venetian blind — and their ends are STAGGERED, because the coin's rolls
     // are short overlapping shingles rather than full sweeps (§12.6).
+    //
+    // ⚠️ SINCE v1.96.0 THESE CENTRELINES ARE NOT AUTHORED BY HAND. Every one is
+    // a STREAMLINE of the coin's measured direction field, integrated from this
+    // mark's own former midpoint out to its own former arc length and fitted with
+    // two or three C1-joined cubics — see the round-12 section of the header
+    // above and `judge/_qw2gen.mjs`. "Arcs, not bars" is now a consequence rather
+    // than an instruction, and the staggering is whatever the field gives.
     //
     // THE WIDTHS ARE THE COIN'S DUTY CYCLE, NOT THE COIN'S CUT WIDTH, and the
     // difference between those two is this whole group's argument.
@@ -2392,15 +2498,21 @@ const RELIEF = {
     // So: 0.98 local, which is duty 0.302 over the 4.67 crossings and 14.86
     // units these five centrelines present to those three lines — against the
     // coin's 0.258 (1932) and 0.342 (1994-P), the two references resolved well
-    // enough to measure a 0.3-unit cut. Every centreline is unchanged, so D6
-    // and D7 are untouched by construction. `coloringbook/judge/_jw14gen.mjs`
+    // enough to measure a 0.3-unit cut. `coloringbook/judge/_jw14gen.mjs`
     // carries the arithmetic and its self-test.
+    // ⚠️ "Every centreline is unchanged, so D6 and D7 are untouched by
+    // construction" WAS TRUE OF ROUND 9 AND IS NOT TRUE NOW. v1.96.0 replaced
+    // every centreline in this group. What is preserved instead is ARC LENGTH
+    // per mark (206.8 -> 206.4 units over the fourteen, -0.2 %), which is what
+    // D6 actually counts; the width above is untouched, so the duty argument
+    // stands, and `_wr3roll.mjs` re-measures cut duty 0.359 -> 0.409 and ridge
+    // duty 0.362 -> 0.391 on the new geometry, still inside the coin's band.
     groove:
-      '<path d="M -18.4 -14.8 C -14.4 -15.6 -9.6 -16.4 -2.1 -17.6" fill="none" stroke-width="0.98"/>' +
-      '<path d="M -20.3 -10.2 C -16.6 -11.0 -12 -11.8 -4.6 -13.2" fill="none" stroke-width="0.98"/>' +
-      '<path d="M -21 -6.4 C -17.6 -7 -13.2 -7.6 -5.8 -8.8" fill="none" stroke-width="0.98"/>' +
-      '<path d="M -23 -0.6 C -19.2 -1.6 -14.4 -3.0 -7 -5.2" fill="none" stroke-width="0.98"/>' +
-      '<path d="M -23 4.6 C -18.6 3.2 -13.6 1.4 -6.7 -1.6" fill="none" stroke-width="0.98"/>',
+      '<path d="M -17.34 -12.03 C -15.21 -13.67 -12.78 -15.28 -10.26 -16.27 C -7.64 -17.31 -4.82 -16.81 -2.1 -17.33" fill="none" stroke-width="0.98"/>' +
+      '<path d="M -19.53 -8.18 C -17.64 -10.23 -14.88 -10.6 -12.46 -11.73 C -9.89 -12.94 -7.66 -13.54 -4.82 -13.71" fill="none" stroke-width="0.98"/>' +
+      '<path d="M -20.18 -4.51 C -19.03 -5.89 -17.73 -6.82 -15.94 -7.17 C -14.23 -7.51 -12.57 -7.65 -10.99 -8.46 C -9.44 -9.25 -8.08 -10.18 -6.33 -10.49" fill="none" stroke-width="0.98"/>' +
+      '<path d="M -20.89 2.61 C -19.82 -0.04 -17.69 -1.96 -14.98 -2.85 C -12.4 -3.69 -9.6 -4.51 -6.87 -4.57" fill="none" stroke-width="0.98"/>' +
+      '<path d="M -19.97 7.6 C -17.91 7.44 -16.1 6.59 -15.63 4.47 C -15.18 2.48 -14.58 0.81 -12.84 -0.4 C -11.23 -1.52 -9.32 -2.09 -7.37 -2.14" fill="none" stroke-width="0.98"/>',
     // ONE WIDTH FOR ALL FIVE, where there used to be 2.6/2.6/2.6/2.4/2.4. The
     // 0.2 difference between the top three and the bottom two is not in any
     // photograph: the per-line width medians run 0.35 0.35 0.35 0.45 0.35 0.35
@@ -2426,14 +2538,28 @@ const RELIEF = {
     // these two carry the geometry. 0.35 viewBox / 0.98 = 0.36 local. Together
     // they put the 190 px duty at 0.348, which is the 1994-P's own 0.342.
     grooveFine:
-      '<path d="M -20.6 -7.8 C -17 -8.6 -12.8 -9.4 -5.6 -10.8" fill="none" stroke-width="0.36"/>' +
-      '<path d="M -22.2 1.6 C -18.6 0.4 -14.4 -1.0 -7.7 -3.6" fill="none" stroke-width="0.36"/>',
+      '<path d="M -19.91 -6.29 C -18.04 -8.53 -15.67 -8.47 -13.11 -9.34 C -10.61 -10.18 -8.74 -11.76 -6.01 -12.01" fill="none" stroke-width="0.36"/>' +
+      '<path d="M -18.24 5.71 C -17.58 3.06 -17.51 0.69 -14.92 -0.9 C -12.8 -2.2 -10.11 -3.05 -7.62 -3.07" fill="none" stroke-width="0.36"/>',
     // THE LIT ROLLS. Three of them cross the wigCrown patch (centre (-4,-22),
     // radius 3) and own more than half its area, which is the only way a flat
     // format moves a median (§12.6): the crown renders at 1.336 against the
     // coin's 1.421 instead of the fill's 0.846. The crown carries NO cut
     // between its rolls, because the coin's crown is unbroken light — the cuts
     // start where the mass turns over, at about y = -18.
+    //
+    // ⚠️ v1.96.0 MOVED THAT NUMBER THE WRONG WAY, by 0.035. Re-authoring these
+    // centrelines as streamlines pulls lit0 and lit1 into more overlap, so the
+    // union of lit area over the crown patch shrinks: our render's mean grey in
+    // that exact disc falls 198.07 -> 192.95, a factor 0.9742, and the cheek
+    // normaliser is untouched, so 1.336 becomes ~1.301 against the coin's 1.421.
+    // wigMid (161.996 -> 161.772) and wigBack (165.646 -> 165.506) are unmoved.
+    // Published, not tuned around: R2 allows a coupled number to regress while
+    // the direction field is corrected, and buying the crown back by widening
+    // these rolls is the move round 10 refused. (`retired/_jw14tone.mjs` is the
+    // instrument of record for the ratio and it CANNOT RUN in a worktree —
+    // `coloringbook/_tonepatches-quarter.json` is gitignored, ledger A22 — so
+    // the figures above are the patch means it would normalise, taken from the
+    // loci its own header states, with the ratio carried through.)
     //
     // THESE WIDTHS WERE PUT UP FOR NARROWING AND THE NARROWING WAS REFUSED.
     // Round 9 narrowed the dark cuts and drafted a "variant B" that also took
@@ -2489,14 +2615,14 @@ const RELIEF = {
     // (`_wr4censor.mjs`). That is why the arithmetic above is done on
     // centrelines, and it is the likeliest reason variant B looked closer.
     base:
-      '<path d="M -8.6 -22.8 C -6 -23.6 -3 -23.7 3.3 -22.6" fill="none" stroke-width="1.9"/>' +
-      '<path d="M -13.4 -21 C -10 -21.9 -6 -21.9 0.9 -20.5" fill="none" stroke-width="1.9"/>' +
-      '<path d="M -16.6 -17.2 C -13.4 -17.8 -10.2 -18.4 -5.0 -19.2" fill="none" stroke-width="1.8"/>' +
-      '<path d="M -20 -12.4 C -16.4 -13.2 -12.4 -14.0 -5.3 -15.4" fill="none" stroke-width="1.1"/>' +
-      '<path d="M -21.8 -3.2 C -18.4 -4.2 -14.4 -5.6 -7.5 -7.6" fill="none" stroke-width="1.1"/>',
+      '<path d="M -8.4 -21.92 C -6.49 -22.49 -4.51 -22.91 -2.57 -23.37 C -0.59 -23.84 1.39 -24.05 3.33 -23.28" fill="none" stroke-width="1.9"/>' +
+      '<path d="M -12.79 -18.84 C -10.75 -20.32 -8.61 -21.04 -6.17 -21.55 C -3.88 -22.04 -1.49 -23.08 0.87 -23.02" fill="none" stroke-width="1.9"/>' +
+      '<path d="M -15.59 -14.81 C -14.09 -16.07 -12.55 -17.35 -10.82 -18.25 C -9.02 -19.19 -7.1 -19.33 -5.14 -19.61" fill="none" stroke-width="1.8"/>' +
+      '<path d="M -19 -10 C -17.23 -11.74 -14.86 -12.85 -12.66 -13.94 C -10.3 -15.1 -8.08 -15.69 -5.46 -15.74" fill="none" stroke-width="1.1"/>' +
+      '<path d="M -20.86 -1.69 C -19.11 -3.75 -17.29 -4.98 -14.61 -5.45 C -12.08 -5.88 -9.9 -6.79 -7.49 -7.61" fill="none" stroke-width="1.1"/>',
     fine:
-      '<path d="M -21.4 -8.6 C -17.6 -9.4 -13.4 -10.2 -7.4 -11.4" fill="none" stroke-width="1.0"/>' +
-      '<path d="M -22 2.6 C -18.4 1.2 -14.2 -0.6 -7.3 -3.4" fill="none" stroke-width="1.0"/>' +
+      '<path d="M -20.36 -6.5 C -18.79 -8.69 -16.84 -9.32 -14.35 -10.03 C -12.06 -10.68 -10.13 -12.19 -7.78 -12.65" fill="none" stroke-width="1"/>' +
+      '<path d="M -17.99 6.53 C -16.7 5.68 -16.97 2.97 -16.33 1.63 C -15.54 -0.02 -13.95 -0.98 -12.33 -1.67 C -10.69 -2.36 -8.97 -2.76 -7.19 -2.73" fill="none" stroke-width="1"/>' +
       // the two face lights: down the brow ridge, and on the ball of the chin
       // BELOW the mentolabial crease so it stays a separately lit form. The
       // forehead plateau reads 1.40-1.49 of the cheek, the brightest region on
