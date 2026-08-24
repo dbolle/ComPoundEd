@@ -3,6 +3,65 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.89.0 — 2026-08-24
+
+**The dime's stem: the branches do not sweep, and the tulip had a stamen.**
+
+Loop 1 of the owner's dime-reverse refinement, scoped strictly to the *path* so
+its effect could be seen alone. **It refuted the brief's premise with a
+number** — the judge had assumed the coin's branches curve and ours did not.
+
+Measured with a **global chain** (cheapest path through every stem-shaped run
+on every row, cost = total variation + a per-row skip charge) rather than a
+local walk; a greedy predictor was tried first, drifted onto a petiole at y 56
+and reported 18.48 where the raw runs are 15.8–16.3 and 18.0–18.9. It is kept
+in the file as the thing that failed.
+
+**One path, not two.** Taking the mean of (olive, oak) at each row cancels a
+disc-fit centre error; those means agree between the two independent
+photographs to mean |difference| **0.10** over 18 common rows, and the
+half-differences are **−0.33 and +0.61** — opposite signs, similar size, i.e. a
+registration slip rather than two shapes.
+
+**The fit is a straight line:** `c(y) = 15.955 − 0.02941·(y − 62.5)`, residual
+**RMS 0.140, max 0.376** — **1.68° outboard as it rises**. Ours leaned 0.43
+units the *other* way and was **0.85 inboard at y 41**. The judge's
+"14.0 → 17.3 across 48 units" was the span of a **tapered outline**, not a
+centreline; the shipped centreline read 15.77 / 15.95 / 15.80 / 15.34 / 14.05 —
+right in the middle, wrong at both ends.
+
+**The tulip's stamen.** The stem ran to y 27.2, **twelve units above its own
+topmost node, ending in a flat cut**. Our olive at y 28 carried *three* runs —
+the middle one being bare stem standing between the two crown leaves. Neither
+reference has a third mark there. That bar is a real part of why this branch
+read as a flower. It now ends at y 38.4 in a point, and y 28 carries two runs.
+
+**`ax: 15.9` is gone.** Each leaf's anchor is now `stemC(ay)` evaluated on the
+drawn centreline at its own height — 16.15 at the foot to 16.76 at the crown.
+The path is *generated* from `stemC`/`stemHW`, so an anchor and its branch
+**cannot** disagree. That was the point of the loop.
+
+**Shipped a change that makes an advisory number worse**, stated rather than
+buried: D6 dime reverse 0.0937 → 0.0978, entirely because the drawing got 141
+units shorter — the ratio-1.000 length is unchanged at 314.6, so the new stem
+adds no uniform-width mark.
+
+**Refused:** a uniform-width stem, which is what the data actually says (1.98
+near the crown v 2.03 near the foot — no taper). A taper is drawn for D6
+reasons and is **labelled a choice, not a measurement**.
+
+**Could not determine, and labelled in the file:** the stem above y 54 is an
+**extrapolation** of a line fitted below it — only one branch on one file has
+stem in bare field up there, so there is no mirrored pair to cancel
+registration with.
+
+T1 reported, not cited: 32/32, dime reverse self .409 → .419. Partition
+re-derived by the judge: 6/60, `dime.reverse` alone. D9 clean. Suite 461.
+
+**Anchors:** the acorn does not move (it was never anchored to the stem). The
+two olives' bodies are unchanged; only where their stalks *meet* the stem moved,
+now read off the same centreline.
+
 ## v1.88.0 — 2026-08-24
 
 **The note's relief copy was erasing the capstone gap and the eagle's rim at

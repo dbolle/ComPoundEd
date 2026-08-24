@@ -4536,6 +4536,122 @@ function torch(tier, p, boxW) {
   //     this face has already had to retract twice.
   //
   // `ax` is the STEM CENTRE at that row, 15.9 — see the stem block below.
+  //
+  // ⚠️ `ax: 15.9` IS RETRACTED (round 31). It is ONE CONSTANT STANDING IN FOR A
+  // VARYING QUANTITY, which is this face's recurring defect — the same shape as
+  // the torch shaft that was a `<rect>` with one width for thirty-one rows — and
+  // it is 0.3 to 0.9 units inboard of the branch it claims to be the centre of.
+  // The replacement is `stemC(y)` immediately below: the leaf's base is now
+  // evaluated ON the drawn centreline at the leaf's OWN height, so the anchor
+  // and the path are the same object and cannot drift apart.
+  //
+  // WHAT WAS MEASURED, AND WITH WHAT. `judge/_dr11path.mjs`, which reuses
+  // `_dr9branch.mjs`'s field-flood mask, its erosion calibration and its null
+  // test unchanged, and adds one thing: instead of sampling six rows and
+  // printing `--` wherever a leaf touches the stem, it takes every stem-shaped
+  // run on every row from y 38 to 76 and finds the CHEAPEST CHAIN through them
+  // (total variation of the centre, plus a fixed charge per row skipped). A
+  // petiole costs its whole excursion and back; the stem costs its net lean.
+  //
+  //   · A GREEDY ROW-BY-ROW WALK WAS TRIED FIRST AND IS REJECTED, and it is
+  //     kept in that file as the thing that failed: on proofbright's olive it
+  //     stepped onto a petiole at y 56 and reported 18.48 at y 54, where the
+  //     raw runs on that row are `15.8-16.3` and `18.0-18.9`. This is the same
+  //     failure `_dr8shaft.mjs` records for its own tracker. A first-order
+  //     predictor cannot tell a petiole from a stem at the row they fork.
+  //
+  // ONE PATH, NOT TWO — and this is the measurement that makes the rest usable.
+  // The mean of (olive offset, oak offset) at a row is INVARIANT to an error in
+  // the disc fit's centre, because such an error adds to one branch exactly what
+  // it takes from the other. Those means, on two independent photographs:
+  //
+  //     y      proofbright   unc2005      y      proofbright   unc2005
+  //     56        16.43       16.10       66        15.84       15.76
+  //     58        16.06       15.93       68        15.80       15.73
+  //     62        15.97       16.00       70        15.66       15.70
+  //     64        15.85       15.77       72        15.71       15.73
+  //
+  // Eighteen common rows, mean |difference| 0.10, max 0.41. Meanwhile the
+  // HALF-differences — the part that is registration plus any real asymmetry —
+  // are −0.33 on proofbright and +0.61 on unc2005 over y 62..71: opposite signs,
+  // similar size, which is exactly what a slipped disc CENTRE looks like and is
+  // not what two differently-shaped plants look like. The olive and the oak are
+  // one mirrored mark. Every number below is the pooled mean.
+  //
+  // THE PATH IS A STRAIGHT LINE, AND IT LEANS THE OTHER WAY FROM OURS. Least
+  // squares over the eighteen pooled rows y 54..71:
+  //
+  //     c(y) = 15.955 − 0.02941 (y − 62.5)     residual RMS 0.140, max 0.376
+  //
+  // i.e. 1.68 degrees, leaning OUTBOARD as it rises: 15.71 at y 71, 16.12 at
+  // y 57, 16.62 extrapolated to y 40. A straight line fits to 0.14 units, so
+  // THE COIN'S BRANCH DOES NOT SWEEP — the round was dispatched on the premise
+  // that it does and the premise is refuted, with a number, on two files and
+  // four traces. What it does do is lean, by one unit over the twenty-seven
+  // units of stem that carry leaves.
+  //
+  // OURS LEANED THE WRONG WAY. Evaluating the shipped path's own centreline
+  // (mean of its two edges, solved on the Béziers) against the fit:
+  //
+  //     y      ours     coin     error         y      ours     coin    error
+  //     41     15.77    16.62    −0.85         70     15.34    15.68   −0.34
+  //     54     15.95    16.21    −0.26         73     14.85    15.32   −0.47
+  //     66     15.80    15.83    −0.03         75.7   14.05    14.05    0.00
+  //
+  // Ours is right in the middle and wrong at BOTH ends, by opposite amounts:
+  // over y 41..70 the coin moves 0.94 units outboard and ours moves 0.43
+  // INBOARD. The judge's dispatch quoted the path as spanning "x 14.0 → 17.3
+  // across 48 units" and read that as a 4-degree lean; that is the span of a
+  // TAPERED OUTLINE, not of a centreline, and the two are different quantities.
+  // The centreline is what a leaf attaches to and it is what is fitted here.
+  //
+  // WHAT I COULD NOT DETERMINE. Above y 54 only ONE branch on ONE file
+  // (proofbright's olive) has stem in bare field at all — the oak's foliage
+  // closes over its stem from y 53 up on both files — so there is no mirrored
+  // pair to cancel registration with, and proofbright's own half-difference is
+  // not constant enough to correct with (+0.31 over y 54..59, −0.33 over
+  // y 62..71). Raw, that branch reads 16.5 ± 0.2 over y 41..48, which brackets
+  // the extrapolated 16.4..16.6 but does not confirm it. **The stem above y 54
+  // is an extrapolation of a line fitted below it, and is labelled as one.**
+  const SC = { a: 15.96, b: -0.0294, at: 62.5, tail: 71, tip: 75.7, top: 38.4 };
+  /** the branch's centreline: offset from the coin's axis at height `y` */
+  const stemC = (y) => (y <= SC.tail
+    ? SC.a + SC.b * (y - SC.at)
+    : 15.71 - 0.0778 * (y - SC.tail) - 0.0586 * (y - SC.tail) ** 2);
+  // THE TAIL, below y 71, is the one part that is NOT the line. The pooled rows
+  // hold 15.7 down to y 72 and then fall away — 15.32 at y 73, 14.48 at y 74 —
+  // and round 28's scanline read of the tip (mean 14.0 at y 75.6, sd 0.8 over
+  // four readings) is unchanged and still the anchor. The quadratic above is
+  // fitted through (71, 15.71), (73, 15.32) and (75.7, 14.05); its residual at
+  // y 74 is +0.47, which is inside the tip's own sd and is stated rather than
+  // chased. What this fixes is WHERE the hook starts: ours began bending at
+  // y 66 and was 0.34 inboard by y 70, where the coin is still straight.
+  //
+  // THE HALF-WIDTH. The flood mask cannot measure this and says so: on the same
+  // rows it reads the stem at 1.15..1.85 units on proofbright and 0.35..1.00 on
+  // unc2005, a factor of three, because a proof's bevel skirt is a large
+  // fraction of a THIN mark and is counted as device. Re-measured with
+  // `_dr8shaft.mjs`'s estimator instead — the boundary is the DARK RELIEF
+  // OUTLINE, darkest point either side, parabola-refined — the two files agree:
+  //
+  //                       y 41..50      y 62..72      (medians)
+  //     proofbright olive   1.98          2.16
+  //     proofbright oak      --           2.42
+  //     unc2005 olive       1.90          1.89
+  //     unc2005 oak          --           1.58
+  //     ours (fill edge)     --           2.45        <- 25% over
+  //
+  // So the coin's stem is ~1.95 units wide and, within a scatter of ±0.3, does
+  // NOT taper: 1.98 near the crown against 2.03 near the foot. Ours is 2.45.
+  // A UNIFORM 1.95 IS NOT DRAWN ANYWAY, and that is a choice, not a
+  // measurement: D6 caught a parallel-sided stem on this face once
+  // (`_jp9edge.mjs dime`, width-variation ratio 1.003) and §14 is right that a
+  // real coin has no uniform-width marks. 1.80 at the crown to 2.17 at the foot
+  // has the measured mean, sits inside the scatter at both ends, and is not a
+  // slab. The 2.6 the drawing shipped is outside it at every row.
+  /** half the branch's width at height `y`, closing to a point at both ends */
+  const stemHW = (y) => (0.9 + 0.0056 * (y - SC.top))
+    * Math.max(0, Math.min(1, (y - SC.top) / 1.7, (SC.tip - y) / 3));
   const LADDER = [
     // ay (base, on the stem), rot (degrees up from horizontal)
     [57.5, 38], [51.4, -13], [50.5, 33], [47.3, 17], [45.5, 45], [40.0, 72], [39.5, 77],
@@ -4551,7 +4667,14 @@ function torch(tier, p, boxW) {
     // closer to the ladder's own centre than they measure — 1.1 units at the
     // extremes, nothing in the middle — and that is stated here rather than
     // folded back into the table, which stays what was read off the coin.
-    return { ay: n2(48.5 + (r[0] - 48.5) * 0.94), ax: 15.9, rot: r[1], out: i % 2 === 1 };
+    // The base sits ON the centreline at the leaf's OWN height — `ax` is
+    // evaluated, not asserted. Across the seven rows it runs 16.15 (the lowest,
+    // ay 57.0) to 16.76 (the crown, ay 40.0) against the single 15.9 this
+    // returned before: the bottom leaves move 0.25 units outboard and the top
+    // two move 0.86, which is the whole of what "attach it to the branch"
+    // means here.
+    const ay = n2(48.5 + (r[0] - 48.5) * 0.94);
+    return { ay, ax: n2(stemC(ay)), rot: r[1], out: i % 2 === 1 };
   };
   // A blade's BASE is on the stem; the glyph is drawn about its own CENTRE, so
   // the centre is half a blade-length out along the direction the leaf leaves
@@ -4640,10 +4763,42 @@ function torch(tier, p, boxW) {
   // is the coin's own lean and was the part previously given up. The taper
   // (2.6 units at the foot to 1.3 at the crown) and the tip are unchanged —
   // D6 caught a parallel-sided stem once and that finding still stands.
-  const stem = (x) => `<path d="M ${x(14.0)} 75.7 C ${x(14.3)} 73.5 ${x(14.45)} 70 ${x(14.5)} 66
-        C ${x(14.9)} 54 ${x(15.0)} 41 ${x(14.5)} 27.2
-        L ${x(15.8)} 27.2 C ${x(17.0)} 41 ${x(17.3)} 54 ${x(17.1)} 66
-        C ${x(16.4)} 70 ${x(15.5)} 73.5 ${x(14.0)} 75.7 Z"/>`;
+  //
+  // ⚠️ THE PATH ABOVE IS REPLACED (round 31) AND ITS TOP END WAS WRONG IN KIND.
+  // Three faults, and the third is the one that shows at 40x:
+  //
+  //   · ITS CENTRELINE LEANED THE WRONG WAY — see the fit above `LADDER`.
+  //   · IT WAS 2.6 UNITS WIDE where the coin is 1.95 — see `stemHW`.
+  //   · IT RAN TO y 27.2, TWELVE UNITS ABOVE ITS OWN TOPMOST LEAF NODE, AND
+  //     ENDED IN A FLAT CUT. `L ${x(15.8)} 27.2` closes the outline with a
+  //     straight line across the top, so the stem finishes in a blunt 1.3-unit
+  //     stub. The topmost node on the ladder is ay 40.0. Nothing hangs on those
+  //     twelve units, and they are not hidden: measured with `_dr9branch.mjs`'s
+  //     own estimator, our olive at y 28 carries THREE runs — `12.2-14.4`,
+  //     `14.6-15.9`, `19.0-20.8` — the middle one being the bare stem standing
+  //     in open field between the two crown leaves. Neither reference has a
+  //     third mark there: proofbright reads one run `14.6-17.4` and unc2005 one
+  //     run `16.4-17.1`. That stub between two upright leaves is the stamen in
+  //     the middle of a tulip, and the tulip is what got round 29 reverted.
+  //     On both references the stem simply ENDS at the crown — the terminal
+  //     leaf sits on the end of it — and there is no bare stem above y 41 on
+  //     either file.
+  //
+  // The path is now GENERATED from `stemC` and `stemHW` rather than authored,
+  // at eight heights, so it cannot disagree with the anchors `leafAt` returns:
+  // both read the same two functions. y 40.1..71 is where the leaves are and
+  // both functions are linear there, so those edges are straight and need no
+  // intermediate points; the samples cluster at the two ends, where the taper
+  // closes to a point.
+  const STEM_YS = [39.25, 40.1, SC.tail, 72.5, 74, 75];
+  const stem = (x) => {
+    const P = (y, s) => `${x(stemC(y) + s * stemHW(y))} ${y}`;
+    return `<path d="M ${P(SC.top, 0)}`
+      + STEM_YS.map((y) => ` L ${P(y, 1)}`).join('')
+      + ` L ${P(SC.tip, 0)}`
+      + STEM_YS.slice().reverse().map((y) => ` L ${P(y, -1)}`).join('')
+      + ' Z"/>';
+  };
   if (tier === 'icon') {
     // THE BRANCHES ARE DRAWN AT ICON TIER, and until this pass they were not.
     // The comment above this function said "at icon size the branches go
@@ -4930,7 +5085,17 @@ function torch(tier, p, boxW) {
     // The two olives, outboard of the stem on the OLIVE branch only. Each
     // hangs on a stalk back to the stem, which both references show and which
     // is the difference between a fruit and a dot of ink in the field.
-    if (mirror && full) g += `${fruit(20.2, 42.5, 15.9, 45.6, f)}${fruit(22.5, 57.5, 16.1, 53.2, f)}`;
+    // THE OLIVES DO NOT MOVE; THEIR STALKS' ROOTS DO. Both berries keep the
+    // measured centres (20.2, 42.5) and (22.5, 57.5) — two files agreeing to
+    // 0.5 units, and not this round's to change. What was hard-coded is where
+    // each stalk MEETS the stem: 15.9 and 16.1, the old constant. Those are now
+    // read off the same centreline as everything else (16.46 at y 45.6, 16.23
+    // at y 53.2), so the stalks reach the branch instead of stopping short of
+    // it. The berries' own stalks therefore get 0.56 and 0.13 units shorter.
+    if (mirror && full) {
+      g += `${fruit(20.2, 42.5, n2(stemC(45.6)), 45.6, f)}`
+        + `${fruit(22.5, 57.5, n2(stemC(53.2)), 53.2, f)}`;
+    }
     // THE ACORN IS REAL. IT WAS IN THE WRONG PLACE, AND ROUND 28 DELETED IT
     // INSTEAD OF MOVING IT. Restored here at round 28's OWN coordinates.
     //
