@@ -48,22 +48,45 @@
 //     it samples a DISC. `_jt5note.mjs` is the same method with a per-subject
 //     registration (disc for a coin, printed border for a note) and it scores
 //     all five. **Quote T1 with T5 or quote neither.**
-//   * IT CANNOT RUN IN A WORKTREE. It imports `../_rvnorm.mjs`, and through
-//     `_jq20indep.mjs` also `../_qtedge.mjs` and `../_rvdisc.mjs`; all three are
-//     matched by `coloringbook/*` in .gitignore. This is exactly the defect the
-//     findings ledger records as A5 against `_jb3seal.mjs`, sitting unnoticed in
-//     the PRIMARY GATE. Fixing it means moving those three modules into
-//     `judge/`, which changes the hash of every instrument that imports them, so
-//     it is reported here and not done here. `_jt5note.mjs` deliberately depends
-//     on nothing outside `judge/`.
+//   * IT COULD NOT RUN IN A WORKTREE, AND NOW IT CAN (ledger A25). The count
+//     above was wrong: not three modules but EIGHT. The full transitive closure
+//     of this file's imports below `coloringbook/` is `_rvnorm`, `_rvdisc`,
+//     `_qtdisc`, `_qtedge`, `_qtseg`, `_nkdisc`, `_pyellipse`, `_pyseg` — 638
+//     lines that `coloringbook/*` in .gitignore kept out of the repository, so
+//     the primary gate did not exist in any clone or worktree.
+//
+//     Fixed by TRACKING them rather than moving them: eight `!` lines in
+//     .gitignore, no import path touched, so not one instrument's hash moved.
+//     The bytes now tracked are the exact bytes already hashed in
+//     `_jd0hashes.json`, `_jp0hashes.json` and three scorecards, so nothing any
+//     round published changes. Moving them into `judge/` — the fix considered
+//     and declined here — would have rewritten 34 import statements and voided
+//     34 hashes to achieve the same thing.
+//
+//     WHAT IS STILL NOT IN THE REPOSITORY, and cannot be: `coloringbook/ref/`,
+//     the reference photographs. They are third-party, 15 MB, and
+//     `PROVENANCE-dime-proofs.md` promises they are never redistributed from a
+//     public repo — so this half of A25 is a WONTFIX with a reason, not an
+//     omission. `scripts/round-setup.sh` already links them into a worktree,
+//     and the preflight below names it instead of dying on a raw ENOENT sixty
+//     seconds into a run.
 //
 // Run: node coloringbook/judge/_jt1transfer.mjs
 import sharp from 'sharp';
-import { readFileSync, writeFileSync, unlinkSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, unlinkSync, mkdirSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { coinSVG } from '../../src/art/coins.js';
-import { ncc, bestReg, energyGrid } from './_jq20indep.mjs';
+// v2, NOT `_jq20indep.mjs` (ledger A24). The old `bestReg` rebuilds its refine
+// neighbourhood inside the loop that reassigns the answer, so the search crawls
+// outside the bounds it declares: 148 of the 231 pairs below (64.1 %) finished
+// past ±0.035 R, the worst at 0.075 R, and the NCC it returned was inflated by
+// up to 0.0537. Because the walk is greedy it only ever RAISES a similarity,
+// and the similarities it raised are the off-diagonal ones — so it understated
+// every margin in the table below. The old file is left byte-identical at its
+// published hash and superseded beside; the corrected table is published in the
+// round report next to the one it replaces. T1 is 32/32 under both.
+import { ncc, bestReg, energyGrid } from './_jq20indep-v2.mjs';
 import { discOf } from './_jq42indep.mjs';
 import { N as GN, SPAN } from '../_rvnorm.mjs';
 
@@ -128,7 +151,20 @@ export async function featOfOurs(id, px) {
   featCache.set(key, g);
   return g;
 }
-export const designSim = (a, b) => bestReg(a, b, DESIGN_MASK, ROT, TR).ncc;
+// A BOUNDED REGISTRATION IS A LOWER BOUND, NOT A VALUE (§4.1, ledger A29).
+// `bestReg` searches rotation and translation over a declared box. When the
+// answer lands on the wall of that box, the true optimum is somewhere outside
+// it and the NCC returned is a FLOOR. Quoting a floor as a similarity is safe
+// when the margin is wide and unsafe when it is thin, and until now nothing in
+// this file could tell the two apart. Every call is counted, and the counts are
+// printed beside the verdict so no future round quotes one unknowingly.
+export const REG = { n: 0, bounded: 0, thin: [] };
+export const designSim = (a, b) => {
+  const r = bestReg(a, b, DESIGN_MASK, ROT, TR);
+  REG.n++; if (r.atBound) REG.bounded++;
+  return r.ncc;
+};
+export const designSimReg = (a, b) => bestReg(a, b, DESIGN_MASK, ROT, TR);
 
 export const N = 128;                       // comparison grid; small on purpose
 // FOUR sizes, not three. src/screens/money.js:51 declares
@@ -140,6 +176,20 @@ export const N = 128;                       // comparison grid; small on purpose
 export const SIZES = [38, 48, 54, 84];          // what src/screens/money.js actually draws
 const DISCS = JSON.parse(readFileSync(new URL('./_jp1discs.json', import.meta.url).pathname, 'utf8'));
 const REF = new URL('../ref/', import.meta.url).pathname;
+
+// PREFLIGHT (ledger A25). The primary gate used to die on a bare ENOENT for a
+// photograph, sixty seconds into a run, in a checkout that simply had not been
+// given the reference pool. Say what is missing and how to supply it.
+if (!existsSync(REF)) {
+  console.error('T1 cannot run: coloringbook/ref/ is not present in this checkout.');
+  console.error('  The reference photographs are third-party and deliberately not tracked');
+  console.error('  (PROVENANCE-dime-proofs.md: never redistributed). Link them with');
+  console.error('    scripts/round-setup.sh <name>        (for a new round worktree), or');
+  console.error('    ln -s <main-checkout>/coloringbook/ref coloringbook/ref');
+  console.error('  Everything else T1 needs — all eight eval modules under coloringbook/ —');
+  console.error('  IS tracked as of this change, so nothing but the photographs is missing.');
+  process.exit(2);
+}
 
 // Reference photographs per denomination, PER FACE.
 //
@@ -383,7 +433,10 @@ if (process.argv[1] && process.argv[1].endsWith('_jt1transfer.mjs')) {
     grandPass += pass; grandTotal += total;
   }
   console.log(`\n${'='.repeat(64)}`);
-  console.log(`T1 OVERALL: ${grandPass}/${grandTotal} across both faces and ${SIZES.length} sizes.`);
+  console.log(`REGISTRATION QUALITY (§4.1): ${REG.bounded} of ${REG.n} registrations (${(100 * REG.bounded / REG.n).toFixed(1)} %)`);
+  console.log('  finished ON a search bound. Those NCCs are LOWER BOUNDS, not values.');
+  console.log('  A verdict resting on one is only as safe as its margin — read the margin column.');
+  console.log(`\nT1 OVERALL: ${grandPass}/${grandTotal} across both faces and ${SIZES.length} sizes.`);
   console.log(grandPass === grandTotal
     ? '  Every face is nearer its own denomination than any other, at every size the app draws.'
     : '  A confusion at a size the app draws is a real defect against the objective.');

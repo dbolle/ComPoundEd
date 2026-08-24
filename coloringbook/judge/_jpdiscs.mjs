@@ -53,6 +53,19 @@ export function disc(f, opts = {}) {
     }
     return { ...pick(z), source: 'frozen' };
   }
+  // A CORRECTION MAY BE A REFUSAL (ledger A28). `penny-rev.jpg`'s entry records
+  // three independent fits that disagree by 3.39 % of R — against 0.47 % for
+  // both of its pool-mates on the same day — and publishes NO replacement
+  // coordinate, because there is no number the estimators agree on to publish.
+  // A correction sheet that can only correct is a sheet that must invent a
+  // value in order to say "this cannot be measured".
+  if (c && c._verdict && c.R === undefined) {
+    throw new Error(
+      `_jpdiscs: ${f} has a correction that REFUSES a coordinate — ${c._verdict}\n` +
+      `  cause: ${c.cause}\n` +
+      `  refused for: ${c.refused_for}\n` +
+      `  retained for: ${c.retained_for}`);
+  }
   if (c) return { ...pick(c), source: 'corrected', supersedes: c.supersedes ?? null, caveat: c.caveat ?? null };
   if (z && UNUSABLE[f]) throw new Error(`_jpdiscs: ${f} is flagged UNUSABLE and has no correction — do not register on it`);
   if (z) return { ...pick(z), source: 'frozen' };
@@ -82,11 +95,24 @@ if (process.argv[1] && import.meta.url === `file://${process.argv[1]}`) {
   ok('an unknown file THROWS rather than returning undefined',
     () => { try { disc('penny-rev-nope.png'); return 'no throw'; } catch { return 'threw'; } }, 'threw');
   ok('the frozen table is still all 7 of its own entries', () => Object.keys(FROZEN).length, '7');
+  // A28: a correction that publishes no coordinate must REFUSE, not return undefined.
+  ok('a refusal correction THROWS rather than returning undefined',
+    () => { try { disc('penny-rev.jpg'); return 'no throw'; } catch { return 'threw'; } }, 'threw');
+  ok('  ...and the refusal names why it is still in T1',
+    () => { try { disc('penny-rev.jpg'); return 'no throw'; } catch (e) { return e.message.includes('retained for') ? 'true' : 'false'; } }, 'true');
+  // …and asking for the frozen one EXPLICITLY still throws, the same way it does
+  // for penny-rev-artwork.jpg. That is deliberate and was worth writing down:
+  // the first draft of this check expected `{ frozen: true }` to hand the number
+  // back. Both files are flagged UNUSABLE, so both refuse, and a round that
+  // genuinely wants the published 249.28 has to read _jp1discs.json itself and
+  // say so in the report. Getting a bad number must cost a sentence.
+  ok('  ...and the frozen one refuses too, naming the escape',
+    () => { try { disc('penny-rev.jpg', { frozen: true }); return 'no throw'; } catch (e) { return e.message.includes('_jp1discs.json') ? 'true' : 'false'; } }, 'true');
   // NULL TEST: the corrections must actually CHANGE something. If the sheet were
   // empty, or a correction restated the frozen value, every check above would
   // still pass and the module would be decorative.
   ok('corrections differ from frozen where both exist',
-    () => Object.keys(CORRECTIONS).filter((f) => FROZEN[f] && FROZEN[f].R !== CORRECTIONS[f].R).length, '1');
+    () => Object.keys(CORRECTIONS).filter((f) => FROZEN[f] && CORRECTIONS[f].R !== undefined && FROZEN[f].R !== CORRECTIONS[f].R).length, '1');
   ok('corrections add a file frozen never had',
     () => Object.keys(CORRECTIONS).filter((f) => !FROZEN[f]).length, '1');
   console.log('\nSELFTEST');

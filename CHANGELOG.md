@@ -3,6 +3,71 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.95.0 — 2026-08-24
+
+**Instrument debt: an instrument was editing the art, five response tests were
+dead, and the primary gate's registration walked outside its own bounds.**
+
+No kid-facing change. `src/art/coins.js` is byte-identical to v1.94.0.
+
+**`_sw8sync.mjs` WROTE `src/art/coins.js`.** `writeFileSync` at module top
+level, no flag, no guard — so running the instrument library **edited the
+drawing every gate scores**. It changed `VIGNETTE.coat` to a path built from
+`_sw7gen.OVAL`, which is round 0's superseded ellipse (ry 14.00 against the
+15.75 the art draws). Reverted, and the file is now a report-only drift
+detector. `WRITERS.md`'s rule is restated wider: *running any instrument, in
+any order, must leave the repository byte-identical — `src/art/` included.*
+
+**Five response tests had gone stale and nobody noticed, because nobody runs
+the library.** `_jd14d1resp`, `_jl1cap`, `_jl1floor`, `_jl3probe` and
+`_jq10tier` all anchor on an exact fragment of `coins.js`; four of those
+fragments died at v1.93.0/v1.94.0. Each guard *did* fire — they failed closed,
+not open — which is why this went unseen for two releases while the gates kept
+shipping verdicts. All re-anchored with an exactly-once assertion, a proof the
+substitution reaches the *render* and not just the text, and a null test.
+`tests/judge-anchors.spec.js` now enforces it inside `npm test`.
+
+**The primary gate's registration search walked outside its declared bounds.**
+`_jq20indep.bestReg` rebuilds `[best.du ± 0.005]` inside the loop that
+reassigns `best`, so the neighbourhood crawls after the answer: **148 of 231
+reference pairs (64.1 %) finished past ±0.035 R, the worst at 0.075 R**, with
+NCC inflated by up to **+0.0537**. It is path-dependent — `dv` drifts four
+times further than `du` purely because it is the inner loop. Superseded by
+`_jq20indep-v2.mjs` (anchored, and it reports `atBound`); the old file is left
+byte-identical at its published hash. **T1 is 32/32 under both**, no diagonal
+cell moved, and every margin *widened*: obverse 38 px nickel 0.187 → 0.205,
+dime 0.284 → 0.302. The walk had been understating the drawings.
+
+**T1 runs in a worktree.** Eight eval modules under `coloringbook/` — not the
+three previously recorded — were gitignored, so the primary gate did not exist
+in any clone. Tracked, without moving them: no import rewritten, **no
+instrument hash moved**, and the bytes are exactly those already hashed in
+`_jd0hashes.json`, `_jp0hashes.json` and three scorecards.
+
+**A bounded registration now says so.** 64.5 % of T1's registrations and 54.0 %
+of T5's sit on a search bound, which makes them *lower bounds*. T5 marks each
+such cell `~` in the table instead of only reporting the aggregate; T1 prints
+its rate beside the verdict.
+
+**`penny-rev.jpg` is published as unusable for geometry.** Its 4.9 % residual
+is a frame CROP, not obliquity — the coin is square-on and ~11 px of it is off
+the left edge. Three independent fitters disagree on R by 3.39 % where both of
+its pool-mates agree to 0.47 %, so no coordinate is published; the correction
+sheet learned how to refuse. It stays in T1, with its margin stated.
+
+**`nickel-obv.jpg` / `nickel-obv-unc2004.jpg` confirmed one photograph** —
+MADbox 5.01, dHam 3, against a nearest different-photograph pair at 57.14. No
+T1 row moves; the exclusion now rests on evidence rather than one statistic.
+
+**Two instruments stopped registering on the area.** `_nk17grid.mjs` — which
+draws the ruler this project reads measurements off — and `_nk1cmp.mjs` now use
+`_rimfit.fitRim`. Their grids and crops move outward by 0.82 %–5.00 % per file.
+The count of nine area-registering instruments was wrong: it was two.
+
+**`_jq10tier.mjs` retired by move.** Its "declared tier contract" table asserts
+a contract v1.94.0 deleted; at 26/44/84 px the emitted SVG now has identical
+element counts. Re-hashes identically at its new path.
+
 ## v1.94.0 — 2026-08-24
 
 **Tier-era dead code removed — and twelve comments in it were false.**

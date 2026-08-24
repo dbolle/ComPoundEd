@@ -7,6 +7,35 @@ reconsider after calibration.
 
 ## Where we are
 
+- 🟢 **INSTRUMENT DEBT: the library was editing the art, and five of its
+  response tests were dead (v1.95.0). No art changed** — `src/art/coins.js` is
+  byte-identical to v1.94.0. Ledger **A9, A24, A25, A27, A28, A29, A30, A35
+  FIXED**, **A31 partly**, **A17 tabled with the drift measured**, each with a
+  verify command in `docs/FINDINGS-LEDGER.md`.
+  - **`_sw8sync.mjs` wrote `src/art/coins.js`** — unguarded, at module top
+    level. Running the library edited the subject. Now report-only;
+    `WRITERS.md`'s rule restated to cover `src/art/`.
+  - **The A30 sweep found five stale anchors, not one.** Every guard fired
+    correctly; the defect is that **nobody runs the library**, so four gates
+    were dead across two releases while their verdicts shipped. Enforcement
+    moved into `npm test` (`tests/judge-anchors.spec.js`).
+  - **T1's registration walked outside its declared bounds on 64.1 % of pairs.**
+    Superseded beside; T1 stays 32/32 and every margin widened.
+  - **T1 runs in a worktree.** Eight modules tracked, no hash moved.
+  **What this round found and did NOT close — needs an owner:**
+  - **A38 — `_jq8contain-v2.mjs` no longer matches its own frozen hash.**
+    Recorded as `512f61d5…` in six places; the file is `28717096…` after the
+    2026-08-24 A11 repair edited it **in place** rather than superseding it
+    beside. The most-cited instrument in the library is the one whose
+    reproducibility anchor is broken. Restore-and-v3, or correct the record.
+  - **A31, five hashed instruments** still compute a private `tierOf`
+    (`_jp10tier`, `_jn8tier`, `_jq9well`, `_jq10tier-v2`, `_jq8contain-v2`).
+    Their per-tier rows are now guaranteed identical, so they are degenerate
+    rather than wrong. Editing them voids published hashes; the honest fix is a
+    v2 the next time a round needs that measurement.
+  - **C2 is still open**: what `hairFill`'s sign does at 48 and 54 px.
+
+
 - 🟢 **TIER-ERA DEAD CODE removed from `src/art/coins.js` (v1.93.0). No art
   changed — the byte-identity partition reads 0/60, and a wider 240-cell grid
   is identical too.** Ledger items **B1–B5 all FIXED**, each with a verify
@@ -17,10 +46,14 @@ reconsider after calibration.
   Code lines 1658 → 1540; nine false comments retracted beside their
   corrections rather than deleted.
   **New, from B6 — things that look dead and are not:**
-  - **`_jd14d1resp.mjs`'s response anchor is now stale** (it patched the dime's
-    `iconS` string). The response test fails open — the A11/A13 pattern.
-  - **Seven instruments keep a private `tierOf`** and still print rows labelled
-    "icon"/"mid", a distinction the art no longer makes.
+  - ~~**`_jd14d1resp.mjs`'s response anchor is now stale.** The response test
+    fails open — the A11/A13 pattern.~~ **FIXED v1.95.0, and two claims here
+    were wrong: it failed CLOSED (it threw), and the sweep found FIVE stale
+    anchors, not one.**
+  - ~~**Seven instruments keep a private `tierOf`.**~~ **Nine, not seven, and
+    only four print `icon`/`mid` rows. Partly fixed v1.95.0** — `_jq10tier.mjs`
+    retired by move, `_jl1cap.mjs` corrected; five are hashed and left with the
+    reason.
   - **C2 (`hairFill`'s sign at `mid`) is moot as written** — that branch could
     not run. The real open question is what the sign does at the 48 and 54 px
     the app actually draws.
@@ -36,7 +69,9 @@ reconsider after calibration.
     `_jp0hash.mjs` prints MISSING for 6 of the penny round's own frozen
     libraries. §1.1's promise that any published number can be reproduced does
     not hold for 22 % of the library. **Track them, or say plainly that it does
-    not hold.**
+    not hold.** *(v1.95.0 answered this for the PRIMARY GATE's eight modules by
+    tracking them — no import and no hash moved, so the precedent is cheap and
+    is the one to copy. The rest of the 63 are unswept.)*
   - **A6 — the note's border ratio is 2.6352/2.6393, not 2.5610/2.5827**, and
     the shared anisotropy constant `1.3145` is 2.5–3.6 % low. This is the
     registration everything on the note hangs from; it touches `EAG.ry`,

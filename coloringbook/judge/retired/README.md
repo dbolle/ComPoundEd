@@ -128,3 +128,13 @@ replaced it. `_jp5band-v2.mjs`'s header is the model to copy: it explains why
 v1 is **not** retired — v1's null test fired correctly and its rim half still
 stands, so only its legend half is superseded. Precise retirement, not blanket
 retirement.
+
+## 2026-08-24 — the tier-era D10, retired when its subject stopped existing
+
+| file | why | successor |
+|---|---|---|
+| `_jq10tier.mjs` | Its **(a) DECLARED TIER CONTRACT** table asserts, from the shipped output, that "icon draws no inscription; icon/mid drop the full-tier relief". v1.94.0 removed `tier` — the parameter itself — so at 26 / 44 / 84 px the emitted SVG now has **identical `<text>`, `<path>` and `<g>` counts**, differing only in `bytes`. The table prints three rows that are the same row and calls the sameness a contract. Its `RESPONSE=1` arm is dead too: the anchor `quarter: { field: { full: 41.0, mid: 40.5, icon: 42.5 } },` was replaced by the scalar `quarter: { field: 44.07 },`, so the response test throws instead of running. `_jq10tier-v2.mjs`'s header declined to retire v1 on the grounds that it "is sound within the window it sweeps" — that was true when it was written and the deletion of `tier` ended it. | `_jq10tier-v2.mjs` (already the live D10, and already hashed into `_jd0hashes.json` and `_jp0hashes.json`) |
+
+Re-hashes identically at its new path (`dcf2ebb44cd4ffc1`); moved, never edited,
+so `quarter-scorecard.json:46`'s pin still resolves and quarter r2's published
+D10 numbers stay reproducible against the file that produced them.

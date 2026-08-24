@@ -36,7 +36,30 @@ evidence; the script that appended it adds nothing and can only duplicate.
 - If a one-shot action script is ever needed again, it does not go here. It goes
   in the session scratchpad, is run once, and is never committed.
 
-Three live violations of this rule are recorded and still open:
+## 2026-08-24 — the rule was not wide enough, and a file proved it
+
+`_sw8sync.mjs` called `writeFileSync` on **`src/art/coins.js`** at module top
+level, with no flag and no guard. The instrument sweep ran it and it **edited
+the subject**, replacing `VIGNETTE.coat` with a path built from `_sw7gen.OVAL`
+— a superseded ellipse, ry 14.00 where the art draws 15.75.
+
+The fourteen `_r<N>card.mjs` files wrote a *record*. This wrote **the drawing
+every gate is scored against**, in `judge/`, which COIN-JUDGE.md §1 exists to
+keep out of the art: *"a specialist that can edit the target can score anything
+it likes."*
+
+So the rule is restated wider, and it is not only about `*-history.jsonl`:
+
+> **Running any instrument, in any order, must leave the repository
+> byte-identical — `src/art/` included.**
+
+A generator that keeps the art in sync is a good idea. A generator that can
+*silently* overwrite the art is a liability, because the first time its own
+copy goes stale it will propagate the stale copy into the subject. `_sw8sync`
+is now a drift DETECTOR: it reports, exits non-zero, and writes nothing under
+any flag. The human applies the change.
+
+Three earlier violations of this rule are recorded and still open:
 
 - `_x6mat.mjs` rewrites `_x6-run.json`, which was in the frozen set, so every
   round self-voided on its first mandated check (fixed by excluding run

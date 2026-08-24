@@ -169,7 +169,27 @@ export async function fitRim(fileOrBuf, opts = {}) {
 
   const rMax = Math.hypot(w, h) / 2;
   const STEP = 0.25;
-  let pts = [], onWindowEnd = 0;
+  // ── A RAY THAT LANDS ON THE FRAME HAS NOT FOUND A RIM (ledger A28) ────────
+  // The `rIn >= rMax - STEP` guard below only catches a ray that ran the whole
+  // window without crossing. It does NOT catch the far commoner case: the coin
+  // is CROPPED, so the ray crosses the threshold at the picture's edge, where
+  // there is a real, sharp, high-contrast step — the frame — and the fitter
+  // takes it for the rim. Nothing about that crossing looks wrong locally.
+  //
+  // `penny-rev.jpg` is the case that found this. Its disc runs about 11 px off
+  // the left of the frame; 529 of the 2301 rays another fitter scores (23 %)
+  // terminate on the boundary at 155°-208°, and the residual they produce is a
+  // STRAIGHT CHORD (+9.9 at 150°, -9.4 at 180°, +12.6 at 210°) — not an
+  // ellipse's smooth two-cycle. The file was read as "NOT SQUARE-ON, get a
+  // better photograph" for that reason, and the coin is in fact perfectly
+  // square-on: it is short of margin, not flat to the sensor.
+  //
+  // So a crossing within `frameMargin` of any border is discarded and counted.
+  // It is on by default because there is no situation in which the picture's
+  // own edge is evidence about a coin's rim. `onFrame` is reported beside the
+  // fit so the reader can see how much of the circle actually got measured.
+  const frameMargin = opts.frameMargin ?? 1.0;
+  let pts = [], onWindowEnd = 0, onFrame = 0;
   for (let k = 0; k < RAYS; k++) {
     const th = (2 * Math.PI * k) / RAYS, cs = Math.cos(th), sn = Math.sin(th);
     // walk in until dev crosses T, then solve the crossing by HALF-MAX, which
@@ -198,7 +218,10 @@ export async function fitRim(fileOrBuf, opts = {}) {
       if (dev(mx + cs * m, my + sn * m) >= half) lo = m; else hi = m;
     }
     const r = (lo + hi) / 2;
-    pts.push([mx + cs * r, my + sn * r]);
+    const px = mx + cs * r, py = my + sn * r;
+    if (frameMargin > 0 && (px <= frameMargin || py <= frameMargin
+      || px >= w - frameMargin || py >= h - frameMargin)) { onFrame++; continue; }
+    pts.push([px, py]);
   }
   if (pts.length < 32) throw new Error(`_rimfit: only ${pts.length} rim points — not a fit`);
 
@@ -217,7 +240,8 @@ export async function fitRim(fileOrBuf, opts = {}) {
   return {
     cx: +fit.cx.toFixed(3), cy: +fit.cy.toFixed(3), R: +fit.R.toFixed(3),
     p95pctR: +((res[Math.floor(res.length * 0.95)] / fit.R) * 100).toFixed(3),
-    rays: RAYS, kept: pts.length, onWindowEnd,
+    rays: RAYS, kept: pts.length, onWindowEnd, onFrame,
+    arcDeg: +((360 * pts.length) / RAYS).toFixed(1),   // how much of the circle was actually measured
     areaR: +a.R.toFixed(3), areaErrPct: +(((a.R - fit.R) / fit.R) * 100).toFixed(2),
     w, h, bg,
   };
@@ -279,6 +303,32 @@ if (process.argv[1] && import.meta.url === `file://${process.argv[1]}`) {
     const areaTrue = Math.sqrt((R * R - inner * inner));     // sqrt(area/pi) of an annulus
     chk('cameo shape: AREA fit is wrong by the predicted amount', f.areaR, areaTrue, 2.0);
     t.push(['  -> the area error it would have registered on', f.areaErrPct, f.areaErrPct, Infinity, true]);
+  }
+
+  // 2b. GROUND TRUTH ON A CLIPPED FRAME (ledger A28). The disc's radius is
+  //     known and part of it is off the picture, which is `penny-rev.jpg`'s
+  //     actual condition. Without the frame guard the fitter takes the
+  //     picture's own edge for the rim; with it, the known radius comes back
+  //     from the arc that remains. Both arms are asserted, because a guard
+  //     whose absence changes nothing is not doing anything.
+  {
+    const R = 200;
+    // 70 px off the left. A SHALLOW clip is not a test: at 10 px the sigma
+    // rejection already removes the frame points on its own and the guard
+    // changes nothing, so a test built there would assert that the guard is
+    // pointless. The error the guard prevents grows with the clip — measured
+    // on this synthetic at 10 / 40 / 70 / 100 / 120 px off frame it is
+    // -0.01 / -1.22 / -13.69 / -23.63 / -31.25 px of R, and the guarded fit is
+    // 199.99 at every one of them.
+    const clipped = await synth(R, { cx: 130, W: 520, H: 600 });
+    const on = await fitRim(clipped);
+    const off = await fitRim(clipped, { frameMargin: 0 });
+    chk('clipped frame: rim still finds R=200', on.R, R, 0.5);
+    chk('clipped frame: centre still found', Math.hypot(on.cx - 130, on.cy - 300), 0, 0.5);
+    t.push(['  -> rays discarded as frame, not rim', on.onFrame, on.onFrame, Infinity, true]);
+    t.push([`  -> arc actually measured (deg)`, on.arcDeg, on.arcDeg, Infinity, true]);
+    chk('clipped frame: WITHOUT the guard the fit is wrong', Math.abs(off.R - R) > 5.0 ? 1 : 0, 1, 0);
+    t.push(['  -> what the unguarded fit returns for R', off.R, off.R, Infinity, true]);
   }
 
   // 3. RESPONSE. Change the subject, the number must follow.

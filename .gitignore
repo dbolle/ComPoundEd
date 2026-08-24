@@ -1,3 +1,8 @@
+# `node_modules/` with a trailing slash matches a DIRECTORY only. In a round
+# worktree `scripts/round-setup.sh` links it, and a SYMLINK named node_modules
+# is not a directory — so `git add -A` staged it, with an absolute machine path
+# as its blob content, and only `tests/privacy.spec.js` caught it. Match both.
+node_modules
 node_modules/
 dist/
 dev-dist/
@@ -23,6 +28,23 @@ deploy/.env
 # scorecards, derivations and eval libraries only ever live on one disk.
 # Text and instruments are tracked (~0.4 MB); the 15 MB of PNGs are not.
 coloringbook/*
+# THE EVAL LIBRARIES THE JUDGE'S GATES IMPORT (ledger A22/A25). These eight
+# modules are not "scratch tooling": they are the code the PRIMARY GATE runs,
+# and `coloringbook/*` above kept them out of the repository, so 63 of 286
+# instruments — including T1 — could not run in any worktree or fresh clone and
+# §1.1's reproducibility promise did not hold for them. Their SHA-256s are
+# already quoted in _jd0hashes.json, _jp0hashes.json, penny-scorecard.json,
+# nickel-scorecard.json and quarter-scorecard.json; the bytes tracked here are
+# those exact bytes, so nothing a round published moves by tracking them.
+# 638 lines, 52 KB. Anything ADDED here must be code an instrument imports.
+!coloringbook/_nkdisc.mjs
+!coloringbook/_pyellipse.mjs
+!coloringbook/_pyseg.mjs
+!coloringbook/_qtdisc.mjs
+!coloringbook/_qtedge.mjs
+!coloringbook/_qtseg.mjs
+!coloringbook/_rvdisc.mjs
+!coloringbook/_rvnorm.mjs
 !coloringbook/judge/
 coloringbook/judge/*
 !coloringbook/judge/*.md

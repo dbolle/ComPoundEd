@@ -143,7 +143,13 @@ export function geomOf(L) {
 }
 
 const SIZES = (process.env.SIZES || '26,38,44,54,76,84,120,190,380').split(',').map(Number);
-const tierOf = (s) => (s >= 76 ? 'full' : s >= 44 ? 'mid' : 'icon');
+// `tierOf` IS GONE (ledger A31). It labelled every row `full` / `mid` / `icon`
+// from the loop variable alone — it never consulted the art — and v1.94.0
+// removed `tier` from `src/art/coins.js` entirely, so the label named a
+// distinction the drawing does not make. Three rows tagged `icon`, `mid` and
+// `full` invite the reader to compare tiers; what actually varies down this
+// table is SIZE, continuously, through `sw()` and `reliefOff()`. The size is
+// already in the row and it is the honest column.
 
 export async function table(mod, ids, sizes = SIZES) {
   const rows = [];
@@ -152,7 +158,7 @@ export async function table(mod, ids, sizes = SIZES) {
       for (const size of sizes) {
         const svg = mod.coinSVG(id, size, { side });
         const Ls = legendsOf(svg);
-        rows.push({ id, side, size, tier: tierOf(size), legends: Ls.map((L) => ({ L, g: geomOf(L) })) });
+        rows.push({ id, side, size, legends: Ls.map((L) => ({ L, g: geomOf(L) })) });
       }
     }
   }
@@ -170,7 +176,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   console.log(`cap models: measured ${CAP_MODELS.measured} (this font, rasterised) | judge 0.72 | quarter-r4 0.71 | glyph-box(+desc) 0.78\n`);
 
   for (const r of await table(mod, ids)) {
-    const hdr = `${r.id.padEnd(8)} ${r.side.padEnd(8)} ${String(r.size).padStart(4)}px ${r.tier.padEnd(5)}`;
+    const hdr = `${r.id.padEnd(8)} ${r.side.padEnd(8)} ${String(r.size).padStart(4)}px`;
     if (!r.legends.length) { console.log(`${hdr}  NO LETTERING EMITTED`); continue; }
     for (const { L, g } of r.legends) {
       if (!g) { console.log(`${hdr}  flat  "${L.word}" size ${L.size} at (${L.x},${L.y})  cap ${(CAP_MODELS.measured * L.size).toFixed(2)}`); continue; }
@@ -185,15 +191,36 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   if (process.env.RESPONSE) {
     console.log('\n=== §4 RESPONSE TEST ===');
     const code = readFileSync(artPath, 'utf8');
-    const anchor = "main: { kind: 'arc', text: 'LIBERTY', size: 7.6, centre: 206 }";
-    if (!code.includes(anchor)) throw new Error('RESPONSE anchor missing — fix the test before trusting this instrument');
-    const bumped = await loadCoins(code.replace(anchor, "main: { kind: 'arc', text: 'LIBERTY', size: 11.4, centre: 206 }"));
+    // ── THIS ANCHOR WENT STALE AND THE RESPONSE TEST STOPPED RUNNING (A30).
+    //
+    // It read `size: 7.6, centre: 206`, which was the dime obverse LIBERTY when
+    // this file was written. The dime's LIBERTY is now `size: 10.56,
+    // centre: 206, rOff: 3.64, adv: 0.7897` (src/art/coins.js, in the `dime:`
+    // block), and `size: 7.6, centre: 332` — the string the old anchor half
+    // matched — belongs to the NICKEL. So the anchor named no live text, the
+    // guard threw, and `RESPONSE=1` has not run since the dime's type was
+    // resized. It failed closed rather than open, which is better, and it still
+    // meant the instrument's ability to move was unverified for as long as
+    // nobody ran it. That is now checked by `tests/judge-anchors.spec.js` in
+    // `npm test` rather than by hoping somebody runs this file.
+    //
+    // The anchor must match EXACTLY ONCE — `centre: 206` alone appears on more
+    // than one coin — and the substitution must be shown to have changed both
+    // the source and the emitted SVG before any ratio below is believed.
+    const anchor = "main: { kind: 'arc', text: 'LIBERTY', size: 10.56, centre: 206, rOff: 3.64, adv: 0.7897 }";
+    const hits = code.split(anchor).length - 1;
+    if (hits !== 1) throw new Error(`RESPONSE anchor matches ${hits} times, expected exactly 1 — re-anchor before trusting this instrument`);
+    const swapped = code.replace(anchor, "main: { kind: 'arc', text: 'LIBERTY', size: 15.84, centre: 206, rOff: 3.64, adv: 0.7897 }");
+    if (swapped === code) throw new Error('RESPONSE substitution did not change the source');
+    const bumped = await loadCoins(swapped);
+    if (bumped.coinSVG('dime', 190, { side: 'obverse' }) === mod.coinSVG('dime', 190, { side: 'obverse' }))
+      throw new Error('RESPONSE substitution never reached the render — the emitted SVG is byte-identical');
     const pick = (rows, id, side, word) => rows.find((x) => x.id === id && x.side === side && x.size === 190)
       .legends.find((x) => x.L.word === word);
     const A = await table(mod, ['dime', 'quarter'], [190]);
     const B = await table(bumped, ['dime', 'quarter'], [190]);
     const a = pick(A, 'dime', 'obverse', 'LIBERTY'), b = pick(B, 'dime', 'obverse', 'LIBERTY');
-    console.log(`  dime obverse LIBERTY size 7.6 -> 11.4 (x1.500)`);
+    console.log(`  dime obverse LIBERTY size 10.56 -> 15.84 (x1.500)`);
     for (const k of Object.keys(CAP_MODELS)) {
       console.log(`    cap[${k}] ${a.g.caps[k].toFixed(3)} -> ${b.g.caps[k].toFixed(3)}   x${(b.g.caps[k] / a.g.caps[k]).toFixed(4)}`);
     }

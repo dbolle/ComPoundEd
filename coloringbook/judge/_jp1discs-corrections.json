@@ -1,7 +1,7 @@
 {
   "_readme": [
     "CORRECTION SHEET for _jp1discs.json. Published BESIDE the frozen file, never into it:",
-    "COIN-JUDGE.md 1.1 — 'a corrected history entry sits next to the published one with both",
+    "COIN-JUDGE.md 1.1 \u2014 'a corrected history entry sits next to the published one with both",
     "values and the reason'. _jp1discs.json is hashed in _jp0hashes.json (roundTarget,",
     "sha256 de72c3e35287a49d) and is left byte-identical so the penny round's numbers stay",
     "reproducible. Read both through _jpdiscs.mjs, which merges them and refuses an entry",
@@ -10,7 +10,7 @@
     "Two defects in the frozen file, ledger A15, both confirmed 2026-08-24:",
     "  1. penny-rev-1991d.png has NO entry at all, though it is a live reference.",
     "  2. penny-rev-artwork.jpg's entry is UNUSABLE and carries no flag. Its p95 residual is",
-    "     13.93% of R with 244 of 720 rays terminating at the search-window end — a search",
+    "     13.93% of R with 244 of 720 rays terminating at the search-window end \u2014 a search",
     "     bound, not a fit (COIN-JUDGE 4.1). Every other entry in the file is p95 <= 2.13%,",
     "     and the two entries with a 3.4% / 5.2% A-vs-B disagreement DO carry a 'note'. The",
     "     single worst entry is the only silent one.",
@@ -18,9 +18,15 @@
     "CONSEQUENCE, found while checking this: _jp15rev.mjs resolved discs as",
     "`FROZEN[f] ?? FITTED[f]`, so its blend/grid/crop subcommands registered",
     "penny-rev-artwork.jpg on the frozen R 252.41 / cy 222.30 instead of the good drawn-rim",
-    "fit R 174.89 / cy 262.62 that sits ten lines below in the same file — R 44.3% too large",
-    "and the centre 40.3 px off — while its own `discs` subcommand printed the good fit. That",
-    "precedence is corrected in _jp15rev.mjs; the frozen entry is untouched."
+    "fit R 174.89 / cy 262.62 that sits ten lines below in the same file \u2014 R 44.3% too large",
+    "and the centre 40.3 px off \u2014 while its own `discs` subcommand printed the good fit. That",
+    "precedence is corrected in _jp15rev.mjs; the frozen entry is untouched.",
+    "",
+    "2026-08-24, ledger A28 \u2014 penny-rev.jpg is UNUSABLE FOR GEOMETRY. See `unusable` below.",
+    "It is NOT removed from T1's reverse pool: T1 needs a registration good enough for a",
+    "design NCC, not a viewBox coordinate, and it sorts penny-rev.jpg as a penny at 0.517",
+    "against 0.193 for the next denomination. A coordinate read off its disc is another",
+    "matter and is refused."
   ],
   "corrections": {
     "penny-rev-1991d.png": {
@@ -67,9 +73,53 @@
         "p95pctR": 0.36,
         "dRpct": 0.008
       }
+    },
+    "penny-rev.jpg": {
+      "_verdict": "NO REPLACEMENT COORDINATE IS PUBLISHED. This entry records the measurement and the refusal.",
+      "frozen": {
+        "cx": 238.51,
+        "cy": 251.93,
+        "R": 249.28,
+        "p95pctR": 4.9,
+        "via": "_rvdisc.fit (rays in 25-155deg dropped before the Kasa solve, which is why this is the LOWEST of the three p95s)"
+      },
+      "independent_refits": [
+        {
+          "by": "coloringbook/judge/_rimfit.mjs fitRim",
+          "cx": 224.15,
+          "cy": 258.56,
+          "R": 257.74,
+          "p95pctR": 7.02,
+          "onFrame": 398,
+          "arcDeg": 260.5
+        },
+        {
+          "by": "coloringbook/judge/_dr1disc.mjs fitRim",
+          "cx": 234.11,
+          "cy": 252.06,
+          "R": 250.89,
+          "p95pctR": 6.76
+        }
+      ],
+      "spread": {
+        "R_px": 8.46,
+        "R_pctR": 3.39,
+        "cx_px": 14.4,
+        "control_penny-rev-2.png_pctR": 0.47,
+        "control_penny-rev-1991d.png_pctR": 0.47,
+        "why_it_matters": "the two pool-mates agree seven times better under the same three fitters on the same day, so this is the file and not the method"
+      },
+      "cause": "frame crop, not obliquity. ~11 px of the disc is off the left edge; ~23% of scored rays terminate on the frame at 155-208deg.",
+      "retained_for": "T1 (_jt1transfer.mjs POOL_BY_SIDE.reverse.penny). Held-out it sorts penny at 0.517 against 0.193 for the next denomination, and the penny-reverse transfer margin is 0.283 at 38px \u2014 both far outside anything a 3.4% registration error moves.",
+      "refused_for": "any absolute viewBox coordinate, any band radius, any feature position, any containment number.",
+      "rederived": {
+        "on": "2026-08-24",
+        "by": "node coloringbook/judge/_rimfit.mjs audit penny-rev.jpg  (and _rvdisc / _dr1disc directly)"
+      }
     }
   },
   "unusable": {
-    "penny-rev-artwork.jpg": "the _jp1discs.json entry only — see corrections above for the replacement"
+    "penny-rev-artwork.jpg": "the _jp1discs.json entry only \u2014 see corrections above for the replacement",
+    "penny-rev.jpg": "UNUSABLE FOR GEOMETRY (not for T1 \u2014 see _readme). p95 boundary residual 4.90% of R against this project's own 1.0% squareness gate (_jq20indep.mjs:130). The flag text there says 'NOT SQUARE-ON: get a better photograph' and that diagnosis is WRONG: the coin is flat to the sensor. The disc is CROPPED \u2014 it runs about 11 px off the left of the 500x500 frame and grazes the bottom, 276 mask pixels sit on the x=0 column, and the residual signature is a straight chord (sector means 150deg +9.9, 180deg -9.4, 210deg +12.6) where an oblique shot gives a smooth two-cycle cosine over all 360deg. WHAT MAKES IT UNUSABLE IS NOT THE RESIDUAL BUT THE DISAGREEMENT: three independent fitters return R 249.28 / 257.74 / 250.89 and cx 238.51 / 224.15 / 234.11 \u2014 an 8.46 px spread, 3.39% of R, against 0.47% for BOTH of its pool-mates measured the same way on the same day. A clip-aware refit can be driven under 1.0% but it rests on 165deg of the circle (46%), and the two clip-aware estimators then disagree by 11 px of R. An estimator agreeing with itself is not evidence (COIN-JUDGE 4.1, ledger lesson 15)."
   }
 }

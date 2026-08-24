@@ -57,14 +57,22 @@ const CASES = [
 // case prints, which comes from the copy itself.
 const code = readFileSync(SRC, 'utf8')
   .replace(/from '(\.\.?\/[^']+)'/g, (m, p) => `from '${join(ROOT, 'src/art', p)}'`);
-const anchor = "main: { kind: 'arc', text: 'LIBERTY', size: 5.6, centre: 270, rOff: 0.55 }";
-if (!code.includes(anchor)) throw new Error('quarter obverse LIBERTY anchor not found — refusing to guess');
+// RE-ANCHORED (ledger A30). This read `size: 5.6, centre: 270, rOff: 0.55`;
+// the quarter obverse LIBERTY is now `size: 9.5, centre: 270, rOff: 4.175,
+// adv: 1.03`, so the anchor named no live text and this probe has refused to
+// run since the type was resized. Exactly-once, because `centre: 270` alone is
+// not unique across the file.
+const anchor = "main: { kind: 'arc', text: 'LIBERTY', size: 9.5, centre: 270, rOff: 4.175, adv: 1.03 }";
+const hits = code.split(anchor).length - 1;
+if (hits !== 1) throw new Error(`quarter obverse LIBERTY anchor matches ${hits} times, expected exactly 1 — refusing to guess`);
 const dir = mkdtempSync(join(tmpdir(), 'jl3probe-'));
 
 for (const c of CASES) {
-  const repl = `main: { kind: 'arc', text: 'LIBERTY', size: ${c.size}, centre: 270, rOff: ${c.rOff.toFixed(4)} }`;
+  const repl = `main: { kind: 'arc', text: 'LIBERTY', size: ${c.size}, centre: 270, rOff: ${c.rOff.toFixed(4)}, adv: 1.03 }`;
   const p = join(dir, `coins-${c.size}.js`);
-  writeFileSync(p, code.replace(anchor, repl));
+  const swapped = code.replace(anchor, repl);
+  if (swapped === code) throw new Error(`case ${c.name}: the substitution did not change the source`);
+  writeFileSync(p, swapped);
   const out = execFileSync('node', [join(HERE, '_jq5letter-v2.mjs')], { env: { ...process.env, ART: p }, encoding: 'utf8' });
   const obv = out.split('=== reverse')[0];
   const line84 = obv.split('\n').filter((l) => l.includes('84px') || (l.includes('HF@38.9') && obv.split('\n').indexOf(l) === obv.split('\n').findIndex((z) => z.includes('84px')) + 1));

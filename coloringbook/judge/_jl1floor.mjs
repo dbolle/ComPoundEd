@@ -276,9 +276,21 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     console.log(`  (a) synthetic stripes ${a1.toFixed(4)} vs flat ${a0.toFixed(4)} -> ${a1 > 10 * (a0 + 1e-12) ? 'PASS' : 'FAIL'}`);
     // (b) delete the legend from the art
     const code = readFileSync(artPath, 'utf8');
-    const anchor = 'const inscription = tier === ';
-    if (!code.includes(anchor)) throw new Error('RESPONSE anchor missing');
-    const mute = await loadCoins(code.replace(anchor, 'const inscription = true ? \'\' : tier === '));
+    // RE-ANCHORED (ledger A30). The old anchor was `const inscription = tier === `,
+    // a tier-era conditional that v1.94.0 deleted along with `tier` itself, so
+    // this arm has thrown since that release and the presence floor's response
+    // test has not run. The live line builds the legend unconditionally, so
+    // muting it now means replacing the call, not short-circuiting a branch.
+    // Exactly-once, and the mute is proved to have changed the emitted SVG —
+    // "the anchor matched" is not the same claim as "the legend went away".
+    const anchor = 'const inscription = inscriptionOf(id, side, rField, p);';
+    const hits = code.split(anchor).length - 1;
+    if (hits !== 1) throw new Error(`RESPONSE anchor matches ${hits} times, expected exactly 1 — re-anchor before trusting the floor`);
+    const muted = code.replace(anchor, "const inscription = ''; void inscriptionOf;");
+    if (muted === code) throw new Error('RESPONSE substitution did not change the source');
+    const mute = await loadCoins(muted);
+    if (mute.coinSVG('quarter', 190, { side: 'reverse' }) === mod.coinSVG('quarter', 190, { side: 'reverse' }))
+      throw new Error('RESPONSE substitution never reached the render — the emitted SVG is byte-identical');
     const L = LOCI.find((x) => x.coin === 'quarter' && x.side === 'reverse');
     const b1 = await ourAt(mod, 'quarter', 'reverse', 190), b0 = await ourAt(mute, 'quarter', 'reverse', 190);
     const h1 = hf(b1.fn, L.r, L.sector, fieldLevel(b1.fn), 100 / b1.boxW);

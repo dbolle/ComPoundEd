@@ -401,9 +401,27 @@ function bestReg(a, b, m) {
 // drift the comment above describes and is a bug report, not a value.
 const BOUNDS = [];
 let SIMS = 0;
+// ── A BOUNDED CELL IS NOW MARKED IN THE TABLE, NOT ONLY COUNTED (ledger A29).
+//
+// Section 5 below has always reported the AGGREGATE — "54.1 % sit on a bound" —
+// and that turned out not to be enough. A round does not quote the aggregate;
+// it quotes one number out of one table, and until now nothing beside that
+// number said whether it was a value or a floor. Every NCC printed by `num()`
+// that came from a registration on a search bound now carries a trailing `~`.
+//
+// The mark is carried by VALUE, not by call site, so `Math.max(...vs)` and the
+// several `sc.map(num)` tables did not have to be rewritten to thread a flag
+// through. The one consequence, stated rather than hidden: if two different
+// registrations return bit-identical NCCs and only one was bounded, both cells
+// are marked. That over-flags, never under-flags, which is the safe direction
+// for a warning — and at double precision it is close to unobservable.
+const BOUNDVAL = new Set();
 function sim(a, b, mode) {
   const r = bestReg(a, b, MASK[mode]); SIMS++;
-  if (Math.abs(r.rot) >= 8 || Math.abs(r.du) >= 0.03 || Math.abs(r.dv) >= 0.03) BOUNDS.push({ ...r, mode });
+  if (Math.abs(r.rot) >= 8 || Math.abs(r.du) >= 0.03 || Math.abs(r.dv) >= 0.03) {
+    BOUNDS.push({ ...r, mode });
+    BOUNDVAL.add(r.ncc);
+  }
   return r.ncc;
 }
 
@@ -453,7 +471,10 @@ async function featOfOurs(id, px, side, tag = '', tweak = null) {
 
 // ── report
 const pad = (s, n) => String(s).padEnd(n);
-const num = (v, n = 8) => (v === null ? '   n/a' : v.toFixed(3).padStart(n));
+// `~` = this NCC came off a registration sitting ON a search bound, so it is a
+// LOWER BOUND on the similarity, not the similarity (§4.1; see `sim()` above).
+const num = (v, n = 8) => (v === null ? '   n/a'
+  : (v.toFixed(3) + (BOUNDVAL.has(v) ? '~' : ' ')).padStart(n));
 
 // GUARDED. Everything above is importable — `fitDisc`, `fitRect`, `fitBox` and
 // the descriptor are useful to other instruments — and nothing below runs on
