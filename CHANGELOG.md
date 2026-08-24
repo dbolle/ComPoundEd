@@ -3,6 +3,42 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.96.0 — 2026-08-24
+
+**A frozen artefact cannot carry its own retraction — and I proved that by
+making the same mistake twice, one minute apart.**
+
+`_jq8contain-v2.mjs` is pinned at hash `512f61d57444b288`, which **seven
+published records cite**. The v1.91.0 repair to its response test was applied
+**in place**, moving the hash to `28717096e3a2328a` and silently breaking every
+one of those citations. §1.1 says *retract beside, never rewrite*; that was my
+merge, and it did the opposite.
+
+**Then, fixing exactly that, I restored the file byte-exact and added a
+supersession note inside it** — moving the hash to `833c6f37f2eaf93e`. The same
+error, during its own repair.
+
+So: v2 is restored **byte-identical** at `512f61d5…`, the repair lives in
+`_jq8contain-v3.mjs`, and the note sits in a **separate file beside it**. Three
+live instruments import v2's helpers, and one of them documents that it does so
+"unedited at its published hash" — true again.
+
+**The general rule, now stated where it will be read: if a file's hash is cited
+anywhere, the only safe edit is no edit.**
+
+**The anchors test correctly went red on the restored file**, because v2's
+anchor genuinely *is* stale — that defect is why v3 exists — but it may not be
+fixed. The exemption added is deliberately narrow and **auditable**: `X.mjs` is
+exempt if and only if `X.SUPERSEDED.md` sits beside it **and that note names the
+file replacing it.** A silent skip-list would be a loophole; a note that must
+name its successor is a record.
+
+Response-tested three ways: with the note, green; **note removed, red**; **note
+present but naming no successor, red.**
+
+v3 verified working: response 0.0000 % → **4.1890 %**, injection asserted real,
+zero-translate null test bit-identical.
+
 ## v1.95.0 — 2026-08-24
 
 **Instrument debt: an instrument was editing the art, five response tests were

@@ -77,6 +77,27 @@ const NOT_IN_COINS = {
   "from '../engine/money.js'": 'an import specifier rewritten so a generated copy in a temp dir can resolve — it is coins.js text, and IS asserted unique by the instrument itself',
 };
 
+// A SUPERSEDED instrument is frozen evidence, not a live gate, and its anchor
+// is EXPECTED to be stale — it describes the art as it was when the instrument
+// published its numbers. Exempting it is only safe if the exemption is explicit
+// and auditable, so the rule is narrow: `X.mjs` is exempt if and only if
+// `X.SUPERSEDED.md` sits beside it AND that note names the file that replaces
+// it. A silent skip-list would be a loophole; a note that must name its
+// successor is a record.
+//
+// This exists because `_jq8contain-v2.mjs` is pinned at the hash seven
+// published records cite. Its anchor IS stale — that defect is why
+// `_jq8contain-v3.mjs` exists — but the file may not be edited to fix it,
+// because editing it is what broke those citations in the first place.
+const supersededNote = (f) => {
+  const p = join(JUDGE, `${f.replace(/\.mjs$/, '')}.SUPERSEDED.md`);
+  return existsSync(p) ? readFileSync(p, 'utf8') : null;
+};
+const isSuperseded = (f) => {
+  const note = supersededNote(f);
+  return note !== null && /superseded by\s+`?[\w.-]+\.mjs`?/i.test(note);
+};
+
 const files = existsSync(JUDGE)
   ? readdirSync(JUDGE).filter((f) => f.endsWith('.mjs')).sort()
   : [];
@@ -90,6 +111,7 @@ test('every judge instrument that perturbs the art still matches it', () => {
   let checked = 0;
 
   for (const f of files) {
+    if (isSuperseded(f)) continue;
     for (const a of anchorsIn(f, readFileSync(join(JUDGE, f), 'utf8'))) {
       if (a.dynamic || NOT_IN_COINS[a.literal] !== undefined) continue;
       checked++;
