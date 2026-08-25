@@ -55,7 +55,8 @@
 //   node _dr13elem.mjs score <idx> --ref unc2005
 import sharp from 'sharp';
 import { writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve as resolve_ } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { JUDGE } from './_paths.mjs';
 import { deviceMask } from './_dr9branch.mjs';
 import { coinSVG } from '../../src/art/coins.js';
@@ -76,7 +77,19 @@ const WINDOWS = {
   // which also confirmed that blob IS flame and not an oak leaf.
   flame: [42, 59.5, 17, 33],
   head: [41, 59, 31, 40],
-  shaft: [43, 57, 38, 71],
+  // y0 was 38 and y1 was 71, and the window tiled with NEITHER neighbour.
+  // Below: the foot round moved WINDOWS.foot's top to 73.50 on the finding that
+  // the coin's shaft narrows monotonically to there, so y 71..73.50 — 13.30 sq
+  // units of mask on proofbright, 11.79 on unc2005 — was shaft in no element's
+  // window at all. Above: the drawn collar (node 2.1.1) ends at y 38.50 and
+  // WINDOWS.head already runs to y 40, so y 38..38.50 was both double-counted
+  // and unreachable by the shaft, which does not start until 38.50; measured,
+  // the collar's own ink claims 5.08 sq units of it on pb and 4.63 on unc.
+  // Now [38.50, 73.50]: head | shaft | foot meet edge to edge at the y where
+  // one drawn element hands over to the next. Found by the shaft round, which
+  // also reports that WINDOWS.head's y1 of 40 still overlaps this window by
+  // 1.5 units — that overlap is the HEAD's to close, not the shaft's.
+  shaft: [43, 57, 38.5, 73.5],
   // y0 was 69, and 47% of FILL's denominator was then SHAFT. Scanned at the
   // mask's own 0.25 units, the coin's shaft narrows monotonically to y 73.50
   // (proofbright, 5.00 wide) / y 74.25 (unc2005, 4.30) and only then flares
@@ -207,6 +220,15 @@ function resolveTag(head, top, pathStr) {
   return node || '<?';
 }
 
+// AN INSTRUMENT MUST NOT RUN WHEN IT IS IMPORTED. Without this guard, any
+// module that imports `nodes`/`resolve` to isolate an element executes the CLI
+// as a side effect and prints a node listing into the middle of its own output.
+// Caught 2026-08-25 when the judge imported it to measure the shaft alone; the
+// same defect that made deploy/sync-server.mjs bind a port on every test run.
+const IS_MAIN = process.argv[1]
+  && import.meta.url === pathToFileURL(resolve_(process.argv[1])).href;
+if (!IS_MAIN) { /* imported: expose helpers only */ } else {
+
 const mode = process.argv[2] || 'list';
 const refKey = (process.argv.includes('--ref') ? process.argv[process.argv.indexOf('--ref') + 1] : 'proofbright');
 const [refFile, refT, refE] = REFS[refKey] ?? REFS.proofbright;
@@ -298,3 +320,5 @@ if (mode === 'score') {
 }
 
 console.log('usage: node _dr13elem.mjs [list|sheet|score <idx> [window]] [--ref proofbright|unc2005]');
+
+}

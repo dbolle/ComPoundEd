@@ -3,6 +3,212 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.100.0 — 2026-08-25
+
+**The dime reverse's torch shaft is one straight taper, and we drew it at
+three quarters of its slope — too thin at the top, too fat at the bottom, and
+parallel-sided for the last 4.6 units.**
+
+Third element scored alone by `judge/_dr13elem.mjs`. Scope: the shaft path and
+its own interior detail in `torch()`, plus `WINDOWS.shaft` in the judge. The
+byte-identity partition reports `dime.reverse` alone, 6/60 cells, all sizes.
+
+**Element 2.1.2, the shaft, against `deviceMask()`:**
+
+| | OUTSIDE pb | FILL pb | OUTSIDE unc | FILL unc |
+|---|---|---|---|---|
+| before, shipped window | 2.17 % | 71.34 % | 10.60 % | 77.66 % |
+| after, **same** window | **1.45 %** | **73.01 %** | **10.46 %** | **78.97 %** |
+| after, corrected window | 1.45 % | 74.81 % | 10.46 % | 80.69 % |
+
+All four numbers improve on the **unchanged** window, so the window correction
+is not doing the work. Ink 263.58 → 265.91 sq units.
+
+**THIRTY WIDTHS BECAME EIGHTY-SIX.** `_dr8shaft.mjs` published seven rows from
+a darkest-point estimator. Running its own admission test against the mask —
+a row counts only if the run containing x = 50 has a clear gap of ≥ 0.4 units
+on **both** sides in **both** files — admits 86 of the 143 rows between y 38
+and y 73.5, in two bands (y 38..43, y 57.5..73.5). Between them the olive
+branch crosses the shaft and there is no boundary to read, which is the same
+refusal `_dr8shaft.mjs` makes.
+
+**On those 86 rows the shaft is ONE STRAIGHT LINE:**
+
+| | w(38.5) | w(73.5) | slope/unit | rms | worst |
+|---|---|---|---|---|---|
+| proofbright | 11.12 | 4.97 | −0.1756 | 0.217 | 0.67 |
+| unc2005 | 9.29 | 4.36 | −0.1409 | 0.177 | 0.94 |
+| **mean of the two** | **10.20** | **4.67** | **−0.1583** | **0.173** | 0.73 |
+
+An rms of 0.17 over 86 rows and 35 units of length is a taper with no second
+term in it: no collar, no waist, no parallel section. Drawn against that mean,
+row by row: **−0.72 at y 38.5, −0.73 at y 40, −0.04 at y 59, +0.02 at y 61,
++0.44 at y 63, +0.32 at y 68, +0.42 at y 71, +1.00 at y 73.5.** That is a
+**slope** error pivoting near y 60 — −0.119 drawn against −0.158 measured,
+25 % too shallow — not a size error.
+
+**D19 IS CONFIRMED AND WAS THE SMALLER HALF.** The foot round reported that the
+shaft runs parallel at 5.7 from y 69.6 while the coin keeps narrowing. It does:
+pb 5.75 at y 71 and 4.95 at y 73.5, unc 4.80 and 4.45. But the same fit shows
+the taper is also 0.72 too narrow at its top, and the two are one defect —
+a slope.
+
+**THE TOP ANCHOR IS CHANGED, AND THE FILE SAID IT WAS SETTLED.** v1.84.0 kept
+9.4 at y 38.5 because "9.4 sits between the two files' 9.67 and 10.41 at
+y 40". The anchor is at 38.5, so the width the taper actually **draws** at y 40
+is **9.22 — below both**. Four estimates of that row: `_dr8shaft` 9.67 / 10.41,
+the mask 9.05 / 10.85; means 10.04 and 9.95, and the fitted line gives 9.97.
+The published **ratio** test — chosen because it cancels the disc fit and the
+bevel skirt — says the same thing:
+
+| | w61/w42 | w69/w42 |
+|---|---|---|
+| `_dr8shaft` unc / pb | 0.782 / 0.681 | 0.590 / 0.581 |
+| `deviceMask` unc / pb | 0.696 / 0.682 | 0.568 / 0.549 |
+| drawn (was) | 0.748 | **0.642 — above all four** |
+| drawn (now) | 0.688 | 0.557 |
+
+v1.84.0 printed its own 0.639 beside targets of 0.590 and 0.581 and did not
+remark that it had missed both. Top anchor 9.4 → 10.20.
+
+**AND THE AXIS FITS 50.** The same least squares on the mean of the two files'
+run **centres** gives 50.00 at y 38.5 and 49.83 at y 73.5, rms 0.084. The flame
+round asserted the two registrations cancel to 50 from three rows; this
+confirms it from 86, over the shaft's whole length. The drawing stays on 50.
+
+**WHERE THE REMAINING FILL IS, AND MOSTLY IT IS NOT THE SHAFT'S (D22).** Every
+unfilled mask cell in the corrected window was tested against the ink of the
+other elements of this face:
+
+| | proofbright | unc2005 |
+|---|---|---|
+| branches 2.1.4+ | 37.59 (10.86 pts) | 26.56 (9.11 pts) |
+| legend E PLURIBUS UNUM | 4.06 (1.17 pts) | 0.84 (0.29 pts) |
+| collar/head 2.1.1 | 0.00 | 0.00 |
+| nobody draws it | 45.52 (13.15 pts) | 28.91 (9.91 pts) |
+
+12.03 points of pb's FILL and 9.40 of unc's is mask this element must **not**
+fill. Credited only for mask nobody else draws, the shaft fills **85.05 %** and
+**89.06 %**.
+
+**AND THE REST IS REGISTRATION.** The same shape re-centred on each file's own
+measured axis — computed to bound the residual, not to draw it, because
+shifting onto one file's error is what the flame round refused:
+
+| | on 50 | on the file's own axis |
+|---|---|---|
+| pb OUTSIDE / FILL | 1.45 % / 74.81 % | 0.14 % / 75.79 % |
+| unc OUTSIDE / FILL | 10.46 % / 80.69 % | 6.62 % / 84.09 % |
+
+90 % of pb's OUTSIDE is the 0.45-unit axis offset. unc's residual 6.62 % is its
+erosion — its mask is eroded 1.00 per side against pb's 0.55, so a shape drawn
+to the mean of the two is 0.45 per side proud of the narrower file by
+construction. Neither is shape.
+
+**CONVERGENCE DECLARED (ledger §0).** The evidence that would move these
+numbers is not another constant but a per-element target that subtracts mask
+already claimed by a neighbouring element's ink. That is an instrument change
+and not the shaft's to make.
+
+**THE WINDOW WAS CORRECTED AND NOW IT TILES.** `WINDOWS.shaft` was
+`[43, 57, 38, 71]` and met neither neighbour: after the foot round moved the
+foot's top to 73.5, the band y 71..73.5 was shaft mask in **no** element's
+window (13.30 sq units pb, 11.79 unc), and y 38..38.5 sat below the drawn
+collar, which ends at 38.5. Now `[43, 57, 38.5, 73.5]`: head | shaft | foot
+meet edge to edge. The collar claiming **0.00** of the unfilled target is the
+check that 38.5 is the right handover row.
+
+**Reported, not changed:** the drawn collar is 11.7 wide and steps down to the
+shaft at y 38.5, where the coin has no step at all (pb 11.50 / 11.00 / 10.50
+at y 36 / 38.5 / 42; unc 9.65 / 9.25 / 8.75) — 0.75 per side now, down from
+1.15, and the head's to answer, along with `WINDOWS.head`'s y1 of 40 still
+overlapping this window by 1.5 units (**D23**). `_dr9branch.mjs`'s
+`torchHalf()` mirrors the old taper and is now ~0.4 too narrow at the top;
+changing it would move published branch numbers (**D24**).
+
+**Interior detail follows, arithmetically.** The two flutes keep their 0.8-unit
+inset and 0.8-unit width and the two shaft bands keep the shaft's full width at
+their own top row, recomputed on the new taper. The third band is the collar's
+and keeps the collar's 11.7. The flutes still stop at y 69.2: the mask cannot
+see a flute — the flood closes interior highlights, which is why it works — so
+nothing would justify running them further.
+
+Verified by the judge: partition 6/60 `dime.reverse` alone; suite 225 + 239
+green; T1 32/32, dime-reverse margin 0.233–0.236 (was 0.231–0.234); and the
+overlay read back at 40 px per unit — the drawn edges run parallel to the
+mask's on both files, with the residual a hairline of registration.
+
+## v1.100.0 — 2026-08-25
+
+**The dime's shaft had a slope error, not a bottom error — and the "settled"
+top width was wrong too.**
+
+Third element scored alone. The lead handed over was D19: the shaft runs
+parallel for its last 4.6 units while the coin is still narrowing. **That was
+confirmed, and it was the smaller half.**
+
+| shaft, node `2.1.2` | OUT pb | FILL pb | OUT unc | FILL unc |
+|---|---|---|---|---|
+| before | 2.17 % | 71.34 % | 10.60 % | 77.66 % |
+| after, **same** window | **1.45 %** | **73.01 %** | **10.46 %** | **78.97 %** |
+| after, corrected window | 1.45 % | 74.81 % | 10.46 % | 80.69 % |
+
+All four improve on the *unchanged* window, so the window correction is not
+doing the work.
+
+**The width profile**, admitted by `_dr8shaft.mjs`'s own rule — a row counts
+only if the run holding x = 50 has a ≥ 0.4 gap to its neighbours on **both**
+sides in **both** files. That admits **86 of 143 rows**, in two clean bands:
+
+| | w(38.5) | w(73.5) | slope | rms |
+|---|---|---|---|---|
+| proofbright | 11.12 | 4.97 | −0.1756 | 0.217 |
+| unc2005 | 9.29 | 4.36 | −0.1409 | 0.177 |
+| **mean** | **10.20** | **4.67** | **−0.1583** | **0.173** |
+
+rms 0.17 over 86 rows and 35 units — **one line, no second term.** Drawn minus
+measured: −0.72 at the top, +1.00 at the bottom. **A slope error pivoting near
+y 60** — drawn −0.119 against a measured −0.158, 25 % too shallow.
+
+**A "settled" measurement is disagreed with, in public.** v1.84.0 kept the top
+anchor at 9.4 because it "sits between the two files' 9.67 and 10.41 at y 40" —
+but anchored at 38.5 that taper **draws 9.22 at y 40, below both**. Four
+estimates of that row mean 10.04 and 9.95; the fit gives 9.97. And its own ratio
+test agrees: the drawn `w69/w42` was **0.644 against targets of 0.549, 0.568,
+0.581 and 0.590 — above all four.** v1.84.0 printed its own 0.639 beside targets
+of 0.590/0.581 **without remarking that it had missed both.** Judge-verified
+independently by measuring the isolated node: 0.644 → **0.557**.
+
+**An 86-row confirmation of a 3-row claim:** the same fit on the run *centres*
+gives axis 49.83, rms 0.084 — the flame round's finding that the two
+registrations cancel to 50, now on 28× the evidence.
+
+**The FILL ceiling is an instrument artefact (D22).** Testing every unfilled
+cell against the other elements' ink shows **41.65 sq units on proofbright —
+12.03 FILL points — is mask drawn by the branches and the legend**, because the
+olive crosses the shaft at y 45..57 and E PLURIBUS UNUM stands against it at
+y 62..66. Credited only for mask nobody else draws, the shaft fills **85.05 % /
+89.06 %**.
+
+**Refused, with the number:** keeping 9.4 and fixing only the bottom measures
+OUT 0.75 % / FILL 69.66 % — **better OUTSIDE, worse FILL**. That is the
+thinner-scores-better trap this element was warned about, and it was declined.
+
+**Reported, not changed:** the drawn collar steps 0.75/side down to the shaft
+where the coin has **no step** (D23, the head's to answer); `_dr9branch.mjs`'s
+`torchHalf()` still mirrors the old taper and is now ~0.4 too narrow at the top,
+but changing it would move published branch numbers (D24).
+
+**Could not determine:** y 43–57.5 — 57 of 143 rows — where the olive touches
+the shaft and no estimator separates them; the line is interpolated across that
+gap and bracketed by the two clean bands. And ~0.85 units of the two files'
+top-width disagreement is **not** explained by their erosion difference.
+
+**Instrument defect fixed by the judge:** `_dr13elem.mjs` **ran its CLI when
+imported**, so any module importing `nodes`/`resolve` printed a node listing
+into its own output — found while verifying this round's ratio claim. Same
+defect class as the sync server binding a port on every test run. Guarded.
+
 ## v1.99.0 — 2026-08-25
 
 **The dime reverse's torch foot is a bead over a tapering spike, not a bowl —

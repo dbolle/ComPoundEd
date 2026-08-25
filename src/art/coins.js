@@ -5877,9 +5877,156 @@ function torch(p) {
   // raising OUTSIDE; the evidence that would move it is a shaft whose taper
   // runs on to the coin's 5.00 at y 73.5 instead of stopping at 5.7, which is
   // the shaft's measurement to make and is REPORTED, NOT CHANGED, here.
+  //
+  // ── THE SHAFT, re-fitted 2026-08-25 by the element judge. D19 above is
+  // CONFIRMED, and it was the smaller half of the defect. The shaft was
+  // 9.4 wide at y 38.5 falling to 5.7 at y 69.6 and then PARALLEL to 74.2.
+  // Scored alone it read OUTSIDE 2.17% / FILL 71.34% (pb) and 10.60% / 77.66%
+  // (unc) — OUTSIDE nearly free, FILL not, the signature of an element that is
+  // too thin or too short rather than misplaced. It was both.
+  //
+  // THIRTY WIDTHS BECOME EIGHTY-SIX. `_dr8shaft.mjs` published seven rows read
+  // by a darkest-point estimator on the rows where it could see bare field on
+  // both sides. The same test run against `deviceMask()` itself — a row is used
+  // only if the run containing x = 50 has a clear gap of >= 0.4 units to its
+  // nearest neighbour ON BOTH SIDES IN BOTH FILES — admits 86 rows of the 143
+  // between y 38 and y 73.5, in two bands: y 38..43 and y 57.5..73.5. Between
+  // them the olive branch crosses the shaft and there is no boundary to read,
+  // which is the same refusal `_dr8shaft.mjs` makes and for the same reason.
+  //
+  // ON THOSE 86 ROWS THE SHAFT IS ONE STRAIGHT LINE. Least squares on the mean
+  // of the two files' widths:
+  //
+  //                       w(38.5)   w(73.5)   slope/unit   rms    worst
+  //     proofbright        11.12      4.97     -0.1756    0.217   0.67
+  //     unc2005             9.29      4.36     -0.1409    0.177   0.94
+  //     MEAN OF THE TWO    10.20      4.67     -0.1583    0.173   0.73
+  //
+  // An rms of 0.17 units over 86 rows and 35 units of length is a taper with no
+  // second term in it. There is no collar, no waist and no parallel section.
+  //
+  // AND THE AXIS FITS 50. The same least squares on the mean of the two files'
+  // run CENTRES gives 50.00 at y 38.5 and 49.83 at y 73.5, rms 0.084. The two
+  // registrations (50.42 and 49.42) cancel to the axis this face is drawn on,
+  // measured over the shaft's whole length — the flame block asserted that from
+  // three rows and this confirms it from 86. The drawing stays centred on 50.
+  //
+  // WHAT WAS DRAWN, AGAINST THAT (drawn minus the two-file mean):
+  //
+  //     y 38.5  -0.72     y 61  +0.02     y 69.6  +0.33
+  //     y 40    -0.73     y 63  +0.44     y 71    +0.42
+  //     y 42    -0.64     y 66  +0.40     y 72.5  +0.80
+  //     y 59    -0.04     y 68  +0.32     y 73.5  +1.00
+  //
+  // Too narrow at the top, right at y 59..61, too wide from y 62 down, and 1.00
+  // too wide where the parallel section runs on. That is a SLOPE error with the
+  // pivot near y 60, not a size error: -0.119 per unit drawn against -0.158
+  // measured, 25% too shallow.
+  //
+  // IT DISAGREES WITH THE TOP ANCHOR, WHICH IS SAID ABOVE TO BE SETTLED, and
+  // this is the disagreement stated in numbers rather than acted on quietly.
+  // The block above keeps 9.4 at y 38.5 on the ground that "9.4 sits between the
+  // two files' 9.67 and 10.41 at y 40". But the anchor is at 38.5, so the width
+  // the taper actually DRAWS at y 40 is 9.22 — below BOTH of those readings, not
+  // between them. Four estimates of that row: `_dr8shaft.mjs` 9.67 / 10.41,
+  // the mask 9.05 / 10.85; their means are 10.04 and 9.95 and the fitted line
+  // gives 9.97. The justification held for the number 9.4; it never held for the
+  // row it cited. Top anchor 9.4 -> 10.20.
+  //
+  // THE PUBLISHED RATIO TEST AGREES, and it is the test v1.84.0 chose because it
+  // cancels the disc fit and the bevel skirt:
+  //
+  //                          w61/w42   w69/w42
+  //     _dr8shaft unc          0.782     0.590
+  //     _dr8shaft pb           0.681     0.581
+  //     deviceMask unc         0.696     0.568
+  //     deviceMask pb          0.682     0.549
+  //     DRAWN (was)            0.748     0.642   <- above all four
+  //     DRAWN (now)            0.688     0.557
+  //
+  // 0.642 exceeded every one of the four measurements of w69/w42 by 0.05 to
+  // 0.09. v1.84.0 printed its own 0.639 next to targets of 0.590 and 0.581 and
+  // did not remark that it had missed both; that is the number this round found
+  // already lying in the file.
+  //
+  // SO THE SHAFT IS ONE PATH WITH FOUR CORNERS: 10.20 wide at y 38.5, falling
+  // at 0.15827 per unit to 4.55 at y 74.2 where the foot's bead takes over. The
+  // foot's own top edge is 5.70 and therefore stands 0.575 proud of the shaft on
+  // each side — that step IS the bead, which the foot round measured as ~1.5
+  // proud and returning to neck width below itself. Widths are not
+  // erosion-corrected, on the flame and foot blocks' precedent.
+  //
+  // THE FLUTES AND BANDS FOLLOW, at the fractions they already had (flutes 0.8
+  // in from the edge and 0.8 wide; bands the shaft's full width at their top
+  // row). Same detail on the new cylinder, no new modelling. They still stop at
+  // y 69.2 because the mask cannot see a flute at all — the flood closes
+  // interior highlights, which is the whole reason it works — so there is no
+  // measurement that would justify running them further.
+  //
+  //     element 2.1.2 alone      OUTSIDE          FILL
+  //     proofbright   before      2.17%          71.34%   (window [43,57,38,71])
+  //                    after      1.45%          73.01%   (same window)
+  //                    after      1.45%          74.81%   (window corrected)
+  //     unc2005       before     10.60%          77.66%
+  //                    after     10.46%          78.97%   (same window)
+  //                    after     10.46%          80.69%   (window corrected)
+  //
+  // THE WINDOW WAS CORRECTED AND IT TILES NOW. `WINDOWS.shaft` was
+  // [43, 57, 38, 71] and met neither neighbour: y 71..73.5 was shaft mask in NO
+  // element's window (13.30 sq units pb, 11.79 unc) after the foot round moved
+  // the foot's top to 73.5, and y 38..38.5 was below the drawn collar, which
+  // ends at 38.5. Both before and after numbers are given on both windows above
+  // so the correction is not doing the work.
+  //
+  // WHERE THE REMAINING 25% OF FILL IS, and it is mostly not the shaft's. Every
+  // unfilled mask cell in the corrected window was tested against the ink of the
+  // OTHER elements of this face:
+  //
+  //                              proofbright        unc2005
+  //     branches 2.1.4+         37.59 (10.86 pts)  26.56 (9.11 pts)
+  //     legend E PLURIBUS UNUM   4.06 ( 1.17 pts)   0.84 (0.29 pts)
+  //     collar/head 2.1.1        0.00               0.00
+  //     nobody draws it         45.52 (13.15 pts)  28.91 (9.91 pts)
+  //
+  // 12.03 points of pb's FILL and 9.40 of unc's are mask this element must NOT
+  // fill: the olive branch crosses the shaft between y 45 and y 57 and the caps
+  // of E PLURIBUS UNUM stand against it at y 62..66, and no rectangle separates
+  // them from it. The collar claiming 0.00 is the check that y 38.5 is the right
+  // handover row. Credited only for mask no other element draws, this shaft
+  // fills 85.05% (pb) and 89.06% (unc).
+  //
+  // AND THE REST IS REGISTRATION. The same shape re-centred on each file's own
+  // measured axis — computed to BOUND the residual, not to draw it, because
+  // shifting onto one file's error is what the flame block refused:
+  //
+  //                     on 50      on the file's own axis
+  //     pb   OUTSIDE    1.45%            0.14%
+  //          FILL      74.81%           75.79%
+  //     unc  OUTSIDE   10.46%            6.62%
+  //          FILL      80.69%           84.09%
+  //
+  // 90% of pb's OUTSIDE is the 0.45-unit axis offset. unc's remaining 6.62% is
+  // its erosion: its mask is eroded 1.00 per side against pb's 0.55, so a shape
+  // drawn to the mean of the two is 0.45 per side proud of the narrower one by
+  // construction. Neither is shape, and CONVERGENCE IS DECLARED HERE (ledger
+  // §0): the evidence that would move these numbers is not another constant but
+  // a per-element target that subtracts mask already claimed by a neighbouring
+  // element's ink — an instrument change, and not the shaft's to make.
+  //
+  // Reported, not fixed, by this round:
+  //   · WINDOWS.head runs to y 40 and so still overlaps this window by 1.5
+  //     units; the head's to close.
+  //   · The drawn collar is 11.7 wide and steps down to the shaft's 10.20 at
+  //     y 38.5. The coin has NO step there: pb reads 11.50 at y 36, 11.00 at
+  //     38.5 and 10.50 at 42, and unc 9.65 / 9.25 / 8.75 — one continuous
+  //     taper through the junction. The step is 0.75 per side now, down from
+  //     1.15, but it is still ours and not the die's. The head's to answer.
+  //   · `_dr9branch.mjs`'s `torchHalf()` mirrors the OLD taper to exclude the
+  //     torch from the branch windows, so it is now ~0.4 too narrow at the top.
+  //     Changing it would move published branch numbers; left alone deliberately.
   const solid = `${flame}
     <rect x="44.15" y="33" width="11.7" height="5.5" rx="1.5"/>
-    <path d="M 45.3 38.5 L 54.7 38.5 L 52.85 69.6 L 52.85 74.2 L 47.15 74.2 L 47.15 69.6 Z"/>
+    <path d="M 44.9 38.5 L 55.1 38.5 L 52.275 74.2 L 47.725 74.2 Z"/>
     <path d="M 47.15 74.2 L 46.6 74.5 L 46.3 74.75 L 46.28 75.25 L 46.4 75.5
       L 46.8 75.75 L 47.3 76 L 47.55 76.25 L 47.78 76.5 L 47.98 77
       L 48.15 77.5 L 48.43 78 L 48.78 78.25 L 49.5 78.45
@@ -5898,16 +6045,23 @@ function torch(p) {
   // so this is the same detail on a narrower cylinder, not new modelling.
   // The right flute is 53.1 rather than its old 53.0: the die is symmetric and
   // the 0.1 was a typo, not a measurement.
+  //
+  // Re-placed 2026-08-25 on the re-fitted taper (10.20 at y 38.5 falling 0.15827
+  // per unit), by the SAME two fractions, arithmetic and not judgement: the
+  // shaft's edge is at 44.932 at y 38.9 and 47.330 at y 69.2, so the flutes run
+  // 45.73..46.53 to 48.13..48.93 and their mirrors; the bands take the shaft's
+  // width at their own top row, 9.94 at y 40.1 and 7.90 at y 53.0. The third
+  // rect is the COLLAR's band and keeps the collar's 11.7 — it is the head's.
   const detail =
-    `<g fill="#ffffff" opacity="0.45"><path d="M 46.1 38.9 L 46.9 38.9 L 48.71 69.2 L 47.91 69.2 Z"/>
-       <path d="M 53.1 38.9 L 53.9 38.9 L 52.09 69.2 L 51.29 69.2 Z"/>
+    `<g fill="#ffffff" opacity="0.45"><path d="M 45.73 38.9 L 46.53 38.9 L 48.93 69.2 L 48.13 69.2 Z"/>
+       <path d="M 53.47 38.9 L 54.27 38.9 L 51.87 69.2 L 51.07 69.2 Z"/>
        <rect x="44.55" y="33.6" width="0.8" height="4.4"/></g>` +
     // the two BANDS the coin actually cuts, at the measured 40.5 and 53.4.
     // Their widths follow the shaft and the collar; a band wider than the thing
     // it cuts across would print on bare field, and one narrower would read as
     // a nick.
-    `<g fill="${p.deep}" opacity="0.5"><rect x="45.4" y="40.1" width="9.2" height="1.0"/>
-       <rect x="46.16" y="53.0" width="7.68" height="1.0"/>
+    `<g fill="${p.deep}" opacity="0.5"><rect x="45.03" y="40.1" width="9.94" height="1.0"/>
+       <rect x="46.05" y="53.0" width="7.90" height="1.0"/>
        <rect x="44.15" y="36.9" width="11.7" height="1.0"/></g>` +
     `<g fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.42" stroke-linecap="round">
            <path d="M 50 19.8 C 51.29 22.2 51.72 24.7 51.08 27.0"/>
