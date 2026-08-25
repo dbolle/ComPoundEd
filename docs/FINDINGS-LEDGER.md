@@ -149,6 +149,8 @@ round.
 | D16 | Dime reverse: the upper olive berry is not separately readable; both its centre and the blade that swallows it are measured, so it needs a ladder change. | **OPEN** |
 | D17 | Refused though it measured better: scaling the oak blade's width by `lk` — it widens every blade by up to 12 %, the trade that got an earlier round reverted. | **OPEN** (refused) |
 | D18 | **Our note reverse sorts as a PENNY at all four app sizes** in the design mode. | **TABLED** (R1) |
+| D19 | **The dime's torch shaft stops tapering 4.6 units early.** It is drawn parallel at 5.7 from y 69.6 to 74.2; the coin keeps narrowing to **5.00 at y 73.50** (proofbright) and **4.30 at y 74.25** (unc2005) before it flares into the foot's bead. Found by the foot round, which is capped at ~81 % FILL by it: the band y 73.5..74.2 is 3.84 of the foot window's 28.18 sq units and only the shaft can fill it. **Not a hole in the face** — the drawn shaft covers it — but it is the same defect class as the `<rect>` shaft (lesson E5), one constant standing in for a varying quantity, on the last 4.6 units the round 28 taper did not reach. Reported by the foot round, **not changed** (out of scope). Verify: `node coloringbook/judge/_dr13elem.mjs score 2.1.2 shaft` | **OPEN** (new) |
+| D20 | **`judge/_rescore.mjs`'s D11 stage cannot run**: it shells out to `coloringbook/_x6mat.mjs`, which is not a tracked file and does not exist in a fresh checkout, so the stage dies with `MODULE_NOT_FOUND` and D11 is silently absent from every rescore. Pre-existing, seen by the foot round. Lesson E17 exactly: a guard nobody can run is not a gate. | **OPEN** (new) |
 
 ---
 

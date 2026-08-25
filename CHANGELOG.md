@@ -3,6 +3,159 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.99.0 — 2026-08-25
+
+**The dime reverse's torch foot is a bead over a tapering spike, not a bowl —
+and 47 % of the number that judged it was measuring the shaft.**
+
+Second element scored by `judge/_dr13elem.mjs`. Scope: the foot path in
+`torch()` and its window in the judge; the byte-identity partition reports
+`dime.reverse` alone, all sizes.
+
+**Element 2.1.3, the foot, against `deviceMask()`:**
+
+| | OUTSIDE pb | FILL pb | OUTSIDE unc | FILL unc | ink |
+|---|---|---|---|---|---|
+| before | 34.30 % | 83.42 % | 38.15 % | 87.72 % | 35.78 |
+| after | **4.43 %** | 75.21 % | 18.71 % | 71.46 % | 22.18 (target 28.18) |
+
+FILL is quoted on the **corrected** window below, so the two rows compare the
+same denominator. On the shipped window the same before/after is 44.11 % →
+39.77 % (pb) and 47.23 % → 38.47 % (unc), and that window is wrong — see below.
+
+**THE FOOT IS TWO MASSES AND IT IS STEPPED.** The standing comment called it
+"a single rounded finial ... widest just below its shoulder and closing to a
+blunt bottom", read off 0.5-unit scanline strips that give a widest and a
+bottom and nothing between them. A widest-plus-a-bottom is satisfied by a bowl,
+and a bowl is what was drawn. Scanned at the mask's own 0.25 units, every row
+from y 66 to 84, on both references:
+
+* a **bead** — a ring ~2.25 units tall standing ~1.5 units proud of the neck,
+  which **returns to neck width below itself**: pb 5.00 at y 73.50 → 7.95 at
+  y 75.25 → 5.90 at y 76.00; unc 4.30 → 6.85 → 4.60 over y 74.25..77.00. It is
+  near-symmetric top-to-bottom — a torus, not a shoulder.
+* a **tapering terminal** below it that keeps narrowing to a narrow tip:
+  pb 5.90 → 1.50 over y 76.00..78.50, unc 4.60 → 2.00 over y 77.00..79.00.
+  No second flare, no flat base.
+
+Erosion-corrected (0.55 and 1.00 units) the two files' bead widths are 9.05 and
+8.85 — agreement 0.20 — and their necks at y 69 are 6.95 and 7.00, agreement
+0.05. The old path was ~8.4 wide from y 74.2 to 78 and rounded off at 79.4, so
+it wore the bead's width on the terminal's rows: **at y 77.0 the coin is 4.55
+(pb) and 4.60 (unc) and ours was 8.2, 78 % too wide**, and below y 78.75 the
+coin has nothing at all on pb.
+
+**THE WINDOW WAS WRONG AND IT IS SAID, NOT DRAWN INTO.** `WINDOWS.foot` began
+at y 69, but the coin's shaft narrows monotonically to y 73.50 and only then
+flares. **25.12 of the 53.30 sq units in that window — 47 % — is shaft, and the
+drawn shaft node already covers 23.57 of it (94 %).** No foot could fill it
+without drawing over the shaft. The window's top edge is now the measured
+shaft/foot boundary, 73.5. Its bottom stays coarse at 81: the foot's mask ends
+at 78.50/79.00 and `ONE DIME`'s own mask starts at y 81.75, **below** the
+window, so no letter is inside it.
+
+**The inset is swept once and the curve published**, so it is not re-tuned
+blind. Same profile, inset varied, on the corrected window:
+
+| inset | pb OUT | pb FILL | unc OUT | unc FILL |
+|---|---|---|---|---|
+| 0.00 | 8.40 % | 78.96 % | 22.50 % | 74.62 % |
+| 0.15 | 6.15 % | 76.79 % | 20.33 % | 72.82 % |
+| **0.25** | **4.51 %** | **75.28 %** | 18.78 % | 71.53 % |
+| 0.40 | 1.92 % | 73.03 % | 16.72 % | 69.27 % |
+
+At inset 0, OUTSIDE is 8.40 % against the registration's own prediction of
+0.42/5.5 = 7.6 % — i.e. essentially **all** of it is the 0.45-unit offset
+between the drawing's axis (50) and each file's (50.42 pb, 49.42 unc, mean
+49.92). FILL moves 3.7 points across the whole sweep while OUTSIDE moves 6.5.
+
+**Published, not tuned around (R2).** FILL **fell** — 83.42 % → 75.21 % (pb),
+87.72 % → 71.46 % (unc). The old bowl covered ~100 % of every row it spanned
+*because it was too big everywhere*; a shape that follows the profile pays the
+inset and the registration. OUTSIDE fell by a factor of 7.7 for it. T1 dime
+reverse margin 0.238–0.241 → 0.231–0.234 (32/32 held, per-photograph rows
+unchanged to three decimals).
+
+**Converged, and what would move it.** FILL has a ceiling of ~81 % here: the
+coin's foot begins at y 73.50 and ours begins at 74.20, because **the drawn
+shaft runs parallel at 5.7 from y 69.6 to 74.2 while the coin is still
+narrowing** (5.00 at y 73.50). That band is 3.84 of the window's 28.18 sq units
+— 14 % — and the drawn shaft already covers it, so the face has no hole there.
+Of the 81 % reachable, this foot reaches 93 %, and the missing 7 % is the same
+registration. **No shape change left raises FILL without raising OUTSIDE.** The
+evidence that would move it is a shaft taper that runs on to the coin's 5.00 at
+y 73.5 — the shaft's measurement to make; **reported, not changed** (ledger
+D19).
+
+D9 clean over 120 renders, D8 dime reverse 0.0000 % outside the field circle,
+D10 dime PASS, full Playwright suite 464 passed.
+
+## v1.99.0 — 2026-08-25
+
+**The dime's torch foot is a bead and a taper. We drew a bowl.**
+
+Second element scored alone. It was the worst on the face: **a third of what we
+drew landed where the coin has no device.**
+
+| foot, node `2.1.3` | before | after |
+|---|---|---|
+| **OUTSIDE** (proofbright) | 34.30 % | **4.43 %** |
+| OUTSIDE (unc2005) | 38.15 % | **18.71 %** |
+| FILL (proofbright) | 83.42 % | 75.21 % |
+| ink | 35.78 | 22.18 (target 28.18) |
+
+**What the coin actually has**, from a row-by-row scan at the mask's own 0.25
+units, printing *runs* rather than one width so a crossing stem would show as a
+second run (none does), on both references — **two masses, stepped**:
+
+1. **A bead**: a ring ~2.25 units tall standing ~1.5 proud of the neck **which
+   returns to neck width below itself** — 5.00 → **7.95** → 5.90 (pb), 4.30 →
+   **6.85** → 4.60 (unc). Near-symmetric top to bottom: a torus, not a shoulder.
+2. **A tapering terminal** below it, narrowing all the way — 5.90 → 1.50 (pb),
+   4.60 → 2.00 (unc). No second flare, no flat base.
+
+Erosion-corrected, the two files' bead widths are **9.05 and 8.85** (agree to
+0.20) and their necks at y 69 are **6.95 and 7.00** (agree to 0.05) — the same
+object, 0.75 units apart in y.
+
+**Why the old comment was wrong.** It said "a single rounded finial… closing to
+a blunt bottom", read from 0.5-unit scanline strips that give *a widest and a
+bottom and nothing between* — a description a bowl also satisfies. The old path
+wore the bead's width on the terminal's rows: **at y 77.0 the coin is 4.55/4.60
+and ours was 8.2 — 78 % too wide** — and below y 78.75 proofbright has no device
+at all.
+
+**FILL fell, and that is published rather than tuned away (R2).** The old bowl
+covered ~100 % of every row it spanned *because it was too big everywhere*.
+OUTSIDE fell **7.7×** for it. T1 dime-reverse margin 0.238–0.241 → 0.231–0.234,
+32/32 held.
+
+**The window was wrong and the round said so instead of drawing into it.**
+`WINDOWS.foot` began at y 69, but the coin's shaft narrows monotonically to
+y 73.50 and only then flares — so **25.12 of the window's 53.30 sq units (47 %)
+was shaft**, already covered by the drawn shaft node (94 %). No foot could fill
+it without drawing over the shaft. Corrected to 73.5. It also checked the letter
+trap explicitly: **`ONE DIME`'s mask starts at y 81.75, below the window** — no
+letter was ever in the denominator.
+
+**It stopped when it converged.** The inset was swept **once** and the curve
+published (0.00 / 0.15 / 0.25 / 0.40) rather than tuned; at inset 0 the residual
+OUTSIDE is 8.40 % against the registration's own prediction of 7.6 %, i.e.
+almost all of what remains is the 0.45-unit axis offset between our 50 and the
+files' 50.42 / 49.42. **There is no shape change left that raises FILL without
+raising OUTSIDE.**
+
+**Reported, not fixed (new ledger D19):** FILL here is capped at ~81 %, because
+the coin's foot begins at y 73.50 and ours at 74.20 — **the drawn shaft runs
+parallel at 5.7 from y 69.6 to 74.2 while the coin is still narrowing** (5.00 at
+73.50, 4.30 at 74.25). Same defect class as the old `<rect>` shaft, on the last
+4.6 units the taper never reached. Of the *reachable* 81 %, this foot reaches
+93 %.
+
+**Also found (D20):** `_rescore.mjs`'s D11 stage shells out to an **untracked**
+file, so D11 dies with `MODULE_NOT_FOUND` and has been **silently missing from
+every rescore**. Pre-existing.
+
 ## v1.98.0 — 2026-08-25
 
 **The dime reverse's flame has five tongues, the tallest one right of the axis,

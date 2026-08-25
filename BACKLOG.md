@@ -7,6 +7,48 @@ reconsider after calibration.
 
 ## Where we are
 
+- 🟢 **THE DIME REVERSE'S TORCH FOOT IS A BEAD OVER A TAPERING SPIKE, NOT A
+  BOWL — AND 47 % OF THE NUMBER THAT JUDGED IT WAS MEASURING THE SHAFT
+  (v1.99.0).** Second element scored alone by `judge/_dr13elem.mjs`.
+  - **Element 2.1.3 (the foot) on `dime-rev-proofbright`: OUTSIDE 34.30 % →
+    4.43 %.** Both baseline numbers were bad in the same direction, which is
+    the signature of a wrong SHAPE, and it was.
+    Verify: `node coloringbook/judge/_dr13elem.mjs score 2.1.3 foot`
+  - **The foot is TWO MASSES and it is STEPPED.** The standing comment called
+    it "a single rounded finial ... closing to a blunt bottom" — read off
+    0.5-unit scanline strips that give a widest and a bottom and nothing
+    between them, and a widest-plus-a-bottom is satisfied by a bowl. Scanned at
+    the mask's own 0.25 units, on both files: a **bead** ~2.25 units tall
+    standing ~1.5 proud of the neck which **returns to neck width below
+    itself** (pb 5.00 → 7.95 → 5.90 over y 73.5..76.0), and below it a
+    **tapering terminal** narrowing all the way to a narrow tip (pb 5.90 →
+    1.50 over y 76.0..78.5). Erosion-corrected, the two files' beads agree to
+    0.20 units and their necks to 0.05.
+  - **The old path wore the bead's width on the terminal's rows:** at y 77.0
+    the coin is 4.55 (pb) / 4.60 (unc) and ours was 8.2 — **78 % too wide** —
+    and below y 78.75 the coin has nothing at all on proofbright.
+  - **THE WINDOW WAS WRONG, AND IT IS SAID RATHER THAN DRAWN INTO.**
+    `WINDOWS.foot` began at y 69; the coin's shaft narrows monotonically to
+    y 73.50 and only then flares. **25.12 of the window's 53.30 sq units — 47 %
+    — was shaft, and the drawn shaft node already covered 23.57 of it (94 %).**
+    Top edge corrected to the measured boundary. `ONE DIME`'s mask starts at
+    y 81.75, below the window: no letter was ever in the denominator.
+  - **Published, not tuned around (R2):** FILL **fell**, 83.42 % → 75.21 % (pb)
+    and 87.72 % → 71.46 % (unc), on the corrected window. The old bowl covered
+    ~100 % of every row it spanned *because it was too big everywhere*.
+    OUTSIDE fell by 7.7×. T1 dime-reverse margin 0.238–0.241 → 0.231–0.234,
+    32/32 held.
+  - **CONVERGED, and the evidence that would move it is named.** FILL has a
+    ceiling of ~81 % here because the coin's foot begins at y 73.50 and ours
+    begins at 74.20 — **the drawn shaft runs parallel at 5.7 from y 69.6 while
+    the coin is still narrowing (5.00 at y 73.50)**. Of the reachable 81 % this
+    foot reaches 93 %, and the rest is the 0.45-unit registration. No shape
+    change raises FILL without raising OUTSIDE. Fixing it is the SHAFT's
+    measurement — reported, not changed (ledger **D19**).
+  - **Still open on this face:** the branches, head/collar, shaft, acorn and
+    legends. `_dr13elem.mjs list 2.1` enumerates all 37 nodes; only 2.1.0 and
+    2.1.3 have been through this gate.
+
 - 🟢 **THE DIME REVERSE'S FLAME IS RE-DRAWN AS A FIVE-TONGUED CROWN, AND IT IS
   THE FIRST ELEMENT EVER SCORED ALONE (v1.98.0).** The owner's method: score
   ONE drawn element against the coin's own mask, because a face is a sum and a

@@ -77,7 +77,18 @@ const WINDOWS = {
   flame: [42, 59.5, 17, 33],
   head: [41, 59, 31, 40],
   shaft: [43, 57, 38, 71],
-  foot: [42, 58, 69, 81],
+  // y0 was 69, and 47% of FILL's denominator was then SHAFT. Scanned at the
+  // mask's own 0.25 units, the coin's shaft narrows monotonically to y 73.50
+  // (proofbright, 5.00 wide) / y 74.25 (unc2005, 4.30) and only then flares
+  // into the foot's bead. Mask in y 69..73.5, x 42..58 is 25.12 sq units of
+  // 53.30 on proofbright and 21.63 of 46.86 on unc2005 — and the DRAWN SHAFT
+  // node already covers 23.57 and 21.11 of it, i.e. 94% and 98%. It was never
+  // the foot's to fill and no foot could fill it without drawing over the
+  // shaft. Found by the foot round. The bottom edge is left coarse at 81:
+  // the foot's mask ends at y 78.50 (pb) / 79.00 (unc) and the band y 80.5..81
+  // carries 0.11 sq units of branch tip on pb and 0.00 on unc — ONE DIME's
+  // own mask starts at y 81.75, below this window, so no letter is in it.
+  foot: [42, 58, 73.5, 81],
   'olive-branch': [15, 45, 25, 78],
   'oak-branch': [55, 85, 25, 78],
   acorn: [54, 65, 52, 63],

@@ -5784,12 +5784,108 @@ function torch(p) {
   // The drawn foot's WIDTH was right (8.7 against 8.0/8.2) and its POSITION was
   // 1.4 to 2.1 units low against this function's own table, which puts the foot
   // at y 74.2 .. 77.3. One path now draws neck-to-finial, at the table's own y.
+  //
+  // ── THE FOOT, re-drawn 2026-08-25 from the ELEMENT judge `_dr13elem.mjs`,
+  // which scores this one path alone against `deviceMask()` instead of scoring
+  // the whole face. It arrived at OUTSIDE 34.30% / FILL 44.11% (proofbright),
+  // 38.15% / 47.23% (unc2005) — both numbers bad in the same direction, which
+  // is the signature of a wrong SHAPE rather than a wrong size, and it is.
+  //
+  // "a single rounded finial ... widest just below its shoulder and closing to
+  // a blunt bottom" — REFUTED, and by four numbers per file rather than four.
+  // The block above rests on the 0.5-unit scanline strips `_dr8shaft.mjs`
+  // prints, which give a widest and a bottom and nothing between them; a
+  // widest-plus-a-bottom is satisfied by a bowl, and a bowl is what was drawn.
+  // Scanned instead at the mask's own 0.25 units, every row of the mask from
+  // y 66 to y 84 inside x 40..62 (runs, not one width — the row is printed
+  // whole so a stem crossing it is visible as a second run and none does here):
+  //
+  //     y      pb w    unc w        y      pb w    unc w
+  //    73.50   5.00     4.50       76.50   4.95     5.60
+  //    73.75   5.30     4.45       77.00   4.55     4.60
+  //    74.25   6.30     4.30       77.50   4.20     3.85
+  //    74.75   7.90     4.35       78.00   3.65     3.60
+  //    75.25   7.95     5.10       78.50   1.50     3.20
+  //    75.75   6.90     6.10       79.00    —       2.00
+  //    76.00   5.90     6.85       79.25    —        —
+  //
+  // THE FOOT IS TWO MASSES, NOT ONE, AND IT IS STEPPED:
+  //
+  //   · A BEAD — a ring standing proud of the shaft, ~2.25 units tall and
+  //     ~1.5 units proud on each side, which RETURNS TO NECK WIDTH BELOW
+  //     ITSELF. pb: 5.00 at y 73.50, 7.95 at y 75.25, 5.90 at y 76.00.
+  //     unc: 4.30 at y 74.25, 6.85 at y 76.00, 4.60 at y 77.00. It is very
+  //     nearly symmetric top-to-bottom (pb 1.75 above the widest, 0.75 below;
+  //     unc 1.75 above, 1.00 below) — a torus, not a shoulder.
+  //   · A TAPERING TERMINAL below it that keeps narrowing all the way down and
+  //     ends NARROW: pb 5.90 → 1.50 over y 76.00..78.50, unc 4.60 → 2.00 over
+  //     y 77.00..79.00. There is no second flare and no flat base.
+  //
+  // The two files carry the same object 0.75 units apart in y and ~1 unit
+  // apart in width, which is exactly their erosion difference (0.55 and 1.00,
+  // i.e. 1.10 and 2.00 on a width). Erosion-corrected the bead's widest is
+  // 9.05 (pb) and 8.85 (unc) — agreement 0.20 — and the neck at y 69 is 6.95
+  // and 7.00, agreement 0.05. That is the two-file confirmation: the STRUCTURE
+  // (bead, return to neck, taper to a narrow tip) is on both.
+  //
+  // WHAT THE OLD PATH DID WRONG, in one line: it was ~8.4 units wide from
+  // y 74.2 to y 78 and rounded off at y 79.4, so it had the bead's width at
+  // the terminal's rows. At y 77.0 the coin is 4.55 (pb) and 4.60 (unc) and
+  // ours was 8.2 — 78% too wide — and at y 78.75..79.40 the coin has nothing
+  // at all on pb. That is where two thirds of the 12.27 sq units of OUTSIDE
+  // ink lived; the rest is the 0.45-unit registration below.
+  //
+  // WIDTHS ARE NOT EROSION-CORRECTED IN THE DRAWING, on the flame block's
+  // precedent and for its reason: the mask is the instrument this element is
+  // scored on, ink outside the mask is ink the coin has not got, and a
+  // two-point extrapolation through two erosions is not a measurement. The
+  // profile below is proofbright's mask row by row, INSET 0.25 units per side.
+  //
+  // THE INSET IS NOT A FUDGE, it is what the registration costs. The torch
+  // axis measured on these same rows is 50.42 (pb) and 49.42 (unc); their mean
+  // is 49.92 and the die is symmetric, so the drawing stays centred on 50 and
+  // each file is ~0.45 off it in OPPOSITE directions (the flame block measures
+  // the same 0.95 split). A shape centred on 50 with pb's own widths therefore
+  // spills 0.45 per row to the left of pb's mask no matter how right the shape
+  // is; 0.25 of inset pays back most of that and costs 0.5 of width, and the
+  // residual OUTSIDE below is that registration, not the profile.
+  //
+  // THE INSET IS SWEPT ONCE AND THE CURVE IS PUBLISHED, so the next round need
+  // not re-tune it blind. Same profile, inset varied, FILL on the corrected
+  // window [42, 58, 73.5, 81]:
+  //
+  //     inset    pb OUT%   pb FILL%     unc OUT%   unc FILL%
+  //      0.00      8.40      78.96        22.50      74.62
+  //      0.15      6.15      76.79        20.33      72.82
+  //      0.25      4.51      75.28        18.78      71.53   ← drawn
+  //      0.40      1.92      73.03        16.72      69.27
+  //
+  // OUT% at inset 0 is 8.40 against the registration's own prediction of
+  // 0.42 / 5.5 = 7.6%, i.e. at zero inset essentially ALL the outside ink is
+  // the 0.45 offset. FILL moves 3.7 points across the whole sweep while
+  // OUTSIDE moves 6.5, so the trade favours the inset, and 0.25 is where the
+  // outside stops being the profile and becomes the registration.
+  //
+  // FILL HAS A CEILING OF ~81% HERE AND IT IS NOT THIS ELEMENT'S TO RAISE.
+  // The coin's foot begins at y 73.50 and OURS BEGINS AT 74.20, because the
+  // drawn shaft runs parallel at 5.7 from y 69.6 to 74.2 while the coin is
+  // still narrowing (5.00 at y 73.50, pb). The band y 73.5..74.2 is 3.84 sq
+  // units of the window's 28.18 — 14% — and the drawn SHAFT already covers it,
+  // so the face has no hole there. Of the 81% a foot starting at 74.2 can
+  // reach, this one reaches 75.28/81 = 93%, and the missing 7% is the same
+  // registration. There is no shape change left that raises FILL without
+  // raising OUTSIDE; the evidence that would move it is a shaft whose taper
+  // runs on to the coin's 5.00 at y 73.5 instead of stopping at 5.7, which is
+  // the shaft's measurement to make and is REPORTED, NOT CHANGED, here.
   const solid = `${flame}
     <rect x="44.15" y="33" width="11.7" height="5.5" rx="1.5"/>
     <path d="M 45.3 38.5 L 54.7 38.5 L 52.85 69.6 L 52.85 74.2 L 47.15 74.2 L 47.15 69.6 Z"/>
-    <path d="M 47.15 74.2 C 45.95 74.7 45.6 75.5 45.9 76.3
-      C 46.4 78 47.9 79.4 50 79.4 C 52.1 79.4 53.6 78 54.1 76.3
-      C 54.4 75.5 54.05 74.7 52.85 74.2 Z"/>
+    <path d="M 47.15 74.2 L 46.6 74.5 L 46.3 74.75 L 46.28 75.25 L 46.4 75.5
+      L 46.8 75.75 L 47.3 76 L 47.55 76.25 L 47.78 76.5 L 47.98 77
+      L 48.15 77.5 L 48.43 78 L 48.78 78.25 L 49.5 78.45
+      L 50.5 78.45 L 51.22 78.25 L 51.57 78 L 51.85 77.5 L 52.02 77
+      L 52.22 76.5 L 52.45 76.25 L 52.7 76 L 53.2 75.75 L 53.6 75.5
+      L 53.72 75.25 L 53.7 74.75 L 53.4 74.5 L 52.85 74.2 Z"/>
     ${branch(false)}${branch(true)}`;
   // THE INTERIOR. A flat bar is a chimney; the real torch is a fluted
   // cylinder with two collars, and the fluting is what makes it metal.
