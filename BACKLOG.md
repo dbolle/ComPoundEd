@@ -7,6 +7,61 @@ reconsider after calibration.
 
 ## Where we are
 
+- 🟡 **THE DIME'S OAK STEM IS NOT WRONG — THE NUMBER THAT JUDGED IT IS. THE
+  DRAWING IS UNCHANGED, BYTE-IDENTICAL ON ALL EIGHT FACES.** Fourth element
+  scored alone by `judge/_dr13elem.mjs`, and the first round to publish a
+  refusal instead of a redraw. New instrument: `judge/_dr14oakstem.mjs`
+  (reports only).
+  - **"A mirror that fits one side and not the other is not a mirror" —
+    it is one mirror, and the gap was the mask (ledger D25).** The oak stem and
+    the olive stem are the same path with `f` negated and both rasterise to
+    **71.91 sq units**, so no gap between their scores can be a property of the
+    drawing. `deviceMask()` erodes every device region by **0.55 (proofbright)
+    and 1.00 (unc2005) on every side**, constants calibrated against the
+    5–10-unit torch shaft; on a **~2-unit** stem 1.00 a side removes all of it.
+    Sweeping only that argument, the 20.28-point proofbright gap becomes
+    **2.86** and the 25.79-point unc2005 gap becomes **7.19** — **86 % and
+    72 % of it was manufactured.** The corroboration this gap was read as
+    giving ledger D11/D12 is **withdrawn**; that row now stands on its foliage
+    evidence alone.
+    Verify: `node coloringbook/judge/_dr14oakstem.mjs control`
+  - **OUTSIDE is not a placement statistic for a thin mark (ledger A40).**
+    Row by row, **0.96 of the oak stem's 1.30 outside sq units — 74 % — is a
+    correctly-wide stem overhanging an eroded stripe**, and 2.37 of the olive's
+    2.78. The eroded stripe is 1.05–1.50 wide on proofbright and **0.25–0.50 on
+    unc2005** where the coin's stem is ~2.0; `2.0 − 2×erode` reproduces all
+    four to 0.1. **A stem drawn thinner scores better while being more wrong**,
+    which the judge's header warned about and this measures.
+    Verify: `node coloringbook/judge/_dr14oakstem.mjs outside`
+  - **The centreline is the statistic that works, and it says leave it alone.**
+    Re-measured with `_dr8shaft.mjs`'s dark-outline estimator on both branches
+    of both files — independently reproducing loop 1's registration
+    half-difference at **0.58 against its 0.61** — our stem's centre is **0.28
+    INBOARD on proofbright and 0.87 OUTBOARD on unc2005**. Opposite signs: the
+    pooled error is ~0.3 and there is nothing to correct.
+    Verify: `node coloringbook/judge/_dr14oakstem.mjs line 12 19`
+  - **FILL's ceiling in this window is 42.8 % / 34.4 %, not 100 % (A41).**
+    **68 % / 73 % of the exclusive target is above y 54**, where the oak's own
+    foliage stands and no stem can be. The shipped 37.58 % / 28.94 % is **88 %
+    / 84 % of the best a perfect stem could do.**
+    Verify: `node coloringbook/judge/_dr14oakstem.mjs window`
+  - **Refused, with numbers:** widening the stem toward the un-eroded mask's
+    2.30 / 2.45 (that mask counts the bevel skirt, which is why `_dr8shaft.mjs`
+    rejected it for widths; the dark-outline medians are 1.58–2.42 and ours
+    sits inside them). The width already moved 2.6 → 1.95 one loop ago —
+    re-tuning it again on the rejected estimator is the convergence test's
+    "re-tuning constants instead of measuring a new quantity".
+  - **No version bump and no CHANGELOG entry: nothing shipped.** The eight face
+    SVGs hash identically before and after, so a version that moved would be
+    telling a Grown-Ups reader a drawing changed when none did.
+  - **Could not determine (D26):** anything above y 54, where the foliage
+    closes over the stem on both files; the tail below y 71, where the files
+    put the oak's tip 1.9 units apart and unc2005 carries a second mark inboard
+    of the stem; and whether a y-dependent asymmetry exists — the two files'
+    slopes disagree **8×** (−0.0125 v −0.1103 per unit). Needs a third
+    reference. **`_dr9branch.mjs`'s `torchHalf()` (D24) does not affect this
+    round** — no run-based read was used.
+
 - 🟢 **THE DIME REVERSE'S TORCH SHAFT IS ONE STRAIGHT TAPER AND WE DREW IT AT
   75 % OF ITS SLOPE — AND 12 OF THE 25 FILL POINTS IT "MISSES" ARE THE OLIVE
   BRANCH AND E PLURIBUS UNUM (v1.100.0).** Third element scored alone by

@@ -4834,6 +4834,21 @@ function torch(p) {
   // real coin has no uniform-width marks. 1.80 at the crown to 2.17 at the foot
   // has the measured mean, sits inside the scatter at both ends, and is not a
   // slab. The 2.6 the drawing shipped is outside it at every row.
+  // ⚠️ WIDENING THIS TOWARD THE FLOOD MASK IS REFUSED (oak-stem round), WITH
+  // THE NUMBER. `deviceMask()` with its erosion switched OFF reads the stem
+  // stripe at 2.30 (proofbright) and 2.45 (unc2005) against our 1.80..2.17,
+  // which looks like a uniform 0.33-unit shortfall on both files. It is not a
+  // measurement of the stem: the un-eroded flood mask counts the BEVEL SKIRT as
+  // device on both sides, which is precisely why `_dr8shaft.mjs` rejected it
+  // for widths and used the dark relief outline instead. That estimator, run
+  // again independently by `judge/_dr14oakstem.mjs line`, gives medians 2.20 /
+  // 2.30 / 1.95 / 1.70 over the four branch×file combinations — ours sits
+  // inside the two estimators' disagreement at every row. This width already
+  // moved 2.6 → 1.95 one loop ago; moving it again on the estimator that was
+  // rejected for this exact quantity is the convergence test's "re-tuning
+  // constants instead of measuring a new quantity". THE EVIDENCE THAT WOULD
+  // SETTLE IT is a third reference under diffuse light, or a skirt-corrected
+  // flood mask — not another pass over these two files.
   /** half the branch's width at height `y`, closing to a point at both ends */
   const stemHW = (y) => (0.9 + 0.0056 * (y - SC.top))
     * Math.max(0, Math.min(1, (y - SC.top) / 1.7, (SC.tip - y) / 3));
@@ -5140,6 +5155,40 @@ function torch(p) {
   // both functions are linear there, so those edges are straight and need no
   // intermediate points; the samples cluster at the two ends, where the taper
   // closes to a point.
+  // ⚠️ THE TWO STEMS ARE ONE MIRRORED PATH AND THAT IS CORRECT — the 18.05 %
+  // vs 38.39 % OUTSIDE split between them is the INSTRUMENT (oak-stem round).
+  //
+  // `_dr13elem.mjs` scored the oak stem at OUTSIDE 18.05 % and the olive, which
+  // is the same path with `f = -1`, at 38.39 %, and that gap was read as
+  // corroborating D11/D12's "the two branches are not mirror images". It does
+  // not. Both nodes rasterise to 71.91 sq units and their centrelines are the
+  // same numbers negated, so no gap between them can be a property of the
+  // drawing. `deviceMask(file, T, erodeUnits)` erodes every device region by
+  // `erodeUnits` ON EVERY SIDE — 0.55 on proofbright, 1.00 on unc2005 —
+  // constants calibrated against the TORCH SHAFT, which is 5..10 units wide.
+  // On a ~2-unit stem 1.00 a side removes all of it. Measured, sweeping only
+  // that argument (`judge/_dr14oakstem.mjs control`):
+  //
+  //     erode   pb: oak / olive   mask stripe |  unc: oak / olive   stripe
+  //      0.00      4.11 /  6.97      2.30     |    16.95 / 24.14     2.45
+  //      0.55*    18.05 / 38.39      1.20     |    37.81 / 55.43     1.35
+  //      1.00     39.07 / 73.31      0.30     |    56.73 / 82.52*    0.45
+  //
+  // The un-eroded stripe (2.30 / 2.45) agrees with the dark-outline estimator;
+  // the eroded one (1.20 / 0.45) does not, and 2.0 − 2×erode reproduces it to
+  // 0.1 on all four rows. Erosion off, the 20.3-point gap between the two
+  // mirrored stems is 2.9 points on proofbright and the 25.8-point gap is 7.2
+  // on unc2005 — i.e. **86 % and 72 % of it was manufactured by the mask**, and
+  // what survives is the registration slip loop 1 already pooled away.
+  // Decomposed row by row (`_dr14oakstem.mjs outside`), 0.96 of the oak's 1.30
+  // outside sq units and 2.37 of the olive's 2.78 is our correctly-wide stem
+  // overhanging an eroded stripe — never placement.
+  //
+  // SO OUTSIDE IS NOT A PLACEMENT STATISTIC FOR A THIN MARK, and a stem drawn
+  // THINNER scores better while being more wrong. Against the un-eroded mask
+  // our centre is 0.28 INBOARD on proofbright and 0.87 OUTBOARD on unc2005 —
+  // opposite signs, half-difference 0.58 against loop 1's 0.61, so the pooled
+  // error is ~0.3 and there is nothing here to correct. `stemC` stands.
   const STEM_YS = [39.25, 40.1, SC.tail, 72.5, 74, 75];
   const stem = (x) => {
     const P = (y, s) => `${x(stemC(y) + s * stemHW(y))} ${y}`;

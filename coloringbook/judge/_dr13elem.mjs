@@ -243,7 +243,23 @@ if (!IS_MAIN) { /* imported: expose helpers only */ } else {
 
 const mode = process.argv[2] || 'list';
 const refKey = (process.argv.includes('--ref') ? process.argv[process.argv.indexOf('--ref') + 1] : 'proofbright');
-const [refFile, refT, refE] = REFS[refKey] ?? REFS.proofbright;
+const [refFile, refT, refEdefault] = REFS[refKey] ?? REFS.proofbright;
+
+// ⚠️ THE MASK'S EROSION IS CALIBRATED ON THE TORCH SHAFT, WHICH IS 5-10 UNITS
+// WIDE, AND IT DESTROYS THIN ELEMENTS. It removes `erodeUnits` from EVERY side,
+// so on a ~2-unit stem the default 0.55 (proofbright) takes 1.10 of 2.30 and
+// unc2005's 1.00 takes essentially all of it. The oak-stem round proved this:
+// the two stems are the SAME PATH MIRRORED — both exactly 71.91 sq units, so no
+// score gap between them can be a property of the drawing — yet OUTSIDE read
+// 18.05 % against 38.39 %. At erode 0.00 that 20.34-point gap is 2.85.
+// 86 % of it was manufactured by the instrument, and the judge had published it
+// as a finding about the art.
+//
+// So: `--erode <units>` overrides it. For a thin element score at 0.00 and say
+// so; for a slab the calibrated default is right. Quoting a thin element's
+// OUTSIDE at the shaft's erosion is measuring the mask, not the drawing.
+const refE = process.argv.includes('--erode')
+  ? Number(process.argv[process.argv.indexOf('--erode') + 1]) : refEdefault;
 
 const svg = svgOf();
 const { head, out } = nodes(svg);
