@@ -3,6 +3,80 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.98.0 — 2026-08-25
+
+**The dime reverse's flame has five tongues, the tallest one right of the axis,
+and the flame really is off-axis — the die does that, not the photographer.**
+
+First round scored by `judge/_dr13elem.mjs`, which judges ONE drawn element
+against the coin's own mask instead of judging the whole face. Four previous
+rounds on this face judged the sum and three were reverted, twice while T1
+rose. Scope: the `flame` path in `torch()` and nothing else — the byte-identity
+partition reports `dime.reverse` alone, all sizes.
+
+**Element 2.1.0, the flame, against `deviceMask()` on `dime-rev-proofbright`:**
+
+| | OUTSIDE | FILL | ink |
+|---|---|---|---|
+| before | 5.76 % | 74.19 % | 136.52 |
+| after | 3.44 % | 95.15 % | 170.89 (target 173.42) |
+
+**The old flame was a teardrop with two horns; the coin's is a crown.** Its one
+tall tongue stood ON the axis — which is where the coin has a NOTCH — and its
+two 1.6-unit horns stood in two more notches. Measured on both surviving
+references, the mask's top edge has **five** tongues at offsets −6.0, −1.9,
++1.25, +3.75 and +7.25 from the torch's own axis, and **the tallest is D, right
+of centre**. The two files agree on those offsets to 0.5 units.
+
+**The flame is off-axis and it is the die.** The standing comment said the
+photograph's 1.9-unit shift was "the kind of thing a tilt or an off-centre light
+does" and refused to copy it. That was right on one photograph and wrong here:
+the separating measurement is a **control** — measure the torch's own axis from
+the head, the clean shaft rows and the foot on the same mask, then quote the
+flame as an offset FROM THAT AXIS, so registration cancels.
+
+| | torch axis | flame centroid | offset |
+|---|---|---|---|
+| `dime-rev-proofbright` | 50.45 | 51.27 | **+0.82** |
+| `dime-rev-unc2005` | 49.50 | 50.28 | **+0.78** |
+
+The two files' own registrations differ by 0.95 units in **opposite**
+directions and the offsets agree to 0.04. So it is +0.8, not +1.9, and it is
+drawn — as tongue offsets, which is where it lives.
+
+**The flame now sits squarely on the head.** The old path closed to a point at
+(50, 33); the coin's flame is 9.85 units wide where it meets the head. Rows
+y 31..33 carried 10.4 units of mask per row against 5.5 of our ink. That is the
+largest single term in the fill.
+
+**The residual OUTSIDE is the reference's registration, and that is measured,
+not asserted.** Sweeping a rigid x-shift of the drawn element: proofbright
+minimises at dx +0.45 (**0.56 %**) and unc2005 at dx −0.45, i.e. each file
+minimises at its own measured registration offset, 0.9 units apart. The
+shape-only residual is 0.56 % against the old flame's 3.38 % at ITS own
+optimum — where its fill still could not exceed 76 % at any shift.
+
+**Published, not tuned around (R2):** OUTSIDE on `unc2005` went 11.62 % →
+17.35 % while its FILL went 85.11 % → **99.62 %**. Our flame now strictly
+contains that mask; the 17 % is the 0.45-unit erosion difference between the
+two masks (1.00 vs 0.55), and it cannot be reduced without drawing a flame
+smaller than the coin's. The notch-wall pass also moved headline OUTSIDE on
+proofbright 2.92 % → 3.44 % while the shape-only residual fell 0.88 % → 0.56 %.
+
+**What was refused.** The coin's tips are above the mask's, because erosion
+takes more off a point than off a slab — proofbright and unc2005 disagree by
+0.45 (tongue D) to 2.25 (tongue A) units. A two-point extrapolation through two
+erosions is not a measurement, so **the tips are drawn 0.15 units BELOW
+proofbright's mask**, not above it. No corrected flame WIDTH is published
+either: the slope between the two files' widest rows is −4.2 units per unit
+eroded where a parallel-sided slab gives −2.0, which means the two rows are not
+measuring the same feature.
+
+T1 32/32 (dime reverse self-NCC 0.449–0.452 → 0.453–0.455, margin 0.224–0.228 →
+0.238–0.241; the per-photograph rows are unchanged to three decimals). D9 clean
+over 120 renders, D8 dime reverse 0.0000 % outside the field circle, D10 PASS,
+D11 reverse-min 0.0730 → 0.0742.
+
 ## v1.96.0 — 2026-08-24
 
 **A frozen artefact cannot carry its own retraction — and I proved that by
@@ -38,6 +112,76 @@ present but naming no successor, red.**
 
 v3 verified working: response 0.0000 % → **4.1890 %**, injection asserted real,
 zero-translate null test bit-identical.
+
+## v1.98.0 — 2026-08-25
+
+**The dime's flame has five tongues; we drew three. First element scored alone
+against the coin's own mask.**
+
+New method, at the owner's direction: one element at a time, judged by whether
+it stays inside the mask *and* fills its intended part of it — never as part of
+a whole-face sum, because a sum hid which term was wrong in four earlier rounds.
+
+| flame, node `2.1.0` | before | after |
+|---|---|---|
+| **OUTSIDE** the mask | 5.76 % | **3.44 %** |
+| **FILL** of target | 72.84 % | **93.42 %** |
+| ink | 136.52 | 170.89 (target 176.63) |
+
+*(Both FILL figures use the corrected window — see below. The old flame's ink
+stopped at x 57.1, so it had none in the strip the correction adds; its hit
+count is unchanged and the comparison is exact.)*
+
+**The shape, measured.** The mask's top edge at 0.25-unit steps, on both
+surviving references, referred to the torch's own axis:
+
+| tongue | offset pb / unc | tip y pb / unc |
+|---|---|---|
+| A | −6.00 / −6.00 | 22.15 / 24.40 |
+| B | −1.50 / −2.00 | 18.70 / 19.90 |
+| C | +1.50 / +1.00 | 18.35 / 19.10 |
+| D | +4.00 / +3.50 | **17.55 / 18.20** ← tallest, right of centre |
+| E | +7.50 / +7.00 | 19.00 / 20.55 |
+
+The old path had one tall tongue **on** the axis — where the coin has a notch
+(floor 19.75) — and two 1.6-unit horns standing in the A|B and D|E notches. It
+also closed to a **point** at (50, 33) where the coin's flame is 9.85 units wide
+sitting on the head: rows y 31–33 carried 10.4 units of mask per row against
+5.5 of our ink, and that waist was the largest single fill term.
+
+**A standing refusal is reversed, by a control.** The file said the
+photograph's off-centre flame was "the kind of thing a tilt or an off-centre
+light does" and declined to copy it. The separating measurement is to quote the
+flame as an offset from **the torch's own axis on the same mask**, so
+registration cancels:
+
+| | torch axis | flame centroid | offset |
+|---|---|---|---|
+| proofbright | 50.45 | 51.27 | **+0.82** |
+| unc2005 | 49.50 | 50.28 | **+0.78** |
+
+The two files' own registrations differ by **0.95 units in opposite
+directions** and the offsets agree to **0.04**. The flame really is off-centre —
+by +0.8, not the +1.9 a raw read suggests — and it is now drawn as tongue
+offsets rather than a shift.
+
+**Refused, with numbers:** lifting the tips (erosion takes more off a point than
+a slab; the two files disagree by 0.45–2.25 units, and a two-point
+extrapolation is not a measurement — tips drawn 0.15 *below* the mask); a
+corrected flame width (the widest rows fall 4.2 units per unit eroded where a
+parallel-sided slab gives 2.0, so the two rows are not measuring the same
+feature); and shifting +0.45 onto proofbright's registration, which would have
+taken OUTSIDE to 0.88 % **by tuning to one file's error**.
+
+**R2 disclosure:** the notch-wall pass moved headline OUTSIDE *up*, 2.92 % →
+3.44 %, while the shape-only residual fell 0.88 % → 0.56 %. On `unc2005`
+OUTSIDE rose to 17.35 % — with FILL **99.62 %**, i.e. our flame strictly
+contains that mask and the 17 % is the 0.45-unit erosion difference, not shape.
+Published rather than tuned away.
+
+**Instrument correction from the round:** `WINDOWS.flame` capped x at 58 while
+the coin's flame reaches 58.75, so FILL's denominator was short. Widened to
+59.5. The round also confirmed the blob at x ≈ 58 **is flame, not an oak leaf**.
 
 ## v1.97.0 — 2026-08-24
 

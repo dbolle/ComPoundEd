@@ -4485,8 +4485,8 @@ function monticello(p) {
 // block below `OAK` for the full sequence, which is worth reading before
 // trusting any single re-measurement on this face.
 function torch(p) {
-  // A flame with THREE tongues, not one blob: a single teardrop over a
-  // shaft is a lightbulb, and the tongues are what a child sees first.
+  // A flame with FIVE tongues, not three and not one blob: a single teardrop
+  // over a shaft is a lightbulb, and the tongues are what a child sees first.
   // MEASURED off `coloringbook/ref/dime-rev-2.jpg`. ⚠️ THE DIME HAS ONE
   // REFERENCE, NOT TWO: `dime-rev.jpg` and `dime-rev-2.jpg` are the same
   // photograph at 486px and 733px diameter (mean |delta| 5.35 grey levels,
@@ -4515,7 +4515,11 @@ function torch(p) {
   // top. The numbers below are the coin's; the drawing now uses them.
   //
   //            the coin                       drawn here    was
-  //   flame    y 18.0 .. 33.1, 15.2 wide      15.2 wide     14.1, top at 20.0
+  //   flame    y 18.0 .. 33.1, 15.2 wide      SUPERSEDED    14.1, top at 20.0
+  //            ^ the flame row is superseded by the element-judge block below
+  //              `const flame`: the drawing now runs y 17.6 .. 33 and 15.0
+  //              wide (42.9 .. 57.9), and its shape follows the mask row by
+  //              row rather than one width. The other four rows stand.
   //   head     y 33.4 .. 39.2, 45.0 .. 56.7   11.7 wide     10.9
   //   shaft    y 39.2 .. 69.4, 46.4 .. 55.9    9.4 wide      8.4
   //   stalk    y 71.7 .. 74.2, 48.7 .. 53.8    5.0 wide      3.4
@@ -4531,16 +4535,79 @@ function torch(p) {
   //     its foot, which is why its 5.0 and the shaft's 9.4 could not be joined
   //     without inventing a collar. There is no stalk in the drawing now.
   //
-  // The photograph puts the flame's own centre at 51.9 rather than 50, and that
-  // is NOT copied: it is one photograph, the coin is a symmetric die, and a
-  // 1.9-unit shift of the one element on the axis is the kind of thing a tilt
-  // or an off-centre light does. The widths are believed; the asymmetry is not.
+  // ── THE FLAME, re-drawn 2026-08-25 from the ELEMENT judge `_dr13elem.mjs`,
+  // which scores this one path alone against `deviceMask()`'s flame instead of
+  // scoring the whole face. Everything in this block is measured on BOTH
+  // surviving references and quoted with both values.
+  //
+  // "The photograph puts the flame's own centre at 51.9 rather than 50, and
+  // that is NOT copied: it is one photograph, the coin is a symmetric die, and
+  // a 1.9-unit shift ... is the kind of thing a tilt or an off-centre light
+  // does." — WITHDRAWN. That was the right call on the evidence it had (one
+  // photograph, which cannot separate a die feature from a registration
+  // error), and it is wrong. The separating measurement is a CONTROL: measure
+  // the torch's own axis on the same mask, from the head (y 34..38), the clean
+  // shaft rows (42, 58, 62, 66, 70) and the foot (75..77), then quote the
+  // flame's centroid as an offset FROM THAT AXIS. Registration then cancels.
+  //
+  //                         torch axis   flame centroid   offset
+  //   dime-rev-proofbright     50.45          51.27        +0.82
+  //   dime-rev-unc2005         49.50          50.28        +0.78
+  //
+  // The two files' own registrations differ by 0.95 units in OPPOSITE
+  // directions and their flame offsets agree to 0.04. The flame really does
+  // sit right of the torch's axis, by 0.8 units, not 1.9. It is not copied as
+  // a shift: it is copied as the tongue offsets below, which is where it lives.
+  //
+  // THE CROWN. Five tongues, not three. Offsets from the torch axis, and the
+  // y of each tip on each file (the mask's top edge, scanned at 0.25 units):
+  //
+  //          offset pb / unc      tip y pb / unc      the notch outboard of it
+  //   A        -6.00   -6.00       22.15  24.40       deep: floor y 24.20
+  //   B        -1.50   -2.00       18.70  19.90       floor y 19.75 (shallow)
+  //   C        +1.50   +1.00       18.35  19.10       floor y 18.70 (0.35 deep)
+  //   D        +4.00   +3.50       17.55  18.20       floor y 20.75 (deep)
+  //   E        +7.50   +7.00       19.00  20.55       — outer edge, plunges
+  //
+  // Two files, five tongues each, offsets agreeing to 0.5. The tallest is D,
+  // RIGHT of the axis; the crown rises left-to-right and then drops into a
+  // deep notch before E. The old drawing had one tall tongue ON the axis, so
+  // its peak stood in the coin's B|C notch and read as a spike, and its two
+  // 1.6-unit horns stood in the A|B and D|E notches.
+  //
+  // The tip y's differ between files by 0.45 (D) to 2.25 (A) because the two
+  // masks are eroded by 0.55 and 1.00 units and a pointed tip loses far more
+  // than a slab — `_dr9branch.mjs` says the same thing about leaf blades. So
+  // the coin's real tips are ABOVE proofbright's numbers, probably by 0.5 to
+  // 0.9. THEY ARE NOT DRAWN THERE. A two-point extrapolation through two
+  // erosions is not a measurement, the mask is the instrument this element is
+  // scored on, and ink above the mask is ink the coin has not got. Tips are
+  // drawn 0.15 BELOW proofbright's mask and notch floors 0.10 below it.
+  //
+  // THE WAIST. The old path closed to a rounded point at (50, 33), so the
+  // flame met the torch head at a tangent. The coin's flame is 9.85 units wide
+  // where it meets the head (mask row y 32.75) and sits squarely on it — the
+  // head is 11.6 wide, so a rim of head shows either side. That single change
+  // is the largest term in the fill: rows y 31..33 carried 10.4 units of mask
+  // per row against 5.5 units of our ink.
+  //
+  // Widths, for the table above: the mask's widest flame row is 16.0 units
+  // (proofbright, y 25) and 14.1 (unc2005, y 26). NO corrected width is
+  // published from those two: the slope between them is -4.2 units per unit
+  // eroded where a parallel-sided slab gives -2.0, which means the two rows
+  // are not measuring the same feature (proofbright's widest row reaches E's
+  // lower flare and unc2005's does not). The drawn outline follows
+  // proofbright's boundary row by row instead, pulled 0.15 units inside it.
   const flame =
-    '<path d="M 50 18 C 52.25 21.15 53.46 23.16 53.81 24.82' +
-    ' C 54.67 23.75 55.18 22.57 55.18 21.39 C 57.26 24.11 57.6 27.19 56.22 29.56' +
-    ' C 55 31.69 52.59 33 50 33 C 47.41 33 45 31.69 43.78 29.56' +
-    ' C 42.4 27.19 42.74 24.11 44.82 21.39 C 44.82 22.57 45.33 23.75 46.19 24.82' +
-    ' C 46.54 23.16 47.75 21.15 50 18 Z"/>';
+    '<path d="M 45.4 33 C 45.3 31.6 44.6 30.2 44.35 29' +
+    ' C 44.15 27.9 43.3 26.2 42.9 25 C 42.95 24.2 43.5 23.1 44.05 22.4' +
+    ' L 44.08 23.6 C 44.35 24.05 44.6 24.3 44.85 24.4' +
+    ' C 45.55 23.6 45.95 22.6 45.95 21.8 C 46.05 20.6 47.15 19.4 48.4 18.95' +
+    ' C 48.6 19.35 48.85 19.8 49.25 19.85 C 49.5 19.5 50.3 18.9 51.35 18.6' +
+    ' L 52 18.8 C 52.7 18.4 53.3 17.95 53.95 17.65' +
+    ' C 54.4 18.2 54.85 19.3 55.05 20.2 C 55.3 20.55 55.65 20.8 56 20.85' +
+    ' C 56.4 20.5 56.95 19.75 57.4 19.15 C 57.85 20.9 57.95 23.6 57.9 25.4' +
+    ' C 57.5 26.9 56.95 28.5 56.5 29.5 C 55.7 30.5 55 32 54.9 33 Z"/>';
   // Where the leaves sit on the stem, and WHICH SIDE of it each one is on.
   // Shared by the icon tier and the two larger ones so there is exactly ONE
   // description of this branch in the file: `i` of `n` leaves, from the foot of

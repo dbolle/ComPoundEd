@@ -71,7 +71,10 @@ const REFS = {
 
 // ── declared windows. Coarse on purpose; the mask inside supplies precision.
 const WINDOWS = {
-  flame: [42, 58, 17, 33],
+  // x1 was 58 and the coin's flame reaches 58.75 on proofbright (its tongue E),
+  // so FILL's denominator was short on the right. Found by the flame round,
+  // which also confirmed that blob IS flame and not an oak leaf.
+  flame: [42, 59.5, 17, 33],
   head: [41, 59, 31, 40],
   shaft: [43, 57, 38, 71],
   foot: [42, 58, 69, 81],

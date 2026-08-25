@@ -7,6 +7,42 @@ reconsider after calibration.
 
 ## Where we are
 
+- 🟢 **THE DIME REVERSE'S FLAME IS RE-DRAWN AS A FIVE-TONGUED CROWN, AND IT IS
+  THE FIRST ELEMENT EVER SCORED ALONE (v1.98.0).** The owner's method: score
+  ONE drawn element against the coin's own mask, because a face is a sum and a
+  sum hides which term is wrong — this face had four whole-face rounds and
+  three reverts, twice while T1 rose. `judge/_dr13elem.mjs` is the instrument.
+  - **Element 2.1.0 (the flame) on `dime-rev-proofbright`: OUTSIDE 5.76 % →
+    3.44 %, FILL 74.19 % → 95.15 %.** The old path was a teardrop with two
+    horns whose single tall tongue stood ON the axis, where the coin has a
+    notch; and it closed to a POINT at (50, 33) where the coin's flame is 9.85
+    units wide on the head.
+    Verify: `node coloringbook/judge/_dr13elem.mjs score 2.1.0 flame`
+  - **THE OFF-AXIS FLAME IS THE DIE, AND A CONTROL PROVED IT.** The standing
+    comment refused the photograph's 1.9-unit shift as a tilt or a light. The
+    separating measurement is to quote the flame's centroid as an offset from
+    the TORCH'S OWN AXIS (head + clean shaft rows + foot on the same mask), so
+    registration cancels: **+0.82** on proofbright and **+0.78** on unc2005,
+    while those two files' own registrations differ by 0.95 units in OPPOSITE
+    directions. So it is +0.8, and it is drawn.
+  - **The residual OUTSIDE is the reference's registration, measured not
+    asserted.** A rigid x-shift sweep puts proofbright's minimum at dx +0.45
+    (**0.56 %**) and unc2005's at dx −0.45 — each at its own registration
+    offset. Shape-only residual 0.56 % against the old flame's 3.38 % at ITS
+    own optimum, where its fill could not pass 76 % at any shift.
+  - **Published, not tuned around (R2):** OUTSIDE on `unc2005` 11.62 % →
+    17.35 %, with FILL 85.11 % → **99.62 %** — our flame strictly contains that
+    mask and the 17 % is the two masks' 0.45-unit erosion difference.
+  - **Refused:** no lifted tips (the two files' tips disagree by 0.45 to 2.25
+    units under different erosions; a two-point extrapolation is not a
+    measurement, so tips are drawn 0.15 BELOW proofbright's mask) and no
+    corrected flame WIDTH (the slope between the two widest rows is −4.2 per
+    unit eroded where a slab gives −2.0, so they are not the same feature).
+  - **Still open on this face, and NOT this element's scope:** the olive and
+    oak branches, the head/collar, the shaft, the acorn and the legends have
+    not been scored element-by-element. `_dr13elem.mjs list 2.1` enumerates
+    all 37 nodes; only 2.1.0 has been through this gate.
+
 - 🟢 **THE QUARTER OBVERSE WIG IS RE-AUTHORED AS ONE COMB (v1.96.0). Ledger
   D1 FIXED** — the largest open art item, and the first art change since
   v1.92.0. Every wig mark is now an **integral curve of the coin's own measured
