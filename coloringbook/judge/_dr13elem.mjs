@@ -174,9 +174,15 @@ export function resolve(head, top, pathStr) {
   return wrap.join('') + node + wrap.map(() => '</g>').join('');
 }
 
+/** rasterise a COMPLETE svg document onto the mask grid */
+async function inkOfDoc(doc) { return rasterise(doc); }
+
 /** rasterise one node alone onto the mask's exact grid; returns a 0/1 array */
 async function inkOf(head, node) {
-  const one = `${head}${node}</svg>`;
+  return rasterise(`${head}${node}</svg>`);
+}
+
+async function rasterise(one) {
   const full = Math.round(100 * PPU); // whole viewBox at mask resolution
   const { data, info } = await sharp(Buffer.from(one))
     .resize(full, full, { fit: 'fill' })
@@ -282,8 +288,71 @@ if (mode === 'score') {
   let inkN = 0, outN = 0;
   for (let k = 0; k < MW * MH; k++) if (ink[k]) { inkN++; if (!mask[k]) outN++; }
 
+  // EXCLUSIVE TARGET — mask in the window that NO OTHER ELEMENT DRAWS.
+  //
+  // The shaft round found 41.65 sq units of its "unfilled" target — 12 FILL
+  // points — was mask belonging to the olive branch crossing it and to
+  // E PLURIBUS UNUM standing against it. The shaft could not have filled that
+  // without drawing over its neighbours, so the raw denominator was charging it
+  // for someone else's ink. On the branches, where the overlap is heaviest,
+  // that error would be larger still, and a specialist chasing it would
+  // over-draw — which is exactly how earlier whole-face rounds produced a tulip
+  // and a TV aerial.
+  //
+  // So FILL is reported twice: RAW (mask ∩ window) and EXCLUSIVE (mask ∩ window
+  // minus every sibling's ink). EXCLUSIVE is the one an element can act on.
+  // The gap between them is not an error — it is how much of this window the
+  // coin gives to other elements, and it is worth reading on its own.
+  // EXCLUSIVE TARGET — mask in the window that NOTHING ELSE ON THE FACE DRAWS.
+  //
+  // The shaft round found 41.65 sq units of its "unfilled" target — 12 FILL
+  // points — was mask belonging to the olive branch crossing it and to
+  // E PLURIBUS UNUM standing against it. The shaft could not have filled that
+  // without drawing over its neighbours, so the raw denominator was charging it
+  // for someone else's ink. On the branches, where overlap is heaviest, the
+  // error would be larger still, and a specialist chasing it would over-draw —
+  // which is how earlier whole-face rounds produced a tulip and a TV aerial.
+  //
+  // "Everything else" is measured by rendering the face with THIS NODE'S EXACT
+  // TEXT DELETED, which is exact and costs one render — rather than unioning
+  // siblings, which misses non-sibling neighbours like the legend.
+  //
+  // FILL is reported twice: RAW (mask ∩ window) and EXCLUSIVE (minus everything
+  // else's ink). EXCLUSIVE is the one an element can act on; the gap between
+  // them is how much of this window the coin gives to other elements.
+  // "Everything else" must mean OTHER DEVICE MARKS, not the whole document:
+  // the blank disc and the rim cover the entire face, so subtracting the full
+  // render cedes 100% of every window. The device set is this node's siblings
+  // plus any top-level <text> (the legends live outside the motif group).
+  const others = new Uint8Array(MW * MH);
+  {
+    const parent = String(idx).split('.').slice(0, -1).join('.');
+    const mine = String(idx).split('.').pop();
+    const add = async (frag) => {
+      const a2 = await inkOf(head, frag);
+      for (let k = 0; k < MW * MH; k++) if (a2[k]) others[k] = 1;
+    };
+    if (parent) {
+      let pnode = null, plist = out;
+      for (const q of parent.split('.').map(Number)) {
+        pnode = plist[q];
+        if (pnode && pnode.startsWith('<g')) plist = childrenOf(pnode).kids;
+      }
+      if (pnode && pnode.startsWith('<g')) {
+        const kids = childrenOf(pnode).kids;
+        for (let q = 0; q < kids.length; q++) {
+          if (String(q) === mine) continue;
+          await add(resolve(head, out, `${parent}.${q}`));
+        }
+      }
+    }
+    for (let q = 0; q < out.length; q++) {
+      if (out[q].startsWith('<text') && String(q) !== String(idx)) await add(out[q]);
+    }
+  }
+
   const target = new Uint8Array(MW * MH);
-  let tgtN = 0, hitN = 0;
+  let tgtN = 0, hitN = 0, exTgtN = 0, exHitN = 0;
   const bb = bboxOf(ink);
   const w = win ?? (bb ? [bb.x[0] - 2, bb.x[1] + 2, bb.y[0] - 2, bb.y[1] + 2] : [X0, X1, Y0, Y1]);
   for (let j = 0; j < MH; j++) {
@@ -291,14 +360,19 @@ if (mode === 'score') {
     for (let i = 0; i < MW; i++) {
       const x = X0 + i * STEP; if (x < w[0] || x > w[1]) continue;
       const k = j * MW + i;
-      if (mask[k]) { target[k] = 1; tgtN++; if (ink[k]) hitN++; }
+      if (mask[k]) {
+        target[k] = 1; tgtN++; if (ink[k]) hitN++;
+        if (!others[k]) { exTgtN++; if (ink[k]) exHitN++; }
+      }
     }
   }
 
   console.log(`node ${idx}  ref ${refKey}  window ${win ? process.argv[4] : '(auto from bbox)'} [${w.join(', ')}]`);
   console.log(`  element ink area   ${(inkN * STEP * STEP).toFixed(2)} sq units   bbox x ${bb?.x.join('..')}  y ${bb?.y.join('..')}`);
   console.log(`  OUTSIDE the mask   ${inkN ? (100 * outN / inkN).toFixed(2) : 'n/a'} %   ${(outN * STEP * STEP).toFixed(2)} sq units`);
-  console.log(`  FILL of target     ${tgtN ? (100 * hitN / tgtN).toFixed(2) : 'n/a'} %   target ${(tgtN * STEP * STEP).toFixed(2)} sq units`);
+  console.log(`  FILL raw           ${tgtN ? (100 * hitN / tgtN).toFixed(2) : 'n/a'} %   target ${(tgtN * STEP * STEP).toFixed(2)} sq units`);
+  console.log(`  FILL exclusive     ${exTgtN ? (100 * exHitN / exTgtN).toFixed(2) : 'n/a'} %   target ${(exTgtN * STEP * STEP).toFixed(2)} sq units  (mask nothing else draws)`);
+  console.log(`  ceded to others    ${((tgtN - exTgtN) * STEP * STEP).toFixed(2)} sq units of this window`);
   console.log('  neither number is a pass/fail and neither is to be maximised — LOOK at the panels.');
 
   const only = new Uint8Array(MW * MH), miss = new Uint8Array(MW * MH), both = new Uint8Array(MW * MH);
