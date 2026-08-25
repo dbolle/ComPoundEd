@@ -104,6 +104,12 @@ const WINDOWS = {
   foot: [42, 58, 73.5, 81],
   'olive-branch': [15, 45, 25, 78],
   'oak-branch': [55, 85, 25, 78],
+  // The stem is a THIN mark and needs its own narrow window; scored against the
+  // whole branch it can only ever fill a sliver, and the remainder is leaf mask.
+  // Even here FILL is weak evidence for a thin element -- see the header note --
+  // and OUTSIDE is the load-bearing number.
+  'oak-stem': [62, 70, 36, 78],
+  'olive-stem': [30, 38, 36, 78],
   acorn: [54, 65, 52, 63],
   legend: [13, 87, 17, 85],
 };
