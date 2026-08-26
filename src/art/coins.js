@@ -4961,6 +4961,59 @@ function torch(p) {
   // oak's foliage closes over its own stem from y 53 up, so the blades are one
   // component. An erosion ladder that separates them without eating the
   // petioles, or a third independent photograph, is the missing input.
+  //
+  // ⚠️ THE EROSION LADDER WAS RUN (oak-leaf round, `judge/_dr15oakleaf.mjs
+  // split`) AND IT DOES NOT DELIVER SEVEN BLADES. Stepping the oak side through
+  // erode 0.0, 0.4, 0.8, 1.2, 1.6, 2.0, 2.4 the coin's foliage never resolves
+  // into more than FOUR components on proofbright or THREE on unc2005, and the
+  // two files do not agree on which. What it did produce is one blade the
+  // ledger did not have:
+  //
+  //     proofbright  (76.9, 41.4)  10.8 x 5.4 at erode 0.8, axis +44°
+  //                  centre stable to 0.1 units through erode 2.4
+  //
+  // — outboard, and it is node 2.1.12's (our blade there is centred (73.74,
+  // 45.13) at rot +17). Extrapolated to zero erosion it is ~12.2 x 6.3, which
+  // matches the 12.0 this file draws in LENGTH and is 1.2 narrower than the 7.5
+  // it draws in width. It does NOT match +17: independently, sweeping that
+  // node's rot against the mask puts its containment optimum at +35..+40
+  // (OUTSIDE at erode 0 falls 30.04 / 37.50 % to 7.43 / 4.74 %). TWO
+  // INDEPENDENT ESTIMATORS, ONE PER FILE, PUT ROW 4's ANGLE AT +35..+44 RATHER
+  // THAN +17. It is not changed here because rot rotates the PETIOLE with the
+  // blade and this round owned the blades only; it is the strongest single
+  // number the next ladder round has.
+  //
+  // AND D11 IS STILL NOT SETTLED — the new evidence narrows it and then splits.
+  // (The fork correction does not touch this node: the component at (74.4,
+  // 52.9) is unchanged by it, and the swap's proofbright readings move only
+  // 6.82 -> 10.48 % and 4.08 -> 4.99 %.)
+  // Seating row 1 (ay 56.96) OUTBOARD at +25 puts its ink centre at (74.65,
+  // 52.25); the shipped row 2 outboard at -13 puts its at (74.55, 53.55). The
+  // coin's blob there is at (74.4, 52.9) / (72.9, 53.6). BOTH candidates land
+  // within 0.7 units of it — the centre cannot tell them apart, because they
+  // are two ways of covering the same piece of coin. Matched by SHAPE instead
+  // (`_dr15oakleaf.mjs blade`, the component dilated back to its own erosion
+  // and clipped to the un-eroded mask):
+  //
+  //                                  proofbright IoU   unc2005 IoU
+  //     row 2 outboard, rot -13  (shipped)  47.0 %          41.6 %
+  //     row 1 outboard, rot +20/+30         51.5 %          41.2 %
+  //
+  // Proofbright prefers the ledger's reading by 4.5 points; unc2005 prefers the
+  // shipped one by 0.4, which is a tie. NEITHER candidate exceeds 52 %, and the
+  // reason is visible in the areas: the component is 105.75 / 90.80 sq units
+  // against a 53-58 sq unit blade, so it is still a CLUSTER — blade plus
+  // petiole plus a bite of stem — and a cluster cannot adjudicate a blade. The
+  // missing input is unchanged: a third photograph, or an isolation that leaves
+  // ~60 sq units rather than ~100.
+  //
+  // THE MERGE OBJECTION ABOVE IS MEASURED AND IT IS WRONG FOR THIS PAIR
+  // (`_dr15oakleaf.mjs swap 25 20`). Row 1 outboard at +25 and row 2 inboard at
+  // +20 share 0.0 % of their ink — they do not merge, because they are on
+  // opposite sides. What the swap actually costs is elsewhere and is worth
+  // recording: the swapped row 2 lands 40.8 % of its ink on the other five
+  // leaves and 16.8 % on the torch, so its OUTSIDE of 0.69 / 1.53 % is a leaf
+  // hiding under its neighbours, not a leaf in the right place.
   const LADDER = [
     // ay (base, on the stem), rot (degrees up from horizontal), terminal?
     [57.5, 38, 0], [51.4, -13, 0], [50.5, 33, 0], [47.3, 17, 0], [45.5, 45, 0],
@@ -5478,6 +5531,122 @@ function torch(p) {
   // this face, and I cannot tell whether unc2005's 8.37 is a lobe-tip span or
   // two leaves that never separated. 7.5 is the mean of four leaves read off
   // the crops instead, and where those two numbers disagree it is a choice.
+  // ⚠️ THE SEVEN OAK BLADES, SCORED ONE AT A TIME AGAINST THE COIN'S OWN MASK
+  // (oak-leaf round; `judge/_dr15oakleaf.mjs`). NOTHING BELOW IS CHANGED BY
+  // THAT ROUND — it owned the blades, and every fault it found is a fault in
+  // where a blade is AIMED, which rotates the petiole with it. The numbers are
+  // recorded here so the round that owns the ladder does not re-measure them.
+  //
+  // OUTSIDE = of a blade's OWN ink, the fraction landing where the coin has no
+  // device at all. TWO CORRECTIONS TO THE MASK ARE BOTH APPLIED AND BOTH SHOWN,
+  // because each of them has already produced a published finding that was
+  // really an instrument reading:
+  //
+  //   · EROSION. `deviceMask()` takes 0.55 / 1.00 off every side on a 5-10 unit
+  //     shaft calibration; a leaf's lobes and sinuses are ~1-unit features, so
+  //     the mask loses its own lobes first. Zero erosion is the honest column.
+  //   · THE FORK. The inward flood calls any enclosed field pocket DEVICE, and
+  //     on the oak the largest pocket IS the gap inside the fork (8.29 sq units
+  //     at x 65.5..67.8, y 47.4..54.4). `--reopen 1.0` restores it.
+  //
+  //     node          leaf         pb e0.55  e0.00  e0.00+fork | unc e1.00  e0.00
+  //     2.1.6   foot-inboard         37.05   26.60    26.60    |   39.88   16.71
+  //     2.1.8   foot-outboard        13.92    4.08     4.99    |   38.61   11.85
+  //     2.1.10  low-inboard          16.23    8.27    18.43    |   40.48   20.56
+  //     2.1.12  mid-outboard         49.39   30.04    30.91    |   63.32   37.50
+  //     2.1.14  mid-inboard          68.64   56.35    57.87    |   84.58   52.86
+  //     2.1.16  crown-outboard       10.91    6.10    13.36    |   29.59   15.72
+  //     2.1.17  terminal             21.08   13.30    17.99    |   34.73   16.17
+  //
+  //     erosion's share,  pb: 10.4  9.8  8.0 19.3 12.3  4.8  7.8 points
+  //     the fork's share, pb:  0.0  0.9 10.2  0.9  1.5  7.3  4.7 points
+  //
+  // ⚠️ AND THE FORK CORRECTION IS NOT APPLIED TO unc2005, ON A MEASUREMENT.
+  // The 1.0 sq unit threshold separates two clean populations on proofbright
+  // (18 components at or above it, 5985 below, nothing between). On unc2005 the
+  // same scan finds 27 components at or above 1.0 totalling 456.8 sq units, and
+  // the largest is 101.13 sq units at x 45.8..57.1 y 17.3..33.8 — THE TORCH
+  // FLAME'S INTERIOR — followed by 49.51, 36.90, 34.44 and 30.05, all of them
+  // LEAF BELLIES. unc2005 is a dark-outline photograph with bright device
+  // interiors, which is the exact case `_dr9branch.mjs`'s flood exists to close;
+  // reopening at 1.0 there deletes the device and every leaf reads 68-81 % out.
+  // There is no clean threshold on that file. (`_dr15oakleaf.mjs holes`.)
+  //
+  // FIVE OF THE SEVEN ARE CONTAINED — 5 to 26 % on proofbright with both
+  // corrections, 12 to 21 % on unc2005 — and none is contained by cheating:
+  // measured against every other mark on the face, no leaf puts ANY ink on the
+  // legends, and only 2.1.6 and 2.1.10 touch the torch (8.1 % and 5.5 %).
+  //
+  // 2.1.6's 26.60 % IS THE DRAWING, and it is the one number here that BOTH
+  // corrections leave alone: the fork moves it 0.0 points. Row by row it is one
+  // fault — the blade hangs down-and-inboard into the bare band between the
+  // foliage above it and the acorn below, covering offset 5.2..13.9 at y 53..55
+  // where proofbright carries device only at 4.4..5.3 (the torch's edge) and
+  // 12.9..15.7 (the stem). The coin's own inboard blade in that neighbourhood
+  // is 4 to 5 units HIGHER, at y 44..50. Its fix is `ay`, which is the ladder.
+  //
+  // TWO FAIL, AND THEY FAIL ON BOTH FILES, WHICH IS WHAT MAKES THEM REAL:
+  //
+  //   · 2.1.14 (mid-inboard) puts 57.87 % / 52.86 % of itself in bare field.
+  //     Decomposed row by row, ALL of it is inboard: the coin's oak foliage has
+  //     an inner edge at offset 9.2-12.7 for every row from y 35.5 to y 43 (the
+  //     two files agree to 1.5 units at every one of those rows) and this blade
+  //     runs from offset 5.9 out. Its MIDRIB alone is 2.9 units inboard of the
+  //     coin's edge at y 40, so no change to the outline and no narrowing
+  //     reaches it, and shortening does not either: at blade 8.0 it still reads
+  //     37.71 / 32.80 and by then it is a stub. Both references show open field
+  //     where it is drawn — visible directly at 20 px per unit,
+  //     `_dr15oakleaf.mjs look`.
+  //   · 2.1.12 (mid-outboard) puts 30.91 % / 37.50 % out, and all of THAT is
+  //     outboard: the coin's outer edge falls from ~30 at y 41 to 21.3-23.5 at
+  //     y 46-47 and this blade spans that notch out to 29.7. See the LADDER
+  //     block for the two independent estimators that put its angle at +35..+44.
+  //
+  // WHAT WAS TRIED AND REFUSED, WITH THE NUMBER. Every fix that works is a
+  // rotation, and `stalkEnd`/`seatOn` take `L.rot`, so it moves the petiole:
+  //
+  //     node    shipped rot   best rot   OUTSIDE pb/unc, shipped -> best
+  //     2.1.12      +17        +35        30.91/37.50  ->  8.54/ 4.74
+  //     2.1.14      +45      out +25      57.87/52.86  ->  8.92/ 6.87
+  //
+  // Shortening a blade is the one lever that does NOT move a petiole, because
+  // `half` moves the glyph's centre while the petiole runs from `L.ax` to a
+  // fixed 0.7 out. It buys almost nothing: 2.1.12 goes 30.29 -> 26.45 % between
+  // blade 12 and blade 8 on proofbright, against a measured reach of 12.2.
+  //
+  // AND A LOW OUTSIDE IS NOT AUTOMATICALLY A PASS. Sweeping any INBOARD blade
+  // toward the branch axis drives OUTSIDE to nearly zero — 2.1.10 reads 0.00 %
+  // at rot +20 on the closed-fork mask — by sliding the blade underneath its
+  // neighbours: 42.1 % of its ink is then on other leaves and 14.7 % on the
+  // torch. Every number in this block is quoted with that overlap measured; the
+  // two that fail, fail with overlaps of 5.2 % and 0.0 %, so they are not
+  // artefacts of it. (2.1.10's own shipped reading is the one the fork
+  // correction moves most, 8.27 -> 18.43 %: a tenth of that leaf was scored
+  // "inside" against field the flood had filled in.)
+  //
+  // WHAT IS NOT WRONG. The seven stand apart from each other — every pair
+  // shares 0.0 % of the smaller leaf's ink except 2.1.6/2.1.10 at 14.0 % and
+  // 2.1.10/2.1.14 at 5.2 %. THE ONE EXCEPTION IS THE CROWN PAIR: 2.1.16 and
+  // 2.1.17 share 57.4 % of 2.1.16, i.e. they are one object, which is the
+  // "tulip cup" this file has named twice. Their OUTSIDE is fine (6.10/15.72
+  // and 13.30/16.17) and that is exactly the point — a merged pair is invisible
+  // to a containment score and visible instantly in the picture.
+  //
+  // WHAT COULD NOT BE DETERMINED. FILL is reported with its ceiling (below) but
+  // it is area-bound here: the exclusive target in a per-leaf window runs 60-169
+  // sq units against a 49-65 sq unit blade, so no correct leaf could exceed
+  // 29-56 %, and the shipped leaves read 32-95 % OF THAT ceiling. FILL cannot
+  // separate "too small" from "correctly sized in a generous window" on this
+  // branch, and it is not the number to act on.
+  //
+  //     node   excl.tgt pb/unc   FILL pb/unc   ceiling pb/unc   FILL/ceiling
+  //     2.1.6    90.87/ 73.82    26.4/31.5     33.6/45.5         79% / 69%
+  //     2.1.8   162.49/118.26    28.4/27.8     29.9/34.5         95% / 81%
+  //     2.1.10  110.89/ 84.78    27.8/26.5     32.8/40.5         85% / 65%
+  //     2.1.12  126.85/ 86.37    20.7/21.9     31.8/41.4         65% / 53%
+  //     2.1.14   94.26/ 67.14    16.1/12.1     31.9/37.4         50% / 32%
+  //     2.1.16   88.09/ 60.46    16.6/19.7     50.5/56.3         33% / 35%
+  //     2.1.17   72.75/ 60.30    31.8/32.1     49.1/51.6         65% / 62%
   const oak = (x, y, rot, l, w) =>
     `<g transform="translate(${x} ${y}) rotate(${rot}) `
     + `scale(${n2(l)} ${n2(w)})"><path d="${OAK}"/></g>`;

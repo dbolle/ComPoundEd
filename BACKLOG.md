@@ -7,6 +7,114 @@ reconsider after calibration.
 
 ## Where we are
 
+- 🟡 **FIVE OF THE DIME'S SEVEN OAK LEAVES ARE IN THE COIN; TWO ARE AIMED INTO
+  BARE FIELD ON BOTH REFERENCES — AND NEITHER IS THE BLADES' FAULT. THE DRAWING
+  IS UNCHANGED, BYTE-IDENTICAL ON ALL THIRTY RENDERED FACES.** Fifth element
+  scored alone, and the first to score seven of them separately rather than as
+  a sum. New instrument: `judge/_dr15oakleaf.mjs` (reports only).
+  - **Seven measurements, not an average**, with BOTH mask corrections applied
+    and both shown — the erosion (which eats a leaf's own lobes; 4.8–19.3
+    points of each default reading) and the owner's fork reopening (`--reopen
+    1.0`, which restores the field inside the branch's own fork):
+
+    | node | leaf | pb e0.55 | pb e0.00 | pb e0.00+fork | unc e1.00 | unc e0.00 |
+    |---|---|---|---|---|---|---|
+    | 2.1.6 | foot-inboard | 37.05 | 26.60 | **26.60** | 39.88 | **16.71** |
+    | 2.1.8 | foot-outboard | 13.92 | 4.08 | **4.99** | 38.61 | **11.85** |
+    | 2.1.10 | low-inboard | 16.23 | 8.27 | **18.43** | 40.48 | **20.56** |
+    | 2.1.12 | mid-outboard | 49.39 | 30.04 | **30.91** | 63.32 | **37.50** |
+    | 2.1.14 | mid-inboard | 68.64 | 56.35 | **57.87** | 84.58 | **52.86** |
+    | 2.1.16 | crown-outboard | 10.91 | 6.10 | **13.36** | 29.59 | **15.72** |
+    | 2.1.17 | terminal | 21.08 | 13.30 | **17.99** | 34.73 | **16.17** |
+
+    Verify: `node coloringbook/judge/_dr15oakleaf.mjs outside`
+  - **⚠️ THE FORK REOPENING IS RIGHT ON PROOFBRIGHT AND MUST NOT BE APPLIED TO
+    unc2005 (ledger D32).** The 1.0 sq unit threshold separates two clean
+    populations on proofbright (18 components at or above it, 5985 below,
+    nothing between). The same scan on unc2005 finds **27 components ≥ 1.0
+    totalling 456.8 sq units**, the largest **101.13 sq units at x 45.8..57.1
+    y 17.3..33.8 — the torch flame's interior** — then 49.51, 36.90, 34.44,
+    30.05, all leaf bellies. unc2005 is a dark-outline photograph with **bright
+    device interiors**, the exact case `_dr9branch.mjs`'s inward flood exists to
+    close; reopening at 1.0 there deletes the device and every oak leaf reads
+    **68–81 % outside**. This round applies it per file, on that measurement.
+    Verify: `node coloringbook/judge/_dr15oakleaf.mjs holes`
+  - **The coordinator's reading of 2.1.6 is CONFIRMED, and it is the one number
+    neither correction touches** — the fork moves it **0.0 points**. Row by row
+    it is a single fault: the blade hangs down-and-inboard into the bare band
+    between the foliage above it and the acorn below, covering offset 5.2–13.9
+    at y 53–55 where proofbright has device only at 4.4–5.3 (the torch's edge)
+    and 12.9–15.7 (the stem). **The coin's own inboard blade there is 4–5 units
+    higher, at y 44–50.** Its fix is `ay`, which is the ladder.
+    Verify: `node coloringbook/judge/_dr15oakleaf.mjs probe 2.1.6`
+  - **2.1.14 is drawn where both photographs show open field (ledger D27).**
+    Row by row, all of its outside ink is inboard: the coin's oak foliage has an
+    inner edge at **offset 9.2–12.7 on every row from y 35.5 to 43**, the two
+    files agreeing to 1.5 units at every one of them, and this blade runs from
+    **5.9** out. Its **midrib alone** is 2.9 units past that edge at y 40, so no
+    outline change, no narrowing and no shortening reaches it — at blade 8.0 it
+    still reads 37.71 / 32.80 and by then it is a stub.
+    Verify: `node coloringbook/judge/_dr15oakleaf.mjs probe 2.1.14`
+  - **2.1.12 bridges a notch the coin has.** All of its outside ink is
+    outboard: the coin's outer edge falls from ~30 at y 41 to **21.3–23.5 at
+    y 46–47** and this blade spans it out to 29.7.
+  - **A low OUTSIDE is not automatically a pass, and this round measured that
+    too.** Any inboard blade swept toward the branch axis drives OUTSIDE to
+    nearly zero — 2.1.10 reads **0.00 %** at rot +20 on the closed-fork mask —
+    by sliding underneath its neighbours: 42.1 % of its ink is then on other
+    leaves and 14.7 % on the torch. Every number here is quoted with that
+    overlap measured; the two failures have overlaps of 5.2 % and 0.0 %.
+    (2.1.10's own shipped reading is the one the fork moves most, **8.27 →
+    18.43 %** — a tenth of that leaf was scored "inside" against field the
+    flood had filled in.)
+  - **Refused, with the numbers.** Both fixes are rotations and `stalkEnd` /
+    `seatOn` take `L.rot`, so both move a petiole: **2.1.12 +17 → +35 takes
+    30.91 / 37.50 to 8.54 / 4.74**; **2.1.14 inboard +45 → outboard +25 takes
+    57.87 / 52.86 to 8.92 / 6.87.** Petioles get their own round.
+  - **The erosion ladder ledger D11/D12 asked for was run and does not deliver
+    (D28).** Erode 0 → 2.4 on both files never resolves more than four oak
+    components on proofbright or three on unc2005, and they disagree on which.
+    It did yield one blade the ledger did not have — **proofbright (76.9, 41.4),
+    10.8 × 5.4 at erode 0.8, axis +44°, centre stable to 0.1 units through erode
+    2.4**, ~12.2 × 6.3 at zero erosion. That is node 2.1.12's, it **matches the
+    12.0 length we draw**, and it is a second independent vote against its +17
+    angle.
+    Verify: `node coloringbook/judge/_dr15oakleaf.mjs split`
+  - **D11 is narrowed and still not settled (D29).** The shipped row 2 at −13
+    and the proposed row 1 outboard at +25 land **0.66 and 0.69 units** from the
+    coin's own blob — the centre cannot separate them. On shape, **proofbright
+    prefers the ledger's reading 51.5 % v 47.0 % IoU and unc2005 prefers the
+    shipped one 41.6 % v 41.2 %**, which is a tie. Neither exceeds 52 % because
+    the component is **105.75 / 90.80 sq units against a 53–58 sq unit blade** —
+    still a cluster. **The stated merge objection is refuted for this pair:**
+    swapped, rows 1 and 2 share **0.0 %** of their ink. What the swap costs is
+    that the swapped row 2 puts 40.8 % of its ink on the other five leaves.
+    Verify: `node coloringbook/judge/_dr15oakleaf.mjs blade proofbright 0.8 74.4 52.9`
+  - **The crown pair is one object (D30).** 2.1.16 and 2.1.17 share **57.4 %**
+    of the smaller leaf; every other pair shares 0.0 % bar two at 14.0 % and
+    5.2 %. Their OUTSIDE is fine, which is the point — a merged pair is
+    invisible to a containment score and instant in the picture.
+    Verify: `node coloringbook/judge/_dr15oakleaf.mjs pairs`
+  - **FILL is area-bound on this branch and is not the number to act on.** The
+    exclusive target in a per-leaf window runs 60–162 sq units against a 49–65
+    sq unit blade, so no correct leaf could exceed a **30–56 % ceiling**; the
+    shipped leaves read **33–95 % of that ceiling**.
+    Verify: `node coloringbook/judge/_dr15oakleaf.mjs fill`
+  - **Instrument defect found and deliberately not fixed in place (D31):**
+    `_dr13elem.mjs`'s "everything else" set misses the two `<g>`-wrapped
+    legends, so FILL exclusive on the branches has been charging elements for
+    lettering mask (0.0–2.4 sq units here). `_dr15oakleaf.mjs` uses the
+    corrected rule; `_dr13elem.mjs` is left alone so its published numbers stay
+    reproducible.
+  - **No version bump and no CHANGELOG entry: nothing shipped.** All thirty
+    rendered faces hash identically before and after.
+  - **Could not determine:** whether our blades are the right SIZE. Our leaf
+    covers only 43–52 % of the coin's own component at the one node where a
+    component exists, and the un-eroded mask counts the struck bevel skirt —
+    the reason `_dr8shaft.mjs` rejected it for widths — so it cannot settle an
+    absolute width. Five of the seven nodes have no isolated counterpart on
+    either file at any erosion and were scored for containment only.
+
 - 🟡 **THE DIME'S OAK STEM IS NOT WRONG — THE NUMBER THAT JUDGED IT IS. THE
   DRAWING IS UNCHANGED, BYTE-IDENTICAL ON ALL EIGHT FACES.** Fourth element
   scored alone by `judge/_dr13elem.mjs`, and the first round to publish a

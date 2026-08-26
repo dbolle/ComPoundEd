@@ -137,7 +137,10 @@ const WINDOWS = {
 //
 // It is OFF by default, because every number published before today was
 // measured without it and the comparison has to stay honest.
-async function reopen(mask, refFile, T, minArea) {
+// EXPORTED so there is exactly ONE implementation of it. `_dr15oakleaf.mjs`
+// needs the same reopening and a second copy would drift; the module already
+// guards against running its CLI when imported (see IS_MAIN below).
+export async function reopen(mask, refFile, T, minArea) {
   const s = await samplerFor(refFile, 2400);
   const light = new Uint8Array(MW * MH);
   for (let j = 0; j < MH; j++) for (let i = 0; i < MW; i++) {
@@ -394,6 +397,19 @@ if (mode === 'score') {
   // FILL is reported twice: RAW (mask ∩ window) and EXCLUSIVE (minus everything
   // else's ink). EXCLUSIVE is the one an element can act on; the gap between
   // them is how much of this window the coin gives to other elements.
+  // ⚠️ DEFECT, FOUND BY THE OAK-LEAF ROUND AND NOT FIXED HERE: the `<text>`
+  // test below is `out[q].startsWith('<text')`, and on this face only E
+  // PLURIBUS UNUM is a bare top-level <text>. UNITED STATES OF AMERICA and ONE
+  // DIME are <text> WRAPPED IN A <g> that carries the font, so they are missed,
+  // and node 4 runs to y 58.7 across x 13..87 — through the outboard half of
+  // every branch window. FILL exclusive on the branches has therefore been
+  // charging each element for mask that belongs to the lettering. Measured on
+  // the oak's seven leaves the error is small (0.0-2.4 sq units of exclusive
+  // target, worst on 2.1.8) but it is not zero, and on an element nearer the
+  // rim it would be larger. `includes('<text')` catches all three;
+  // `_dr15oakleaf.mjs` uses that and this file is left alone so that every
+  // number already published against it stays reproducible.
+  //
   // "Everything else" must mean OTHER DEVICE MARKS, not the whole document:
   // the blank disc and the rim cover the entire face, so subtracting the full
   // render cedes 100% of every window. The device set is this node's siblings
