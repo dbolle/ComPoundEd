@@ -5322,13 +5322,134 @@ function torch(p) {
   // our centre is 0.28 INBOARD on proofbright and 0.87 OUTBOARD on unc2005 —
   // opposite signs, half-difference 0.58 against loop 1's 0.61, so the pooled
   // error is ~0.3 and there is nothing here to correct. `stemC` stands.
+  // ⚠️ AND THE PARAGRAPH ABOVE IS TRUE OF THE TRUNK AND FALSE ABOVE y 54
+  // (round 36). `stemC` was fitted on rows y 54..71 and its own header labels
+  // everything above y 54 an EXTRAPOLATION. It is worse than an extrapolation:
+  // ON THE OAK THERE IS NO SINGLE STEM UP THERE TO EXTRAPOLATE. The branch
+  // FORKS, and the line runs up the middle of the gap between the two prongs.
+  //
+  // THE FORK, MEASURED THREE WAYS, TWO OF WHICH NEVER TOUCH THE FLOOD MASK
+  // (`judge/_dr17oakfork.mjs`):
+  //
+  //   · ENCLOSED FIELD. `deviceMask()` floods field inward from the border and
+  //     calls whatever it cannot reach DEVICE, so a field pocket closed on all
+  //     sides reads as solid. The oak has one, and it is the largest enclosed
+  //     component on that half of the face: 8.29 sq units at x 65.5..67.8,
+  //     y 47.4..54.4 on proofbright, and 12.05 sq units at x 64.1..66.8,
+  //     y 47.7..55.1 on unc2005. Two files, two different mask polarities,
+  //     the same rows. THE OLIVE HAS NOTHING LIKE IT: the largest enclosed
+  //     component anywhere in its mirrored window is 1.88 sq units on
+  //     proofbright, and it is not on that branch's stem line.
+  //   · BARE FIELD ROW BY ROW, straight off each photograph with no mask in the
+  //     path at all (`_dr17oakfork.mjs bare`): a bare channel with device on
+  //     BOTH sides of it, present on every row from y 48 to y 53.5 on
+  //     proofbright and y 48 to y 54.5 on unc2005, ~1.3 units wide. Converted
+  //     to this file's own frame — each file's trunk centre against `stemC`,
+  //     which cancels the ~1.0-unit registration slip between them — the two
+  //     files put that channel at:
+  //
+  //         y        48     49     50     51     52     53     54
+  //         pb    15.97  16.37  16.07  15.57  15.27  15.27  (closed)
+  //               17.37  17.57  17.47  16.97  16.57  16.17
+  //         unc   15.80  15.80  16.00  15.50  15.00  15.20  15.00
+  //               16.70  17.50  17.50  17.30  16.90  16.40  16.00
+  //
+  //     i.e. agreeing to 0.1..0.4 units on every row of a channel that our
+  //     stem is drawn straight down the middle of (our span at those rows is
+  //     15.2..17.35). THE TWO FILES AGREE ABOUT A GAP WHERE WE DRAW A STEM.
+  //   · THE PICTURE, at 40x and at 90 px per unit: both references show one
+  //     trunk below and two prongs above, with open field between them.
+  //
+  // WHERE OUR OUTSIDE INK IS, with the fork reopened (`_dr17oakfork.mjs
+  // outside`, erode 0, `--reopen 1.0` on proofbright only): 6.82 of the 11.73
+  // sq units — 58 % — is in the six rows y 47..53. The fork is not a detail of
+  // this element's score; it is most of it.
+  //
+  // WHAT IS DRAWN HERE, AND WHAT IS REFUSED, because the two are different:
+  //
+  //   DRAWN — the OUTBOARD prong, from the crotch out and up. Its centre is
+  //   read as the midpoint of the two edges that bound it on proofbright (the
+  //   fork channel's outboard wall and the bare channel outboard of the
+  //   prong), on the rows where both are clean, y 49..53.5, converted to this
+  //   frame: 17.17 at y 53.5 through 19.27 at y 49, slope −0.467 per unit of y.
+  //   Extrapolating that line to y 41 puts the prong at offset 23, and the
+  //   photograph puts it at 20.5, so it is drawn as the quadratic through the
+  //   crotch, the measured slope, and that 20.5 — a branch that diverges hard
+  //   at the fork and straightens as it climbs, which is what the crop shows.
+  //
+  //   REFUSED — moving the SPIKE onto the inboard prong, where the same
+  //   measurement puts it (centre 14.2..15.3 over y 48.5..53.5, i.e. ~1.0 unit
+  //   inboard of `stemC`). `leafAt` anchors every leaf at `ax = stemC(ay)` and
+  //   FIVE of the seven oak rows sit above the fork (ay 51.23, 50.38, 47.37,
+  //   45.68, 40.51, 40.04). Moving the stem without moving them detaches five
+  //   leaves; moving them is `leafAt`, which the olive shares and which the
+  //   oak-leaf round has just finished solving `OAKROT` against. THE HONEST
+  //   STATEMENT IS THAT THE LADDER IS HUNG ON THE FORK'S GAP, and that is a
+  //   BRANCH-level correction — stem and ladder together — not an element one.
+  //   It is written down here so the next round does not have to find it again.
+  //
+  //   AND NARROWING THE SPIKE INSTEAD CANNOT REACH THE FAULT, which is the
+  //   arithmetic and not an opinion: at y 51 the coin's channel is 15.54..17.14
+  //   and the spike spans 15.30..17.28, so the CHANNEL IS INSIDE THE SPIKE and
+  //   narrowing it symmetrically cannot leave the channel — only moving it can.
+  //   Tried anyway (taper to a prong's 0.78 half-width above the fork) it moved
+  //   the absolute outside by 0.8 sq units and cost 1.5 points of FILL
+  //   exclusive, i.e. it bought a percentage by drawing less. Reopening a width
+  //   settled one loop ago, on the estimator that was rejected for exactly this
+  //   quantity, to buy that, is the convergence test's re-tuning. `stemHW` is
+  //   untouched and both branches still read it.
+  //
+  //   AND THE PRONG IS NOT MOVED TO SPLIT THE FILES' DIFFERENCE. Sweeping its
+  //   offset, proofbright minimises at +0.25 and unc2005 at −0.8 or beyond —
+  //   pb 13.21 / 12.69 / 12.28 / 11.99 / 11.97 against unc 12.32 / 13.19 /
+  //   14.61 / 16.08 / 17.50 sq units at −0.8 / −0.5 / −0.25 / 0 / +0.25. That
+  //   is the ~1.0-unit registration slip loop 1 measured and pooled away, and
+  //   the pooled optimum near −0.6 buys 1.85 sq units of its gain by sliding
+  //   the prong UNDER the spike (element ink 87.26 → 85.41), which is the
+  //   failure mode OUTSIDE cannot see. 0 is proofbright's own reading, and
+  //   proofbright is the only file whose mask carries the whole device.
+  //
+  // WHAT I COULD NOT DETERMINE: where the inboard prong runs above y 48. Both
+  // files are solid device from offset 10 to 21 there — the crown closes over
+  // — so the inboard prong cannot be separated from the foliage it carries,
+  // and nothing drawn in that band can be scored by OUTSIDE either way.
+  const FORK = { y: 54.2, hw: 0.78 };
+  /** the OUTBOARD prong's centre, as an offset, at height `y`. Oak only. */
+  const prongC = (y) => {
+    const u = FORK.y - y;
+    return 16.40 + 0.7011 * u - 0.0306 * u * u;
+  };
+  /** its half-width: fused into the trunk at the bottom, a point at the top */
+  const prongHW = (y) => FORK.hw
+    * Math.max(0, Math.min(1, (55.6 - y) / 2.2, (y - 42) / 2.4));
+  // ⚠️ THE TWO SUBPATHS MUST WIND THE SAME WAY, and the first version of this
+  // did not. `<path>` fills with the NONZERO rule, so a second subpath that
+  // runs the other way round CANCELS wherever it overlaps the first — and the
+  // prong is fused into the trunk at its foot, so it overlaps by construction.
+  // Rendered, the crotch had a HOLE in it: at y 54.5 node 2.1.4 was ink at
+  // x 65.20-65.80 and 66.55-67.20 with 0.75 units of nothing between, inside a
+  // spike that spans 65.22-67.20. It did not show in the element's own ink area
+  // (85.06 sq units either way, because the hole is exactly the overlap the
+  // union would not have counted) and it flattered OUTSIDE, which is how a
+  // sweep of the prong's offset came back reading BELOW the un-forked drawing's
+  // absolute outside — arithmetically impossible for added ink, and the tell.
+  // Both subpaths now run top point → down the OUTBOARD edge → bottom point →
+  // up the INBOARD edge.
+  const PRONG_YS = [44, 46, 48, 50, 52, 54];
   const STEM_YS = [39.25, 40.1, SC.tail, 72.5, 74, 75];
-  const stem = (x) => {
+  const stem = (x, mirror) => {
     const P = (y, s) => `${x(stemC(y) + s * stemHW(y))} ${y}`;
-    return `<path d="M ${P(SC.top, 0)}`
+    const d = `M ${P(SC.top, 0)}`
       + STEM_YS.map((y) => ` L ${P(y, 1)}`).join('')
       + ` L ${P(SC.tip, 0)}`
       + STEM_YS.slice().reverse().map((y) => ` L ${P(y, -1)}`).join('')
+      + ' Z';
+    if (mirror) return `<path d="${d}"/>`;
+    const Q = (y, s) => `${x(prongC(y) + s * prongHW(y))} ${y}`;
+    return `<path d="${d} M ${Q(42, 0)}`
+      + PRONG_YS.map((y) => ` L ${Q(y, 1)}`).join('')
+      + ` L ${Q(55.6, 0)}`
+      + PRONG_YS.slice().reverse().map((y) => ` L ${Q(y, -1)}`).join('')
       + ' Z"/>';
   };
   // ⚠️ THE `icon` DRAWING IS REMOVED (v1.93.0). It drew the flame, three
@@ -6186,7 +6307,7 @@ function torch(p) {
     // The stub's own direction is not wasted evidence — it is what sets `rot`
     // above. Recorded, measured, and still not drawn.
     if (!mirror) g += acorn(x(8.8), 57.7, 59, 1.13, 0.98);
-    return `${stem(x)}${g}`;
+    return `${stem(x, mirror)}${g}`;
   };
   // THE SHAFT TAPERS, AND IT WAS DRAWN AS A RECTANGLE (round 28).
   //

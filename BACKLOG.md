@@ -7,6 +7,82 @@ reconsider after calibration.
 
 ## Where we are
 
+- 🟡 **THE DIME'S OAK BRANCH FORKS AT y 54, AND WE DREW A SINGLE SPIKE STRAIGHT
+  UP THE MIDDLE OF THE GAP BETWEEN THE TWO PRONGS.** Eighth element round on
+  this face. The outboard prong is now drawn; the spike is not moved, and why
+  is below. Partition: `dime.reverse` alone, 6/60 cells, all sizes. D9 0/180.
+  D6 reverse 0.0955 → 0.0926 against a 0.50 gate. Version 1.103.0.
+  New instrument: `judge/_dr17oakfork.mjs` (reports only).
+  - **The previous round on this element said "it is not changed, because it is
+    not wrong", against a mask that could not see the fault.** `deviceMask()`
+    floods field inward from the border and calls whatever it cannot reach
+    DEVICE, so a field pocket closed on all sides reads as solid — and the oak's
+    fork gap is one. Reopened, **6.82 of the element's 11.73 outside sq units,
+    58 %, is in the six rows y 47..53**.
+  - **Three estimators, two of which never touch the flood mask.** Largest
+    enclosed-field component on the OAK: **8.29 sq units at x 65.5..67.8,
+    y 47.4..54.4** (proofbright) and **12.05 at x 64.1..66.8, y 47.7..55.1**
+    (unc2005). Largest anywhere on the OLIVE: 1.88, and not on its stem line.
+    And the same channel read straight off each photograph with no mask in the
+    path — device on BOTH sides of it — on every row from y 48 to y 53.5 (pb)
+    and y 48 to y 54.5 (unc). In `stemC`'s frame the two files agree to
+    **0.1–0.4 units on every row** about a GAP where we draw a stem.
+    Verify: `node coloringbook/judge/_dr17oakfork.mjs pocket` · `bare`
+  - **Drawn: the outboard prong**, centre **17.17 at y 53.5 → 19.27 at y 49,
+    slope −0.467 per unit of y**, as the quadratic through the crotch, that
+    slope, and the 20.5 the photograph puts it at by y 41.
+
+    | mask | OUTSIDE % | FILL exclusive | ceiling |
+    |---|---|---|---|
+    | pb erode 0.55 | 18.05 → **16.52** | 39.69 → **45.70** | 50.7 |
+    | pb erode 0 | 4.11 → **3.39** | 35.03 → **40.01** | 45.2 |
+    | pb erode 0 + reopen 1.0 | 16.31 → **13.74** | 32.42 → **37.72** | 42.8 |
+    | unc erode 1.00 | 56.73 → 59.19 | 30.30 → **30.91** | 36.9 |
+    | unc erode 0 | 16.95 → 18.42 | 30.20 → **33.46** | 38.6 |
+
+    The ceiling is recomputed for a FORKED branch — the published 44.7 % assumed
+    one centreline. On the un-eroded proofbright mask the 15.35 new sq units add
+    **0.00** outside. Verify: `node coloringbook/judge/_dr17oakfork.mjs ceiling`
+  - **A fill-rule bug only a number caught.** The prong is a second subpath in
+    the same `<path>`; wound the opposite way it CANCELLED where it overlapped
+    the spike, and it overlaps by construction. The crotch rendered with a
+    **0.75-unit hole** at y 54.5. Invisible in the ink area, invisible in the
+    picture at 20 px/unit, and it flattered OUTSIDE — the tell was an offset
+    sweep coming back **below the un-forked drawing's absolute outside**, which
+    added ink cannot do. Both subpaths now wind the same way.
+  - **Published because it regresses (R2):** unc2005 charges the prong **+3.89
+    sq units**, all in rows y 47..53, and two causes are in that number which
+    this round did not separate. (a) Registration: sweeping the prong's offset,
+    pb's minimum is at **+0.25** and unc's at **−0.8 or beyond** — pb outside
+    13.21 / 12.69 / 12.28 / **11.99** / 11.97 against unc's 12.32 / 13.19 /
+    14.61 / **16.08** / 17.50 at −0.8 / −0.5 / −0.25 / **0** / +0.25. 0 is kept:
+    it is proofbright's reading, and the pooled optimum near −0.6 buys 1.85 sq
+    units of its gain by sliding the prong under the spike (ink 87.26 → 85.41).
+    (b) The file: the OLIVE stem is the same path mirrored and untouched, and
+    reads **6.97 % (pb) against 24.14 % (unc)** at erode 0.
+  - **Refused with the numbers: moving the spike onto the inboard prong** (its
+    measured centre is 14.2..15.3 over y 48.5..53.5, ~1.0 unit inboard of
+    `stemC`). `leafAt` anchors every leaf at `ax = stemC(ay)` and **five of the
+    seven oak rows are above the fork**; moving the stem without them leaves
+    five petiole roots floating in the coin's own gap, and moving them is
+    `leafAt`, which the olive shares. **The oak's ladder is hung on the fork's
+    gap** — see ledger D36. Narrowing the spike cannot reach the fault either:
+    at y 51 the channel (15.54..17.14) lies INSIDE the spike (15.30..17.28).
+    `stemHW` is untouched.
+  - **Neighbour overlap, because a low OUTSIDE is not a pass:** 18.33 % →
+    **22.05 %** of the element is under something else, the prong contributing
+    6.06 of its 15.35 sq units (4.65 under leaf 2.1.12). **5.3 % of the
+    element's ink is now outside `WINDOWS['oak-stem']`** — the prong passes
+    x 70 — and the window is left alone so past FILLs stay comparable.
+    Verify: `node coloringbook/judge/_dr17oakfork.mjs overlap`
+  - **Recorded, not drawn:** the branch ends in a TWO-POINTED foot on both files
+    (a long barb to ≈ (13.4, 75.0), a short outboard point at ≈ (17.6, 71.7))
+    and we draw one spike. Read off the crops, not off an estimator.
+  - **What I could not determine:** where the inboard prong runs above y 48.
+    Both files are solid device from offset 10 to 21 there — the crown closes
+    over — so it cannot be separated from the foliage it carries, and nothing
+    drawn in that band can be scored either way.
+
 - 🟡 **THE DIME'S ACORN HAD BEEN FITTED TO A BOUNDING BOX FOUR TIMES, AND A BOX
   CANNOT DECIDE WHICH WAY UP AN ACORN LIES. MEASURED AS AN OBJECT ITS AXIS IS
   30.2° AND 31.3° ON THE TWO PHOTOGRAPHS — THEY AGREE TO 1.1° — AND WE DREW IT
