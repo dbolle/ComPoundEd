@@ -59,6 +59,7 @@ import { join, resolve as resolve_ } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { JUDGE } from './_paths.mjs';
 import { deviceMask } from './_dr9branch.mjs';
+import { samplerFor } from './_dr2grid.mjs';
 import { coinSVG } from '../../src/art/coins.js';
 
 const X0 = 13, X1 = 87, Y0 = 17, Y1 = 85, STEP = 0.05;
@@ -113,6 +114,54 @@ const WINDOWS = {
   acorn: [54, 65, 52, 63],
   legend: [13, 87, 17, 85],
 };
+
+
+// ── REOPEN REAL NEGATIVE SPACE (owner, 2026-08-26)
+//
+// `deviceMask()` floods field inward from the border and calls anything the
+// flood cannot reach DEVICE. That closes specular highlights inside a frosted
+// leaf, which is what it is for — but it also fills any field POCKET fully
+// enclosed by device, and on the oak that is the gap inside the fork.
+//
+// Measured on `dime-rev-proofbright.png` in the oak window: 99.6 sq units of
+// enclosed field, of which **68.5 is sub-unit speckle** (specular highlight
+// inside the frosted leaves — correctly closed) and **31.1 sq units in 13
+// components of 1.0 sq unit or more is real negative space between leaves**.
+// The largest, 8.3 sq units at x 65.5..67.8 y 47.4..54.4, IS the fork.
+//
+// Charging the oak leaves for filling their own fork makes a forked branch an
+// impossible target, so `--reopen <minArea>` restores enclosed field components
+// at or above that area. The size threshold is the whole method: too small and
+// it reopens the frosting the flood exists to close; 1.0 sq unit separates the
+// two populations cleanly here (13 components above, 5958 below).
+//
+// It is OFF by default, because every number published before today was
+// measured without it and the comparison has to stay honest.
+async function reopen(mask, refFile, T, minArea) {
+  const s = await samplerFor(refFile, 2400);
+  const light = new Uint8Array(MW * MH);
+  for (let j = 0; j < MH; j++) for (let i = 0; i < MW; i++) {
+    light[j * MW + i] = s.at(X0 + i * STEP, Y0 + j * STEP) >= T ? 1 : 0;
+  }
+  const seen = new Int8Array(MW * MH);
+  const outp = new Uint8Array(mask);
+  for (let k0 = 0; k0 < MW * MH; k0++) {
+    if (!mask[k0] || !light[k0] || seen[k0]) continue;
+    const q = [k0]; seen[k0] = 1; const cells = [k0];
+    while (q.length) {
+      const c = q.pop(), i = c % MW, j = (c - i) / MW;
+      for (const d of [1, -1, MW, -MW]) {
+        const m = c + d;
+        if (m < 0 || m >= MW * MH) continue;
+        if (d === 1 && i === MW - 1) continue;
+        if (d === -1 && i === 0) continue;
+        if (mask[m] && light[m] && !seen[m]) { seen[m] = 1; q.push(m); cells.push(m); }
+      }
+    }
+    if (cells.length * STEP * STEP >= minArea) for (const c of cells) outp[c] = 0;
+  }
+  return outp;
+}
 
 const svgOf = () => coinSVG('dime', 380, { side: 'reverse' });
 
@@ -304,7 +353,10 @@ if (mode === 'score') {
   if (!frag) { console.error(`no such node: ${sel} (run \`list\` first)`); process.exit(2); }
   const idx = sel;
   const win = WINDOWS[process.argv[4]] ?? null;
-  const mask = await deviceMask(refFile, refT, refE);
+  let mask = await deviceMask(refFile, refT, refE);
+  const reopenMin = process.argv.includes('--reopen')
+    ? Number(process.argv[process.argv.indexOf('--reopen') + 1]) : 0;
+  if (reopenMin > 0) mask = await reopen(mask, refFile, refT, reopenMin);
   const ink = await inkOf(head, frag);
 
   let inkN = 0, outN = 0;
