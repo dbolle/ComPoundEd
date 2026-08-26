@@ -3,6 +3,106 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.102.0 — 2026-08-26
+
+**The dime's acorn had been fitted to a bounding box four times, and a box
+cannot decide which way up an acorn lies. Measured as an OBJECT, its axis is
+30.2° and 31.3° on the two photographs — they agree to 1.1° — and the drawing
+was at 15.1°.** Seventh element round on this face. Position untouched;
+`dime.reverse` alone, 6/60 cells, all sizes; D9 0/180.
+
+**THE BOX WAS THE PROBLEM, AND THE FILE SAID SO.** `torch()` already recorded
+that "every rotation from 70 to 90 degrees can be scaled to land INSIDE the two
+references' own disagreement", and chose 75 on the picture. That is a property
+of an axis-aligned box round a near-round object, not of the coin. This round
+measured the acorn as an object instead: at zero erosion it is **not a separate
+component on either file** — it merges into the lowest oak blade and into its
+own stalk — so it is isolated by a **morphological opening at 0.55**, the
+smallest erosion that separates it on BOTH files, dilated back and intersected
+with the erode-0 mask. The opened object carries a thin **stalk stub**, which is
+stripped by slicing across the axis and refitting until stable.
+
+| | len × wid | axis | area | len/wid |
+|---|---|---|---|---|
+| proofbright | 5.00 × 4.80 | **30.2°** | 18.06 | 1.04 |
+| unc2005 | 4.87 × 4.72 | **31.3°** | 16.77 | 1.03 |
+| drawn, before | 5.07 × 4.22 | **15.1°** | 14.67 | 1.20 |
+| **drawn, after** | **4.97 × 4.77** | **31.3°** | **16.24** | **1.04** |
+
+The two files agree to **1.1° on the axis, 0.13 on the length and 0.08 on the
+width** — tighter than they agree on anything else on this branch. `rot` 75 →
+**59** (the drawn axis is 90 − rot), and because the coin's acorn is very nearly
+ROUND the uniform `s` is split into **`sw` 1.13 across the axis and `sl` 0.98
+along it**, the way `leaf()` has always taken its two extents.
+
+**THE ANGLE IS ALSO WHERE THE STALK LEAVES**, which is the one thing that makes
+an acorn an acorn: body centroid to the stub's far end is **32.0°** on
+proofbright and **33.7°** on unc2005. Round 28's reading — "the stalk enters
+ABOVE the horizontal" — was right; 15° was simply not enough of it. This is not
+a reversal of that judgement, it is the same judgement with a number under it.
+
+**REJECTED WITH THE NUMBER (R2).** The unconstrained best overlap is rot 54,
+sw 1.16, sl 1.14 at **mean IoU 0.712 against 0.667** for what shipped. Not
+taken: it draws 5.77 × 4.89 at 35.9°, **outside both references on all three
+measurements**, because IoU is scored against a target that still contains the
+stalk stub the art does not draw, and the only way to cover a stub is to grow
+past the body. Three agreed moments beat one score against a contaminated
+target.
+
+**"OUR ACORN IS ROUGHLY A THIRD OF THE COIN'S BY AREA" WAS A WINDOW ARTEFACT.**
+`WINDOWS.acorn` is 11 × 11 units round a 5-unit object. Of its **47.25 sq unit**
+exclusive target on proofbright, only **20.57 is acorn**: 9.54 is the torch
+shaft's edge at x 54.00–55.35, 8.45 is a row of E PLURIBUS UNUM clipped by the
+window's bottom at y 61.70–63.00, and 5.01 is oak in the top right corner. A
+**perfect** acorn tops out at **43.5 %** there and **48.2 %** on unc2005.
+Measured as an object the drawing was already **85 %** of the coin's by area,
+not 31 %. (D22 again, one window further on.)
+
+**Scores, both erosions, both files, before → after.** Reason from erode 0 —
+the mask's erosion is calibrated on a 5–10 unit torch shaft and this object is
+five units across:
+
+| | OUTSIDE | FILL raw | FILL exclusive |
+|---|---|---|---|
+| proofbright, erode 0 + reopen | 5.99 → **4.65 %** | 26.23 → **29.43 %** | 29.39 → **32.97 %** |
+| proofbright, erode 0.55 + reopen | 26.99 → 31.16 % | 45.10 → 47.03 % | 48.13 → 50.20 % |
+| unc2005, erode 0 | 14.05 → 17.70 % | 25.14 → 26.62 % | 32.58 → **34.49 %** |
+| unc2005, erode 1.00 | 60.82 → 63.58 % | 30.09 → 30.93 % | 38.11 → 39.18 % |
+
+**Regressions published (R2):** OUTSIDE rises on unc2005 (14.05 → 17.70 % at
+zero erosion) and at both calibrated erosions. The cause is the references'
+own disagreement, not a defect the drawing can fix: unc2005's acorn sits **1.17
+units left and 0.84 down** of proofbright's, the drawn centre is held between
+them, and growing an object toward the mean grows its mismatch with either end.
+Moving it was not on the table and the measurement did not ask for it — the
+drawn centroid (59.15, 57.48) is 0.14 from the two files' mean.
+
+**Separability held, before and after** — the test that exists because this
+object has been deleted once and merged twice. Two components at every erosion
+in `_dr12leaf.mjs` §4, and the acorn's overlap with every other drawn node on
+the face is **0.00 sq units** on both sides of the change.
+
+**Corrected, and the refusal still stands.** Round 34 recorded a stalk it chose
+not to draw, on the evidence of a **separate 3.21 × 1.46 component at (14.62,
+56.77)** carried by proofbright only. That is the OUTBOARD half of the stalk;
+there is a nearer ~1.4-unit **stub attached to the acorn itself**, and it is on
+**both** files (to (62.96, 54.94) and (61.27, 55.99)). So "unc2005 does not
+carry it at all" was wrong about the stub. It is still not drawn, and its own
+coordinates are why: **(62.96, 54.94) is inside the bounding box of the lowest
+oak blade** (2.1.6, x 52.8–64.1, y 45.8–55.5), and merging into that blade is
+what has broken this object twice. Its direction is what sets `rot`.
+
+**Could not determine: the nut/cup proportion.** Neither photograph resolves the
+cup's rim as interior relief. Sampled along the fitted axis, proofbright's grey
+swings ~200 levels INSIDE the body from its frosting alone, and unc2005 is flat
+bright inside with dark only at the outline. The drawn 1.6 / 2.1 split stands on
+what an acorn is, not on these two files.
+
+New instrument: `judge/_dr16acorn.mjs` (reports only).
+Verify: `node coloringbook/judge/_dr16acorn.mjs` ·
+`node coloringbook/judge/_dr13elem.mjs score 2.1.18 acorn --erode 0 --reopen 1.0` ·
+`node coloringbook/judge/_dr12leaf.mjs`
+
 ## v1.101.0 — 2026-08-26
 
 **Two of the dime's seven oak leaves were aimed into bare field on both

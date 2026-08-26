@@ -5836,8 +5836,14 @@ function torch(p) {
     ' C .8 -1.2 1.6 -.9 1.6 -.2 C 1.6 .9 1 1.9 0 2.45 Z' +
     ' M -2.1 -1.15 C -2.1 -2.15 -1.1 -2.6 0 -2.6 C 1.1 -2.6 2.1 -2.15 2.1 -1.15' +
     ' C 2.1 -.55 1.1 -.35 0 -.35 C -1.1 -.35 -2.1 -.55 -2.1 -1.15 Z';
-  const acorn = (x, y, rot, s) =>
-    `<g transform="translate(${n2(x)} ${n2(y)}) rotate(${n1(rot)}) scale(${n2(s)})">`
+  // TWO SCALES, NOT ONE (round 35). `sw` is ACROSS the acorn's axis, `sl` is
+  // ALONG it — the local frame, because `scale` follows `rotate`. It was one
+  // uniform `s`, and a uniform scale cannot fix the error the fit below found:
+  // the coin's acorn is very nearly ROUND (len/wid 1.04 on proofbright, 1.03
+  // on unc2005) and ours was an oval at 1.20. `leaf()` above already takes its
+  // two extents separately for the same reason.
+  const acorn = (x, y, rot, sw, sl) =>
+    `<g transform="translate(${n2(x)} ${n2(y)}) rotate(${n1(rot)}) scale(${n2(sw)} ${n2(sl)})">`
     + `<path d="${ACORN}"/></g>`;
   const branch = (mirror) => {
     const f = mirror ? -1 : 1;
@@ -6093,6 +6099,66 @@ function torch(p) {
     // chosen on the picture, and the number is only what stops it being wrong
     // by more than the references disagree.
     //
+    // ⚠️ 75 IS SUPERSEDED BY 59 (round 35), AND THE POSITION IS NOT TOUCHED.
+    // A BOX CANNOT DECIDE AN ANGLE; A PRINCIPAL AXIS CAN, AND THE TWO
+    // REFERENCES AGREE ON IT TO 1.1 DEGREES.
+    //
+    // Round 28 measured an axis-aligned BOUNDING BOX, which is why 70..90 all
+    // fitted: the box of a near-round object barely changes when you turn it.
+    // This round isolated the acorn as an OBJECT instead — erode the erode-0
+    // mask by 0.55 (the smallest erosion at which the acorn separates on BOTH
+    // files), take the component nearest (58.9, 57.5), dilate back by 0.55 and
+    // intersect with the erode-0 mask. That is a morphological opening: it
+    // drops the thin bridges that merge the acorn into the leaf and the stalk
+    // at zero erosion, and keeps the object at its true un-eroded extent.
+    //
+    // The opened object still carries a ~1.4-unit thin STALK STUB off its
+    // upper-right end, so the stub is stripped (slices across the axis
+    // narrower than half the widest, walked in from that end, refit until
+    // stable) and what is left is the acorn BODY:
+    //
+    //     proofbright   len 5.00 x wid 4.80   axis 30.2 deg   area 18.06
+    //     unc2005       len 4.87 x wid 4.72   axis 31.3 deg   area 16.77
+    //     as shipped    len 5.07 x wid 4.22   axis 15.1 deg   area 14.67
+    //
+    // The two photographs agree to 1.1 degrees on the axis, 0.13 on the
+    // length and 0.08 on the width — tighter than they agree on anything else
+    // on this branch — and the drawing was 15.6 degrees off it. That is the
+    // new measured quantity the convergence test asks for; without it this
+    // would have been re-tuning, and 75 would have had to stand.
+    //
+    // THE ANGLE IS ALSO WHERE THE STALK LEAVES, which is the one thing that
+    // makes an acorn an acorn. Centroid to the far end of the stub: 32.0 deg
+    // up and outboard on proofbright, 33.7 on unc2005. Round 28's reading —
+    // "the stalk enters ABOVE the horizontal" — was right, and 15 degrees was
+    // simply not enough of it. 59 is not a reversal of that judgement; it is
+    // the same judgement with a number under it. `rot` is degrees clockwise,
+    // so the drawn axis sits at 90 - rot = 31 degrees.
+    //
+    // AND THE SHAPE IS ROUNDER THAN OURS. len/wid is 1.04 and 1.03 on the two
+    // references against 1.20 as drawn, so `sw` widens ACROSS the axis (1.13)
+    // while `sl` leaves the length alone (0.98). Emitted, that reads len 4.97
+    // x wid 4.77, axis 31.3 deg, area 16.24 — inside the two references'
+    // spread on all three, area 7% under (our outline is the union of two
+    // ovals and is a little less full than the coin's single swollen one).
+    //
+    // WHAT WAS REJECTED, WITH THE NUMBER. The unconstrained best overlap is
+    // rot 54, sw 1.16, sl 1.14 at mean IoU 0.712 against 0.667 for the values
+    // below. It is not taken: it draws len 5.77 x wid 4.89 at 35.9 degrees,
+    // OUTSIDE both references on all three measurements, because IoU is scored
+    // against a target that still includes the stalk stub we deliberately do
+    // not draw, and the only way to cover a stub is to grow past the body.
+    // Matching three quantities the references agree on beats maximising one
+    // score against a target we know is contaminated.
+    //
+    // AND WHAT `FILL exclusive` ON THIS ELEMENT CANNOT MEAN. `WINDOWS.acorn`
+    // is 11 x 11 units around a 5-unit object. Of its 47.25 sq unit exclusive
+    // target on proofbright, only 20.57 is acorn: 9.54 is the torch shaft's
+    // edge at x 54.00..55.35, 8.45 is a row of E PLURIBUS UNUM clipped by the
+    // window's bottom at y 61.70..63.00, and 5.01 is oak in the top right
+    // corner. A PERFECT acorn tops out at 43.5 % there, and at 48.2 % on
+    // unc2005 (18.79 of 38.98). Read FILL against those ceilings or not at all.
+    //
     // ONE THING SEEN AT 60 px PER UNIT AND DELIBERATELY NOT DRAWN (round 34):
     // on both references the acorn hangs on a short STALK curving up and
     // outboard to the branch, at offset ~12-15 and y ~55.5-56.5, and ours
@@ -6104,7 +6170,22 @@ function torch(p) {
     // unc2005 does not carry it at all. Drawing a bridge where one reference
     // shows a gap and the other shows nothing risks merging the one object on
     // this face that has been broken three times. Recorded, not drawn.
-    if (!mirror) g += acorn(x(8.8), 57.7, 75, 1.0);
+    //
+    // ONE CORRECTION TO THAT NOTE, AND THE REFUSAL STILL STANDS (round 35).
+    // Round 34 was looking at the WRONG COMPONENT. (14.62, 56.77) is the
+    // OUTBOARD half of the stalk, the piece that runs on to the branch; there
+    // is a nearer piece it did not separate, a ~1.4-unit STUB attached to the
+    // acorn's own upper-right end, and that stub is present on BOTH files
+    // (proofbright to (62.96, 54.94), unc2005 to (61.27, 55.99)) rather than
+    // on one. So "unc2005 does not carry it at all" is wrong about the stub.
+    // It is still not drawn, and the stub's own coordinates are why: on
+    // proofbright it ends at (62.96, 54.94), which is INSIDE the bounding box
+    // of the lowest oak blade (node 2.1.6, x 52.8..64.1, y 45.8..55.5). A
+    // drawn stalk to there runs into that blade, and merging into that blade
+    // is what has broken this object twice. Our acorn stops at y 54.90.
+    // The stub's own direction is not wasted evidence — it is what sets `rot`
+    // above. Recorded, measured, and still not drawn.
+    if (!mirror) g += acorn(x(8.8), 57.7, 59, 1.13, 0.98);
     return `${stem(x)}${g}`;
   };
   // THE SHAFT TAPERS, AND IT WAS DRAWN AS A RECTANGLE (round 28).
