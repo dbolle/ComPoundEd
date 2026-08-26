@@ -3,6 +3,196 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.101.0 — 2026-08-26
+
+**Two of the dime's seven oak leaves were aimed into bare field on both
+references. Both are fixed — and the fix the previous round published for the
+worse of them turned out to be two leaves pointing at the same piece of coin.**
+
+Sixth element round on this face, and the first to own a leaf's ANGLE and its
+PETIOLE together: `stalkEnd`/`seatOn` both take `L.rot`, so they are one
+quantity, and splitting them is what stopped the last round shipping. The
+byte-identity partition reports `dime.reverse` alone, 6/60 cells, all sizes.
+
+**THE ANGLE COLUMN IN `LADDER` WAS READ OFF THE OLIVE.** Every row of that
+base/tip table came from the coin's olive branch — its own comment quotes "its
+olive blades run 11.3 to 16.7" — and it is mirrored onto the oak, where D11/D12
+already records two places the oak refuses it. So an oak measurement cannot be
+written into `LADDER` without moving a branch nobody measured. New `OAKROT`
+overrides the angle **on the oak only**; the olive's seven transforms are
+byte-identical with and without it, checked by diffing all 66 transforms and
+all 108 paths in the emitted SVG.
+
+**Node 2.1.12 (mid-outboard), `rot` +17 → +35.** Two independent estimators on
+two independent files, and no ink hidden to buy it:
+
+| rot | +17 | +25 | +30 | **+34** | **+35** | +40 | +44 |
+|---|---|---|---|---|---|---|---|
+| OUTSIDE proofbright | 30.91 % | 16.86 | 10.34 | **8.57** | **8.54** | 10.01 | 10.24 |
+| OUTSIDE unc2005 | 37.50 % | 17.75 | 7.96 | **4.50** | **4.74** | 8.37 | 11.15 |
+
+Both files minimise at +34/+35, and this blade's overlap with the other six
+leaves, the torch and the legends is **0.0 % at every angle from +10 to +50**
+(0.2 % at +5 and 0.5 % at +55, the two ends of the sweep) —
+so the fall is ink moving onto the coin's device, not under a neighbour. The
+second estimator is the PCA of the coin's own isolated component at (76.9,
+41.4), principal axis **+44°** (ledger D28). +35 costs 0.03 and 0.24 points
+against the containment optimum and leans the difference toward the PCA.
+
+**Node 2.1.14 (mid-inboard), `rot` +45 → +60, and the published side-flip is
+REFUTED.** The candidate was a flip to outboard +25 on an OUTSIDE of 8.92 /
+6.87. Both numbers reproduce — and 2.1.12's base is 1.7 units *below* it on
+the other side, so at +35 the two tips land 0.5 units apart:
+
+| 2.1.12 at | 2.1.14 out +25 shares, with the other six |
+|---|---|
+| its shipped +17 | 42.7 % |
+| **the coin's +35** | **83.8 %** |
+
+83.8 % is not a leaf, it is a highlight on 2.1.12. The two fixes the previous
+round published are mutually exclusive.
+
+**A NEW MEASUREMENT SAYS WHY, AND IT IS NOT THE ANGLE (ledger D33).** The
+oak's inboard foliage column is **3.3–9.5 units deep** (`_dr15oakleaf.mjs
+depth`, new), with a **waist at y 39–41** where both files fall to 3.9–5.4;
+this node is drawn **13.42** long into it. The inboard sweep therefore has no
+optimum — from +45 to +90 OUTSIDE falls 57.87 → 4.98 while overlap rises 5.2 →
+62.3 % in step. The angle is taken from a **bound**, not the curve: +60 is the
+shallowest whose tip clears the coin's own inboard edge (16.45 − 13.42 cos 60 =
+9.74 at y 34.06, against an edge at 9.4 / 8.5). It takes **57.87 / 52.86 →
+34.93 / 25.15**, and the third of the blade still in the channel is REACH,
+which is measured and settled and not this round's to spend.
+
+**Seven leaves, before → after, and the two petioles that moved with them:**
+
+| node | leaf | pb e0+fork | unc e0 | on other leaves |
+|---|---|---|---|---|
+| 2.1.6 | foot-inboard | 26.60 % | 16.71 % | 13.1 % |
+| 2.1.8 | foot-outboard | 4.99 % | 11.85 % | 0.0 % |
+| 2.1.10 | low-inboard | 18.43 % | 20.56 % | 19.1 → 14.0 % |
+| **2.1.12** | mid-outboard | **30.91 → 8.54 %** | **37.50 → 4.74 %** | 0.0 % |
+| **2.1.14** | mid-inboard | **57.87 → 34.93 %** | **52.86 → 25.15 %** | 5.2 → 6.3 % |
+| 2.1.16 | crown-outboard | 13.36 % | 15.72 % | 57.4 % |
+| 2.1.17 | terminal | 17.99 % | 16.17 % | 43.2 → 48.2 % |
+
+Petioles (`_dr15oakleaf.mjs stalks`, new — the half the last round was told not
+to touch): **2.1.11** pb e0 0.00 → 0.00, unc e1.00 0.00 → 1.39; **2.1.13** pb
+e0 0.00 → 0.00, unc e0 4.45 → 4.27. Both stayed on the coin.
+
+**A third reading agrees, and it is a placement number rather than a
+containment one.** FILL as a fraction of its own CEILING — the best that glyph
+could do anywhere in its window — moved furthest on exactly the two nodes that
+changed. The windows for 2.1.12 and 2.1.14 are drawn round **both** candidate
+directions (the rule `winOf` already used for 2.1.8), so they cannot have been
+fitted to the new drawing:
+
+| node | FILL/ceiling pb | FILL/ceiling unc |
+|---|---|---|
+| 2.1.6 | 79 → 79 % | 69 → 69 % |
+| 2.1.8 | 95 → 95 % | 81 → 81 % |
+| 2.1.10 | 85 → 81 % | 65 → 65 % |
+| **2.1.12** | **65 → 97 %** | **53 → 98 %** |
+| **2.1.14** | **50 → 85 %** | **32 → 89 %** |
+| 2.1.16 | 33 → 36 % | 35 → 37 % |
+| 2.1.17 | 65 → 69 % | 62 → 62 % |
+
+**Published regressions (R2):** 2.1.14's own overlap 5.2 → 6.3 %, and the
+terminal's 43.2 → 48.2 % because the steepened blade nests against it. The
+pairwise table trades one contact for another and gains none — 2.1.10/2.1.14 at
+5.2 % is gone, 2.1.14/2.1.17 at 6.3 % takes its place.
+
+**Refused, with the number: 2.1.6's height.** Its diagnosis is confirmed — the
+blade hangs into the bare band above the acorn — and it is a node height, as
+suspected. But every height that improves it buries it under 2.1.10: ay 56.96
+(shipped) 26.60/16.71 at 13.1 % overlap; 55 → 4.23/0.91 at **35.7 %**; 54 →
+2.75/2.52 at **50.2 %**; 51 → 21.58/24.83 at **95.3 %**. That is D11/D12's own
+refusal arriving from the other direction with the number on it.
+
+**What could not be determined:** whether the oak has an isolated blade at
+2.1.14's node on any file. The erosion ladder resolves the inboard mass into
+one near-circular cluster (16.4 × 15.2 on proofbright, aspect 1.08) whose axis
+means nothing, so that node has exactly one estimator and it is monotone.
+
+**The obvious depth estimator is wrong and is recorded as the thing that
+failed.** "Walk inboard from `stemC(y)` until the first gap" returns the
+**stem's own half-width**, 1.0 row after row, because the blades hang on
+petioles with bare field in the gap — the finding `PTILT` is built on.
+
+## v1.101.0 — 2026-08-26
+
+**The two published oak fixes were mutually exclusive, and the angle table
+belonged to the olive.**
+
+`LADDER`'s angle column was read off the **olive** branch — its own comment
+quotes *"its olive blades run 11.3 to 16.7"* — and mirrored onto the oak. So
+neither queued fix could be applied without moving the olive. A new `OAKROT`
+overrides the angle **on the oak only**; verified by diffing the emitted SVG,
+**exactly 2 transforms and 2 paths differ** (×3 relief copies) and the olive is
+byte-identical. Judge-confirmed independently: of ~20 branch nodes, the four
+that moved are leaves `2.1.12`/`2.1.14` and their two petioles, **zero olive
+nodes**.
+
+**`2.1.12` +17 → +35 stands**, on two estimators. Sweep on both files —
++17 30.91/37.50 · +25 16.86/17.75 · +30 10.34/7.96 · **+34 8.57/4.50** ·
++35 8.54/4.74 · +40 10.01/8.37 — both minimise together, and overlap with every
+other element is **0.0 % from +10° to +50°**, so the fall is ink moving *onto*
+device rather than under a neighbour. The coin's isolated component at
+(76.9, 41.4) has PCA axis **+44°**; +35 was taken as the compromise.
+
+**The `2.1.14` side-flip is REFUSED, and this is the round's best catch.**
+Outboard +25 does read 8.92/6.87 — the number reproduces. But `2.1.12`'s base
+sits 1.7 units below it on the other side, so once `2.1.12` is at the coin's
++35 the two tips land **0.5 units apart**:
+
+| with `2.1.12` at | `2.1.14` outboard +25 shares with the other six |
+|---|---|
+| its shipped +17 | 42.7 % |
+| **the coin's +35** | **83.8 %** |
+
+**83.8 % is not a leaf, it is a highlight on 2.1.12.** The previous round never
+had both changes in the same render — it fell into the exact trap it had itself
+measured and warned about. `2.1.14` instead goes to **+60 inboard**
+(57.87 → 34.93 pb, 52.86 → 25.15 unc).
+
+**New measurement (D33): the oak's inboard column.** Depth from `stemC(y)`,
+erode 0, and **not one of the 22 readings over y 32–42 is clamped**:
+
+```
+y     32  33  34  35  36  37  38  39  40  41  42
+pb   3.3 7.0 7.1 6.7 6.4 6.5 5.5 4.5 3.9 4.5 6.2
+unc  4.0 7.3 8.0 7.9 7.0 7.5 7.0 5.4 5.1 5.0 5.5
+```
+
+Waist at y 39–41, and `2.1.14` is drawn **13.42 long into it** — which is why
+its inboard sweep has **no optimum**: +45 → +90 takes OUTSIDE 57.87 → 4.98
+while overlap rises 5.2 → 62.3 % in step. **+60 therefore comes from a bound,
+not a curve**, and is labelled as such: the shallowest angle whose tip clears
+the coin's own edge. A third of the blade is still in the channel, and that
+residue is *reach*, which is settled.
+
+The same walk on the olive is a **third independent line of D11/D12 evidence**:
+over y 37–45 the olive's inboard column is *clamped* (> 9.5) where the oak's
+reads 3.9–7.5 unclamped.
+
+**`2.1.6` is confirmed as a node height, not an angle — and refused anyway.**
+Every height that improves the number buries the leaf: `ay` 56.96 → 55 / 54 / 53
+/ 51 takes OUTSIDE 26.60 → 4.23 → 2.75 → 6.65 → 21.58 while overlap with
+`2.1.10` runs **13.1 → 35.7 → 50.2 → 66.2 → 95.3 %**.
+
+**Corroboration, on windows drawn round *both* candidate directions so they
+cannot be fitted to the new drawing:** FILL/ceiling `2.1.12` 65 → **97 %** pb and
+53 → **98 %** unc; `2.1.14` 50 → **85 %** and 32 → **89 %**. The five unchanged
+leaves read 79/95/81/36/69 against 79/95/85/33/65.
+
+**Regressions published (R2):** `2.1.14`'s own overlap 5.2 → 6.3 %, terminal
+43.2 → 48.2 %. The pairwise table trades one contact for another and gains none.
+
+**Could not determine:** whether the oak has an isolated blade at `2.1.14`'s
+node on **any** file — the erosion ladder resolves that inboard mass into one
+near-circular cluster (16.4 × 15.2, aspect 1.08) whose axis means nothing. That
+node has exactly one estimator, and it is monotone. Which is precisely why its
+angle rests on a bound.
+
 ## v1.100.0 — 2026-08-25
 
 **The dime reverse's torch shaft is one straight taper, and we drew it at

@@ -60,8 +60,11 @@ const LEAVES = [
   { id: '2.1.6', i: 0, ay: 56.96, rot: 38, side: 'in', name: 'foot-inboard' },
   { id: '2.1.8', i: 1, ay: 51.23, rot: -13, side: 'out', name: 'foot-outboard' },
   { id: '2.1.10', i: 2, ay: 50.38, rot: 33, side: 'in', name: 'low-inboard' },
-  { id: '2.1.12', i: 3, ay: 47.37, rot: 17, side: 'out', name: 'mid-outboard' },
-  { id: '2.1.14', i: 4, ay: 45.68, rot: 45, side: 'in', name: 'mid-inboard' },
+  // rot 17 -> 35 with v1.101.0's `OAKROT`; `selftest` is the gate that this
+  // table still reproduces the art, and `winOf` keeps BOTH directions so the
+  // FILL numbers published on either side of that change stay comparable.
+  { id: '2.1.12', i: 3, ay: 47.37, rot: 35, side: 'out', name: 'mid-outboard' },
+  { id: '2.1.14', i: 4, ay: 45.68, rot: 60, side: 'in', name: 'mid-inboard' },
   { id: '2.1.16', i: 5, ay: 40.51, rot: 72, side: 'out', name: 'crown-outboard' },
   { id: '2.1.17', i: 6, ay: 40.04, rot: 86, side: 'in', name: 'terminal' },
 ];
@@ -96,7 +99,8 @@ function winOf(L) {
   const ax = STEMC(L.ay);
   const dir = L.side === 'out' ? 1 : -1;
   const pts = [[ax, L.ay]];
-  const angles = L.id === '2.1.8' ? [-13, 28] : [L.rot];
+  const angles = L.id === '2.1.8' ? [-13, 28] : L.id === '2.1.12' ? [17, 35]
+    : L.id === '2.1.14' ? [45, 60] : [L.rot];
   for (const a of angles) {
     const r = (a * Math.PI) / 180;
     pts.push([ax + dir * reach * Math.cos(r), L.ay - reach * Math.sin(r)]);
@@ -287,6 +291,72 @@ async function overlapsOf(ink, selfId) {
 }
 
 const mode = process.argv[2] || 'outside';
+
+// ── THE PETIOLES, WHICH ARE PART OF THE SAME QUANTITY AS THE ANGLE.
+//
+// `branch()` emits each lateral as a `stalk()` then its blade, so the six
+// petioles are the ODD nodes between the leaves (the terminal is sessile —
+// `ped` is 0 and no stalk is drawn for it). `stalkEnd`/`seatOn` both take
+// `L.rot`, so a leaf's petiole swings with its blade: any round that changes an
+// angle and quotes only the blade has measured half of what it moved. This runs
+// the identical OUTSIDE computation over the petiole nodes so the other half is
+// on the record.
+const STALKS = [
+  { id: '2.1.5', of: '2.1.6', name: 'foot-inboard' },
+  { id: '2.1.7', of: '2.1.8', name: 'foot-outboard' },
+  { id: '2.1.9', of: '2.1.10', name: 'low-inboard' },
+  { id: '2.1.11', of: '2.1.12', name: 'mid-outboard' },
+  { id: '2.1.13', of: '2.1.14', name: 'mid-inboard' },
+  { id: '2.1.15', of: '2.1.16', name: 'crown-outboard' },
+];
+if (mode === 'stalks') {
+  console.log('OUTSIDE, THE SIX PETIOLES. Same masks, same columns as `outside`.\n');
+  console.log('                             |------- proofbright -------|-------- unc2005 --------|');
+  console.log('           node        ink   | e0.55   e0.00  e0.00+fork | e1.00   e0.00  e0.00+fork'
+    + ' | on legend  on torch  on leaf');
+  console.log('  ' + '-'.repeat(122));
+  for (const S of STALKS) {
+    const ink = await inkFor(S.id);
+    const n = area(ink);
+    const cell = [];
+    for (const [ref, cases] of [['proofbright', [[0.55, 0], [0, 0], [0, 1.0]]],
+      ['unc2005', [[1.00, 0], [0, 0], [0, 1.0]]]]) {
+      for (const [e, rp] of cases) {
+        const m = await maskFor(ref, e, rp);
+        let o = 0;
+        for (let k = 0; k < MW * MH; k++) if (ink[k] && !m[k]) o++;
+        cell.push(100 * o / n);
+      }
+    }
+    const ov = await overlapsOf(ink, S.id);
+    console.log(`  ${S.id.padStart(7)} ${S.name.padEnd(15)} ${U(n).padStart(6)} |`
+      + cell.map((c, q) => `${c.toFixed(2).padStart(6)}%${q === 2 ? ' |' : ''}`).join('')
+      + ` |${ov.legend.toFixed(1).padStart(8)}%${ov.torch.toFixed(1).padStart(9)}%${ov.oakleaf.toFixed(1).padStart(8)}%`);
+  }
+  console.log('\n  A petiole is ~2 sq units against a ~53 sq unit blade, so these move the');
+  console.log('  branch total little; they are quoted because a rotation moves them and a');
+  console.log('  petiole standing in bare field beside its own stem is visible at 40x.');
+  process.exit(0);
+}
+
+// ── EVERY PAIR'S SHARED INK, on the CURRENT art. `pairs` below answers the
+// same question for the shipped seven; this exists so a round that moves two
+// leaves can check whether it has merged them, which the per-leaf OUTSIDE
+// cannot see and which is the one way to "fix" a leaf by hiding it.
+if (mode === 'merge') {
+  const inks = [];
+  for (const L of LEAVES) inks.push([L, await inkFor(L.id)]);
+  console.log('SHARED INK, every pair, as a % of the SMALLER leaf.\n');
+  for (let a = 0; a < inks.length; a++) for (let b = a + 1; b < inks.length; b++) {
+    let sh = 0;
+    const [La, ia] = inks[a], [Lb, ib] = inks[b];
+    for (let k = 0; k < MW * MH; k++) if (ia[k] && ib[k]) sh++;
+    const sm = Math.min(area(ia), area(ib));
+    if (sh) console.log(`  ${La.id.padStart(7)} ${La.name.padEnd(15)} x ${Lb.id.padStart(7)} `
+      + `${Lb.name.padEnd(15)} ${(100 * sh / sm).toFixed(1).padStart(5)}%  ${U(sh)} sq units`);
+  }
+  process.exit(0);
+}
 
 // ── OUTSIDE: of this leaf's own ink, how much lands where the coin has nothing?
 if (mode === 'outside') {
@@ -904,4 +974,67 @@ if (mode === 'rows') {
   process.exit(0);
 }
 
-console.log('usage: node _dr15oakleaf.mjs [outside|fill|panels <idx...>|rows [y0 y1]] [--ref R] [--erode U]');
+// ── DEPTH: how far inboard of its own stem does each branch's foliage reach?
+//
+// This is the quantity an INBOARD blade has to fit inside, and no instrument on
+// this face had it. `rows` prints the runs and leaves the reader to subtract the
+// torch by eye; `probe` says an inboard blade's ink is in bare field but not how
+// much room there was. Both were used to argue about ANGLE when the binding
+// constraint may be LENGTH.
+//
+// ⚠️ THE OBVIOUS ESTIMATOR IS WRONG AND IS RECORDED HERE AS THE THING THAT
+// FAILED. "Start at `stemC(y)` and walk inboard through device until the first
+// gap" looks threshold-free, but on both files it returns 1.0 for row after row
+// of the olive — because it is measuring THE STEM'S OWN HALF-WIDTH. The blades
+// hang on petioles and the mask has bare field between stem and blade, which is
+// the finding the `PTILT` block is built on. The walk stops in that gap.
+//
+// So the run table is used instead, with ONE threshold, and the threshold is
+// justified by a gap in the data rather than chosen: on the oak side the
+// innermost run at every row from y 33 to 45 starts at offset 3.2-6.2 (the
+// torch) and the next starts at 8.1-13.8 (the foliage), with nothing between.
+// Runs starting inboard of 7.0 are therefore the torch and are dropped. Where
+// the two merge into one run that crosses the stem — proofbright y 46-53, which
+// this prints as MERGED rather than as a number — the depth is not measurable on
+// that file at that row, and saying so is the honest output.
+//
+//   node _dr15oakleaf.mjs depth [y0 y1]
+if (mode === 'depth') {
+  const { branchRuns } = await import('./_dr9branch.mjs');
+  const y0 = Number(process.argv[3] ?? 33), y1 = Number(process.argv[4] ?? 58);
+  const TORCH = 7.0;
+  const mpb = await maskFor('proofbright', 0, scoreReopen('proofbright'));
+  const mun = await maskFor('unc2005', 0, scoreReopen('unc2005'));
+  const depth = (m, y, mirror) => {
+    const runs = branchRuns(m, y, mirror).filter((r) => r[1] > TORCH);
+    if (!runs.length) return null;
+    // where the foliage itself runs inboard of TORCH the rule clamps there, so
+    // the number is a FLOOR on those rows and is printed with a leading '>'.
+    const inner = Math.max(runs[0][0], TORCH);
+    const c = STEMC(y);
+    if (runs[0][0] < TORCH && runs[0][1] > c) return NaN; // torch and foliage are one run
+    return [c - inner, runs[0][0] < TORCH];
+  };
+  const f = (v) => (v === null ? '    —' : Number.isNaN(v) ? ' MERG'
+    : `${v[1] ? '>' : ' '}${v[0].toFixed(1).padStart(4)}`);
+  console.log('INBOARD DEPTH of each branch\'s foliage, from the stem centreline `stemC(y)`');
+  console.log('to the innermost non-torch device on that row. erode 0, units.\n');
+  console.log('     y  |   OAK pb  OAK un  |  OLIVE pb  OLIVE un');
+  const acc = { o: [], v: [] };
+  for (let y = y0; y <= y1; y += 1) {
+    const r = [depth(mpb, y, false), depth(mun, y, false), depth(mpb, y, true), depth(mun, y, true)];
+    for (let q = 0; q < 4; q++) if (Array.isArray(r[q])) acc[q < 2 ? 'o' : 'v'].push(r[q][0]);
+    console.log(`   ${y.toFixed(0).padStart(4)} |   ${f(r[0])}   ${f(r[1])}  |     ${f(r[2])}      ${f(r[3])}`);
+  }
+  const st = (a) => `${a.length} rows: min ${Math.min(...a).toFixed(1)}  mean `
+    + `${(a.reduce((s, v) => s + v, 0) / a.length).toFixed(1)}  max ${Math.max(...a).toFixed(1)}`;
+  console.log(`\n  OAK    ${st(acc.o)}`);
+  console.log(`  OLIVE  ${st(acc.v)}`);
+  console.log('\n  A leading ">" is the threshold, not a reading: the foliage runs inboard of');
+  console.log('  offset 7.0 on that row and the rule clamps there, so the value is a FLOOR.');
+  console.log('  An inboard blade has to live inside this column. `reach` is `ped + blade`');
+  console.log('  and the shipped line asks 13.1-15.9 at the four inboard nodes.');
+  process.exit(0);
+}
+
+console.log('usage: node _dr15oakleaf.mjs [outside|stalks|merge|fill|depth|panels <idx...>|rows [y0 y1]] [--ref R] [--erode U]');

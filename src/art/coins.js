@@ -5019,11 +5019,90 @@ function torch(p) {
     [57.5, 38, 0], [51.4, -13, 0], [50.5, 33, 0], [47.3, 17, 0], [45.5, 45, 0],
     [40.0, 72, 0], [39.5, 86, 1],
   ];
-  const leafAt = (i, n) => {
+  // ⚠️ AND THE ANGLE COLUMN ABOVE IS THE OLIVE'S — every row of that base/tip
+  // table was read off the coin's OLIVE branch, which is why its length column
+  // is quoted as "its olive blades run 11.3 to 16.7". It is MIRRORED onto the
+  // oak, and D11/D12 above already records two places where the oak refuses it.
+  // So a measurement taken on the OAK cannot be written into `LADDER` — that
+  // would move the olive, which nothing here has measured — and it gets its own
+  // column instead. `OAKROT[row]` overrides the angle on the OAK ONLY; the
+  // olive's seven transforms are byte-identical with and without it.
+  //
+  //   ROW 4 (ay 47.3, outboard, the mid-outboard blade) — LADDER says +17,
+  //   the coin says +35. TWO INDEPENDENT ESTIMATORS ON TWO INDEPENDENT FILES,
+  //   and they are the strongest pair of numbers this branch has:
+  //
+  //     · CONTAINMENT (`_dr15oakleaf.mjs sweep 2.1.12 rot`, OUTSIDE at erode 0,
+  //       proofbright with the fork reopened / unc2005 without):
+  //
+  //           rot     +17     +25     +30     +34     +35     +40     +44
+  //           pb    30.91   16.86   10.34    8.57    8.54   10.01   10.24
+  //           unc   37.50   17.75    7.96    4.50    4.74    8.37   11.15
+  //
+  //       Both files put the minimum at +34/+35 and the two curves agree over
+  //       the whole sweep. NOTHING IS HIDDEN TO BUY IT: this blade's overlap
+  //       with the other six leaves, with the torch and with the legend is
+  //       0.0 % at every angle from +10 to +50 (0.2 % at +5, 0.5 % at +55, the
+  //       two ends of the sweep), so the fall from 30.91/37.50 to
+  //       8.54/4.74 is ink moving ONTO the coin's device, not under a
+  //       neighbour. That test is the one the previous round asked for.
+  //     · PCA of the coin's own isolated component at (76.9, 41.4), separated
+  //       at erode 0.8 and stable to 0.1 units through erode 2.4: principal
+  //       axis +44°. Recorded in D11's block above.
+  //
+  //   +35 is taken rather than the containment optimum +34 because it costs
+  //   0.03 and 0.24 points against it and leans the 10° toward the PCA. The
+  //   basin is flat — +32 to +40 spans 8.6-10.0 on pb — so this is one node's
+  //   worth of precision and not more.
+  //
+  //   ROW 5 (ay 45.5, inboard, the mid-inboard blade) — LADDER says +45, which
+  //   made it the WORST leaf on the branch at OUTSIDE 57.87 / 52.86. The
+  //   published candidate for it was a SIDE-FLIP to outboard +25, and that
+  //   candidate is REFUTED below. What it is changed to instead, +60, comes
+  //   from a quantity nothing on this face had measured:
+  //
+  //   THE OAK'S INBOARD FOLIAGE COLUMN IS 3.3 TO 9.5 UNITS DEEP
+  //   (`_dr15oakleaf.mjs depth`, erode 0, the innermost non-torch device on
+  //   each row less `stemC(y)`; the y 46-53 rows print MERGED because the
+  //   torch and the foliage are one run there and the depth is not measurable
+  //   on that file at that row):
+  //
+  //       y      32  33  34  35  36  37  38  39  40  41  42  43  44  45
+  //       pb    3.3 7.0 7.1 6.7 6.4 6.5 5.5 4.5 3.9 4.5 6.2 9.5 9.5 9.5
+  //       unc   4.0 7.3 8.0 7.9 7.0 7.5 7.0 5.4 5.1 5.0 5.5 7.2 9.5 9.5
+  //
+  //   with a WAIST at y 39-41 where both files fall to 3.9-5.4. THE 9.5s ARE
+  //   THE THRESHOLD, NOT A READING: where the foliage runs inboard of offset
+  //   7.0 the rule clamps there, so those rows are a FLOOR (at proofbright's
+  //   y 44 the true inner edge is 6.6, i.e. 9.9) and the instrument prints them
+  //   with a leading '>'. THE ARGUMENT RESTS ON y 32-42, WHERE NOT ONE OF THE
+  //   TWENTY-TWO READINGS IS CLAMPED: 3.3 to 8.0 on both files, against a blade
+  //   drawn 13.42 from the stem.
+  //
+  //   AND THE SAME WALK ON THE OLIVE IS THE OTHER HALF OF D11/D12, arriving
+  //   from a third direction: over y 37-45 the olive's inboard column is
+  //   CLAMPED on both files (> 9.5, i.e. its foliage runs inboard of offset
+  //   7.0) where the oak's reads 3.9-7.5 unclamped. The two branches are not
+  //   the same shape inboard, which is exactly why `OAKROT` has to exist.
+  //   Row 5's base
+  //   is at (16.45, 45.68) and its measured reach is 13.42, so at +45 its tip
+  //   is 9.5 units inboard at y 36.2 and its own probe finds its outside ink is
+  //   ALL in one place: 30.50 sq units in proofbright's INTERIOR GAP and 25.85
+  //   INBOARD on unc2005, at offsets 5.9-11.5 over y 35.5-42 — the bare channel
+  //   between the torch and the column's inboard edge. Both files, one fault.
+  //
+  //   +60 is the shallowest angle whose TIP clears that edge: 16.45 −
+  //   13.42 cos 60 = 9.74 at y 34.06, where the coin's own edge is at 9.4 (pb)
+  //   and 8.5 (unc). Shallower and the tip is in the channel; steeper and it
+  //   climbs into the crown pair, which is already one object (D30). It is a
+  //   BOUND plus a monotone cost, not an optimum — see the refusal below.
+  const OAKROT = { 3: 35, 4: 60 };
+  const leafAt = (i, n, mirror) => {
     // `n` is 7 at every size the app draws. The 5-leaf form survives only for
     // the icon block below, which v1.78.0 made unreachable; it samples the
     // same seven rows rather than inventing a second ladder.
-    const r = LADDER[n === LADDER.length ? i : Math.round((i * (LADDER.length - 1)) / (n - 1))];
+    const row = n === LADDER.length ? i : Math.round((i * (LADDER.length - 1)) / (n - 1));
+    const r = LADDER[row];
     // ONE LENGTH PER PLANT overshoots the measured 29.5-unit span at BOTH
     // ends, because the coin's own blades run 11.3 to 16.7 and its short ones
     // are the ones at the top and bottom of the ladder. The bases are drawn 6%
@@ -5037,7 +5116,8 @@ function torch(p) {
     // two move 0.86, which is the whole of what "attach it to the branch"
     // means here.
     const ay = n2(48.5 + (r[0] - 48.5) * 0.94);
-    return { ay, ax: n2(stemC(ay)), rot: r[1], end: r[2] === 1, out: i % 2 === 1 };
+    const rot = mirror ? r[1] : (OAKROT[row] ?? r[1]);
+    return { ay, ax: n2(stemC(ay)), rot, end: r[2] === 1, out: i % 2 === 1 };
   };
   // A blade's BASE is on the stem; the glyph is drawn about its own CENTRE, so
   // the centre is half a blade-length out along the direction the leaf leaves
@@ -5585,6 +5665,34 @@ function torch(p) {
   // 12.9..15.7 (the stem). The coin's own inboard blade in that neighbourhood
   // is 4 to 5 units HIGHER, at y 44..50. Its fix is `ay`, which is the ladder.
   //
+  // ⚠️ THE TABLE ABOVE IS THE STATE BEFORE v1.101.0 AND IS KEPT AS THE BEFORE
+  // COLUMN. Two of the seven moved; nothing else on the face did. AFTER, same
+  // instrument, same masks, same process (`_dr15oakleaf.mjs outside`):
+  //
+  //     node          leaf         pb e0+fork      unc e0        on other leaves
+  //     2.1.6   foot-inboard      26.60  26.60   16.71  16.71    13.1 -> 13.1
+  //     2.1.8   foot-outboard      4.99   4.99   11.85  11.85     0.0 ->  0.0
+  //     2.1.10  low-inboard       18.43  18.43   20.56  20.56    19.1 -> 14.0
+  //     2.1.12  mid-outboard      30.91 → 8.54   37.50 → 4.74     0.0 ->  0.0
+  //     2.1.14  mid-inboard       57.87 →34.93   52.86 →25.15     5.2 ->  6.3
+  //     2.1.16  crown-outboard    13.36  13.36   15.72  15.72    57.4 -> 57.4
+  //     2.1.17  terminal          17.99  17.99   16.17  16.17    43.2 -> 48.2
+  //
+  // AND THE PETIOLES MOVED WITH THEM, WHICH IS THE HALF THE PREVIOUS ROUND WAS
+  // TOLD NOT TO TOUCH AND SO COULD NOT PUBLISH (`_dr15oakleaf.mjs stalks`, new).
+  // Both stayed on the coin — the two that moved are the only two that could:
+  //
+  //     2.1.11 mid-outboard  pb e0 0.00 -> 0.00 (+fork 12.65 -> 7.38)
+  //                          unc e0 0.00 -> 0.00, unc e1.00 0.00 -> 1.39
+  //     2.1.13 mid-inboard   pb e0 0.00 -> 0.00,  unc e0 4.45 -> 4.27
+  //
+  // THE TWO REGRESSIONS ARE PUBLISHED (R2). 2.1.14's own overlap with the other
+  // six rises 5.2 -> 6.3 %, and the terminal's rises 43.2 -> 48.2 % because the
+  // steepened blade now nests against it. The pairwise table trades one contact
+  // for another and does not gain one: 2.1.10/2.1.14 at 5.2 % is gone and
+  // 2.1.14/2.1.17 at 6.3 % takes its place; 2.1.6/2.1.10 (14.0 %) and the crown
+  // pair (57.4 %, D30) are untouched.
+  //
   // TWO FAIL, AND THEY FAIL ON BOTH FILES, WHICH IS WHAT MAKES THEM REAL:
   //
   //   · 2.1.14 (mid-inboard) puts 57.87 % / 52.86 % of itself in bare field.
@@ -5602,12 +5710,51 @@ function torch(p) {
   //     y 46-47 and this blade spans that notch out to 29.7. See the LADDER
   //     block for the two independent estimators that put its angle at +35..+44.
   //
-  // WHAT WAS TRIED AND REFUSED, WITH THE NUMBER. Every fix that works is a
-  // rotation, and `stalkEnd`/`seatOn` take `L.rot`, so it moves the petiole:
+  // ⚠️ AND ONE OF THOSE TWO PUBLISHED FIXES IS REFUTED. THE SIDE-FLIP IS NOT
+  // SUPPORTED BY THE COIN; IT IS TWO LEAVES POINTING AT THE SAME PIECE OF IT.
   //
-  //     node    shipped rot   best rot   OUTSIDE pb/unc, shipped -> best
-  //     2.1.12      +17        +35        30.91/37.50  ->  8.54/ 4.74
-  //     2.1.14      +45      out +25      57.87/52.86  ->  8.92/ 6.87
+  // The candidate was 2.1.14 (ay 45.68) flipped OUTBOARD at +25, on an OUTSIDE
+  // of 8.92 / 6.87. Both numbers reproduce. But 2.1.12's base is ay 47.37 —
+  // 1.7 units BELOW it on the other side — and at +35 that blade's tip lands at
+  // (27.9, 39.5) while the flipped 2.1.14's lands at (27.5, 40.0). They are the
+  // same blade. Measured rather than argued, as the fraction of the flipped
+  // leaf's ink lying on the other six:
+  //
+  //     2.1.12 at its shipped +17   2.1.14 out +25 shares 42.7 %
+  //     2.1.12 at the coin's +35    2.1.14 out +25 shares 83.8 %
+  //
+  // 83.8 % is not a leaf, it is a highlight on 2.1.12. The two "fixes" the
+  // previous round published are mutually exclusive, and the one with a second
+  // independent estimator behind it (the PCA of an isolated component) is the
+  // one that survives. THIS IS THE SAME TRAP that round measured and warned
+  // about in the paragraph below; it simply did not have the two changes in the
+  // same render to see that its own pair fell into it.
+  //
+  // WHAT IS REFUSED, WITH THE NUMBER:
+  //
+  //   · 2.1.14 OUTBOARD — refuted above, 83.8 % shared.
+  //   · 2.1.14 further INBOARD than +60 — the sweep has NO OPTIMUM. From +45 to
+  //     +90 OUTSIDE falls 57.87 -> 4.98 (pb) and the overlap with the other six
+  //     rises 5.2 -> 62.3 % in step; +65 buys 25.53 for 15.3 %, +75 buys 11.73
+  //     for 38.9 %. A monotone trade is not a measurement, so the angle is taken
+  //     from the BOUND (the inboard depth table in the `OAKROT` block) and not
+  //     from the curve. Even at +60 a third of the blade is in the channel, and
+  //     that residue is REACH, not angle: this node is drawn 13.42 long into a
+  //     column the coin makes 3.9-9.5 deep. Reach is measured and settled
+  //     (`reach = ped + blade`, above), so it is not this round's to spend.
+  //   · 2.1.6's HEIGHT — the diagnosis is confirmed and the change is refused.
+  //     Sweeping `ay` alone: 56.96 (shipped) 26.60/16.71 at 13.1 % overlap;
+  //     55 → 4.23/0.91 at 35.7 %; 54 → 2.75/2.52 at 50.2 %; 53 → 6.65/8.24 at
+  //     66.2 %; 51 → 21.58/24.83 at 95.3 %. EVERY height that improves the
+  //     number buys it by burying the leaf under 2.1.10, whose base is at
+  //     50.38 — which is D11/D12's own refusal ("any reassignment lands them
+  //     within 2 units of each other on the SAME side at similar angles, which
+  //     merges them") arriving from the other direction, with the number on it.
+  //     Rotation does not reach it either: +45 gives 14.91/3.84 at 29.6 %
+  //     overlap, +50 gives 8.27/2.54 at 42.6 %. The oak's inboard column is
+  //     ~20 units tall (y 33 to 53) and four inboard nodes are spread over 39.5
+  //     to 57.5; the fix is a per-node re-authoring of the oak's ladder, which
+  //     is the change D11/D12 refuses for want of a third photograph.
   //
   // Shortening a blade is the one lever that does NOT move a petiole, because
   // `half` moves the glyph's centre while the petiole runs from `L.ax` to a
@@ -5647,6 +5794,28 @@ function torch(p) {
   //     2.1.14   94.26/ 67.14    16.1/12.1     31.9/37.4         50% / 32%
   //     2.1.16   88.09/ 60.46    16.6/19.7     50.5/56.3         33% / 35%
   //     2.1.17   72.75/ 60.30    31.8/32.1     49.1/51.6         65% / 62%
+  //
+  // ⚠️ AND FILL/CEILING — the one thing in that table that IS a placement
+  // number rather than an area one — MOVED FURTHEST ON THE TWO NODES THIS
+  // ROUND CHANGED, which is a third reading and it agrees with the other two.
+  // The windows for 2.1.12 and 2.1.14 are drawn round BOTH candidate directions
+  // (the rule `winOf` already used for 2.1.8), so they cannot have been fitted
+  // to the new drawing; the exclusive targets therefore change and only the
+  // RATIO is comparable across the change:
+  //
+  //     node     FILL/ceiling pb   FILL/ceiling unc
+  //     2.1.6      79% -> 79%        69% -> 69%
+  //     2.1.8      95% -> 95%        81% -> 81%
+  //     2.1.10     85% -> 81%        65% -> 65%
+  //     2.1.12     65% -> 97%        53% -> 98%
+  //     2.1.14     50% -> 85%        32% -> 89%
+  //     2.1.16     33% -> 36%        35% -> 37%
+  //     2.1.17     65% -> 69%        62% -> 62%
+  //
+  // 2.1.12 and 2.1.14 now sit within 2-15 points of the best their own glyph
+  // could do ANYWHERE in their windows. The crown pair still cannot: 2.1.16
+  // reads 36 % of a 60.9 % ceiling, which is D30 again — a leaf whose place is
+  // half-occupied by its own neighbour.
   const oak = (x, y, rot, l, w) =>
     `<g transform="translate(${x} ${y}) rotate(${rot}) `
     + `scale(${n2(l)} ${n2(w)})"><path d="${OAK}"/></g>`;
@@ -5693,7 +5862,7 @@ function torch(p) {
     const K = 1;
     let g = '';
     for (let i = 0; i < leaves; i++) {
-      const L = leafAt(i, leaves);
+      const L = leafAt(i, leaves, mirror);
       // EVERY LEAF ON THIS COIN HANGS OFF A PETIOLE, and drawing them sessile
       // on the stem is what kept the branch one object. On both references the
       // oak's blades stand 2 to 3 units clear of their own stem with open

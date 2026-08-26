@@ -7,6 +7,79 @@ reconsider after calibration.
 
 ## Where we are
 
+- 🟡 **TWO OF THE DIME'S OAK LEAVES ARE NOW IN THE COIN, AND THE FIX THE
+  LAST ROUND PUBLISHED FOR THE WORSE ONE IS REFUTED — IT WAS TWO LEAVES AIMED
+  AT THE SAME PIECE OF COIN.** Sixth element round on this face, and the first
+  to own a leaf's ANGLE and its PETIOLE together. Partition: `dime.reverse`
+  alone, 6/60 cells, all sizes. Version 1.101.0.
+  - **The angle column in `LADDER` is the OLIVE's.** Every row of that base/tip
+    table was read off the olive branch — its own comment says "its olive
+    blades run 11.3 to 16.7" — and it is mirrored onto the oak. New `OAKROT`
+    overrides the angle **on the oak only**; the olive's seven transforms are
+    byte-identical with and without it (all 66 transforms and all 108 paths in
+    the emitted SVG diffed).
+  - **2.1.12 mid-outboard, +17 → +35.** Both files minimise at +34/+35 (pb
+    30.91 → **8.54**, unc 37.50 → **4.74**) and this blade's overlap with the
+    other six, the torch and the legends is **0.0 % at every angle from +10 to
+    +50** (0.2 % at +5, 0.5 % at +55, the sweep's two ends) — the fall is ink
+    moving onto device, not under a neighbour. Second
+    estimator: the PCA of the coin's isolated component at (76.9, 41.4), axis
+    **+44°** (D28).
+    Verify: `node coloringbook/judge/_dr15oakleaf.mjs sweep 2.1.12 rot 30 44 2`
+  - **The 2.1.14 side-flip is REFUTED with a number.** Outboard +25 reads
+    8.92 / 6.87, and both numbers reproduce — but 2.1.12's base is 1.7 units
+    below it on the other side, so at the coin's +35 the two tips land 0.5
+    units apart. The flipped blade shares **83.8 %** of its ink with the other
+    six (42.7 % with 2.1.12 still at +17). The previous round's two fixes are
+    mutually exclusive.
+    Verify: `node coloringbook/judge/_dr15oakleaf.mjs sweep 2.1.14 rot 15 60 5 side=out`
+  - **2.1.14 mid-inboard, +45 → +60, from a BOUND and not from the curve
+    (D33).** New measurement: the oak's inboard foliage column is **3.3–9.5
+    units deep** with a waist at y 39–41 where both files fall to 3.9–5.4, and
+    this node is drawn **13.42** long into it. So the inboard sweep has no
+    optimum — +45 to +90 takes OUTSIDE 57.87 → 4.98 while overlap rises 5.2 →
+    62.3 % in step. +60 is the shallowest angle whose tip clears the coin's own
+    inboard edge (16.45 − 13.42 cos 60 = 9.74 at y 34.06 against 9.4 / 8.5).
+    It takes **57.87 / 52.86 → 34.93 / 25.15**; the third of the blade still in
+    the channel is REACH, which is measured and settled.
+    Verify: `node coloringbook/judge/_dr15oakleaf.mjs depth 32 58`
+  - **The petioles moved and stayed on the coin** — the half the last round was
+    told not to touch, and the reason it shipped nothing. New `stalks` mode:
+    **2.1.11** pb e0 0.00 → 0.00, unc e1.00 0.00 → 1.39; **2.1.13** pb e0
+    0.00 → 0.00, unc e0 4.45 → 4.27.
+    Verify: `node coloringbook/judge/_dr15oakleaf.mjs stalks`
+  - **FILL/CEILING — a placement number, not an area one — moved furthest on
+    exactly the two nodes that changed**, and the windows for both are drawn
+    round BOTH candidate directions (the rule `winOf` already used for 2.1.8)
+    so they cannot have been fitted to the new drawing: **2.1.12 65 → 97 % pb,
+    53 → 98 % unc; 2.1.14 50 → 85 % pb, 32 → 89 % unc.** The five that did not
+    move read 79/95/81/36/69 % against 79/95/85/33/65 %.
+    Verify: `node coloringbook/judge/_dr15oakleaf.mjs fill`
+  - **Regressions, published (R2):** 2.1.14's own overlap 5.2 → 6.3 % and the
+    terminal's 43.2 → 48.2 %, because the steepened blade nests against it. The
+    pairwise table trades one contact for another and gains none —
+    2.1.10/2.1.14 at 5.2 % is gone, 2.1.14/2.1.17 at 6.3 % takes its place.
+    Verify: `node coloringbook/judge/_dr15oakleaf.mjs merge`
+  - **2.1.6's height is REFUSED with the number.** The diagnosis is confirmed
+    and it is a node height, not an angle — but every height that improves it
+    buries it under 2.1.10: ay 56.96 (shipped) 26.60/16.71 at 13.1 % overlap;
+    55 → 4.23/0.91 at **35.7 %**; 54 → 2.75/2.52 at **50.2 %**; 51 →
+    21.58/24.83 at **95.3 %**. Rotation does not reach it either (+45 gives
+    14.91/3.84 at 29.6 %). That is D11/D12's own refusal from the other side.
+    Verify: `node coloringbook/judge/_dr15oakleaf.mjs sweep 2.1.6 ay 50 58 1`
+  - **The obvious depth estimator is wrong and is recorded as the thing that
+    failed.** "Walk inboard from `stemC(y)` until the first gap" returns the
+    **stem's own half-width**, 1.0 row after row, because the blades hang on
+    petioles with bare field in the gap — the finding `PTILT` is built on. The
+    shipped rule uses the run table with one threshold (offset 7.0), justified
+    by a gap in the data: the innermost oak run starts at 3.2–6.2 on every row
+    y 33–45 and the next starts at 8.1–13.8, nothing between. Rows y 46–53
+    print **MERGED**, because the torch and the foliage are one run there.
+  - **Could not determine:** whether the oak has an isolated blade at 2.1.14's
+    node on any file. The erosion ladder resolves the inboard mass into one
+    near-circular cluster (16.4 × 15.2 on proofbright, aspect 1.08) whose axis
+    means nothing, so that node has exactly one estimator and it is monotone.
+
 - 🟡 **FIVE OF THE DIME'S SEVEN OAK LEAVES ARE IN THE COIN; TWO ARE AIMED INTO
   BARE FIELD ON BOTH REFERENCES — AND NEITHER IS THE BLADES' FAULT. THE DRAWING
   IS UNCHANGED, BYTE-IDENTICAL ON ALL THIRTY RENDERED FACES.** Fifth element
@@ -71,6 +144,10 @@ reconsider after calibration.
     `seatOn` take `L.rot`, so both move a petiole: **2.1.12 +17 → +35 takes
     30.91 / 37.50 to 8.54 / 4.74**; **2.1.14 inboard +45 → outboard +25 takes
     57.87 / 52.86 to 8.92 / 6.87.** Petioles get their own round.
+    ⚠️ **SUPERSEDED v1.101.0: the first is applied, the second is REFUTED.**
+    With 2.1.12 at the coin's +35 the flipped 2.1.14 shares **83.8 %** of its
+    ink with the other six — the two tips land 0.5 units apart. See the entry
+    at the top of this section.
   - **The erosion ladder ledger D11/D12 asked for was run and does not deliver
     (D28).** Erode 0 → 2.4 on both files never resolves more than four oak
     components on proofbright or three on unc2005, and they disagree on which.
