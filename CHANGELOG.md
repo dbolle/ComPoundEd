@@ -3,6 +3,137 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.104.0 — 2026-08-26
+
+**The oak's stem now runs up the INBOARD PRONG, the branch has a two-pointed
+foot, and the leaf ladder moved with the branch.** Ninth element round on the
+dime reverse, and the one that finally spends the refusal the last three rounds
+kept writing down. Partition: `dime.reverse` alone, 6/60 cells, all sizes —
+36 tags of 291, every one of them at x ≥ 62.41, so the olive is byte identical.
+D9 unchanged (the reverse has no fitted contour; the authored-turn census is
+identical, 457 over 75° on 107 paths, same six worst). D6 reverse 0.0926 →
+**0.0924** against a 0.50 gate. Suite 464/464.
+
+**THE FAULT, IN ONE LINE.** With the fork reopened, 6.82 of the element's 11.99
+outside sq units — 58 % — was in the six rows y 47..53, where our spike was
+drawn straight down the middle of a gap both photographs agree about. Those six
+rows now carry **0.21**.
+
+| proofbright, erode 0 + reopen 1.0 | y 47 | 48 | 49 | 50 | 51 | 52 | 53 | Σ |
+|---|---|---|---|---|---|---|---|---|
+| before, outside sq units | 0.53 | 0.89 | 0.76 | 1.22 | 1.52 | 1.22 | 0.68 | **6.82** |
+| after | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.05 | 0.16 | **0.21** |
+
+**WHERE THE INBOARD PRONG IS — measured, not taken from the dispatch.** The
+number the last round published (centre 14.2..15.3 over y 48.5..53.5) is the
+midpoint of the fork channel's inboard wall and the nearest bare run inboard of
+the foliage: on proofbright at y 48.5 those are 16.6 and 11.2, so it takes the
+middle of a 5.4-unit mass where the prong is 1.5 wide. It reports the centre of
+prong-plus-leaf. Re-read instead off grey PROFILES across the fork — every 0.1
+unit of offset at every half-row, so a mark's own two dark relief edges are
+visible instead of only the bare field between marks — and each file put in the
+drawing's frame by ITS OWN trunk on the same profiles by the same rule
+(darkest-point to darkest-point): proofbright's trunk is 14.90..17.05 at y 55.5,
+0.18 inboard of `stemC`; unc2005's is 13.80..16.00 at y 56, 1.24 inboard.
+
+| y | 54 | 53 | 52 | 51 | 50 |
+|---|---|---|---|---|---|
+| proofbright | 15.13 | 14.83 | 14.83 | 14.65 | 15.15 |
+| unc2005 | 14.54 | 14.34 | 14.49 | 14.89 | — |
+| **pooled** | 14.84 | 14.59 | 14.66 | 14.77 | 15.15 |
+| drawn | 15.29 | 14.74 | 14.77 | 14.80 | 14.83 |
+
+The prong does not keep diverging: it kicks inboard at the crotch and then runs
+**parallel to the trunk, 1.50 units inboard of it**, which is why `oakC` is a
+clamp and not a lean. Max residual **0.16** over five rows on two files. The
+same profiles put the crotch at y 54.3 (pb) and y 55.1 (unc); 54.7 is drawn.
+The prong is 1.50..1.70 wide against the trunk's 2.15, so it is drawn at the
+outboard prong's own 0.78 half-width. `stemHW` is untouched.
+
+**THE FOOT HAS TWO POINTS.** Read off `_dr17oakfork.mjs crop 60 70 68 80 100`,
+the photographs themselves at 100 px per unit with no mask in the path:
+
+| | heel (outboard point) | barb tip |
+|---|---|---|
+| proofbright | 18.0 at y 70.9 | 13.68 at y 74.8 |
+| unc2005 | 18.1 at y 71.1 | 13.74 at y 75.9 |
+| **pooled** | 18.05 at y 71.0 | 13.71 at y 75.35 |
+| drawn | 17.75 at y 71.0 | 13.55 at y 75.2 |
+
+The heel is drawn 0.30 inside the pooled reading on purpose — a flare fitted
+exactly to two hand-read points is fitted to two points. Foot rows y 73..75 went
+**1.42 → 0.15** outside sq units on proofbright.
+
+**THE LADDER MOVED WITH THE BRANCH, so nothing is stranded.** `leafAt` now
+evaluates the plant's own centreline — `oakC` on the oak, `stemC` on the olive —
+the same one-line per-plant override `OAKROT` already is. Five of the seven oak
+rows sit above the crotch (ay 51.23, 50.38, 47.37, 45.68, 40.51, 40.04) and each
+moved inboard by exactly 1.50 with its blade AND its petiole: in the emitted SVG
+the five `<g transform>` blade groups and the five petiole polygons changed by
+1.50 and nothing else did. **No leaf is detached.** Blade outlines, lengths and
+angles are untouched; this is leaf PLACEMENT, which this round was dispatched
+with permission to break.
+
+| mask | OUTSIDE % | outside sq | FILL raw | FILL excl | exclusive covered | ceiling |
+|---|---|---|---|---|---|---|
+| pb erode 0.55 | 16.52 → 17.32 | 14.42 → 14.89 | 37.98 → 37.02 | 45.70 → 43.57 | 52.99 → 52.27 | 50.1 |
+| pb erode 0 | 3.39 → **2.00** | 2.96 → **1.72** | 34.00 → 33.99 | 40.01 → 39.82 | 63.70 → **64.59** | 45.9 |
+| pb erode 0 + reopen 1.0 | 13.74 → **4.77** | 11.99 → **4.10** | 32.04 → **35.04** | 37.72 → **41.42** | 56.53 → **62.61** | 47.0 |
+| unc erode 1.00 | 59.19 → 62.57 | 51.65 → 53.81 | 26.27 → 23.51 | 30.91 → 27.56 | 24.82 → 22.59 | 35.3 |
+| unc erode 0 | 18.42 → 18.83 | 16.08 → 16.19 | 29.05 → 28.46 | 33.46 → 32.85 | 53.44 → 52.98 | 39.9 |
+
+Ink 87.26 → 86.00 sq units. **FILL % is not comparable across this change and
+the covered column is why**: the leaves moved, so the exclusive target — "mask
+nothing else draws" — moved with them (pb erode 0: 159.21 → 162.21). On the
+reopened proofbright mask the drawing covers **6.1 more sq units of the coin
+while drawing 1.26 fewer**, which is the whole claim. **The ceilings are
+recomputed for the forked branch**: the published CEILING(2) assumed one
+centreline plus a prong; CEILING(3) is a 2.35-wide band about `oakC` over
+y 38.4..69.5, union the drawn foot's medial ± 1.175, union the outboard prong's
+0.78 band. We sit at 88 % of it on the reopened mask, where we sat at 88 % of
+CEILING(2) before — same headroom, higher absolute.
+
+**THE NONZERO TRAP WAS CHECKED, not assumed.** Rasterised at 40 px/unit, the
+element's ink runs across the crotch are single continuous spans on every row
+(y 54.00 `14.40..17.13`, 54.25 `14.67..16.85`, 54.50 `14.97..16.90`, 54.75
+`15.20..17.17`) and split into two only from y 53.75 up. No hole. The
+arithmetic tell also holds: ink fell 1.26 sq units while ink ON the mask ROSE
+6.1, which is only possible if the removed ink was the outside ink.
+
+**PUBLISHED BECAUSE IT REGRESSES (R2).** The two ERODED settings get worse —
+pb 0.55 +0.47 outside sq, unc 1.00 +2.16 — and both are the artefact the round
+was told to score around: `deviceMask()` erodes 0.55 and 1.00 units A SIDE
+against constants calibrated on the 5..10-unit torch shaft, so a 1.56-wide prong
+loses more of itself proportionally than the 1.97-wide spike did. At erode 0,
+where the stripe agrees with the dark-outline estimator, unc is flat (+0.11 sq)
+and proofbright is 66 % better. unc's residual is the registration slip already
+pooled away: its own trunk reads 1.24 units inboard of `stemC`, and the trunk is
+shared with the olive and was not touched.
+
+**REFUSED, WITH THE NUMBER.** (a) **Shortening the prong to y 42.** Rows y 40..42
+carry 1.71 of proofbright's remaining 4.10 outside sq units, where the crown
+closes over and nothing is separable on either file. Cutting there would remove
+~3.5 sq units of ink to buy 0.93 — a percentage bought by drawing less, and it
+would leave the two crown leaves with no stem to sit on. (b) **The small spur
+that points up and inboard off the foot at y 69** (14.25 pb, 14.03 unc): real on
+both files, ~0.5 units long, below what `struck()`'s three passes resolve at any
+tier this face is drawn at, and 0.7 units of ink standing in bare field.
+(c) **Moving `stemC`, `stemHW` or `prongC`.** None of the three changed; the
+olive is byte identical and the outboard prong keeps its own 54.2 crotch.
+
+**WHAT I COULD NOT DETERMINE:** where the inboard prong runs above y 48. Both
+files are solid device from offset 10 to 21 there — the crown closes over the
+branch — so it cannot be separated from the foliage it carries, and the clamp is
+held constant above it and labelled an extrapolation in the source. And whether
+the OLIVE's foot is two-pointed as well: the coin's two branches are one
+mirrored mark everywhere else in this block, so it very likely is, but the olive
+was out of scope this round and stays byte identical.
+
+**Neighbour overlap, because a low OUTSIDE is not a pass:** 22.05 % →
+**20.72 %** of this element is under something else (leaf 2.1.12 4.81 %,
+E PLURIBUS UNUM 4.16 %). 5.3 % of the element's ink still falls outside
+`WINDOWS['oak-stem']`, which is left alone so published FILLs stay comparable.
+
 ## v1.103.0 — 2026-08-26
 
 **The dime's oak branch FORKS at y 54, and we drew a single spike straight up

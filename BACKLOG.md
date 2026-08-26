@@ -7,6 +7,87 @@ reconsider after calibration.
 
 ## Where we are
 
+- 🟡 **THE OAK'S STEM NOW RUNS UP THE INBOARD PRONG, THE FOOT HAS TWO POINTS,
+  AND THE LEAF LADDER MOVED WITH THE BRANCH.** Ninth element round on this face,
+  and the one that spends the refusal the last three rounds kept writing down.
+  Partition: `dime.reverse` alone, 6/60 cells, all sizes — 36 tags of 291, every
+  one at x ≥ 62.41, so the olive is byte identical. D9 unchanged (no fitted
+  contour on this side; the authored-turn census is identical). D6 reverse
+  0.0926 → **0.0924** against a 0.50 gate. Suite 464/464. Version 1.104.0.
+  - **The fault, in one line.** With the fork reopened, 6.82 of the element's
+    11.99 outside sq units — **58 %** — was in the six rows y 47..53. Those rows
+    now carry **0.21** (per row before → after: 0.53→0.00, 0.89→0.00, 0.76→0.00,
+    1.22→0.00, 1.52→0.00, 1.22→0.05, 0.68→0.16).
+    Verify: `node coloringbook/judge/_dr17oakfork.mjs outside`
+  - **Where the inboard prong is, re-measured.** The dispatch's 14.2..15.3 is
+    the midpoint of the channel's inboard wall and the nearest bare run inboard
+    of the foliage — on pb at y 48.5 that is 16.6 and 11.2, i.e. the middle of a
+    5.4-unit mass where the prong is 1.5 wide, so it reports prong-plus-leaf.
+    Re-read off grey PROFILES across the fork (every 0.1 unit of offset at every
+    half-row, so a mark's own two dark relief edges show), each file placed in
+    the drawing's frame by ITS OWN trunk by the same rule: pooled centre
+    **14.84 / 14.59 / 14.66 / 14.77 / 15.15 at y 54 / 53 / 52 / 51 / 50**, i.e.
+    **1.50 units inboard of `stemC` and parallel to it**, drawn to a max
+    residual of **0.16**. The crotch reads y 54.3 (pb) and 55.1 (unc); 54.7 is
+    drawn. Prong width 1.50..1.70 against the trunk's 2.15, so it takes the
+    outboard prong's own 0.78 half-width. `stemHW` untouched.
+  - **The foot is two-pointed and now drawn that way.** Pooled off the
+    photographs at 100 px/unit: heel **18.05 at y 71.0**, barb tip **13.71 at
+    y 75.35**; drawn 17.75 and (13.55, 75.2), the heel held 0.30 inside because
+    a flare fitted exactly to two hand-read points is fitted to two points. Foot
+    rows y 73..75 went **1.42 → 0.15** outside sq units on proofbright.
+  - **Nothing is stranded.** `leafAt` evaluates the plant's own centreline now —
+    `oakC` on the oak, `stemC` on the olive, the same per-plant override
+    `OAKROT` already is. The five oak rows above the crotch moved inboard by
+    exactly 1.50 **with both their blades and their petioles** (five
+    `<g transform>` groups and five polygons in the emitted SVG, and nothing
+    else). Blade outlines, lengths and angles untouched.
+
+    | mask | OUTSIDE % | FILL excl | exclusive covered | ceiling(3) |
+    |---|---|---|---|---|
+    | pb erode 0.55 | 16.52 → 17.32 | 45.70 → 43.57 | 52.99 → 52.27 | 50.1 |
+    | pb erode 0 | 3.39 → **2.00** | 40.01 → 39.82 | 63.70 → **64.59** | 45.9 |
+    | pb erode 0 + reopen 1.0 | 13.74 → **4.77** | 37.72 → **41.42** | 56.53 → **62.61** | 47.0 |
+    | unc erode 1.00 | 59.19 → 62.57 | 30.91 → 27.56 | 24.82 → 22.59 | 35.3 |
+    | unc erode 0 | 18.42 → 18.83 | 33.46 → 32.85 | 53.44 → 52.98 | 39.9 |
+
+    **FILL % is not comparable across this change**: the leaves moved, so the
+    exclusive target moved with them (pb erode 0: 159.21 → 162.21). The covered
+    column is the claim — on the reopened mask the drawing covers **6.1 more sq
+    units of the coin while drawing 1.26 fewer**. Ceilings recomputed for the
+    FORKED branch: a 2.35-wide band about `oakC` over y 38.4..69.5, union the
+    drawn foot's medial ± 1.175, union the outboard prong's 0.78 band. We sit at
+    88 % of it, where we sat at 88 % of CEILING(2) before.
+  - **The NONZERO trap was checked, not assumed.** At 40 px/unit the element's
+    ink runs across the crotch are single continuous spans on every row
+    (54.00 `14.40..17.13`, 54.25 `14.67..16.85`, 54.50 `14.97..16.90`,
+    54.75 `15.20..17.17`) and split in two only from y 53.75 up. No hole. And
+    the arithmetic holds: ink fell 1.26 sq units while ink ON the mask rose 6.1.
+  - **Published because it regresses (R2):** both ERODED settings get worse
+    (pb 0.55 +0.47 sq, unc 1.00 +2.16). That is the artefact the round was told
+    to score around — `deviceMask()` erodes 0.55/1.00 units A SIDE on constants
+    calibrated on the 5..10-unit torch shaft, and a 1.56-wide prong loses more
+    of itself than the 1.97-wide spike did. At erode 0 unc is flat (+0.11 sq)
+    and proofbright is 66 % better.
+  - **Refused with the number:** (a) shortening the prong to y 42 — rows 40..42
+    carry 1.71 of pb's remaining 4.10 outside sq units, but cutting there
+    removes ~3.5 sq units of ink to buy 0.93 and leaves the two crown leaves
+    with no stem; (b) the small up-and-inboard spur off the foot at y 69
+    (14.25 pb, 14.03 unc), real on both files, ~0.5 units long, below what
+    `struck()` resolves at any tier this face is drawn at; (c) touching
+    `stemC`, `stemHW` or `prongC` — none of the three changed.
+  - **What I could not determine:** where the inboard prong runs above y 48
+    (both files are solid device from offset 10 to 21 there — the crown closes
+    over — so the clamp is held constant and labelled an extrapolation in the
+    source); and whether the OLIVE's foot is two-pointed too. The coin's two
+    branches are one mirrored mark everywhere else in this block, so it very
+    likely is, but the olive was out of scope and stays byte identical.
+  - **Neighbour overlap, because a low OUTSIDE is not a pass:** 22.05 % →
+    **20.72 %** of the element is under something else (leaf 2.1.12 4.81 %,
+    E PLURIBUS UNUM 4.16 %). 5.3 % of its ink is still outside
+    `WINDOWS['oak-stem']`; the window is left alone so past FILLs stay
+    comparable.
+
 - 🟡 **THE DIME'S OAK BRANCH FORKS AT y 54, AND WE DREW A SINGLE SPIKE STRAIGHT
   UP THE MIDDLE OF THE GAP BETWEEN THE TWO PRONGS.** Eighth element round on
   this face. The outboard prong is now drawn; the spike is not moved, and why

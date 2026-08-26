@@ -4852,6 +4852,70 @@ function torch(p) {
   /** half the branch's width at height `y`, closing to a point at both ends */
   const stemHW = (y) => (0.9 + 0.0056 * (y - SC.top))
     * Math.max(0, Math.min(1, (y - SC.top) / 1.7, (SC.tip - y) / 3));
+  // ── THE OAK IS NOT THE OLIVE ABOVE y 54.7, AND `stemC`/`stemHW` ARE THE
+  // OLIVE'S. The oak branch FORKS; `stemC` was fitted on rows y 54..71 where
+  // there is still one trunk, and everything it says above that is an
+  // extrapolation of a line into a place where the line's subject does not
+  // exist. The full ledger, three estimators and the refusals are in the block
+  // above `prongC` further down this function; these two are the drawing.
+  //
+  //   `oakC`/`oakHW`  the OAK's centreline and half-width: the shared trunk
+  //                   below the crotch, the INBOARD PRONG above it.
+  //   `prongC`/`prongHW`  the OUTBOARD prong, unchanged from round 36.
+  //
+  // WHERE THE INBOARD PRONG IS, measured (round 37) on grey PROFILES across
+  // the fork — every 0.1 unit of offset at every half-row, so a mark's own two
+  // dark relief edges are visible instead of only the bare field between
+  // marks, which is what `_dr17oakfork.mjs bare` can see and why it merged the
+  // prong into the foliage inboard of it. Each file is put in this drawing's
+  // frame by ITS OWN trunk, read on the same profiles by the same rule
+  // (darkest-point to darkest-point, `_dr8shaft.mjs`'s estimator): proofbright's
+  // trunk is 14.90..17.05 at y 55.5, centre 15.98 against `stemC`'s 16.16, so
+  // that file reads 0.18 INBOARD; unc2005's is 13.80..16.00 at y 56, centre
+  // 14.90 against 16.14, so it reads 1.24 inboard. Registration then cancels.
+  //
+  //     y        54     53     52     51     50     (offsets, this frame)
+  //   pb      15.13  14.83  14.83  14.65  15.15
+  //   unc     14.54  14.34  14.49  14.89    --
+  //   pooled  14.84  14.59  14.66  14.77  15.15     <- 1.5 inboard of `stemC`
+  //   drawn   15.29  14.74  14.77  14.80  14.83
+  //
+  // The prong does NOT keep diverging: it kicks inboard at the crotch and then
+  // runs parallel to the trunk, 1.50 units inboard of it, which is why this is
+  // a clamp and not a lean. Max residual 0.16 over the five rows measured on
+  // two files. The same profiles put the CROTCH at y 54.3 (proofbright, where
+  // the fork channel first opens) and y 55.1 (unc2005); 54.7 is the mean.
+  //
+  // ⚠️ THE DISPATCH'S "centre 14.2..15.3 over y 48.5..53.5" IS NOT USED, with
+  // the reason. That number is the midpoint of the fork channel's inboard wall
+  // and the nearest bare run INBOARD of the foliage — on proofbright at y 48.5
+  // those are 16.6 and 11.2, i.e. it takes the middle of a 5.4-unit mass where
+  // the prong is 1.5 wide, so it reports the centre of prong-plus-leaf. The
+  // same estimator run on the OUTBOARD prong, which IS separable, reproduces
+  // `prongC` to 0.03 — so the method is sound and only the inboard reading is
+  // contaminated. Above y 48 nothing at all is separable on either file (the
+  // crown closes over the branch) and NOTHING HERE IS MEASURED THERE: the
+  // clamp is held constant and is labelled an extrapolation.
+  //
+  // The prong is 1.50..1.70 wide on proofbright (14.38..15.88 at y 54,
+  // 13.98..15.68 at y 53) against the trunk's 2.15, so it is drawn at the
+  // OUTBOARD prong's own 0.78 half-width rather than the trunk's ~0.99. This
+  // is not the refused re-tuning of `stemHW`: `stemHW` is untouched, both
+  // branches still read it below the crotch, and this is a different mark.
+  // `FORK` is hoisted here from the ledger block below so that both prongs read
+  // ONE half-width; `FORK.y` is the OUTBOARD prong's own crotch and is left at
+  // the 54.2 round 36 fitted it to, so nothing about that prong moves.
+  const FORK = { y: 54.2, hw: 0.78 };
+  const OAKF = { y: 54.7, drop: 1.30, dip: 1.50, blend: 1.2 };
+  /** the OAK's centreline: the trunk below the crotch, the inboard prong above */
+  const oakC = (y) => (y >= OAKF.y ? stemC(y)
+    : Math.max(stemC(y) - OAKF.dip, stemC(OAKF.y) - OAKF.drop * (OAKF.y - y)));
+  /** its half-width: the trunk's, blending to a prong's across the crotch */
+  const oakHW = (y) => {
+    const t = Math.max(0, Math.min(1, (OAKF.y - y) / OAKF.blend));
+    const tip = Math.max(0, Math.min(1, (y - SC.top) / 1.7));
+    return stemHW(y) * (1 - t) + FORK.hw * tip * t;
+  };
   // ⚠️ THE TERMINAL LEAF'S ANGLE IS CHANGED FROM THE TABLE'S 77 TO 86, AND THE
   // TABLE'S OWN TIP FOR THAT ROW IS THEREFORE NOT REPRODUCED (round 33). This
   // is the one number here that is NOT the table's, and it is the only way the
@@ -5117,7 +5181,18 @@ function torch(p) {
     // means here.
     const ay = n2(48.5 + (r[0] - 48.5) * 0.94);
     const rot = mirror ? r[1] : (OAKROT[row] ?? r[1]);
-    return { ay, ax: n2(stemC(ay)), rot, end: r[2] === 1, out: i % 2 === 1 };
+    // ⚠️ AND THE CENTRELINE THE BASE SITS ON IS THE PLANT'S OWN (round 37).
+    // `stemC` is the OLIVE's; the oak forks at y 54.7 and above that its stem
+    // is the inboard prong, 1.50 units inboard (`oakC`, beside `stemHW`). Five
+    // of the seven oak rows are above the crotch — ay 51.23, 50.38, 47.37,
+    // 45.68, 40.51, 40.04 — so anchoring them on `stemC` while the branch moved
+    // would have left five leaves floating in the fork's gap. They move WITH
+    // the branch instead, by the same 1.50, and stay attached; the two rows
+    // below the crotch (ay 57.00, 54.99) do not move at all. This is a change
+    // to leaf PLACEMENT, which this round was dispatched with permission to
+    // break, and it is the same one-line per-plant override `OAKROT` above is.
+    // Blade outlines, lengths and angles are untouched.
+    return { ay, ax: n2((mirror ? stemC : oakC)(ay)), rot, end: r[2] === 1, out: i % 2 === 1 };
   };
   // A blade's BASE is on the stem; the glyph is drawn about its own CENTRE, so
   // the centre is half a blade-length out along the direction the leaf leaves
@@ -5413,7 +5488,21 @@ function torch(p) {
   // files are solid device from offset 10 to 21 there — the crown closes over
   // — so the inboard prong cannot be separated from the foliage it carries,
   // and nothing drawn in that band can be scored by OUTSIDE either way.
-  const FORK = { y: 54.2, hw: 0.78 };
+  // ⚠️ AND THE REFUSAL ABOVE IS WITHDRAWN (round 37), ON THE OWNER'S DIRECTIVE
+  // AND ON A BETTER MEASUREMENT. "Moving the stem without moving them detaches
+  // five leaves" is true and is no longer a reason not to: the spike IS the
+  // fault, the round was dispatched with leaf placement explicitly released,
+  // and the ladder moves with the stem (`leafAt` evaluates `oakC` on the oak,
+  // `stemC` on the olive — the same one-line override `OAKROT` already uses for
+  // the angles), so in the event NO leaf is detached. `oakC`/`oakHW` are
+  // defined beside `stemHW` above and the measurement is written out there.
+  //
+  // The two paragraphs above stand as history: "narrowing the spike cannot
+  // reach the fault" is still the arithmetic — the channel is inside the spike,
+  // and only moving it can leave the channel. That is what moved.
+  //
+  // `FORK` is now declared beside `oakC` above so both prongs read one
+  // half-width. Its `y` is unchanged, so `prongC` and `prongHW` are unchanged.
   /** the OUTBOARD prong's centre, as an offset, at height `y`. Oak only. */
   const prongC = (y) => {
     const u = FORK.y - y;
@@ -5437,14 +5526,59 @@ function torch(p) {
   // up the INBOARD edge.
   const PRONG_YS = [44, 46, 48, 50, 52, 54];
   const STEM_YS = [39.25, 40.1, SC.tail, 72.5, 74, 75];
+  // THE OAK'S FOOT HAS TWO POINTS AND OURS HAD ONE. `stemHW`'s taper closes the
+  // branch to a single rounded point at (14.05, 75.7); on BOTH references the
+  // foot is a HEEL and a BARB. Read off `_dr17oakfork.mjs crop 60 70 68 80 100`
+  // — the photographs themselves at 100 px per unit, no mask — and put in this
+  // frame by each file's own trunk, the same conversion `oakC` uses:
+  //
+  //                        heel (the outboard point)   barb tip
+  //     proofbright            18.0  at y 70.9          13.68 at y 74.8
+  //     unc2005                18.1  at y 71.1          13.74 at y 75.9
+  //     pooled                 18.05 at y 71.0          13.71 at y 75.35
+  //     drawn                  17.75 at y 71.0          13.55 at y 75.2
+  //
+  // The heel is drawn 0.30 INSIDE the pooled reading because the trunk's own
+  // outboard edge at y 70 is 16.80 and a flare that lands exactly on two
+  // hand-read points is a flare fitted to two points; 17.75 is inside both
+  // files and still reads as a heel at 75 px per unit. Between the two the
+  // outboard edge sweeps down and inboard (16.60 at 72.4, 15.15 at 73.8) and
+  // the barb's inboard edge runs nearly straight up from the tip — 13.90 at
+  // 74.2, 14.02 at 72.5, 14.20 at 71.0, against proofbright's 14.0..14.2 over
+  // the same rows.
+  //
+  // NOT DRAWN: the small spur that points UP and inboard off the foot at
+  // y 69, at 14.25 (proofbright) and 14.03 (unc2005). It is real on both files
+  // and it is ~0.5 units long — below what survives `struck()`'s three passes
+  // at any tier this face is drawn at, and it is 0.7 units of ink standing in
+  // bare field, where being wrong costs OUTSIDE directly. Recorded, refused.
+  //
+  // THE OLIVE KEEPS THE ONE-POINTED FOOT, and that is a scope statement, not a
+  // measurement: the olive is out of this round's scope and must stay byte
+  // identical. The coin's two branches are one mirrored mark elsewhere in this
+  // block, so the olive's foot is very likely two-pointed too. Next round.
+  const OAK_YS = [39.25, 40.1, 53.5, 54, 54.4, OAKF.y, 69.5];
+  const OAK_FOOT_OUT = [[17.35, 70.2], [17.75, 71], [16.6, 72.4], [15.15, 73.8]];
+  const OAK_TIP = [13.55, 75.2];
+  const OAK_FOOT_IN = [[13.9, 74.2], [14.02, 72.5], [14.2, 71]];
   const stem = (x, mirror) => {
-    const P = (y, s) => `${x(stemC(y) + s * stemHW(y))} ${y}`;
+    if (mirror) {
+      const P = (y, s) => `${x(stemC(y) + s * stemHW(y))} ${y}`;
+      return `<path d="M ${P(SC.top, 0)}`
+        + STEM_YS.map((y) => ` L ${P(y, 1)}`).join('')
+        + ` L ${P(SC.tip, 0)}`
+        + STEM_YS.slice().reverse().map((y) => ` L ${P(y, -1)}`).join('')
+        + ' Z"/>';
+    }
+    const P = (y, s) => `${x(oakC(y) + s * oakHW(y))} ${y}`;
+    const F = (p) => `${x(p[0])} ${p[1]}`;
     const d = `M ${P(SC.top, 0)}`
-      + STEM_YS.map((y) => ` L ${P(y, 1)}`).join('')
-      + ` L ${P(SC.tip, 0)}`
-      + STEM_YS.slice().reverse().map((y) => ` L ${P(y, -1)}`).join('')
+      + OAK_YS.map((y) => ` L ${P(y, 1)}`).join('')
+      + OAK_FOOT_OUT.map(F).map((p) => ` L ${p}`).join('')
+      + ` L ${F(OAK_TIP)}`
+      + OAK_FOOT_IN.map(F).map((p) => ` L ${p}`).join('')
+      + OAK_YS.slice().reverse().map((y) => ` L ${P(y, -1)}`).join('')
       + ' Z';
-    if (mirror) return `<path d="${d}"/>`;
     const Q = (y, s) => `${x(prongC(y) + s * prongHW(y))} ${y}`;
     return `<path d="${d} M ${Q(42, 0)}`
       + PRONG_YS.map((y) => ` L ${Q(y, 1)}`).join('')
