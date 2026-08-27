@@ -4861,60 +4861,114 @@ function torch(p) {
   //
   //   `oakC`/`oakHW`  the OAK's centreline and half-width: the shared trunk
   //                   below the crotch, the INBOARD PRONG above it.
-  //   `prongC`/`prongHW`  the OUTBOARD prong, unchanged from round 36.
+  //   `forkIn`/`forkOut`  the two FACING FACES of the fork channel. These, not
+  //                   the centrelines, are what is measured; the centrelines
+  //                   are derived from them and from a half-width.
+  //   `prongC`/`prongHW`  the OUTBOARD prong.
   //
-  // WHERE THE INBOARD PRONG IS, measured (round 37) on grey PROFILES across
-  // the fork — every 0.1 unit of offset at every half-row, so a mark's own two
-  // dark relief edges are visible instead of only the bare field between
-  // marks, which is what `_dr17oakfork.mjs bare` can see and why it merged the
-  // prong into the foliage inboard of it. Each file is put in this drawing's
-  // frame by ITS OWN trunk, read on the same profiles by the same rule
-  // (darkest-point to darkest-point, `_dr8shaft.mjs`'s estimator): proofbright's
-  // trunk is 14.90..17.05 at y 55.5, centre 15.98 against `stemC`'s 16.16, so
-  // that file reads 0.18 INBOARD; unc2005's is 13.80..16.00 at y 56, centre
-  // 14.90 against 16.14, so it reads 1.24 inboard. Registration then cancels.
+  // ── ROUND 38: THE FORK IS FITTED TO THE CHANNEL'S OWN TWO WALLS, AND THE
+  // REGISTRATION IT IS FITTED IN WAS 0.55 OUT.
   //
-  //     y        54     53     52     51     50     (offsets, this frame)
-  //   pb      15.13  14.83  14.83  14.65  15.15
-  //   unc     14.54  14.34  14.49  14.89    --
-  //   pooled  14.84  14.59  14.66  14.77  15.15     <- 1.5 inboard of `stemC`
-  //   drawn   15.29  14.74  14.77  14.80  14.83
+  // 1. REGISTRATION FIRST, because everything below is an absolute offset and
+  // round 37 put both files ~0.55 too far OUTBOARD. Its figure came from one
+  // row (y 55.5/56) of one mark — and that row sits inside the fork, where the
+  // outboard prong is still fused to the trunk and widens it. Re-measured on
+  // the flood mask at erode 0, on the EIGHT clean rows y 62..69 (no foliage,
+  // no foot), with the SAME estimator run on our own render as on the
+  // photographs, so the drawing is inside the comparison instead of beside it:
   //
-  // The prong does NOT keep diverging: it kicks inboard at the crotch and then
-  // runs parallel to the trunk, 1.50 units inboard of it, which is why this is
-  // a clamp and not a lean. Max residual 0.16 over the five rows measured on
-  // two files. The same profiles put the CROTCH at y 54.3 (proofbright, where
-  // the fork channel first opens) and y 55.1 (unc2005); 54.7 is the mean.
+  //                         oak trunk centre   olive trunk centre   torch shaft
+  //     proofbright              16.184              15.494            50.348
+  //     unc2005                  15.125              16.428            49.312
+  //     ours                     15.881              15.881            49.970
   //
-  // ⚠️ THE DISPATCH'S "centre 14.2..15.3 over y 48.5..53.5" IS NOT USED, with
-  // the reason. That number is the midpoint of the fork channel's inboard wall
-  // and the nearest bare run INBOARD of the foliage — on proofbright at y 48.5
-  // those are 16.6 and 11.2, i.e. it takes the middle of a 5.4-unit mass where
-  // the prong is 1.5 wide, so it reports the centre of prong-plus-leaf. The
-  // same estimator run on the OUTBOARD prong, which IS separable, reproduces
-  // `prongC` to 0.03 — so the method is sound and only the inboard reading is
-  // contaminated. Above y 48 nothing at all is separable on either file (the
-  // crown closes over the branch) and NOTHING HERE IS MEASURED THERE: the
-  // clamp is held constant and is labelled an extrapolation.
+  // Three features, and they agree. If the difference were OUR drawing (the two
+  // branches too close together) the oak and olive would disagree in SIGN; they
+  // do not — for each file both branches and the central torch are displaced
+  // the same way in coin x, which is a whole-image translation:
   //
-  // The prong is 1.50..1.70 wide on proofbright (14.38..15.88 at y 54,
-  // 13.98..15.68 at y 53) against the trunk's 2.15, so it is drawn at the
-  // OUTBOARD prong's own 0.78 half-width rather than the trunk's ~0.99. This
-  // is not the refused re-tuning of `stemHW`: `stemHW` is untouched, both
-  // branches still read it below the crotch, and this is a different mark.
-  // `FORK` is hoisted here from the ledger block below so that both prongs read
-  // ONE half-width; `FORK.y` is the OUTBOARD prong's own crotch and is left at
-  // the 54.2 round 36 fitted it to, so nothing about that prong moves.
-  const FORK = { y: 54.2, hw: 0.78 };
-  const OAKF = { y: 54.7, drop: 1.30, dip: 1.50, blend: 1.2 };
-  /** the OAK's centreline: the trunk below the crotch, the inboard prong above */
-  const oakC = (y) => (y >= OAKF.y ? stemC(y)
-    : Math.max(stemC(y) - OAKF.dip, stemC(OAKF.y) - OAKF.drop * (OAKF.y - y)));
+  //     registration (add to that file's oak offsets)   round 37     round 38
+  //       proofbright   oak −0.30  olive −0.39  torch −0.38   +0.18      −0.35
+  //       unc2005       oak +0.76  olive +0.55  torch +0.66   +1.24      +0.65
+  //
+  // The file-to-file SPREAD is 1.00 either way (round 37 had 1.06), so the two
+  // rounds differ only in common mode — which is exactly the part a one-mark
+  // registration cannot see and the olive/torch null test can. Every offset in
+  // this block is in the round-38 frame; round 37's numbers read 0.55 higher.
+  //
+  // 2. THE CHANNEL, measured as the two walls of the enclosed field pocket
+  // (`_dr17oakfork.mjs prongs`, seeded per file so unc2005's own 12.05 sq unit
+  // component is the one read). Left wall = the inboard prong's outboard face,
+  // right wall = the outboard prong's inboard face, same rows, both files:
+  //
+  //     y      48    49    50    51    52    53    54    54.5
+  //   pb  L  15.90 16.35 16.05 15.50 15.20 15.20 15.40   --
+  //       R  17.35 17.50 17.45 17.00 16.55 16.10 15.70   --
+  //   unc L  15.65 15.60 15.85 15.35 14.90 14.75 14.90 15.10
+  //       R  17.20 17.40 17.50 17.30 16.95 16.45 15.95 15.70
+  //   pool L 15.78 15.98 15.95 15.42 15.05 14.98 15.15 15.10
+  //       R  17.28 17.45 17.48 17.15 16.75 16.28 15.83 15.70
+  //   width   1.50  1.47  1.52  1.72  1.70  1.30  0.68  0.60
+  //
+  // THE CHANNEL IS A SLOT, NOT A WEDGE, and the reason is not that one prong
+  // leans too hard: BOTH walls swing outboard together out of the crotch and
+  // BOTH flatten by y 50. The inboard wall stands at 15.0 from y 54.5 to 52.5
+  // and only then climbs; the outboard wall sweeps 15.7 → 17.5 over the same
+  // rows and then stops. Ours tapered 3.05 → 0.90 because `prongC` kept leaning
+  // (18.80 at y 50, 19.57 at y 48 — the pooled wall says 17.48 and 17.28) while
+  // the inboard prong was clamped straight. Two faults, opposite ends.
+  //
+  // 3. IS OUR MASK COMPARABLE TO THEIRS? Yes, to 0.1. The same flood mask reads
+  // the trunk at 2.25 (pb) / 2.40 (unc) against OUR OWN render's 2.15 on the
+  // same rows, so the reference's bevel skirt inflates a mark by ~0.06..0.12
+  // per side and a gap between two marks is understated by twice that. That is
+  // inside the 0.4 the two files disagree by, so NO skirt correction is
+  // applied and the faces below sit on the pooled walls as measured. (Rows
+  // y 57..60 read 2.9..3.6 and look like a 0.6 skirt; they are contaminated by
+  // a leaf and by the prong still being fused, and are not used.)
+  //
+  // 4. WHAT IS STILL NOT MEASURED. Above y 48 the crown closes over both prongs
+  // on both files and the pocket ends at y 47.4; both faces are held at their
+  // y-50 value above y 49.9 and that plateau is an EXTRAPOLATION. The inboard
+  // prong's INBOARD face is never separable on either file — the foliage
+  // inboard of it merges into one slab on every row — so its half-width is
+  // round 37's measured 0.78 and only its outboard face is fitted here.
+  //
+  // ⚠️ ROUND 37'S GREY-PROFILE PRONG CENTRES ARE SUPERSEDED, with the number.
+  // That table read the inboard prong at 15.15 on y 50 (pb); a mark centred
+  // there with a 0.78 half-width ends at 15.93, but the channel's own inboard
+  // wall on that same file and row is at 16.40 in that frame — the profile read
+  // cannot be the mark that bounds the channel. `_dr17oakfork.mjs runs`, the
+  // dark-relief-outline estimator, independently puts it at 15.53/1.45 on pb
+  // and 14.28/1.75 on unc, both of which land on the pocket wall. The pocket
+  // and the run estimator agree; the profile table is the outlier.
+  const FORK = { y: 54.7, hw: 0.78, out: 0.95, blend: 0.45 };
+  /** the INBOARD prong's outboard face — the fork channel's inboard wall */
+  const forkIn = (y) => {
+    const u = Math.max(0, 52.7 - y);
+    return Math.min(16.00, 15.00 - 0.0267 * u + 0.1402 * u * u);
+  };
+  /** the OUTBOARD prong's inboard face — the channel's outboard wall */
+  const forkOut = (y) => {
+    const v = FORK.y - y;
+    return Math.min(17.52, 15.609 + 0.4554 * v - 0.01222 * v * v);
+  };
+  /** how far across the crotch we are: 0 at the trunk, 1 once forked */
+  const forkT = (y) => Math.max(0, Math.min(1, (FORK.y - y) / FORK.blend));
   /** its half-width: the trunk's, blending to a prong's across the crotch */
   const oakHW = (y) => {
-    const t = Math.max(0, Math.min(1, (OAKF.y - y) / OAKF.blend));
+    const t = forkT(y);
     const tip = Math.max(0, Math.min(1, (y - SC.top) / 1.7));
     return stemHW(y) * (1 - t) + FORK.hw * tip * t;
+  };
+  /** the OAK's centreline: the trunk below the crotch, the inboard prong above.
+   *  Derived so the OUTBOARD FACE lands on `forkIn` — that face is the measured
+   *  quantity and the centre is whatever puts it there. */
+  const oakC = (y) => {
+    const t = forkT(y);
+    if (t === 0) return stemC(y);
+    const face = (stemC(y) + stemHW(y)) * (1 - t) + forkIn(y) * t;
+    return face - oakHW(y);
   };
   // ⚠️ THE TERMINAL LEAF'S ANGLE IS CHANGED FROM THE TABLE'S 77 TO 86, AND THE
   // TABLE'S OWN TIP FOR THAT ROW IS THEREFORE NOT REPRODUCED (round 33). This
@@ -5501,15 +5555,43 @@ function torch(p) {
   // reach the fault" is still the arithmetic — the channel is inside the spike,
   // and only moving it can leave the channel. That is what moved.
   //
-  // `FORK` is now declared beside `oakC` above so both prongs read one
-  // half-width. Its `y` is unchanged, so `prongC` and `prongHW` are unchanged.
+  // `FORK` is declared beside `oakC` above, with the round-38 ledger.
+  //
+  // ── ROUND 38 REFITS THIS PRONG, and it is the half of the wedge nobody had
+  // measured on its own. Round 36 fitted `prongC` as a quadratic in the
+  // distance below the crotch and let it keep leaning: 18.80 at y 50, 19.22 at
+  // y 49, 19.57 at y 48. It does not. The prong is SEPARABLE on the flood mask
+  // between the channel and the foliage outboard of it — a clean run on both
+  // files on every row from y 50 down — and it is the one mark in the fork
+  // whose two faces can BOTH be read, so its half-width is measured and not
+  // inherited:
+  //
+  //     y        50            51            52            53
+  //   pb     17.45..19.35  17.00..18.95  16.73..18.73  16.10..18.23
+  //   unc    17.50..19.45  17.30..19.05  16.95..18.65  16.45..18.20
+  //   pooled 17.48..19.40  17.15..19.00  16.84..18.69  16.28..18.22
+  //   width      1.92          1.85          1.85          1.94
+  //
+  // So 0.95, not the inboard prong's 0.78, and the CENTRE is 18.44 at y 50
+  // where round 36 drew 18.80 and 17.77 at y 52 where it drew 17.79. The error
+  // is all above y 51 and it is what opened the wedge. `prongC` is now
+  // `forkOut` plus its own half-width, so the INBOARD face — the measured one,
+  // and the one that makes the channel — lands on the pooled wall at every row
+  // and the prong still closes to a point at both ends without dragging the
+  // face with it.
+  //
+  // Above y 49.9 `forkOut` is a plateau and the prong runs straight up instead
+  // of spearing out to offset 20.4 at its tip, which is where round 36's
+  // quadratic put it. NOT MEASURED, and the reason it is drawn that way rather
+  // than left leaning: the coin's crown comes to ONE apex at offsets 15.3..17.4
+  // (the row table below), so two prongs that keep diverging cannot both reach
+  // it. `_dr17oakfork.mjs runs` does return marks at 18.3..20.4 on rows
+  // y 43..45 on both files and one of them may be this prong's top; they cannot
+  // be told from leaf midribs and are not fitted.
   /** the OUTBOARD prong's centre, as an offset, at height `y`. Oak only. */
-  const prongC = (y) => {
-    const u = FORK.y - y;
-    return 16.40 + 0.7011 * u - 0.0306 * u * u;
-  };
+  const prongC = (y) => forkOut(y) + prongHW(y);
   /** its half-width: fused into the trunk at the bottom, a point at the top */
-  const prongHW = (y) => FORK.hw
+  const prongHW = (y) => FORK.out
     * Math.max(0, Math.min(1, (55.6 - y) / 2.2, (y - 42) / 2.4));
   // ⚠️ THE TWO SUBPATHS MUST WIND THE SAME WAY, and the first version of this
   // did not. `<path>` fills with the NONZERO rule, so a second subpath that
@@ -5524,43 +5606,55 @@ function torch(p) {
   // absolute outside — arithmetically impossible for added ink, and the tell.
   // Both subpaths now run top point → down the OUTBOARD edge → bottom point →
   // up the INBOARD edge.
-  const PRONG_YS = [44, 46, 48, 50, 52, 54];
+  const PRONG_YS = [43, 45, 47, 48.5, 49.9, 51, 52, 53, 54, 54.6];
   const STEM_YS = [39.25, 40.1, SC.tail, 72.5, 74, 75];
-  // THE OAK'S FOOT HAS TWO POINTS AND OURS HAD ONE. `stemHW`'s taper closes the
-  // branch to a single rounded point at (14.05, 75.7); on BOTH references the
-  // foot is a HEEL and a BARB. Read off `_dr17oakfork.mjs crop 60 70 68 80 100`
-  // — the photographs themselves at 100 px per unit, no mask — and put in this
-  // frame by each file's own trunk, the same conversion `oakC` uses:
+  // THE OAK'S FOOT HAS THREE POINTS AND OURS HAD ONE, THEN TWO. `stemHW`'s
+  // taper closed the branch to a single rounded point at (14.05, 75.7); round
+  // 37 gave it a HEEL and a BARB by hand off the photographs; round 38
+  // re-reads the whole foot on the flood mask at erode 0, row by row, on both
+  // files and on OUR OWN render side by side, in the corrected registration
+  // (see the `forkIn` ledger above — round 37's foot numbers read 0.55 high):
   //
-  //                        heel (the outboard point)   barb tip
-  //     proofbright            18.0  at y 70.9          13.68 at y 74.8
-  //     unc2005                18.1  at y 71.1          13.74 at y 75.9
-  //     pooled                 18.05 at y 71.0          13.71 at y 75.35
-  //     drawn                  17.75 at y 71.0          13.55 at y 75.2
+  //     y      pb outer  unc outer  pooled   ours      pb inner  unc inner  ours
+  //     69.5    17.10     17.00     17.05    16.85      13.40     13.50    14.65
+  //     70.0    17.45     17.00     17.23    17.25      13.50     13.30    14.50
+  //     70.5    17.70     17.05     17.38    17.30      13.60     13.45    14.30
+  //     71.0    17.65     17.50     17.58    17.75      13.80     13.65    14.15
+  //     72.0    16.85     17.50     17.18    16.90      13.75     13.95    14.05
+  //     73.0    15.75     16.65     16.20    15.95      13.40     13.90    13.95
+  //     74.0    14.50     15.45     14.98    14.90      13.05     13.60    13.85
+  //     75.0      --      14.40     14.40    13.75        --      13.25    13.60
   //
-  // The heel is drawn 0.30 INSIDE the pooled reading because the trunk's own
-  // outboard edge at y 70 is 16.80 and a flare that lands exactly on two
-  // hand-read points is a flare fitted to two points; 17.75 is inside both
-  // files and still reads as a heel at 75 px per unit. Between the two the
-  // outboard edge sweeps down and inboard (16.60 at 72.4, 15.15 at 73.8) and
-  // the barb's inboard edge runs nearly straight up from the tip — 13.90 at
-  // 74.2, 14.02 at 72.5, 14.20 at 71.0, against proofbright's 14.0..14.2 over
-  // the same rows.
+  // THE HEEL WAS ALREADY RIGHT and round 37's "drawn 0.30 inside the pooled
+  // reading" was the registration, not a margin: in this frame ours is 17.75
+  // against a pooled 17.58, i.e. 0.17 OUTSIDE. It comes back to 17.60. THE
+  // INBOARD SIDE IS THE ERROR — ours is 0.4 (y 72..74) to 1.2 (y 69.5) too far
+  // outboard on every row of the barb, which is why our foot reads as a chamfer
+  // and the coin's reads as a claw. The barb tip pools to (13.30, 75.4) from
+  // pb's (13.4, 74.7) and unc's (13.2, 76.2); ours was (13.55, 75.2).
   //
-  // NOT DRAWN: the small spur that points UP and inboard off the foot at
-  // y 69, at 14.25 (proofbright) and 14.03 (unc2005). It is real on both files
-  // and it is ~0.5 units long — below what survives `struck()`'s three passes
-  // at any tier this face is drawn at, and it is 0.7 units of ink standing in
-  // bare field, where being wrong costs OUTSIDE directly. Recorded, refused.
+  // AND THE SPUR IS DRAWN, reversing round 37's refusal on a better reading and
+  // on the owner's gate being VISUAL. On the mask it is a SEPARATE run —
+  // proofbright y 69 carries 13.40..14.10 with a 0.50 gap before the trunk at
+  // 14.60, unc2005 y 69.5 carries 13.50..13.95 — so it is 0.7 wide, ~0.8 tall,
+  // tip near y 68.75, and by y 69.5 it has merged into the barb on both files.
+  // Round 37 refused it as "~0.5 units, below what `struck()` resolves"; it is
+  // 0.7 by 0.8, the coin's foot reads as three points and not two, and the
+  // failure mode if `struck()` does smooth the 0.35-unit notch beside it is
+  // that the foot reads slightly fuller there — not that a mark appears in bare
+  // field. The notch's floor is drawn at 14.45, shallower than the mask's 0.50
+  // gap, for exactly that reason.
   //
   // THE OLIVE KEEPS THE ONE-POINTED FOOT, and that is a scope statement, not a
   // measurement: the olive is out of this round's scope and must stay byte
   // identical. The coin's two branches are one mirrored mark elsewhere in this
-  // block, so the olive's foot is very likely two-pointed too. Next round.
-  const OAK_YS = [39.25, 40.1, 53.5, 54, 54.4, OAKF.y, 69.5];
-  const OAK_FOOT_OUT = [[17.35, 70.2], [17.75, 71], [16.6, 72.4], [15.15, 73.8]];
-  const OAK_TIP = [13.55, 75.2];
-  const OAK_FOOT_IN = [[13.9, 74.2], [14.02, 72.5], [14.2, 71]];
+  // block, so the olive's foot is very likely three-pointed too. Next round.
+  const OAK_YS = [39.25, 40.1, 46, 48, 49.5, 51, 52, 53, 53.8, 54.35, FORK.y, 69.5];
+  const OAK_FOOT_OUT = [[17.30, 70.2], [17.60, 71.0], [17.40, 71.6],
+    [16.60, 72.4], [15.15, 73.8]];
+  const OAK_TIP = [13.30, 75.4];
+  const OAK_FOOT_IN = [[13.30, 74.4], [13.45, 73.3], [13.85, 72.1], [13.60, 70.6],
+    [13.42, 69.6], [13.70, 68.75], [14.10, 69.2], [14.45, 69.85]];
   const stem = (x, mirror) => {
     if (mirror) {
       const P = (y, s) => `${x(stemC(y) + s * stemHW(y))} ${y}`;

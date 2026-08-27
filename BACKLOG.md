@@ -7,7 +7,52 @@ reconsider after calibration.
 
 ## Where we are
 
-- 🟡 **THE OAK'S STEM NOW RUNS UP THE INBOARD PRONG, THE FOOT HAS TWO POINTS,
+- 🟡 **THE FORK IS A SLOT AND NOT A WEDGE, THE REGISTRATION IT WAS FITTED IN
+  WAS 0.55 OUT, AND THE OAK'S FOOT HAS ITS THIRD POINT.** Tenth element round
+  on this face. Partition: `dime.reverse` alone, 6/60 cells, all sizes — 12
+  distinct tags, every one at x ≥ 57.96, so the olive is byte identical. D9 0
+  faulty over 180 renders. D6 reverse 0.0924 → **0.0922** against a 0.50 gate;
+  D7 authored-turn census unchanged; D8 0.0000 % both sides. Suite 464/464.
+  Version 1.105.0.
+  - **The channel.** Ours tapered 3.05 → 0.90 over y 48..53 where both files
+    hold 1.5–1.8. Now, on the element alone at 20 px/unit by the judge's own
+    rule: **1.45 / 1.45 / 1.60 / 1.70 / 1.60 / 1.25 / 0.60** at y 48..54 against
+    proofbright's 1.65 / 1.35 / 1.55 / 1.75 / 1.55 / 1.05 / 0.60 — worst
+    residual **0.20**, and inside the two files' envelope on every row but y 48,
+    where they disagree by 2.05.
+    Verify: `node coloringbook/judge/_dr17oakfork.mjs prongs`
+  - **It was two faults at opposite ends.** Read as the enclosed pocket's two
+    walls, BOTH swing outboard out of the crotch and BOTH flatten by y 50 — the
+    fork is a lens, not a V. Our outboard prong kept leaning (18.80 at y 50,
+    19.57 at y 48, against pooled walls of 17.48 and 17.28) while the inboard
+    prong was clamped straight. The outboard prong is the one mark whose BOTH
+    faces separate, so its half-width is measured now: 1.92 / 1.85 / 1.85 / 1.94
+    at y 50..53 → **0.95**, not the inboard prong's 0.78.
+  - **The registration was 0.55 out — the reusable finding.** v1.104.0 placed
+    each file by ONE row (y 55.5/56) of ONE mark, and that row is inside the
+    fork where the prong is still fused to the trunk. Re-measured on the flood
+    mask over the eight clean rows y 62..69, same estimator on our own render:
+    proofbright **−0.35** (was +0.18), unc2005 **+0.65** (was +1.24). Oak trunk,
+    olive trunk and torch shaft all agree; the oak and olive shift the SAME way
+    in coin x, so it is a whole-image translation and not our two branches being
+    too close. The file-to-file spread is 1.00 either way — the two rounds
+    differ only in common mode, which one mark cannot see.
+  - **The foot's third point is drawn**, reversing v1.104.0's refusal on a
+    better reading: on the mask the spur is a SEPARATE run (pb y 69
+    13.40..14.10 with a 0.50 gap before the trunk; unc y 69.5 13.50..13.95), so
+    0.7 wide and ~0.8 tall, not the "~0.5 units" it was refused as. The same
+    pass found the heel already right and the barb's inboard edge 0.4..1.2 too
+    far outboard on every row.
+  - **What it cost.** Ink 86.00 → 93.61 sq units; absolute outside 1.72 → 3.55
+    (pb erode 0), 4.10 → 7.24 (pb reopened), 16.19 → 16.65 (unc); exclusive
+    covered 64.59 → 70.66 and 52.98 → 61.13. The FORK alone is nearly free
+    (+4.23 ink, +4.34 covered, +0.19 outside on pb); the foot is where the
+    outside went and it is registration — the scorer applies none.
+  - **Six oak leaves moved with the branch, 0.09..0.32 units; none stranded.**
+  - **Refused, with the number:** the coin's trunk widens toward the foot (mask
+    2.20 at y 63 → 2.55 at y 69; ours 2.05 → 2.20). That is `stemHW`, which the
+    mirrored olive reads. Next round, the one that owns both branches.
+- ⬜ **THE OAK'S STEM NOW RUNS UP THE INBOARD PRONG, THE FOOT HAS TWO POINTS,
   AND THE LEAF LADDER MOVED WITH THE BRANCH.** Ninth element round on this face,
   and the one that spends the refusal the last three rounds kept writing down.
   Partition: `dime.reverse` alone, 6/60 cells, all sizes — 36 tags of 291, every

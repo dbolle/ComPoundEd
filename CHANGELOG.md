@@ -3,6 +3,85 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.105.0 — 2026-08-27
+
+**The fork is a SLOT and not a wedge, the registration it was fitted in was
+0.55 out, and the oak's foot has its third point.** Tenth element round on the
+dime reverse. Partition: `dime.reverse` alone, 6/60 cells, all sizes — 12
+distinct tags changed, every one at x ≥ 57.96, so the olive is byte identical.
+D9 0 faulty over 180 renders. D6 reverse 0.0924 → **0.0922** against a 0.50
+gate; D7's authored-turn census is unchanged (2 obverse / 19 reverse paths over
+75°, same five worst). D8 0.0000 % both sides. Suite 464/464.
+
+**THE FAULT.** The channel between the two prongs tapered 3.05 → 0.90 over
+y 48..53 where both photographs hold a near-constant 1.5–1.8. Measured on the
+element alone at 20 px/unit, the judge's own rule (largest field run with ink on
+both sides):
+
+| y | 48 | 49 | 50 | 51 | 52 | 53 | 54 |
+|---|---|---|---|---|---|---|---|
+| proofbright | 1.65 | 1.35 | 1.55 | 1.75 | 1.55 | 1.05 | 0.60 |
+| unc2005 | 3.70 | 1.85 | 1.65 | 2.05 | 2.10 | 1.70 | 1.20 |
+| before | 3.00 | 2.65 | 2.35 | 1.85 | 1.35 | 0.85 | 0.00 |
+| **after** | **1.45** | **1.45** | **1.60** | **1.70** | **1.60** | **1.25** | **0.60** |
+
+Worst residual against proofbright 0.20, and inside the two files' own envelope
+on every row but y 48, where they disagree by 2.05.
+
+**IT WAS TWO FAULTS AT OPPOSITE ENDS, AND NEITHER WAS "ONE PRONG LEANS TOO
+HARD".** Read as the two walls of the enclosed field pocket (`_dr17oakfork.mjs
+prongs`, seeded per file so unc2005's own 12.05 sq unit component is the one
+measured), BOTH walls swing outboard out of the crotch and BOTH flatten by
+y 50 — the fork is a lens, not a V. Our outboard prong kept leaning (18.80 at
+y 50, 19.57 at y 48 against a pooled wall of 17.48 and 17.28) while the inboard
+prong was clamped straight at −1.50. The outboard prong is also the one mark in
+the fork whose BOTH faces are separable, so its half-width is now measured —
+1.92 / 1.85 / 1.85 / 1.94 at y 50 / 51 / 52 / 53, i.e. **0.95**, not the
+inboard prong's 0.78.
+
+**THE REGISTRATION WAS 0.55 OUT AND THAT IS THE REUSABLE FINDING.** v1.104.0
+placed each file by ONE row (y 55.5/56) of ONE mark — a row inside the fork,
+where the outboard prong is still fused to the trunk and widens it. Re-measured
+on the flood mask over the eight clean rows y 62..69, with the same estimator
+run on OUR OWN RENDER as on the photographs:
+
+| | oak trunk | olive trunk | torch shaft | v1.104.0 | now |
+|---|---|---|---|---|---|
+| proofbright | 16.184 | 15.494 | 50.348 | +0.18 | **−0.35** |
+| unc2005 | 15.125 | 16.428 | 49.312 | +1.24 | **+0.65** |
+| ours | 15.881 | 15.881 | 49.970 | | |
+
+Three features and they agree. If the difference were OUR drawing — the two
+branches too close together — the oak and the olive would disagree in sign;
+they do not, so it is a whole-image translation. The file-to-file spread is 1.00
+either way, so the two rounds differ only in COMMON MODE, which is exactly what
+a one-mark registration cannot see and an oak/olive/torch null test can.
+
+**THE FOOT'S THIRD POINT IS DRAWN, reversing v1.104.0's refusal.** On the mask
+the spur is a SEPARATE run — proofbright y 69 carries 13.40..14.10 with a 0.50
+gap before the trunk, unc2005 y 69.5 carries 13.50..13.95 — so it is 0.7 wide
+and ~0.8 tall, not the "~0.5 units" it was refused as. The same pass found the
+heel was already right (v1.104.0's "drawn 0.30 inside the pooled reading" was
+the registration, not a margin) and the barb's inboard edge 0.4 to 1.2 too far
+outboard on every row, which is why our foot read as a chamfer and the coin's
+reads as a claw.
+
+**WHAT IT COST, stated.** Element ink 86.00 → 93.61 sq units. Absolute outside
+1.72 → 3.55 (proofbright, erode 0), 4.10 → 7.24 (with the fork reopened),
+16.19 → 16.65 (unc2005); exclusive covered 64.59 → 70.66 and 52.98 → 61.13. The
+fork alone is nearly free (+4.23 ink, +4.34 covered, **+0.19** outside on
+proofbright); the foot is where the outside went, and it is registration —
+the scorer applies none, so a mark drawn at the pooled position always costs
+~0.35/row on proofbright and gains ~0.65 on unc2005.
+
+**Six oak leaves moved with the branch, by 0.09 to 0.32 units; none stranded.**
+`leafAt` already evaluates `oakC` on the oak.
+
+**REFUSED, with the number.** The coin's trunk WIDENS toward the foot — mask
+2.20 at y 63 to 2.55 at y 69 (pooled), where ours goes 2.05 to 2.20. That is
+`stemHW`, which the mirrored olive reads, and the olive must stay byte
+identical. Recorded for the round that owns both branches.
+
 ## v1.104.0 — 2026-08-26
 
 **The oak's stem now runs up the INBOARD PRONG, the branch has a two-pointed
