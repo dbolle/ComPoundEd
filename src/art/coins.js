@@ -5660,11 +5660,80 @@ function torch(p) {
   // it. `_dr17oakfork.mjs runs` does return marks at 18.3..20.4 on rows
   // y 43..45 on both files and one of them may be this prong's top; they cannot
   // be told from leaf midribs and are not fitted.
-  /** the OUTBOARD prong's centre, as an offset, at height `y`. Oak only. */
-  const prongC = (y) => forkOut(y) + prongHW(y);
-  /** its half-width: fused into the trunk at the bottom, a point at the top */
-  const prongHW = (y) => FORK.out
-    * Math.max(0, Math.min(1, (55.6 - y) / 2.2, (y - 42) / 2.4));
+  //
+  // ⚠️ ROUND 40 REVERSES THAT LAST PARAGRAPH, WITH THE NUMBER. "One of them may
+  // be this prong's top" was right and the refusal was wrong: the mark at
+  // offset ~20.4 on rows y 43..45 IS this prong, and three estimators that do
+  // not share an instrument put it within 0.02 of each other.
+  //
+  //   · THE GREY PROFILE, row by row, no mask in the path at all
+  //     (`_dr18prong.mjs`'s row dump, 0.25 units per column, averaged over
+  //     ±0.35 in y). It reproduces the round-38 channel exactly — at y 52 it
+  //     reads FIELD at 15.25..16.50 against the pocket's 15.05..16.75, and
+  //     DEVICE at 16.75..18.25 against the prong's measured 16.84..18.69 — so
+  //     it is calibrated on rows this file already trusts. On the rows above:
+  //
+  //       y 48   device 17.25..19.60,  FIELD 19.75..21.10
+  //       y 47   device everywhere 13..20.80 (the junction closes)
+  //       y 46   device everywhere 13..21.50
+  //       y 45   device ..18.90,  FIELD 19.00..19.50,  device 19.60..21.10
+  //       y 44   device ..19.00,  FIELD 19.25..19.50,  device 19.75..21.00
+  //       y 43   FIELD 17.75..19.00,  device 19.50..21.25
+  //
+  //     There is BARE FIELD at 19.0..19.5 on y 43, 44 and 45, and our prong was
+  //     drawn straight through it at 17.52..19.42. And there is bare field at
+  //     19.75..21.10 on y 48, so the prong is not out there yet on that row:
+  //     the swing happens between y 48 and y 45, in the two rows where the
+  //     junction is closed and nothing can be read. That is why no row-by-row
+  //     estimator found it on its own.
+  //   · THE FLOOD MASK's isolated run, which needs no interpretation because on
+  //     these rows the mark is bounded on BOTH sides: y 44.5 19.65..21.10,
+  //     y 44 19.55..21.25, y 43.5 19.40..21.35. Centre 20.38/20.40/20.38, and
+  //     the width at y 44 is 1.70 against this prong's own measured 1.85..1.94
+  //     at y 50..53. unc2005 confirms the INBOARD face and only that (its own
+  //     device resumes at 19.35 on y 43.5..44.5 where proofbright's gap is
+  //     19.15..19.55); outboard it has merged.
+  //   · THE DARK RELIEF OUTLINE (`_dr17oakfork.mjs runs 15 25`), which never
+  //     touches the flood mask. On proofbright it traces ONE continuous mark
+  //     with no gaps wider than the crown rows: 17.05 (y 54), 17.25, 17.45,
+  //     17.70, 17.98 (y 52), 18.80 (y 50), 18.98, 19.15, 19.23 (y 48.5),
+  //     20.23 (y 47.5), 20.45 (y 47), 20.70 (y 45), 20.78 (y 44.5), 20.75
+  //     (y 44). That estimator reads 0.36 OUTBOARD of the round-38 pocket fit
+  //     on the rows they share (18.80 against 18.44 at y 50), so it is quoted
+  //     as a DELTA and not as a position: +1.95 from y 50 to y 44.
+  //
+  //     18.44 + 1.95 = 20.39.   mask run 20.40.   runs track −0.36 = 20.39.
+  //
+  // So `PRONG.out` is 20.40 and it is a measurement, not an extrapolation. What
+  // is still NOT measured is the SHAPE of the swing across y 46..47, where both
+  // files are one slab: a smoothstep is drawn because those two rows cannot
+  // discriminate between any two curves that share the endpoints.
+  //
+  // AND THE FOOT OF THE PRONG WAS 0.86 UNITS WIDE AT THE CROTCH. Round 38
+  // measured this prong's width at 1.85..1.94 on y 50..53 and then let the old
+  // `(y - 42) / 2.4` taper — written when the prong's top was at y 42 — run all
+  // the way down as well, so the mark that leaves the crotch was drawn half the
+  // width of the mark 1.5 units above it. On proofbright's mask the coin's is
+  // 15.70..17.50 at y 54.5, 15.83..17.65 at y 54 and 15.95..17.80 at y 53.5 —
+  // 1.80, 1.82, 1.85, i.e. full width at the divergence and no taper there at
+  // all. The bottom taper now closes at y 55.9, a unit and a half INSIDE the
+  // trunk, so the only thing it does is stop the prong's outboard face poking
+  // past the trunk's settled 17.03..17.35 on rows y 55..56.
+  const PRONG = { top: 40.3, foot: 55.9, hw: 0.95, out: 20.40, from: 48, to: 45.5 };
+  /** the OUTBOARD prong's centre, as an offset, at height `y`. Oak only.
+   *  Below y 48 it is `forkOut` — the measured channel wall — plus a half
+   *  width, so the face that makes the channel is the fitted one. Above y 48 it
+   *  swings out to the measured 20.40 and stays there. */
+  const prongC = (y) => {
+    const base = forkOut(y) + PRONG.hw;
+    const u = Math.max(0, Math.min(1, (PRONG.from - y) / (PRONG.from - PRONG.to)));
+    return base + (PRONG.out - (17.52 + PRONG.hw)) * u * u * (3 - 2 * u);
+  };
+  /** its half-width: fused into the trunk at the bottom, a point at the top,
+   *  and 0.79 rather than 0.95 above y 44 (the mask's own 1.70 there). */
+  const prongHW = (y) => PRONG.hw
+    * Math.max(0, Math.min(1, (PRONG.foot - y) / 1.2, (y - PRONG.top) / 2.6,
+      1 - 0.17 * Math.max(0, Math.min(1, (47 - y) / 3))));
   // ⚠️ THE TWO SUBPATHS MUST WIND THE SAME WAY, and the first version of this
   // did not. `<path>` fills with the NONZERO rule, so a second subpath that
   // runs the other way round CANCELS wherever it overlaps the first — and the
@@ -5678,7 +5747,8 @@ function torch(p) {
   // absolute outside — arithmetically impossible for added ink, and the tell.
   // Both subpaths now run top point → down the OUTBOARD edge → bottom point →
   // up the INBOARD edge.
-  const PRONG_YS = [43, 45, 47, 48.5, 49.9, 51, 52, 53, 54, 54.6];
+  const PRONG_YS = [41.2, 42, 43, 44, 45, 45.8, 46.6, 47.4, 48, 49, 49.9, 51, 52,
+    53, 54, 54.6, 55.3];
   const STEM_YS = [39.25, 40.1, SC.tail, 72.5, 74, 75];
   // THE OAK'S FOOT HAS THREE POINTS AND OURS HAD ONE, THEN TWO. `stemHW`'s
   // taper closed the branch to a single rounded point at (14.05, 75.7); round
@@ -5728,7 +5798,42 @@ function torch(p) {
   // These five rows are exactly the corners of the measured shape: where the
   // ramp starts (58), where it reaches the measured faces (62), where the
   // inboard flare starts (66) and ends (68), and the last row before the foot.
-  const OAK_YS = [39.25, 40.1, 46, 48, 49.5, 51, 52, 53, 53.8, 54.35, FORK.y,
+  // ── ROUND 40: THE INBOARD PRONG STOPS AT y 52. IT WAS DRAWN TO y 38.4.
+  //
+  // "The left branch should end almost immediately where it transitions to 2
+  // overlapping leaves" — the owner, reading the coin. It is right, and the
+  // reason no measurement in this file had caught it is that the thing our
+  // prong was drawn along IS there on the photograph: `forkIn`, the fork
+  // channel's inboard wall, is a real edge on both files from y 54.4 up to
+  // y 48. That edge is just not this prong. Above y 52 it is a LEAF EDGE.
+  //
+  // What the photograph shows, on `_dr17oakfork.mjs crop 59 69 45 58 100`: the
+  // prong leaves the crotch heading up and INBOARD, and by y ≈ 52.2 it runs
+  // under the scalloped bottom edge of a leaf mass that spans x 59..64 — the
+  // two overlapping blades — and does not come out the other side. Everything
+  // above that, all the way to the crown, is foliage. `forkIn`'s own numbers
+  // say the same thing once they are read as a shape rather than a fit: the
+  // wall stands at 15.00..15.15 from y 54.4 to 52.5 (a straight twig) and then
+  // climbs to 15.95 by y 50 and turns over again at 15.78 by y 48 (a scallop).
+  // A branch does not do that in 4 units; a leaf margin does.
+  //
+  // THE TIP IS AT (14.27, 52.0), which is `forkIn(52) − FORK.hw`, i.e. the
+  // prong keeps its measured outboard face right up to where it ends and the
+  // taper is symmetric about its own centreline. The owner's own reading off
+  // the gridded proof puts the transition at x 64..65 on that file, which is
+  // offsets 13.65..14.65 in this frame — the tip sits inside it.
+  //
+  // WHAT THIS COSTS, stated plainly because it is not small: our ELEMENT no
+  // longer draws the fork channel's inboard wall on rows y 48..52. The coin's
+  // wall on those rows is a leaf margin and the leaves are the next round's;
+  // until they are re-cut, that wall is missing from the drawing. The settled
+  // "channel width y 48..53 within 0.20 of proofbright" is a statement about
+  // rows 52..53, which still hold, plus four rows that this element has
+  // correctly stopped claiming.
+  const OAKTIP = { top: 52.0, taper: 0.9 };
+  /** the inboard prong's tip taper: 0 at its end, 1 once it is full width */
+  const oakTipT = (y) => Math.max(0, Math.min(1, (y - OAKTIP.top) / OAKTIP.taper));
+  const OAK_YS = [52.25, 52.6, 53, 53.8, 54.35, FORK.y,
     TRUNK.top, TRUNK.full, TRUNK.from, TRUNK.to, 69.5];
   const OAK_FOOT_OUT = [[17.30, 70.2], [17.60, 71.0], [17.40, 71.6],
     [16.60, 72.4], [15.15, 73.8]];
@@ -5744,9 +5849,9 @@ function torch(p) {
         + STEM_YS.slice().reverse().map((y) => ` L ${P(y, -1)}`).join('')
         + ' Z"/>';
     }
-    const P = (y, s) => `${x(oakC(y) + s * oakHW(y))} ${y}`;
+    const P = (y, s) => `${x(oakC(y) + s * oakHW(y) * oakTipT(y))} ${y}`;
     const F = (p) => `${x(p[0])} ${p[1]}`;
-    const d = `M ${P(SC.top, 0)}`
+    const d = `M ${P(OAKTIP.top, 0)}`
       + OAK_YS.map((y) => ` L ${P(y, 1)}`).join('')
       + OAK_FOOT_OUT.map(F).map((p) => ` L ${p}`).join('')
       + ` L ${F(OAK_TIP)}`
@@ -5754,9 +5859,9 @@ function torch(p) {
       + OAK_YS.slice().reverse().map((y) => ` L ${P(y, -1)}`).join('')
       + ' Z';
     const Q = (y, s) => `${x(prongC(y) + s * prongHW(y))} ${y}`;
-    return `<path d="${d} M ${Q(42, 0)}`
+    return `<path d="${d} M ${Q(PRONG.top, 0)}`
       + PRONG_YS.map((y) => ` L ${Q(y, 1)}`).join('')
-      + ` L ${Q(55.6, 0)}`
+      + ` L ${Q(PRONG.foot, 0)}`
       + PRONG_YS.slice().reverse().map((y) => ` L ${Q(y, -1)}`).join('')
       + ' Z"/>';
   };

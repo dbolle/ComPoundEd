@@ -3,6 +3,71 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.107.0 — 2026-08-27
+
+**The oak's left prong ends almost at once; the right one goes up and OUT, not
+straight up.** Twelfth element round on the dime reverse, and the first set by
+the owner's own reading of the coin instead of by a metric. Partition:
+`dime.reverse` alone, 6/60 cells, all sizes. D9 0 faulty over 180 renders. D6
+reverse **0.0933** against a 0.50 gate; D7's authored-turn census unchanged
+(worst 148.3° is the olive's, untouched); D8 0.0000 % both sides. Suite
+464/464.
+
+**THE THREE FAULTS.** The owner, reading the gridded proof: *"The left branch
+should end almost immediately where it transitions to 2 overlapping leaves. The
+right branch is too thin at the point of divergence, and then traces up the
+acorn stem instead of continuing up to the right and tapering to where the 3
+leaf bundle starts."* All three held.
+
+| | drawn before | the coin | drawn now |
+|---|---|---|---|
+| inboard prong ends at | y 38.4 | y ≈ 52 (leaves take over) | **y 52.0**, tip (14.27, 52.0) |
+| outboard prong at y 54 | 0.86 wide | 1.90 (15.75..17.65) | **1.95** (15.90..17.85) |
+| outboard prong at y 44 | 17.52..19.42 | 19.55..21.25 | **19.60..21.20** |
+
+**WHY NO MEASUREMENT HAD CAUGHT IT.** Channel width constrains only the GAP
+between the two prongs over y 48..53. Both prongs can be displaced together, or
+run the wrong way above y 48, and it still measures 1.50. The whole-element
+figure has the same blindness in the other direction: it averaged a 79.6 % band
+into two 99 % ones and reported 94.7 %. The new instrument
+(`judge/_dr18prong.mjs`) scores the branch element alone, band by band, at each
+file's own registration:
+
+| band | before pb / unc | after pb / unc |
+|---|---|---|
+| upper prongs y36–44 | 79.6 / 66.9 % | **100.0 / 100.0 %** |
+| prong mid y44–48 | 99.8 / 97.2 % | 97.4 / 99.2 % |
+| fork y48–54 | 97.8 / 100.0 % | 95.8 / 100.0 % |
+| trunk y54–62 | 95.7 / 96.0 % | 95.3 / 96.1 % |
+| trunk y62–70 | 96.6 / 95.7 % | 96.6 / 95.7 % |
+| foot y70–78 | 90.6 / 90.0 % | 90.6 / 90.0 % |
+
+The upper band carried 9.20 sq units before and 4.27 after, so a good part of
+that 20 points is ink WITHDRAWN, not ink moved — which is fault (1), stated as
+a number.
+
+**OFFSET 20.40, THREE WAYS, AGREEING TO 0.02.** The flood mask's isolated run
+at y 43.5 / 44 / 44.5 centres on 20.38 / 20.40 / 20.38 and is 1.70 wide against
+this prong's own measured 1.85..1.94 at y 50..53; unc2005 confirms its inboard
+face on the same rows and has merged outboard. The grey profile, no mask in the
+path at all, puts BARE FIELD at 19.0..19.5 on y 43, 44 and 45 — our prong was
+drawn through it — and bare field at 19.75..21.10 on y 48, so the swing happens
+between y 48 and y 45. The dark relief outline, which never touches the flood
+mask, traces one continuous mark 17.05 (y 54) → 18.80 (y 50) → 20.75 (y 44);
+quoted as a delta because it reads 0.36 outboard of the round-38 pocket fit on
+the rows they share, that is +1.95 from y 50 to y 44, and 18.44 + 1.95 = 20.39.
+
+**⚠️ SIX OAK NODES ARE STRANDED, AND THE ROUND WAS DISPATCHED WITH THAT
+RELEASED.** `2.1.13`..`2.1.17` — three blades and two petioles, 137.21 sq units
+— now float as one mass, nearest approach 0.95 units. Only the acorn was
+detached before. Their ladder rows (ay 47.37, 45.68, 40.51, 40.04) hang on
+`oakC` above the prong's new end; `oakC`/`oakHW` are unchanged so nothing moved,
+it is the ink under them that went. The leaves are the next round.
+
+**WHAT IS NOT DETERMINED.** The shape of the swing across y 46..47: both files
+are one slab from offset 13 to 21 there, so no two curves sharing the endpoints
+can be told apart. A smoothstep is drawn and labelled.
+
 ## v1.106.0 — 2026-08-27
 
 **The oak trunk flares into its foot on ONE side only, ours leaned the other

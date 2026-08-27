@@ -7,6 +7,69 @@ reconsider after calibration.
 
 ## Where we are
 
+- 🟡 **THE OAK'S TWO PRONGS: THE LEFT ONE ENDS AT y 52 AND THE RIGHT ONE GOES
+  UP AND OUT TO OFFSET 20.40, MEASURED THREE WAYS.** Twelfth element round on
+  this face, and the first driven by the owner's own reading of the coin rather
+  than by a metric. Partition: `dime.reverse` alone, 6/60 cells, all sizes. D9 0
+  faulty over 180 renders. D6 reverse **0.0933** against a 0.50 gate; D7's
+  authored-turn census unchanged (worst 148.3° is the olive's, untouched); D8
+  0.0000 % both sides. Suite 464/464. Version 1.107.0.
+  - **THE OWNER'S THREE FAULTS, ALL THREE FIXED.** (1) The inboard prong was
+    drawn from the crotch all the way to y 38.4; it now ends at **(14.27,
+    52.0)**, where the coin hands over to two overlapping leaves. (2) The
+    outboard prong was **0.86 units wide** where it leaves the crotch against
+    the coin's **1.80**; it is now 1.95 at y 54 against a measured 1.90. (3) It
+    ran near-vertical at offset 18.47 all the way to its tip; it now swings out
+    to **20.40** between y 48 and y 45.5 and tapers to a point at y 40.3.
+  - **20.40 IS A MEASUREMENT, NOT AN EXTRAPOLATION, AND THREE ESTIMATORS AGREE
+    TO 0.02.** The flood mask's isolated run at y 43.5..44.5 centres on 20.38 /
+    20.40 / 20.38 (width 1.70 against this prong's own measured 1.85..1.94 at
+    y 50..53, and unc2005 confirms the inboard face on the same rows). The
+    dark-relief outline estimator, which never touches the flood mask, traces
+    one continuous mark from 17.05 at y 54 to 20.75 at y 44 — quoted as a
+    **delta**, +1.95 from y 50 to y 44, because it reads 0.36 outboard of the
+    round-38 pocket fit on the rows they share. 18.44 + 1.95 = **20.39**.
+    Verify: `node coloringbook/judge/_dr17oakfork.mjs runs 15 25`
+  - **THE METRIC THAT MISSED IT, AND THE ONE THAT SEES IT.** Channel width only
+    constrains the GAP between the prongs over y 48..53 — both prongs can be
+    displaced together, or run the wrong way above y 48, and it still measures
+    1.50. The new instrument scores the branch element ALONE against each file's
+    device mask **at that file's own registration, band by band**, so a 20-point
+    hole cannot average into an 81 % whole-element figure:
+
+    | band | before pb / unc | after pb / unc |
+    |---|---|---|
+    | upper prongs y36–44 | 79.6 / 66.9 % | **100.0 / 100.0 %** |
+    | prong mid y44–48 | 99.8 / 97.2 % | 97.4 / 99.2 % |
+    | fork y48–54 | 97.8 / 100.0 % | 95.8 / 100.0 % |
+    | trunk y54–62 | 95.7 / 96.0 % | 95.3 / 96.1 % |
+    | trunk y62–70 | 96.6 / 95.7 % | 96.6 / 95.7 % |
+    | foot y70–78 | 90.6 / 90.0 % | 90.6 / 90.0 % |
+
+    Read the ink column with it: the upper band carried **9.20 sq units before
+    and 4.27 after**, so a good part of that 20 points is ink withdrawn rather
+    than ink moved — which is the point of fault (1).
+    Verify: `node coloringbook/judge/_dr18prong.mjs bands` · `over` · `reg`
+  - **⚠️ SIX OAK NODES ARE NOW STRANDED AND THAT IS THE PRICE OF FAULT (1).**
+    `2.1.13`..`2.1.17` — three blades and two petioles, **137.21 sq units** —
+    float as one mass whose nearest approach to the rest of the branch is
+    **0.95 units**. Before this round only the acorn (`2.1.18`, 16.34 sq units)
+    was detached, deliberately and on the record. The leaves are the next
+    round's and were released for exactly this; the branch was NOT contorted to
+    keep them on. The stranded blades' anchors are the ladder rows ay 47.37,
+    45.68, 40.51 and 40.04, all of which hang on `oakC` above the prong's new
+    end at y 52. `oakC`/`oakHW` are unchanged, so no leaf moved by a thousandth.
+  - **WHAT THIS ELEMENT NO LONGER CLAIMS.** The fork channel's inboard wall on
+    rows y 48..52 is a LEAF MARGIN on the coin (`forkIn` stands at 15.00..15.15
+    from y 54.4 to 52.5, then climbs to 15.95 by y 50 and turns back to 15.78 by
+    y 48 — a scallop, not a twig). Our prong was drawn along it; it is not
+    drawn along it any more, and until the leaves are re-cut those four rows
+    have no inboard wall in the drawing. The settled "channel within 0.20" holds
+    on rows 52..53.
+  - **NOT DETERMINED: the SHAPE of the swing across y 46..47.** Both files are
+    one slab from offset 13 to 21 on those two rows — the junction closes — so
+    they cannot discriminate between any two curves sharing the endpoints. A
+    smoothstep is drawn and it is labelled as the free parameter it is.
 - 🟡 **THE OAK TRUNK FLARES INTO ITS FOOT ON ONE SIDE ONLY, AND THE JUDGE'S
   "BLUNT BARB" IS REFUTED WITH THE NUMBER.** Eleventh element round on this
   face. Partition: `dime.reverse` alone, 6/60 cells, all sizes. D9 0 faulty
