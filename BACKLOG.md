@@ -7,6 +7,47 @@ reconsider after calibration.
 
 ## Where we are
 
+- 🟡 **THE OAK TRUNK FLARES INTO ITS FOOT ON ONE SIDE ONLY, AND THE JUDGE'S
+  "BLUNT BARB" IS REFUTED WITH THE NUMBER.** Eleventh element round on this
+  face. Partition: `dime.reverse` alone, 6/60 cells, all sizes. D9 0 faulty
+  over 180 renders. D6 reverse **0.0922** unchanged against a 0.50 gate; D7's
+  authored-turn census unchanged (2 obverse / 19 reverse over 75°, same worst);
+  D8 0.0000 % both sides. Suite 464/464. Version 1.106.0.
+  - **The trunk's taper was backwards, and it was two faults that cancelled.**
+    Pooled flood mask at erode 0, eight clean rows: the coin's OUTBOARD face is
+    stationary at **17.03 ± 0.07** over y 62..69 while the INBOARD face sweeps
+    14.68 → 14.48 below y 66. Ours leaned inboard 17.05 → 16.90 (that is
+    `SC.b`, a slope fitted on both branches at once) while sweeping inboard
+    0.25, so 0.15 of our own flare was cancelled and 2.10 → 2.20 was all that
+    showed of the coin's 2.34 → 2.55. Now **2.40 → 2.60**, worst face error
+    **0.10** where it was 0.30.
+    Verify: `node coloringbook/judge/_dr13elem.mjs score 2.1.4 oak-stem --erode 0`
+  - **The olive is byte identical and that is what forced the code's shape.**
+    `stemC`/`stemHW` are the mirrored mark's and are untouched; the trunk is
+    drawn from two new oak-only faces (`oakTrunkOut`, `trunkIn`), the same
+    per-plant override `oakC`, `oakHW` and `OAKROT` already are. 105 of the
+    108 emitted paths are byte identical; the 3 that differ are the oak stem
+    at its three tiers. **No oak leaf moved at all** — the ramp starts at y 58
+    and the lowest ladder row attaches at ay 57.00; overlap with all twelve
+    sibling elements is unchanged to 0.01 sq units.
+  - **The five new rows in `OAK_YS` are not decoration.** The old list jumped
+    FORK.y → 69.5, so the whole trunk was ONE straight-sided quadrilateral and
+    no per-row face function could show in it. Any future trunk shape needs a
+    vertex at the row it happens on.
+  - **⚠️ THE JUDGE'S "BLUNTER AND SHORTER BARB" DOES NOT HOLD, third wrong
+    visual read in this sequence.** Our barb tip is (13.30, 75.4); proofbright's
+    is (13.10, **74.9**) and unc2005's is (13.05, **76.2**) — ours is 0.5
+    LONGER than one file and 0.8 shorter than the other, i.e. at the pooled
+    value, inside a 1.3-unit disagreement. Bluntness, measured as the width
+    0.5 units above the tip: ours **0.72**, proofbright **1.30**, unc2005
+    **0.85** — ours is the SHARPEST of the three. Its inboard edge tracks the
+    pooled edge within 0.10 on every row y 70..75 and the notch floors at
+    y 69.85 against a pooled 69.7. Nothing in the foot was changed this round.
+  - **What is still not drawn, with the number.** Both files see a WAIST at
+    y 57..58.5 — outboard face 16.80 (pb 16.85, unc 16.75) against 17.08 at
+    y 56 and 17.10 at y 62. Those rows carry a leaf, so only the outboard half
+    of it is readable, and drawing half a waist would move the y-57.0 leaf for
+    a shape no estimator has both sides of. Next round's subject.
 - 🟡 **THE FORK IS A SLOT AND NOT A WEDGE, THE REGISTRATION IT WAS FITTED IN
   WAS 0.55 OUT, AND THE OAK'S FOOT HAS ITS THIRD POINT.** Tenth element round
   on this face. Partition: `dime.reverse` alone, 6/60 cells, all sizes — 12

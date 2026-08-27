@@ -4955,19 +4955,91 @@ function torch(p) {
   };
   /** how far across the crotch we are: 0 at the trunk, 1 once forked */
   const forkT = (y) => Math.max(0, Math.min(1, (FORK.y - y) / FORK.blend));
+  // ── ROUND 39: THE OAK TRUNK FLARES TOWARD THE FOOT, ON ITS INBOARD FACE
+  // ONLY, AND OURS WAS A PARALLEL SLAB THAT LEANED THE OTHER WAY.
+  //
+  // The flood mask at erode 0, eight clean rows, both files, in the round-38
+  // registration (pb −0.35, unc +0.65 — widths need no registration at all,
+  // only the faces do):
+  //
+  //     y        62    63    64    65    66    67    68    69
+  //   pb   in  14.75 14.80 14.75 14.75 14.70 14.55 14.45 14.60
+  //        out 17.10 17.05 17.00 17.00 16.95 17.05 17.10 17.15
+  //   unc  in  14.55 14.55 14.65 14.65 14.65 14.60 14.50 14.45
+  //        out 17.10 17.05 17.05 17.00 16.95 17.00 17.00 17.05
+  //   pool in  14.65 14.68 14.70 14.70 14.68 14.58 14.48 14.53
+  //        out 17.10 17.05 17.03 17.00 16.95 17.03 17.05 17.10
+  //   width     2.45  2.38  2.33  2.30  2.28  2.45  2.58  2.58
+  //   OURS      2.10  2.15  2.10  2.15  2.15  2.20  2.15  2.20
+  //
+  // TWO SEPARATE FAULTS, and the second is why the first never showed up as a
+  // width. (a) The coin's OUTBOARD face does not move: 17.03 ± 0.07 over all
+  // eight rows on the pooled reading and on each file taken alone. Ours leans
+  // INBOARD at `SC.b` = −0.0294 per unit of y, 17.05 → 16.90, because it is
+  // drawn off `stemC`, a centreline fitted on both branches at once. (b) The
+  // coin's INBOARD face sweeps out below y 66 — flat at 14.68 from y 62 to 66,
+  // then 14.48 by y 68 — and ours sweeps at about the right rate but from
+  // 0.2 too far outboard. Our own flare, 0.25 of inboard sweep, was cancelled
+  // by 0.15 of outboard lean, leaving 0.10 of the coin's 0.30.
+  //
+  // WHY THIS IS NOT THE `stemHW` WIDENING THAT WAS REFUSED. That refusal
+  // (written out above `stemHW`) is about the ABSOLUTE width, where the flood
+  // mask counts a proof's bevel skirt as device and the dark-relief estimator
+  // disagrees by 0.5. A skirt is a CONSTANT added to both faces, so it cancels
+  // in a difference between rows and it cannot be one-sided: the flare measured
+  // here is 0.20 on the inboard face with the outboard face stationary, on both
+  // files independently, which no symmetric skirt can produce. The second
+  // estimator is consistent as far as it reaches — `_dr14oakstem.mjs line`
+  // reads the oak trunk at 2.30/2.55 (pb/unc) near y 62 and 2.40/2.50 at
+  // y 68..69 — but it cannot arbitrate, because the legend blanks its rows
+  // y 62.5..67.5 and it never sees the middle of the span. Stated as a limit,
+  // not chased.
+  //
+  // AND THE OLIVE IS UNTOUCHED, which is what forced the shape of this code.
+  // `stemC`/`stemHW` are the mirrored mark's and stay byte identical (verified
+  // by diffing the rendered olive path). Everything below is oak-only, the
+  // same per-plant override `oakC`, `oakHW` and `OAKROT` already are.
+  //
+  // WHAT IS NOT MEASURED, AND SO NOT DRAWN. Above y 62 the foliage closes over
+  // the trunk on both files (three to five runs a row inboard of it), so the
+  // measured faces are ramped in over y 58..62 and the drawing above y 58 is
+  // exactly what round 38 shipped. That keeps every oak leaf where it was:
+  // the lowest ladder row attaches at ay 57.00, above the ramp.
+  //   ⚠️ ONE THING BOTH FILES SEE AND THIS DOES NOT DRAW: a WAIST at
+  //   y 57..58.5, where the outboard face reads 16.80 (pb 16.85, unc 16.75)
+  //   against 17.08 at y 56 and 17.10 at y 62. Those rows carry a leaf, so the
+  //   inboard face there is contaminated and only half the waist is readable;
+  //   drawing half of it would move the y-57.0 leaf for a shape no estimator
+  //   has both sides of. Named as the next defect instead.
+  const TRUNK = { out: 17.03, in: 14.68, flare: 0.10, from: 66, to: 68, top: 58, full: 62 };
+  /** how much of the measured trunk is in force: 0 above y 58, 1 from y 62 */
+  const trunkT = (y) => Math.max(0, Math.min(1, (y - TRUNK.top) / (TRUNK.full - TRUNK.top)));
+  /** the trunk's INBOARD face where the mask can see it, y 62..69.5 */
+  const trunkIn = (y) => TRUNK.in
+    - TRUNK.flare * Math.max(0, Math.min(TRUNK.to - TRUNK.from, y - TRUNK.from));
+  /** the OAK TRUNK's outboard face: the olive's, closing onto the measured one */
+  const oakTrunkOut = (y) => {
+    const t = trunkT(y);
+    return (stemC(y) + stemHW(y)) * (1 - t) + TRUNK.out * t;
+  };
+  /** half the OAK TRUNK's width: the olive's, opening onto the measured faces */
+  const oakTrunkHW = (y) => {
+    const t = trunkT(y);
+    return stemHW(y) * (1 - t) + ((TRUNK.out - trunkIn(y)) / 2) * t;
+  };
   /** its half-width: the trunk's, blending to a prong's across the crotch */
   const oakHW = (y) => {
     const t = forkT(y);
     const tip = Math.max(0, Math.min(1, (y - SC.top) / 1.7));
-    return stemHW(y) * (1 - t) + FORK.hw * tip * t;
+    return oakTrunkHW(y) * (1 - t) + FORK.hw * tip * t;
   };
   /** the OAK's centreline: the trunk below the crotch, the inboard prong above.
-   *  Derived so the OUTBOARD FACE lands on `forkIn` — that face is the measured
-   *  quantity and the centre is whatever puts it there. */
+   *  Derived so the OUTBOARD FACE lands on `forkIn` above the crotch and on
+   *  `oakTrunkOut` below it — that face is the measured quantity at both ends
+   *  and the centre is whatever puts it there. */
   const oakC = (y) => {
     const t = forkT(y);
-    if (t === 0) return stemC(y);
-    const face = (stemC(y) + stemHW(y)) * (1 - t) + forkIn(y) * t;
+    const face = oakTrunkOut(y) * (1 - t) + forkIn(y) * t;
     return face - oakHW(y);
   };
   // ⚠️ THE TERMINAL LEAF'S ANGLE IS CHANGED FROM THE TABLE'S 77 TO 86, AND THE
@@ -5649,7 +5721,15 @@ function torch(p) {
   // measurement: the olive is out of this round's scope and must stay byte
   // identical. The coin's two branches are one mirrored mark elsewhere in this
   // block, so the olive's foot is very likely three-pointed too. Next round.
-  const OAK_YS = [39.25, 40.1, 46, 48, 49.5, 51, 52, 53, 53.8, 54.35, FORK.y, 69.5];
+  // ⚠️ THE ROWS y 58..69.5 ARE NEW AND THEY ARE NOT DECORATION. Round 38's
+  // list jumped straight from FORK.y to 69.5, so the whole trunk was ONE
+  // straight-sided quadrilateral and no per-row face function could show in it
+  // — `oakC`/`oakHW` were sampled at two heights and interpolated between.
+  // These five rows are exactly the corners of the measured shape: where the
+  // ramp starts (58), where it reaches the measured faces (62), where the
+  // inboard flare starts (66) and ends (68), and the last row before the foot.
+  const OAK_YS = [39.25, 40.1, 46, 48, 49.5, 51, 52, 53, 53.8, 54.35, FORK.y,
+    TRUNK.top, TRUNK.full, TRUNK.from, TRUNK.to, 69.5];
   const OAK_FOOT_OUT = [[17.30, 70.2], [17.60, 71.0], [17.40, 71.6],
     [16.60, 72.4], [15.15, 73.8]];
   const OAK_TIP = [13.30, 75.4];

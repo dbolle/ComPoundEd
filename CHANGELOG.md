@@ -3,6 +3,83 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.106.0 — 2026-08-27
+
+**The oak trunk flares into its foot on ONE side only, ours leaned the other
+way, and the two faults cancelled.** Eleventh element round on the dime
+reverse. Partition: `dime.reverse` alone, 6/60 cells, all sizes — 3 of the 108
+emitted paths differ and all three are the oak stem, so the olive is byte
+identical. D9 0 faulty over 180 renders. D6 reverse **0.0922** unchanged
+against a 0.50 gate; D7's authored-turn census unchanged; D8 0.0000 % both
+sides. Suite 464/464.
+
+**THE FAULT.** Flood mask at erode 0, eight clean rows, both files, in the
+round-38 registration (widths need no registration; only the faces do):
+
+| y | 62 | 63 | 64 | 65 | 66 | 67 | 68 | 69 |
+|---|---|---|---|---|---|---|---|---|
+| pooled inboard face | 14.65 | 14.68 | 14.70 | 14.70 | 14.68 | 14.58 | 14.48 | 14.53 |
+| pooled outboard face | 17.10 | 17.05 | 17.03 | 17.00 | 16.95 | 17.03 | 17.05 | 17.10 |
+| pooled width | 2.45 | 2.38 | 2.33 | 2.30 | 2.28 | 2.45 | 2.58 | 2.58 |
+| before | 2.10 | 2.15 | 2.10 | 2.15 | 2.15 | 2.20 | 2.15 | 2.20 |
+| **after** | **2.40** | **2.40** | **2.40** | **2.40** | **2.40** | **2.50** | **2.60** | **2.60** |
+
+**TWO FAULTS THAT CANCELLED.** The coin's outboard face does not move —
+17.03 ± 0.07 on the pooled reading and on each file taken alone. Ours leaned
+inboard at `SC.b` = −0.0294 per unit of y, 17.05 → 16.90, because it was drawn
+off `stemC`, a centreline fitted on both branches at once. Our inboard face
+swept out 0.25, close to the coin's 0.20, and the outboard lean ate 0.15 of it.
+Worst face error 0.30 → **0.10**.
+
+**WHY THIS IS NOT THE `stemHW` WIDENING THAT WAS REFUSED.** That refusal is
+about ABSOLUTE width, where the flood mask counts a proof's bevel skirt as
+device and the dark-relief estimator disagrees by 0.5. A skirt is a constant
+added to BOTH faces: it cancels in a difference between rows and it cannot be
+one-sided. What is measured here is 0.20 of sweep on the inboard face with the
+outboard face stationary, on each file independently. The second estimator is
+consistent as far as it reaches (`_dr14oakstem.mjs line` reads the oak trunk at
+2.30/2.55 near y 62 and 2.40/2.50 at y 68..69) but cannot arbitrate: the legend
+blanks its rows y 62.5..67.5 and it never sees the middle of the span.
+
+**THE OLIVE IS BYTE IDENTICAL**, verified by diffing all 108 emitted paths —
+`stemC`/`stemHW` are untouched and the trunk is drawn from two new oak-only
+faces, the same per-plant override `oakC`/`oakHW`/`OAKROT` already are. **No
+oak leaf moved**: the measured shape is ramped in over y 58..62 because the
+foliage closes over the trunk above y 62 on both files, and the lowest ladder
+row attaches at ay 57.00. Overlap with all twelve sibling elements is unchanged
+to 0.01 sq units; of 3.04 new sq units of ink, 2.90 is exclusive.
+
+**⚠️ THE JUDGE'S "BLUNTER AND SHORTER BARB" IS REFUTED, WITH THE NUMBER, and
+nothing in the foot is changed.** Our barb tip is (13.30, 75.4); proofbright's
+is (13.10, 74.9) and unc2005's is (13.05, 76.2) — ours is 0.5 longer than one
+file and 0.8 shorter than the other, i.e. at the pooled value and inside a
+1.3-unit disagreement. Bluntness as the width 0.5 units above the tip: ours
+0.72, proofbright 1.30, unc2005 0.85 — ours is the sharpest of the three. The
+barb's inboard edge tracks the pooled edge within 0.10 on every row y 70..75,
+its axis is 3.35 units long at 9.5° off vertical against a pooled 3.49 at
+13.2°, and the notch floors at y 69.85 against a pooled 69.7.
+
+**SCORES**, absolute sq units, element ink 93.61 → 96.65:
+
+| | covered before | covered after | outside before | outside after |
+|---|---|---|---|---|
+| proofbright, erode 0 | 90.06 | **91.53** | 3.55 | **5.12** |
+| proofbright, erode 0 `--reopen 1.0` | 86.37 | **87.84** | 7.24 | **8.81** |
+| unc2005, erode 0 | 76.96 | **79.48** | 16.65 | **17.17** |
+
+OUTSIDE rises on both files and that is arithmetic, not a regression: the score
+is unregistered, the two photographs disagree by 1.00 unit in coin x, and the
+drawing sits between them — so widening toward the pooled faces necessarily
+crosses one file's raw mask. Of the 3.04 sq units of ink added, 1.47 lands on
+proofbright's mask and 2.52 on unc2005's — a mean of **2.00 on device against
+1.05 outside**.
+
+**WHAT IS STILL NOT DRAWN.** Both files see a WAIST at y 57..58.5 — outboard
+face 16.80 (pb 16.85, unc 16.75) against 17.08 at y 56 and 17.10 at y 62. Those
+rows carry a leaf, so only the outboard half of it is readable, and drawing
+half a waist would move the y-57.0 leaf for a shape no estimator has both sides
+of. Named rather than chased.
+
 ## v1.105.0 — 2026-08-27
 
 **The fork is a SLOT and not a wedge, the registration it was fitted in was
