@@ -7,7 +7,91 @@ reconsider after calibration.
 
 ## Where we are
 
-- 🟡 **THE OAK'S OUTBOARD PRONG IS ONE STRAIGHT LEAN, AND ITS OUTBOARD FACE WAS
+- 🟡 **THE PRONG'S WIDTH WAS MEASURED WITH ONE EDGE DEFINITION AND ITS FACE
+  WITH ANOTHER, AND THE BRANCH CARRIED THE DIFFERENCE. 1.90 → 1.50/1.16.**
+  Fourteenth element round on this face, third driven by the owner's reading of
+  the coin. Partition: `dime.reverse` alone, 3 of 108 emitted paths — every
+  other emitted path across 4 coins × 2 sides × 3 sizes is byte-identical, and
+  inside the one path that changed the oak subpath is byte-identical too. D9
+  150 renders clean. D6 reverse **0.0934** against a 0.50 gate; D7 reverse's
+  fitted subject is empty, worst authored turn unchanged at 148.3° (the
+  olive's); D8 dime reverse 0.0000 %. Suite 225 + 239 = 464/464.
+  Version 1.109.0.
+  - **THE OWNER.** *"The path of the right branch is very good. It is too thick
+    overall though, it is well lined up on its right side, but overflows the
+    left side. The left branch path is improved, but has similar issues."*
+  - **THREE EDGE DEFINITIONS, 0.95 UNITS APART, ON ONE ROW.** A branch on
+    proofbright is a mid-grey RIDGE between two DARK SHADOW VALLEYS with bright
+    field outside. At y 53 the outboard prong reads 16.90..17.90 (**1.00**)
+    valley-to-valley, 16.70..18.20 (**1.50**) half-max, 16.45..18.40 (**1.95**)
+    on the 237-cut footprint. Every fit this branch has ever had — round 38's
+    pocket, round 39's trunk, round 41's `PFACE` — used the third.
+  - **THE STANDARD IS CHOSEN BY CALIBRATION ON AN ACCEPTED FEATURE.** The oak
+    TRUNK (round 39, never called thick) at y 68: 237-cut 14.78..17.35 (2.57),
+    **half-max 14.95..17.15 (2.20)**, valley-to-valley 15.10..16.95 (1.85), and
+    OUR OWN render 15.10..17.25 (2.15). We are 0.15 in / 0.10 out of half-max
+    and 0.30..0.42 from the other two. **Half-max is the width standard.** It is
+    also the only one that runs unchanged on our own render.
+  - **THE PRONG, HALF-MAX, ISOLATED ROWS.** pooled **1.51** over y 50..54.5 and
+    **1.15** over y 44..48 (pb 1.40..1.50 and 0.95..1.25; unc 1.40..1.65 and
+    0.80..1.70, quoted not reasoned from). Drawn was 1.90 flat. Rows y 48.5..
+    49.5 are the two marks fusing and are not used — the ramp across them is
+    the round's one interpolation.
+
+    | y | 54 | 53 | 52 | 51 | 50 | 48 | 47.5 | 45 | 44 |
+    |---|---|---|---|---|---|---|---|---|---|
+    | coin, half-max | 1.50 | 1.50 | 1.50 | 1.45 | 1.45 | 0.95 | 1.00 | 1.05 | 1.25 |
+    | drawn before | 1.90 | 1.90 | 1.95 | 1.90 | 1.90 | 1.95 | 1.90 | 1.70 | 1.60 |
+    | drawn now | 1.50 | 1.50 | 1.55 | 1.50 | 1.50 | 1.20 | 1.20 | 1.20 | 1.15 |
+
+    Verify: `node coloringbook/judge/_dr20prongwidth.mjs hm 43 55 16 23`
+    Look: `node coloringbook/judge/_dr20prongwidth.mjs over 65.5 72 48 56 150
+    --edge` — our outline in red ON each photograph at that file's own
+    registration, 150 px/unit, photograph visible underneath. That picture is
+    the gate; every number above only says by how much.
+  - **THE FACE DID NOT MOVE, AND IT IS PROVED BY THE EMITTED PATH.** The
+    seventeen points down the prong's outboard edge from the tip to the crotch
+    are unchanged character for character (`70.73 41.2 L 71.02 42 … L 67.37
+    54.6`); only the inboard return moved, plus the two FOOT-TAPER points at
+    y 55.3/55.9 (0.10 and 0.20 outboard) which are buried inside the trunk —
+    the rendered outboard end at y 55.0/55.5 is 17.55/17.50 before and after. Half-max would pull `PFACE` 0.26 inboard at y 53 — that is the path
+    the owner just approved, refused with the number. Mechanically the prong is
+    now `prongFace(y) − prongHW(y)`, where above the knee `prongFace` is round
+    41's parabola PLUS round 41's half-width, the only construction that holds
+    that face fixed while the width changes underneath it.
+  - **THE CROTCH IS NOT SPECIAL.** Half-max reads 1.45 at y 54.5 and 1.50 at
+    y 54, the same as every row up to y 50. The "1.95 at the crotch" was the
+    237-cut, which is 0.45 wider than half-max *everywhere* on this branch.
+  - **THE INBOARD PRONG IS NOT CHANGED AND THE REASON IS A MEASUREMENT.** Its
+    inboard face is never separable (round 38); the 237-cut brackets it on
+    three proofbright rows only and gives 2.30 / 1.95 / 1.25 at y 53.5/54/54.5,
+    a spread of 1.05. Half-max at y 53.5 — the one row where both its faces are
+    readable — gives 13.80..15.40 against our drawn 13.80..15.35: **0.00 on the
+    inboard face, 0.05 on the outboard.** `FORK.hw` stays 0.78.
+  - **PUBLISHED AGAINST ITSELF.** FILL FELL, by construction: its target is the
+    flood mask, i.e. the footprint, and we deliberately stopped drawing the
+    shadow skirt. Raw 28.37 → 25.68 %, exclusive 34.95 → 32.60 %, ink 79.60 →
+    72.90 sq units. OUTSIDE moved the right way on proofbright, **7.34 → 5.58**
+    sq units (9.22 → 7.65 %); on unc2005 the absolute outside is **unchanged at
+    15.44** and only its ratio rises (19.39 → 21.18 %) because the denominator
+    shrank — that file fuses the region into one slab. On `_dr13elem score`,
+    a different window and mask setting again, the absolute outside is 5.57
+    sq units before and after while its ratio rises 6.99 → 7.64 %. Three
+    numbers, one in our favour and two not; all three published. The gate is
+    the overlay. Nonzero vs evenodd area 72.90 vs 71.97 — unequal, so the two
+    subpaths still wind the same way and there is no cancelling hole.
+  - **NO LEAF MOVED.** 3 connected components before and after, stranded mass
+    137.21 + 16.34 = 153.55 sq units identical to the hundredth; `oakC` is
+    untouched so every leaf anchor is untouched.
+  - **NAMED, NOT CHASED.** Holding the approved face while using the half-max
+    width leaves the prong ~0.15..0.26 outboard of its half-max band on BOTH
+    faces — one stated uniform bias inherited from `PFACE`, removable only by
+    moving the path. And `FORK.out` (0.95) is no longer this prong's
+    half-width: it is a flood-mask/pocket quantity, it never reaches the
+    drawing, and the two are correct for different estimators. Do not
+    reconcile them.
+
+- 🟢 **THE OAK'S OUTBOARD PRONG IS ONE STRAIGHT LEAN, AND ITS OUTBOARD FACE WAS
   THE MEASURABLE THING ALL ALONG.** Thirteenth element round on this face, and
   the second driven by the owner's reading of the coin. Partition:
   `dime.reverse` alone, 3 of 108 emitted paths (the oak branch at its three

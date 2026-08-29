@@ -5797,19 +5797,115 @@ function torch(p) {
   //   slope    ——   0.46  0.46  0.46  0.46  0.46  0.46  0.41  0.29  0.17  0.06
   //
   // Monotone throughout, no flat section, no step in the slope.
-  const PRONG = { top: 40.3, foot: 55.9, hw: 0.95, out: 20.40, knee: 47.97, k: 0.0582, to: 44 };
-  /** the OUTBOARD prong's centre, as an offset, at height `y`. Oak only.
-   *  Below the knee it is the measured outboard face minus a half width, so
-   *  the fitted edge is the drawn edge. Above it, the parabola that meets that
-   *  line tangentially and comes to rest on the measured tip at y 44. */
-  const prongC = (y) => (y >= PRONG.knee
-    ? prongOut(y) - PRONG.hw
-    : PRONG.out - PRONG.k * Math.max(0, y - PRONG.to) ** 2);
-  /** its half-width: fused into the trunk at the bottom, a point at the top,
-   *  and 0.79 rather than 0.95 above y 44 (the mask's own 1.70 there). */
-  const prongHW = (y) => PRONG.hw
+  // ── ROUND 42: THE WIDTH WAS MEASURED WITH ONE EDGE DEFINITION AND THE FACE
+  // WITH ANOTHER, AND THE PRONG CARRIED THE DIFFERENCE. 1.90 → 1.50/1.16.
+  //
+  // "It is too thick overall though, it is well lined up on its right side,
+  // but overflows the left side" — the owner, reading the coin. Both halves
+  // are true and they are the same fault seen from two sides.
+  //
+  // 1. THERE ARE THREE EDGE DEFINITIONS ON THIS PHOTOGRAPH AND THEY DIFFER BY
+  // 0.95 UNITS. A raised branch on `dime-rev-proofbright.png` is a mid-grey
+  // RIDGE between two DARK SHADOW VALLEYS, with the field bright outside. At
+  // y 53 the outboard prong reads, on one row, in raw file offsets:
+  //
+  //     valley-to-valley   16.90..17.90   1.00   (the ridge alone)
+  //     HALF-MAX           16.70..18.20   1.50   (mid-slope, both sides)
+  //     237-cut footprint  16.45..18.40   1.95   (the shadows included)
+  //
+  // Every number this file has ever published for this branch came from the
+  // third. Round 38's fork channel, round 39's trunk, round 41's `PFACE` — all
+  // 237-cut or flood-mask. So "the prong is 1.90 wide" and "the prong is 1.00
+  // wide" are BOTH readings of the same row, and choosing between them by
+  // taste is how a branch ends up 26 % over at the crotch and 65 % at the tip.
+  //
+  // 2. THE CHOICE IS MADE BY CALIBRATION, ON A FEATURE THE OWNER HAS ACCEPTED.
+  // The OAK TRUNK at y 62..69 was fitted in round 39 and has not been called
+  // thick. `judge/_dr20prongwidth.mjs hm` puts proofbright's trunk at 2.00..
+  // 2.20 half-max over nine rows (2.20 at y 68: 14.95..17.15) against OUR OWN
+  // render's 15.10..17.25 — 0.15 in on the inboard face, 0.10 out on the
+  // outboard, width 2.15 against 2.20. The 237-cut would demand 2.57 and
+  // valley-to-valley 1.85; only HALF-MAX is within 0.15 of the drawing the
+  // owner accepts. HALF-MAX IS THE WIDTH STANDARD FROM HERE ON.
+  //
+  // 3. THE PRONG, half-max, on rows where it is bounded by field on both
+  // sides. `--erode 0`, reopen 1.0 on proofbright; unc2005 QUOTED, not
+  // reasoned from (its strokes are thinner than the relief):
+  //
+  //     y        54.5  54.0  53.5  53.0  52.5  52.0  51.5  51.0  50.5  50.0
+  //   pb         1.45  1.50  1.50  1.50  1.45  1.50  1.50  1.45  1.40  1.45
+  //   unc         ——    ——    ——   1.60  1.65  1.55  1.50  1.65   ——   1.40
+  //     y        48.0  47.5  45.0  44.5  44.0
+  //   pb         0.95  1.00  1.05  1.10  1.25
+  //   unc        1.25   ——   0.80  1.20  1.70
+  //
+  //   pooled y 50..54.5  →  1.51.   pooled y 44..48  →  1.15.
+  //
+  // Rows y 48.5..49.5 are the two marks fusing (round 41) and are NOT used;
+  // the ramp between the two plateaus is drawn over y 48..50 and is the one
+  // thing here that is an interpolation, because those rows cannot be read.
+  //
+  // 4. WHY THE FACE DOES NOT MOVE, WHICH IS THE WHOLE POINT. `PFACE` was fitted
+  // on the 237-cut and the owner says it is right. Half-max would pull it
+  // 0.26 inboard at y 53 (18.20 against 18.40 raw) — that is the PATH, which
+  // this round does not touch. So the face stays where it is and the width
+  // comes off the INBOARD side, which is exactly what "well lined up on its
+  // right side, but overflows the left" asks for. The drawn prong therefore
+  // sits ~0.15..0.26 outboard of its half-max band on both faces; that is one
+  // stated uniform bias inherited from the approved face, not a fit.
+  //
+  // 5. THE CROTCH IS NOT SPECIAL. Half-max reads 1.45 at y 54.5 and 1.50 at
+  // y 54 — the same as every row up to y 50. The "1.90 at the crotch" this
+  // round replaces was the 237-cut reading, and the 237-cut is 0.45 wider than
+  // half-max EVERYWHERE on this branch, not only there. There is no widening
+  // into the fork to preserve.
+  //
+  //
+  // 6. WHAT DID MOVE BESIDES THE INBOARD FACE, STATED. The two PRONG_YS rows
+  // BELOW the crotch, y 55.3 and 55.9, sit 0.10 and 0.20 further outboard
+  // because the centreline is the fixed face minus a smaller half width. They
+  // are the FOOT TAPER, buried a unit and a half inside the trunk: the
+  // element's rendered outboard end at y 55.0/55.5 is 17.55/17.50 before and
+  // after. "The face did not move" would otherwise be a claim about 17 of the
+  // subpath's 19 outboard points.
+  //
+  // ⚠️ `FORK.out` (0.95) IS NOT RE-FITTED AND `forkOut` IS NO LONGER THIS
+  // PRONG'S HALF-WIDTH. It never reaches the drawing — `forkOut` is unused by
+  // `stem()` — and its 0.95 is a flood-mask/pocket quantity verified against a
+  // flood-mask/pocket wall in round 38. The two numbers have separated because
+  // they are measured with different edge definitions, and both are correct
+  // for their own estimator. Do not "reconcile" them.
+  const PRONG = { top: 40.3, foot: 55.9, hw: 0.75, out: 20.40, knee: 47.97, k: 0.0582, to: 44,
+    thin: 0.23, t0: 48, t1: 50, hw41: 0.95 };
+  /** the fraction of its crotch width the prong carries at height `y`: 1 from
+   *  y 50 down, 0.77 from y 48 up (1.51 → 1.16, the two measured plateaus) */
+  const prongThin = (y) => 1 - PRONG.thin
+    * Math.max(0, Math.min(1, (PRONG.t1 - y) / (PRONG.t1 - PRONG.t0)));
+  /** ROUND 41's half-width, kept for ONE purpose: above the knee that round's
+   *  outboard face is its parabola PLUS this, so it is the only way to hold
+   *  that approved face fixed while the width changes underneath it. It is not
+   *  drawn anywhere. */
+  const prongHW41 = (y) => PRONG.hw41
     * Math.max(0, Math.min(1, (PRONG.foot - y) / 1.2, (y - PRONG.top) / 2.6,
       1 - 0.17 * Math.max(0, Math.min(1, (47 - y) / 3))));
+  /** the OUTBOARD prong's OUTBOARD FACE — unchanged by round 42 on both sides
+   *  of the knee. Below it, round 41's fitted line. Above it, round 41's
+   *  parabola plus round 41's half-width, which reproduces that round's face
+   *  exactly (21.189 at y 44, 20.433 at the knee, continuous with the line). */
+  const prongFace = (y) => (y >= PRONG.knee
+    ? prongOut(y)
+    : PRONG.out - PRONG.k * Math.max(0, y - PRONG.to) ** 2 + prongHW41(y));
+  /** its half-width: 0.75 at the crotch, 0.5775 above y 48, fused into the
+   *  trunk at the bottom and a point at the top */
+  const prongHW = (y) => PRONG.hw * prongThin(y)
+    * Math.max(0, Math.min(1, (PRONG.foot - y) / 1.2, (y - PRONG.top) / 2.6));
+  /** the OUTBOARD prong's centre: the measured face minus the measured half
+   *  width, so the fitted edge is the drawn edge at every height. The FOOT
+   *  taper is deliberately left out here, exactly as round 41 left it out, so
+   *  the closing point at y 55.9 stays on the centreline and does not slide
+   *  onto the face. */
+  const prongC = (y) => prongFace(y) - PRONG.hw * prongThin(y)
+    * Math.max(0, Math.min(1, (y - PRONG.top) / 2.6));
   // ⚠️ THE TWO SUBPATHS MUST WIND THE SAME WAY, and the first version of this
   // did not. `<path>` fills with the NONZERO rule, so a second subpath that
   // runs the other way round CANCELS wherever it overlaps the first — and the

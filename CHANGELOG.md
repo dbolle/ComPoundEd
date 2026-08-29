@@ -3,6 +3,163 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.109.0 — 2026-08-29
+
+**The prong's width was measured with one edge definition and its face with
+another, and the branch carried the difference.** Fourteenth element round on
+the dime reverse, third set by the owner's reading of the coin. Partition:
+`dime.reverse` alone, 3 of 108 emitted paths (the oak branch at its three
+relief tiers) — every other emitted path across 4 coins × 2 sides × 3 sizes is
+**byte-identical**, and inside the one path that changed the oak subpath is
+byte-identical too. D9 150 renders clean. D6 reverse **0.0934** against a 0.50
+gate; D7 reverse's fitted subject is empty and the worst authored turn is
+unchanged at 148.3° (the olive's); D8 dime reverse **0.0000 %**. Suite
+**225 + 239 = 464/464**.
+
+**THE OWNER.** *"The path of the right branch is very good. It is too thick
+overall though, it is well lined up on its right side, but overflows the left
+side. The left branch path is improved, but has similar issues."*
+
+**THERE ARE THREE EDGE DEFINITIONS ON THIS PHOTOGRAPH AND THEY DIFFER BY 0.95
+UNITS.** A raised branch on `dime-rev-proofbright.png` is a mid-grey RIDGE
+between two DARK SHADOW VALLEYS with bright field outside. One row, y 53, raw
+file offsets:
+
+| estimator | inboard | outboard | width |
+|---|---|---|---|
+| valley-to-valley (the ridge alone) | 16.90 | 17.90 | **1.00** |
+| half-max (mid-slope, both sides) | 16.70 | 18.20 | **1.50** |
+| 237-cut footprint (shadows included) | 16.45 | 18.40 | **1.95** |
+
+Every number this branch has ever been fitted against came from the third —
+round 38's fork pocket, round 39's trunk, round 41's `PFACE`. So "1.90 wide"
+and "1.00 wide" are both true readings of the same row, and picking between
+them by eye is how a branch ends up 26 % over at the crotch and 65 % over at
+the tip.
+
+**THE CHOICE IS MADE BY CALIBRATION, NOT BY TASTE.** The oak TRUNK at y 62..69
+was fitted in round 39 and the owner has never called it thick. Put all three
+estimators on it (`judge/_dr20prongwidth.mjs hm`), proofbright, nine rows:
+
+| | inboard | outboard | width |
+|---|---|---|---|
+| coin, 237-cut (y 68) | 14.78 | 17.35 | 2.57 |
+| coin, **half-max** (y 68) | 14.95 | 17.15 | **2.20** (2.00..2.20 over nine rows) |
+| coin, valley-to-valley | 15.10 | 16.95 | 1.85 |
+| **our accepted trunk** | 15.10 | 17.25 | **2.15** |
+
+Our accepted trunk is **0.05 off half-max in width** and 0.15 in / 0.10 out on
+its two faces; it is 0.42 off the 237-cut and 0.30 off valley-to-valley.
+**Half-max is the width standard.** It is also the only one of the three that
+runs unchanged on our own render — whose profile is a step, so its half-max IS
+its path — which is what makes the coin column and the drawn column comparable
+at all.
+
+**THE PRONG, half-max, on rows bounded by field on both sides.** `--erode 0`,
+reopen 1.0 on proofbright only; unc2005 quoted, not reasoned from:
+
+| y | 54.5 | 54 | 53.5 | 53 | 52.5 | 52 | 51.5 | 51 | 50.5 | 50 | 48 | 47.5 | 45 | 44.5 | 44 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| pb | 1.45 | 1.50 | 1.50 | 1.50 | 1.45 | 1.50 | 1.50 | 1.45 | 1.40 | 1.45 | 0.95 | 1.00 | 1.05 | 1.10 | 1.25 |
+| unc | — | — | — | 1.60 | 1.65 | 1.55 | 1.50 | 1.65 | — | 1.40 | 1.25 | — | 0.80 | 1.20 | 1.70 |
+| **drawn before** | 1.90† | 1.90 | 1.90 | 1.90 | 1.90 | 1.95 | 1.90 | 1.90 | 1.90 | 1.90 | 1.95 | 1.90 | 1.70 | 1.65 | 1.60 |
+| **drawn now** | 1.50† | 1.50 | 1.50 | 1.50 | 1.50 | 1.55 | 1.50 | 1.50 | 1.50 | 1.50 | 1.20 | 1.20 | 1.20 | 1.15 | 1.15 |
+
+† y 54.5 is computed from the shipped formula, not read off the ink: on that
+row the prong's foot has already fused into the trunk and the element renders
+one run there.
+
+Pooled: **1.51** over y 50..54.5, **1.15** over y 44..48. Rows y 48.5..49.5 are
+the two marks fusing (round 41) and are not used; the ramp between the two
+plateaus is drawn over y 48..50 and is the only interpolation here.
+
+**THE FACE DID NOT MOVE, AND THAT IS PROVED, NOT ASSERTED.** Half-max would
+pull `PFACE` 0.26 inboard at y 53 — that is the path the owner just approved,
+so it is refused with the number. The width comes off the INBOARD side only.
+Both faces, coin against drawn, raw proofbright offsets:
+
+| y | coin 237-cut | coin half-max | drawn **before** | drawn **now** |
+|---|---|---|---|---|
+| 54.0 | 16.05..18.05 | 16.25..17.75 | 16.10..**18.00** | 16.50..**18.00** |
+| 53.0 | 16.45..18.40 | 16.70..18.20 | 16.55..**18.45** | 16.95..**18.45** |
+| 52.0 | 16.90..18.95 | 17.20..18.70 | 17.00..**18.95** | 17.40..**18.95** |
+| 51.0 | 17.35..19.35 | 17.70..19.15 | 17.50..**19.40** | 17.90..**19.40** |
+| 50.0 | 17.80..19.80 | 18.10..19.55 | 17.95..**19.85** | 18.35..**19.85** |
+| 48.0 | 19.20..20.80 | 19.50..20.45 | 18.85..**20.80** | 19.60..**20.80** |
+| 47.5 | 19.45..21.00 | 19.65..20.65 | 19.10..**21.00** | 19.80..**21.00** |
+| 45.0 | 20.00..21.45 | 20.20..21.25 | 19.85..**21.55** | 20.35..**21.55** |
+| 44.0 | 19.85..21.60 | 20.05..21.30 | 19.95..**21.55** | 20.40..**21.55** |
+
+The outboard column is identical in every row, and the emitted subpath proves
+it: the seventeen points that run down the prong's outboard edge from the tip
+to the crotch are unchanged character for character (`70.73 41.2 L 71.02 42 …
+L 67.37 54.6`). Only the inboard return moved — **plus** the two points below
+the crotch, `55.3` and `55.9`, which move 0.10 and 0.20 outboard. Those are the
+FOOT TAPER, buried a unit and a half inside the trunk: the element's rendered
+outboard end at y 55.0 and 55.5 is 17.55 and 17.50 before and after, unchanged,
+because the prong's foot is fused into the trunk there and never reaches the
+silhouette. Stated because "the face did not move" would otherwise be a claim
+about 17 of 19 points. Mechanically, the prong is now defined by
+`prongFace(y) − prongHW(y)`, where above the knee `prongFace` is round 41's
+parabola PLUS round 41's half-width — the only construction that holds that
+round's approved face fixed while the width changes underneath it.
+
+**THE CROTCH IS NOT SPECIAL, AND THAT WAS WORTH CHECKING.** Half-max reads 1.45
+at y 54.5 and 1.50 at y 54 — the same as every row up to y 50. The "1.95 at the
+crotch" this round replaces was the 237-cut, which is 0.45 wider than half-max
+*everywhere* on this branch. There is no widening into the fork to preserve.
+
+**THE INBOARD PRONG IS NOT CHANGED, AND THE REASON IS A MEASUREMENT.** Round 38
+recorded that its inboard face is never separable on either file; the 237-cut
+brackets it on exactly three proofbright rows and gives 2.30 / 1.95 / 1.25 at
+y 53.5 / 54 / 54.5 — a spread of 1.05, which settles nothing. But half-max at
+y 53.5, the one row where both its faces are readable, gives **13.80..15.40**
+against our drawn **13.80..15.35**: 0.00 on the inboard face, 0.05 on the
+outboard. `FORK.hw` stays 0.78 because the coin says it is right, not because
+the row was hard.
+
+**PUBLISHED AGAINST ITSELF.** The element's FILL FELL and that is by
+construction: FILL's target is the flood mask, which is the *footprint*, and we
+have deliberately stopped drawing the shadow skirt. Raw 28.37 → 25.68 %,
+exclusive 34.95 → 32.60 %, ink 79.60 → 72.90 sq units. What moved the right way
+is OUTSIDE on `_dr17oakfork.mjs outside`: proofbright **7.34 → 5.58** sq units
+(9.22 → 7.65 %). On unc2005 the absolute outside is **unchanged at 15.44** and
+only its ratio rises (19.39 → 21.18 %) because the denominator shrank — that
+file fuses this whole region into one slab, so ink removed from the inboard
+side was ink inside its mask. And on `_dr13elem.mjs score`, whose window and
+mask setting are different again, the absolute outside is **5.57 sq units
+before and after** while its ratio rises 6.99 → 7.64 % — the same denominator
+effect. Three numbers, one of them in our favour and two of them not; all
+three published. The gate is the overlay, not any of them.
+
+Nonzero vs evenodd area on the element: **72.90 against 71.97** — unequal, so
+the two subpaths still wind the same way and the round-38 cancelling hole has
+not come back.
+
+**NO LEAF MOVED.** 3 connected components before and after; stranded mass
+137.21 + 16.34 = **153.55 sq units, identical to the hundredth**; `oakC` is
+untouched, so every leaf anchor is untouched.
+
+**WHAT IS STILL WRONG, NAMED.** Holding the approved face while using the
+half-max width leaves the drawn prong sitting ~0.15..0.26 outboard of its
+half-max band on *both* faces. That is one stated uniform bias inherited from
+`PFACE`, and the only way to remove it is to move the path — which is the
+owner's call, not this round's. And `FORK.out` (0.95) is no longer this prong's
+half-width: it is a flood-mask/pocket quantity, it never reaches the drawing,
+and the two numbers have separated because they are measured with different
+edge definitions. Both are correct for their own estimator; do not reconcile
+them.
+
+**THE DISPATCHED MEASUREMENT, CHECKED.** The width table sent with this round
+reproduces exactly — as the half-max estimator with its row labels shifted: its
+0.95 / 1.00 / 1.05 / 0.90 / 1.15 / 0.75 are the half-max widths of rows
+y 44..49, not y 43..49.5. Its *diagnosis* does not: at y 50..54 proofbright has
+open field on both sides of a **single** mark (16.40..17.80 inboard and
+19.80..20.10 outboard at y 50) and the photograph shows one stippled ridge
+there, so the 1.90 is the footprint of one prong including both shadow bands,
+not the union of two marks. The correction is 1.90 → 1.50 on those rows, not
+1.90 → 0.95.
+
 ## v1.108.0 — 2026-08-29
 
 **The oak's outboard prong is ONE straight lean, and its outboard face was the
