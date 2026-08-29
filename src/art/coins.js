@@ -6611,6 +6611,128 @@ function torch(p) {
   const acorn = (x, y, rot, sw, sl) =>
     `<g transform="translate(${n2(x)} ${n2(y)}) rotate(${n1(rot)}) scale(${n2(sw)} ${n2(sl)})">`
     + `<path d="${ACORN}"/></g>`;
+  // ── ROUND 43: THE OAK CARRIES EIGHT LEAVES IN FOUR GROUPS, AND THE
+  // MIRRORED SEVEN-ROW LADDER IS RETIRED FROM THIS BRANCH.
+  //
+  // "There are total of 8 leaves drawn on the oak branch. The left fork
+  //  sprouts 2 leaves, the right fork terminates in a 3 leaf bunch, there is
+  //  another single leaf that sprouts off the right side of the right fork.
+  //  Another 2 leaf bundle sprouts off the right side of the main branch below
+  //  the fork." — the owner, reading the coin.
+  //
+  // WHY THE COUNT IS NOT MEASURED HERE, AND WHY THAT IS NOT A GAP. The seven
+  // came from counting connected blobs at an erosion threshold. That method is
+  // now formally retracted (ledger A42): `judge/_dr21target.mjs` puts the
+  // coin's whole oak — trunk, fork, every leaf, the acorn — at ONE component
+  // of 479.56 sq units, 97.2 % of the window, and sweeping erosion 0 → 1.50
+  // never resolves a leaf; the count wanders 4..5 while the mass shrinks
+  // 493.58 → 264.10. NO THRESHOLD SEPARATES THESE LEAVES, because on the coin
+  // they overlap. A blob census cannot count them and never could. So the
+  // topology is the owner's reading and the numbers below are fitted to the
+  // SILHOUETTE the owner is reading — which is a measurement — rather than to
+  // a component list, which is not available at any setting.
+  //
+  // WHAT EACH LEAF IS FITTED TO. The device mask of `dime-rev-proofbright.png`
+  // at erode 0, reopen 1.0, at that file's own registration (a feature we draw
+  // at offset o appears there at o + 0.35), read on a one-unit grid at 30-75 px
+  // per viewBox unit with the field removed. Bounding boxes below are in OUR
+  // frame (0.35 already taken off) and the last column is what the drawing
+  // reaches to. `dime-rev-unc2005.png` is a dark-outline file and was used to
+  // read the TOPOLOGY — which leaf overlaps which, and where each petiole
+  // leaves the stem — because outlines survive an overlap where relief does
+  // not; its registration is −0.75 and it is not used for placement (ledger:
+  // it reads 15-20 points lower on containment even where the drawing is
+  // right).
+  //
+  //   leaf  group  coin's mask, our frame        base on the frozen stem
+  //   B1    3-bunch  x 62.7..70.2  y 27.4..42.0  the outboard prong's TIP
+  //   B2    3-bunch  x 59.6..65.7  y 32.4..43.4  its inboard face at y 41.4
+  //   B3    3-bunch  x 69.6..75.2  y 30.2..39.9  its outboard face at y 41.4
+  //   C     single   x 71.3..81.6  y 36.4..45.2  its outboard face at y 45.0
+  //   A1    left     x 59.6..67.2  y 39.9..46.9  the inboard prong's TIP
+  //   A2    left     x <53.7..61.6 y 42.2..51.3  its inboard face at y 52.6
+  //   D1    bundle   x 66.7..76.7  y 47.0..55.0  the trunk's face at y 57.2
+  //   D2    bundle   x 72.7..81.7  y 50.0..60.0  the trunk's face at y 58.6
+  //
+  // EVERY BASE IS EVALUATED ON THE FROZEN STEM, NEVER WRITTEN DOWN. `prongC`,
+  // `prongFace`, `prongHW`, `oakC`, `oakInFace` and `oakTrunkOut` are the
+  // locked geometry; the leaves ask them where the stem is at a given height
+  // and attach there. That is the whole of why this round can add eight leaves
+  // without touching one number in the stem: if the stem ever moves again the
+  // leaves move with it, and node 2.1.4's path is byte identical to the one
+  // this round was dispatched with.
+  //
+  // THE THREE ANCHORS THE MASK SETTLES, and they are the reason the topology
+  // draws at all:
+  //   · the OUTBOARD prong's tip is at (20.40, 40.3) in our frame and the mask
+  //     puts the coin's at (~19.7, 41) — the three B leaves meet there.
+  //   · the INBOARD prong's tip is at (14.27, 52.0). The coin's inboard mark
+  //     runs on to about y 47.3 (the fork's open slot has a left wall that far
+  //     up), i.e. FIVE UNITS FURTHER than the frozen stem draws. That is not
+  //     corrected here — the stem is locked — and it is paid for with a longer
+  //     petiole on A1/A2 instead, which puts leaf where the coin has leaf
+  //     without moving the branch. Stated as an inherited defect, not fixed.
+  //   · the fork's own negative slot — x 65.4..67.5, y 47.3..54.4 on the mask,
+  //     against the locked crotch at y 54.7 — MUST STAY OPEN. It is the one
+  //     piece of field inside this branch and it is what makes the fork read as
+  //     a fork. No leaf below is aimed across it.
+  //
+  // ⚠️ `reach` IS NOT TAKEN FROM THE OLIVE'S LINE. `reach(ay) = 13.79 +
+  // 0.2181·(ay − 47.39)` was fitted to the mirrored ladder's base/tip table and
+  // it asks for 12.2 at the crown and 16.2 at the foot. The eight reaches below
+  // run 11.3 to 15.7 and they are measured one at a time, as the distance from
+  // the fitted base to the tip the mask carries. Where the two disagree — A1
+  // and A2 are 3.3 short of the line, D1 is 2.6 short — the mask is taken,
+  // because the line is the OLIVE's and D11/D12 already record two places where
+  // the oak refuses it. `ped + blade = reach` still holds exactly: lengthening
+  // a petiole shortens its blade and nothing is thrown outward.
+  //
+  // WIDTH. The `OAK` glyph is authored 12.0 long by 7.5 wide and `lk` scales
+  // its length only, so a 15.6-unit blade at `wk` 1 would be 2.1:1 where every
+  // oak leaf on both references is 1.4:1 to 1.6:1. `wk` is therefore set per
+  // leaf to hold the drawn aspect near that band — it is one ratio applied
+  // eight times, not eight fitted numbers. (Round 30 refused exactly this as
+  // "one constant for a varying quantity" when the varying quantity was `lk`
+  // on a seven-row mirrored ladder; here the lengths are per-leaf measurements
+  // and the ratio is the measured one, which is the opposite case.) The two
+  // that end outside it are B1 at 1.73 and D2 at 1.74, and both were widened
+  // and put back: at `wk` 1.30 D2's own ink went 29 % OUTSIDE, hanging a unit
+  // and a half below the coin's own lower margin, and the aspect is the price
+  // of not drawing over bare field.
+  //
+  // WHAT IS ACTUALLY DRAWN, so the next round does not have to re-derive it:
+  //
+  //   leaf   base on the stem   rot  reach   ped  blade x width  tip
+  //   B1     70.40, 40.3         70   13.0   0.0   13.0 x 7.50   65.95, 28.08
+  //   B2     70.31, 41.4         34   12.6   0.6   12.0 x 7.35   59.86, 34.35
+  //   B3     70.80, 41.4         72    9.9   0.6    9.3 x 6.00   73.86, 31.98
+  //   C      71.16, 45.0         33   11.4   0.8   10.6 x 7.05   80.72, 38.79
+  //   A1     64.27, 52.0         78   11.5   1.5   10.0 x 7.42   61.88, 40.75
+  //   A2     63.70, 52.6         43   11.6   1.5   10.1 x 7.35   55.22, 44.69
+  //   D1     67.12, 57.9         49   13.5   1.0   12.5 x 8.25   75.98, 47.71
+  //   D2     67.11, 58.2         29   15.6   1.0   14.6 x 8.40   80.75, 50.64
+  //
+  // Containment against `dime-rev-proofbright.png` at erode 0, reopen 1.0, in
+  // that file's registration: 7.4 / 8.5 / 12.0 / 5.4 / 7.7 / 4.8 / 9.8 / 10.9 %
+  // OUTSIDE per leaf, 8.00 % over all eight. The whole drawn oak covers 69.3 %
+  // of the coin's oak inside x 58..82 y 25..61 and 91.8 % of our own ink is on
+  // device. `judge/_dr22oakleaves.mjs table` reproduces every number here and
+  // prints the pairwise overlap beside it, because on this element a low
+  // OUTSIDE is not a pass — a leaf can score well by sliding under a
+  // neighbour, and the overlap column is the only thing that tells the two
+  // apart.
+  const OAKSEATS = [
+    // id, base offset, base y, outboard?, rot (deg up from horizontal), reach,
+    // petiole, width factor
+    ['B1', prongC(PRONG.top), PRONG.top, false, 70, 13.0, 0, 1.00],
+    ['B2', prongC(41.4) - prongHW(41.4), 41.4, false, 34, 12.6, 0.6, 0.98],
+    ['B3', prongFace(41.4), 41.4, true, 72, 9.9, 0.6, 0.80],
+    ['C', prongFace(45), 45, true, 33, 11.4, 0.8, 0.94],
+    ['A1', oakC(OAKTIP.top), OAKTIP.top, false, 78, 11.5, 1.5, 0.99],
+    ['A2', oakInFace(52.6), 52.6, false, 43, 11.6, 1.5, 0.98],
+    ['D1', oakTrunkOut(57.9), 57.9, true, 49, 13.5, 1.0, 1.10],
+    ['D2', oakTrunkOut(58.2), 58.2, true, 29, 15.6, 1.0, 1.12],
+  ];
   const branch = (mirror) => {
     const f = mirror ? -1 : 1;
     const x = (v) => n2(50 + f * v);
@@ -6633,7 +6755,16 @@ function torch(p) {
     const leaves = 7;
     const K = 1;
     let g = '';
-    for (let i = 0; i < leaves; i++) {
+    // ⚠️ THE LOOP BELOW IS NOW THE OLIVE'S ALONE (round 43). The oak's eight
+    // leaves are drawn from `OAKSEATS` after it; the olive's seven transforms
+    // are byte identical before and after, which is the whole reason the guard
+    // is here rather than in `leafAt`. Everything the loop reads —
+    // `LADDER`, `OAKROT`, `leafAt`, the reach line, the `ped` ramps — is
+    // untouched, and `OAKROT`'s two overrides are simply no longer reached.
+    // The block above it is kept in full because it is the argument that the
+    // mirrored ladder does not fit this branch, which is what round 43 acted
+    // on; deleting it would hide how the eight were arrived at.
+    if (mirror) for (let i = 0; i < leaves; i++) {
       const L = leafAt(i, leaves, mirror);
       // EVERY LEAF ON THIS COIN HANGS OFF A PETIOLE, and drawing them sessile
       // on the stem is what kept the branch one object. On both references the
@@ -6786,6 +6917,26 @@ function torch(p) {
         g += stalk(50 + f * L.ax, L.ay, b.cx, b.cy, 0.55, 0.4);
       }
       g += mirror ? olive(s.cx, s.cy, s.rot, lk, wk) : oak(s.cx, s.cy, s.rot, lk, wk);
+    }
+    // THE OAK'S EIGHT, one glyph each, drawn in the order they leave the stem
+    // so a lower leaf's petiole never runs over the blade above it. They are
+    // INDIVIDUAL OVERLAPPING LEAVES and not bundles: each group is two or
+    // three separate `<g>` transforms of the same `OAK` outline that happen to
+    // touch, which is what the coin has and what a merged glyph could never
+    // be — a merged glyph has one outline and the coin's bunches have three
+    // sets of lobes crossing each other. The overlaps are quantified in the
+    // round report rather than avoided; ledger A44 records that no erosion
+    // separates them on the coin either.
+    if (!mirror) for (const [, ax, ay, out, rot, reach, ped, wk] of OAKSEATS) {
+      const L = { ax, ay, rot, out };
+      const blade = reach - ped;
+      const [px, py] = stalkEnd(L, ped, 1);
+      const s = seatOn(L, f, px, py, blade / 2);
+      if (ped > 0.15) {
+        const b = seatOn(L, f, px, py, 0.7);
+        g += stalk(50 + f * ax, ay, b.cx, b.cy, 0.55, 0.4);
+      }
+      g += oak(s.cx, s.cy, s.rot, blade / 12.0, wk);
     }
     // The two olives, outboard of the stem on the OLIVE branch only. Each
     // hangs on a stalk back to the stem, which both references show and which

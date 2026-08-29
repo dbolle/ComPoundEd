@@ -7,6 +7,34 @@ reconsider after calibration.
 
 ## Where we are
 
+- 🟡 **THE OAK CARRIES EIGHT INDIVIDUAL OVERLAPPING LEAVES, AND THE LOCKED STEM
+  DID NOT MOVE.** Fifteenth element round on this face. The mirrored seven-row
+  `LADDER` is retired from the oak (it was the OLIVE's table, and both its count
+  and its angle column had already been overruled); the oak gets its own
+  eight-row `OAKSEATS` in the owner's ruling-R5 topology — **A** 2 on the
+  inboard prong, **B** 3 terminating the outboard prong, **C** 1 off its
+  outboard face, **D** 2 off the trunk below the fork. **Every base is
+  evaluated on the frozen stem** (`prongC`, `prongFace`, `prongHW`, `oakC`,
+  `oakInFace`, `oakTrunkOut`), never written down, so R3's lock holds by
+  construction: node `2.1.4` is byte-identical and so are the olive's eighteen
+  paths. Fitted to the coin's **silhouette**, since no threshold separates
+  these leaves (A42): OUTSIDE **8.00 %** over all eight on proofbright (9.60 %
+  unc2005), per leaf 4.8–12.0 %; the drawn oak covers **69.3 %** of the coin's
+  oak in x 58..82 y 25..61 with **91.8 %** of our ink on device. The old
+  drawing's **153.55 sq unit stranded floating mass** is gone. Overlap is
+  published beside containment (B bunch 4.7–8.1 %, A1/A2 6.4 %, the D bundle
+  43.8/36.8 % — one merged fan on the coin too) because a low OUTSIDE can be
+  bought by hiding under a neighbour. New instrument `_dr22oakleaves.mjs`
+  (`table` · `over` · `diff`). **Ninth mass identified, not drawn as a leaf:**
+  the blob at x 56.8..63.2 y 54.6..59.5 is **21.53 / 21.72 sq units** with
+  circularity **2.50** against **5.36** for a known leaf — it is the acorn, node
+  `2.1.20`, already drawn. Partition: `dime.reverse` alone (8 of 80 renders).
+  D9 180 clean. D6 reverse **0.0915** against 0.50. Suite 225 + 239 = 464/464.
+  Version 1.111.0. **NEXT: the inboard prong is five units short** — the coin's
+  runs to y 47.3 where the locked stem ends at 52.0, and A1/A2 pay for it with
+  1.5-unit petioles against a coin measuring ~0.5 (D37). It needs the owner to
+  unlock the stem.
+
 - 🟡 **"SEVEN LEAVES A SIDE" WAS A READING OF ONE THRESHOLD, NOT OF THE COIN —
   RETRACTED.** No art changed; `src/` is byte-identical. New instrument
   `_dr21target.mjs` splits a window's FILL denominator into connected
