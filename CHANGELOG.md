@@ -3,6 +3,55 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.110.0 — 2026-08-29
+
+**FILL was never a grade out of 100, and the number that said the oak has seven
+leaves a side was a reading of one threshold, not of the coin.** No art
+changed; `src/` is byte-identical. This release is one new instrument and two
+findings it produced.
+
+`coloringbook/judge/_dr21target.mjs` opens the denominator `_dr13elem.mjs`
+divides by. It takes the same mask, the same declared window and the same
+exclusive subtraction, then splits what remains into **connected components**
+with area, bounding box, centroid and cumulative share. The ceiling on an
+element is the largest component's share — not 100. On `oak-stem` against
+`dime-rev-proofbright.png` the exclusive target is **88.70 sq units in nine
+components**, the largest **49.23 (55.5 %)**; the other 44.5 % is foliage and
+lettering standing in the same rectangle, which no stem can reach without
+drawing over its neighbours. Three rounds in a row read a correct element's
+FILL as a failing grade. That closes ledger A41.
+
+**Then it retracted a finding that had been constraining rounds for a week.**
+Pointed at the oak with nothing of ours subtracted but the legends, the coin's
+entire oak — trunk, fork, every leaf, the acorn — comes back as **ONE component
+of 479.56 sq units, 97.2 % of the window**. Swept across erosion 0, 0.25, 0.50,
+0.75, 1.00, 1.25 and 1.50, the count never leaves 4–5 and never once resolves a
+leaf; the target simply shrinks from 493.58 to 264.10 sq units with the oak
+still a single mass. **No erosion separates these leaves, because on the coin
+they overlap.** So "seven leaves a side" was never a count of the coin's marks.
+It was a count of what one threshold left separate, and ledger E25 — *an
+estimator that cannot separate two touching marks reports their union* — turns
+out to apply to a census exactly as it applies to a measurement. The owner's
+ruling R5 (eight leaves, four groups, individually overlapping) is now the only
+evidence on this element that is evidence at all. Ledger A42.
+
+**And the window it was measured in is 41 % not-oak.** `WINDOWS['oak-branch']`
+runs to y 78 and x 85, so its 822.38 sq unit raw target sweeps in the coin's
+ONE DIME legend — a row of seven components at y 61.8..67.1 — and the rim band
+beyond x 82. Our own `<text>` nodes do not subtract those, because subtraction
+removes mask where *our* letters fall and ours are not the coin's. They are
+real marks; they are not the branch's. The oak is x 58..82, y 25..61. The table
+is not edited — `_dr13elem`'s `WINDOWS` is hashed into published rounds — so
+the new instrument takes `--win x0,x1,y0,y1` instead. Ledger A43, open and
+note-only.
+
+Also recorded, as owner rulings rather than findings, so the next rounds
+inherit them: **R3** the dime's oak stem is locked and verified by node diff;
+**R4** proofbright is the placement reference and unc2005 refines shape only;
+**R5** the eight-leaf topology above.
+
+Suite **225 + 239 = 464/464**.
+
 ## v1.109.0 — 2026-08-29
 
 **The prong's width was measured with one edge definition and its face with

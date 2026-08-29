@@ -7,6 +7,27 @@ reconsider after calibration.
 
 ## Where we are
 
+- 🟡 **"SEVEN LEAVES A SIDE" WAS A READING OF ONE THRESHOLD, NOT OF THE COIN —
+  RETRACTED.** No art changed; `src/` is byte-identical. New instrument
+  `_dr21target.mjs` splits a window's FILL denominator into connected
+  components, so an element's ceiling is the largest component's share instead
+  of an assumed 100 (`oak-stem`: 88.70 sq units in **nine** components, largest
+  **49.23 = 55.5 %** — the rest is foliage and lettering no stem can reach;
+  ledger A41 closed). Pointed at the oak, it returns the whole branch as **ONE
+  component of 479.56 sq units, 97.2 % of the window**, and sweeping erosion
+  0 → 1.50 never resolves a leaf — the count stays at 4–5 while the target
+  shrinks 493.58 → 264.10. **No erosion separates these leaves, because on the
+  coin they overlap.** Ledger E25 applies to a census as much as to a
+  measurement (A42). The owner's ruling R5 — **eight leaves in four groups,
+  individually overlapping** — is now the only evidence on this element.
+  Separately, `WINDOWS['oak-branch']` is **41 % not-oak**: its target sweeps in
+  the ONE DIME legend (seven components at y 61.8..67.1) and the rim beyond
+  x 82, which our own `<text>` does not subtract because ours are not the
+  coin's letters. The oak is **x 58..82, y 25..61** (A43, note-only — the
+  window table is hashed into published rounds). Rulings R3 (the oak stem is
+  **locked**, verified by node diff) and R4 (proofbright places, unc2005 only
+  refines shape) recorded. Suite 464/464. **NEXT: the eight leaves.**
+
 - 🟡 **THE PRONG'S WIDTH WAS MEASURED WITH ONE EDGE DEFINITION AND ITS FACE
   WITH ANOTHER, AND THE BRANCH CARRIED THE DIFFERENCE. 1.90 → 1.50/1.16.**
   Fourteenth element round on this face, third driven by the owner's reading of
