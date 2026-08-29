@@ -4948,11 +4948,41 @@ function torch(p) {
     const u = Math.max(0, 52.7 - y);
     return Math.min(16.00, 15.00 - 0.0267 * u + 0.1402 * u * u);
   };
-  /** the OUTBOARD prong's inboard face — the channel's outboard wall */
-  const forkOut = (y) => {
-    const v = FORK.y - y;
-    return Math.min(17.52, 15.609 + 0.4554 * v - 0.01222 * v * v);
-  };
+  // ⚠️ ROUND 41 REPLACES THE QUADRATIC-WITH-A-PLATEAU ABOVE, WITH THE NUMBER.
+  // Round 38 fitted the channel's OUTBOARD wall to the enclosed field pocket,
+  // which ends at y 47.4, and then held it flat at 17.52 above y 49.9 because
+  // the pocket had closed. The pocket closing is not the prong ending: the
+  // prong's OUTBOARD face is bounded by open field on EVERY row from y 55 to
+  // y 47.5, on the far side, where nothing ever merges. Measured there
+  // (`judge/_dr19prongmid.mjs table`, the grey profile with no mask in the
+  // path, proofbright, registration −0.35 applied) it is a straight line:
+  //
+  //     y      54.5  54.0  53.5  53.0  52.5  52.0  51.5  51.0  50.5
+  //   coin    17.50 17.70 17.85 18.05 18.30 18.60 18.80 19.00 19.20
+  //     y      50.0  49.5  49.0  48.5  48.0  47.5
+  //   coin    19.45 19.70 20.00 20.25 20.45 20.65
+  //
+  //   least squares over those fifteen rows: 17.325 + 0.4618·(54.7 − y),
+  //   RMS 0.046, largest residual 0.083. It is a LINE, not a curve, and it
+  //   does not plateau.
+  //
+  // THE PROFILE IS CALIBRATED ON ROWS THIS FILE ALREADY TRUSTS. At y 53 it
+  // reads the mark at 16.10..18.05 against round 38's flood-mask 16.10..18.23,
+  // and the fork channel at 15.15..16.55 against the pocket's 15.05..16.75 —
+  // so the same estimator that produces the table above reproduces both walls
+  // of the settled channel to 0.20 on the rows where the two overlap.
+  const PFACE = { at: 17.325, slope: 0.4618 };
+  /** the OUTBOARD prong's OUTBOARD face — the one edge of this prong that is
+   *  bounded by open field on every row from the trunk to y 47.5 */
+  const prongOut = (y) => PFACE.at + PFACE.slope * (FORK.y - y);
+  /** the OUTBOARD prong's inboard face — the channel's outboard wall. Derived,
+   *  so the prong has ONE fitted quantity and the channel cannot drift from
+   *  it. Drawn against round 38's pooled pocket wall: 15.52/15.70 at y 54.5,
+   *  15.75/15.83 at y 54, 16.21/16.28 at y 53, 16.67/16.75 at y 52,
+   *  17.13/17.15 at y 51, 17.60/17.48 at y 50 — inside 0.18 on every row the
+   *  pocket can be read at all, and 0.03..0.17 NARROWER than the quadratic it
+   *  replaces on y 52..54, where our channel was measurably too wide. */
+  const forkOut = (y) => prongOut(y) - 2 * FORK.out;
   /** how far across the crotch we are: 0 at the trunk, 1 once forked */
   const forkT = (y) => Math.max(0, Math.min(1, (FORK.y - y) / FORK.blend));
   // ── ROUND 39: THE OAK TRUNK FLARES TOWARD THE FOOT, ON ITS INBOARD FACE
@@ -5027,9 +5057,11 @@ function torch(p) {
     const t = trunkT(y);
     return stemHW(y) * (1 - t) + ((TRUNK.out - trunkIn(y)) / 2) * t;
   };
-  /** its half-width: the trunk's, blending to a prong's across the crotch */
-  const oakHW = (y) => {
-    const t = forkT(y);
+  /** its half-width: the trunk's, blending to a prong's across the crotch.
+   *  `t` is exposed only so the crotch fillet (`oakInFace`, far below) can ask
+   *  what this WOULD be if the fork were complete; every other caller takes
+   *  the default and gets exactly what it got before. */
+  const oakHW = (y, t = forkT(y)) => {
     const tip = Math.max(0, Math.min(1, (y - SC.top) / 1.7));
     return oakTrunkHW(y) * (1 - t) + FORK.hw * tip * t;
   };
@@ -5037,10 +5069,9 @@ function torch(p) {
    *  Derived so the OUTBOARD FACE lands on `forkIn` above the crotch and on
    *  `oakTrunkOut` below it — that face is the measured quantity at both ends
    *  and the centre is whatever puts it there. */
-  const oakC = (y) => {
-    const t = forkT(y);
+  const oakC = (y, t = forkT(y)) => {
     const face = oakTrunkOut(y) * (1 - t) + forkIn(y) * t;
-    return face - oakHW(y);
+    return face - oakHW(y, t);
   };
   // ⚠️ THE TERMINAL LEAF'S ANGLE IS CHANGED FROM THE TABLE'S 77 TO 86, AND THE
   // TABLE'S OWN TIP FOR THAT ROW IS THEREFORE NOT REPRODUCED (round 33). This
@@ -5719,16 +5750,61 @@ function torch(p) {
   // all. The bottom taper now closes at y 55.9, a unit and a half INSIDE the
   // trunk, so the only thing it does is stop the prong's outboard face poking
   // past the trunk's settled 17.03..17.35 on rows y 55..56.
-  const PRONG = { top: 40.3, foot: 55.9, hw: 0.95, out: 20.40, from: 48, to: 45.5 };
+  // ⚠️ ROUND 41: THE ENDPOINTS SURVIVE AND THE INTERPOLATION BETWEEN THEM DOES
+  // NOT. "The right branch now starts well and terminates at about the right
+  // place, but the middle traces up the acorn's stem and then jumps across a
+  // blank space to get to that end instead of following its own actual path" —
+  // the owner, reading the coin. The smoothstep above was named as the round's
+  // free parameter and it is the fault; both endpoints are confirmed here.
+  //
+  // WHAT WAS DRAWN, AND WHAT THE COIN HAS. The prong's OUTBOARD face is the
+  // quantity to score, because it is the one edge that is bounded by open
+  // field on every row (the ledger beside `prongOut`). Ours against it:
+  //
+  //     y        54.0  53.0  52.0  51.0  50.0  49.0  48.0  47.0  45.0  44.0
+  //   coin      17.70 18.05 18.60 19.00 19.45 20.00 20.45 21.00 21.10 21.25
+  //   drawn     17.85 18.25 18.65 19.05 19.40 19.45 19.45 20.15 21.25 21.20
+  //   error     −0.15 −0.20 −0.05 −0.05 +0.05 +0.55 +1.00 +0.85 −0.15 +0.05
+  //
+  // Right at the crotch, right at the tip, and a UNIT INBOARD across y 47..49.
+  // (The coin's y 47 is the last row before the crown closes over it and is
+  // already carrying a leaf; the rows either side of it are not.) That is the
+  // fault stated as a number, and it is on the face, not on some derived
+  // centreline: the drawn face STOPS between y 50 and y 48 (19.40 → 19.45)
+  // because `forkOut`'s plateau stopped, and then the smoothstep moves
+  // it 1.8 units in the two rows y 46..47 where both files are one slab. A
+  // flat section followed by a jump is exactly what the owner describes.
+  //
+  // WHAT OUR MIDDLE WAS DRAWN ON. At y 48 proofbright carries TWO marks with
+  // 0.15 units of field between them — 17.30..18.70 and 18.85..20.45 — and
+  // they fuse below y 49.5 into the single 1.95-wide slab round 38 measured
+  // and called the prong. The prong is the OUTBOARD one: its face continues
+  // the straight line fitted from the crotch, and it is the one that arrives
+  // at the settled 20.40 at y 44. The inboard one runs into the foliage above
+  // y 47.5 and has nowhere else to go. Our smoothstep's flat section sat on
+  // that inboard mark — the owner's "the acorn's stem" — from y 48 to y 50.
+  //
+  // THE SHAPE IS NOW ONE LEAN AND IT IS NOT AN INTERPOLATION. Below the knee
+  // the centre is the fitted face minus a half width, row by row. Above it, a
+  // parabola with its vertex at the settled (20.40, y 44) — which is what the
+  // three round-40 estimators measured, so the flattening at the top is a
+  // measurement too. `knee` and `k` are not free: they are the unique pair
+  // that makes the parabola TANGENT to the line, value and slope both, so
+  // there is no corner anywhere on the prong. Resulting centre, and its slope:
+  //
+  //     y      54.7  53.0  52.0  51.0  50.0  49.0  48.0  47.0  46.0  45.0  44.0
+  //   centre  16.38 17.16 17.62 18.08 18.55 19.01 19.47 19.88 20.17 20.34 20.40
+  //   slope    ——   0.46  0.46  0.46  0.46  0.46  0.46  0.41  0.29  0.17  0.06
+  //
+  // Monotone throughout, no flat section, no step in the slope.
+  const PRONG = { top: 40.3, foot: 55.9, hw: 0.95, out: 20.40, knee: 47.97, k: 0.0582, to: 44 };
   /** the OUTBOARD prong's centre, as an offset, at height `y`. Oak only.
-   *  Below y 48 it is `forkOut` — the measured channel wall — plus a half
-   *  width, so the face that makes the channel is the fitted one. Above y 48 it
-   *  swings out to the measured 20.40 and stays there. */
-  const prongC = (y) => {
-    const base = forkOut(y) + PRONG.hw;
-    const u = Math.max(0, Math.min(1, (PRONG.from - y) / (PRONG.from - PRONG.to)));
-    return base + (PRONG.out - (17.52 + PRONG.hw)) * u * u * (3 - 2 * u);
-  };
+   *  Below the knee it is the measured outboard face minus a half width, so
+   *  the fitted edge is the drawn edge. Above it, the parabola that meets that
+   *  line tangentially and comes to rest on the measured tip at y 44. */
+  const prongC = (y) => (y >= PRONG.knee
+    ? prongOut(y) - PRONG.hw
+    : PRONG.out - PRONG.k * Math.max(0, y - PRONG.to) ** 2);
   /** its half-width: fused into the trunk at the bottom, a point at the top,
    *  and 0.79 rather than 0.95 above y 44 (the mask's own 1.70 there). */
   const prongHW = (y) => PRONG.hw
@@ -5833,7 +5909,66 @@ function torch(p) {
   const OAKTIP = { top: 52.0, taper: 0.9 };
   /** the inboard prong's tip taper: 0 at its end, 1 once it is full width */
   const oakTipT = (y) => Math.max(0, Math.min(1, (y - OAKTIP.top) / OAKTIP.taper));
-  const OAK_YS = [52.25, 52.6, 53, 53.8, 54.35, FORK.y,
+  // ── ROUND 41: THE CROTCH HAD A SHELF ON IT, AND IT WAS 1.37 UNITS TALL.
+  //
+  // "The left branch is much better. Its connection point to the fork is not
+  // very smooth though" — the owner. It is a right angle, and the arithmetic
+  // is in the shipped path: the oak subpath ran ` L 65.2 54.7 L 63.83 54.35 `,
+  // i.e. its INBOARD silhouette moved 1.37 units of x in 0.35 units of y, a
+  // slope of 3.9. Above and below that one segment it moves at 0.1 and 0.7.
+  // Rendered over the photograph it reads as a shelf stuck to the side of the
+  // trunk rather than a branch growing out of it.
+  //
+  // THE COIN HAS NO STEP THERE. proofbright's flood mask at erode 0, reopened
+  // 1.0, this element's own registration, the INBOARD edge of the oak side:
+  //
+  //     y      53.0  53.5  54.0  54.5  55.0  55.5
+  //   coin    12.55 13.05 13.50 13.80 14.05 14.20      (slope 0.4..0.6)
+  //   drawn   13.44 13.44 13.58 14.42 15.19 15.19      (slope 0.0..3.9)
+  //
+  // It is one continuous lean at half a unit per row, through the crotch and
+  // on down the trunk, with no row where it moves more than 0.6.
+  //
+  // WHY THE FILLET IS DRAWN AND NOT FITTED, and why it stops where it does.
+  // The step is the meeting of two things that are each SETTLED and neither of
+  // which this round may move: the inboard prong at 13.44 (round 40, the owner
+  // has confirmed its length) and the trunk's inboard face at 15.19 (round
+  // 38's `stemHW`, and the trunk below the crotch is out of scope — it is
+  // ~1.0 outboard of the coin at y 55, which is the same defect the round-39
+  // ledger named as the WAIST and is the next thing to measure here). What
+  // this changes is only the JOIN between them: a smoothstep over y 54.25 to
+  // 55.9, which is the prong's own foot, so the fillet is exactly as tall as
+  // the crotch is. Drawn, at the polygon's own vertices: 13.44 (54.35), 13.50
+  // (54.5), 13.76 (54.7), 14.19 (55.0), 14.79 (55.4), 15.16 (55.9) — monotone,
+  // and its steepest segment moves 1.5 per unit of y rather than 3.9.
+  //
+  // ⚠️ IT IS ADDED TO THE OUTLINE, NOT TO `oakC`, AND THAT IS DELIBERATE. A
+  // fillet is metal added at a junction; it does not move the trunk's axis.
+  // `leafAt` anchors every oak leaf on `oakC`, and the row ay 54.99 sits
+  // inside this band — folding the fillet into `oakC`/`oakHW` would have
+  // dragged that leaf 0.37 units INBOARD, away from the coin's own local
+  // centre of 16.70 at that height. So the oak's outline is no longer
+  // symmetric about `oakC`: its outboard edge is `oakC + oakHW`, unchanged,
+  // and its inboard edge is `oakInFace` below. NO LEAF MOVES.
+  const CROTCH = { lo: 54.25, hi: 55.9 };
+  /** the OAK's inboard silhouette: the prong's inboard face above the crotch,
+   *  the trunk's below it, filleted continuously between. Identical to
+   *  `oakC − oakHW·oakTipT` outside y 54.25..55.9, by construction. */
+  const oakInFace = (y) => {
+    const u = Math.max(0, Math.min(1, (CROTCH.hi - y) / (CROTCH.hi - CROTCH.lo)));
+    const s = u * u * (3 - 2 * u);
+    const tip = oakTipT(y);
+    const now = oakC(y) - oakHW(y) * tip;              // what the outline is
+    const forked = oakC(y, 1) - oakHW(y, 1) * tip;     // what it is once forked
+    return now * (1 - s) + forked * s;
+  };
+  // THE THREE ROWS 55.0/55.4/55.9 ARE THE FILLET'S OWN CORNERS. Without them
+  // `OAK_YS` jumped straight from the crotch to y 58 and the fillet would have
+  // been chorded away by a single straight segment; 54.5 is added for the same
+  // reason on the row where the crotch is half open. On the OUTBOARD side all
+  // four sit on a straight line (`forkT` is 0 below y 54.7 and `stemC`/
+  // `stemHW` are linear there), so they change that edge by nothing at all.
+  const OAK_YS = [52.25, 52.6, 53, 53.8, 54.35, 54.5, FORK.y, 55.0, 55.4, 55.9,
     TRUNK.top, TRUNK.full, TRUNK.from, TRUNK.to, 69.5];
   const OAK_FOOT_OUT = [[17.30, 70.2], [17.60, 71.0], [17.40, 71.6],
     [16.60, 72.4], [15.15, 73.8]];
@@ -5850,13 +5985,14 @@ function torch(p) {
         + ' Z"/>';
     }
     const P = (y, s) => `${x(oakC(y) + s * oakHW(y) * oakTipT(y))} ${y}`;
+    const PI = (y) => `${x(oakInFace(y))} ${y}`;
     const F = (p) => `${x(p[0])} ${p[1]}`;
     const d = `M ${P(OAKTIP.top, 0)}`
       + OAK_YS.map((y) => ` L ${P(y, 1)}`).join('')
       + OAK_FOOT_OUT.map(F).map((p) => ` L ${p}`).join('')
       + ` L ${F(OAK_TIP)}`
       + OAK_FOOT_IN.map(F).map((p) => ` L ${p}`).join('')
-      + OAK_YS.slice().reverse().map((y) => ` L ${P(y, -1)}`).join('')
+      + OAK_YS.slice().reverse().map((y) => ` L ${PI(y)}`).join('')
       + ' Z';
     const Q = (y, s) => `${x(prongC(y) + s * prongHW(y))} ${y}`;
     return `<path d="${d} M ${Q(PRONG.top, 0)}`

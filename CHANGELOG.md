@@ -3,6 +3,113 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.108.0 — 2026-08-29
+
+**The oak's outboard prong is ONE straight lean, and its outboard face was the
+measurable thing all along.** Thirteenth element round on the dime reverse, and
+the second set by the owner's reading of the coin. Partition: `dime.reverse`
+alone, 3 of 108 emitted paths (the oak branch at its three relief tiers), all
+sizes. D9 0 faulty over 180 renders. D6 reverse **0.0934** against a 0.50 gate;
+D7's authored-turn census unchanged (worst 148.3° is the olive's, untouched);
+D8 0.0000 % both sides, response test passes. Suite **464/464**.
+
+**THE TWO FAULTS.** The owner: *"The left branch is much better. Its connection
+point to the fork is not very smooth though. The right branch now starts well
+and terminates at about the right place, but the middle traces up the acorn's
+stem and then jumps across a blank space to get to that end instead of
+following its own actual path."* Both held.
+
+**THE MIDDLE. WE WERE A UNIT INBOARD ACROSS y 47..49.** Round 40 fitted the
+prong to the fork channel's outboard wall, which is the wall of an enclosed
+field pocket and therefore ends at y 47.4 — so the fit plateaued at y 49.9 and
+a smoothstep (labelled at the time as the round's free parameter) carried it to
+the tip. But the prong's OUTBOARD face is a different edge: it has open field
+on the far side of it on **every** row from the trunk to y 47.5, and nothing
+merges there. Read row by row off the grey profile with no mask in the path
+(`judge/_dr19prongmid.mjs`), in this element's registration:
+
+| y | 54 | 53 | 52 | 51 | 50 | 49 | 48 | 47.5 |
+|---|---|---|---|---|---|---|---|---|
+| coin, pb profile | 17.70 | 18.05 | 18.60 | 19.00 | 19.45 | 20.00 | 20.45 | 20.65 |
+| coin, pb mask | 17.65 | 18.05 | 18.55 | 18.95 | 19.35 | 19.95 | 20.40 | 20.65 |
+| coin, unc profile | 17.95 | 18.45 | 18.85 | 19.30 | 19.70 | 20.10 | 20.55 | 20.85 |
+| drawn **before** | 17.85 | 18.25 | 18.65 | 19.05 | 19.40 | **19.45** | **19.45** | **19.65** |
+| drawn **now** | 17.65 | 18.10 | 18.60 | 19.05 | 19.50 | 19.95 | 20.45 | 20.65 |
+
+Least squares over the fifteen proofbright rows y 47.5..54.5: **17.325 +
+0.4618·(54.7 − y), RMS 0.046, largest residual 0.083.** It is a LINE. unc2005,
+which has the opposite polarity and reads 0.15..0.25 outboard everywhere, gives
+the same shape at 0.4375 per unit. Worst face error was **1.00 at y 48**; it is
+now **0.15 at y 55**, and 0.05 or less on fifteen of the seventeen rows.
+
+**AND THE MARK OUR MIDDLE WAS DRAWN ON IS A DIFFERENT MARK.** At y 48
+proofbright carries two marks with 0.15 units of field between them — offsets
+17.30..18.70 and 18.85..20.45 — which fuse below y 49.5 into the single
+1.95-wide slab round 38 measured. The prong is the outboard one: it continues
+the fitted line and it arrives at the settled 20.40 at y 44. Ours sat on the
+inboard one, the owner's "acorn's stem", from y 48 to y 50.
+
+**WHICH RUN IS THE PRONG, DECIDED BY CONTINUITY AND NOTHING ELSE.** The table
+above comes from a tracker seeded at y 55.5 on the trunk — one unambiguous mark
+— that takes the run whose outboard end is nearest the row below's and STOPS if
+the nearest has moved more than 0.6. It walks 19 rows on both proofbright
+estimators and 18 on unc2005 before the crown closes over it at y 46.5. A rule
+that picked "the outermost run inboard of offset 22" was tried first and is
+refused: it locks onto the wreath's outer leaves, which are separated from the
+prong by a channel only 0.3 wide on some rows.
+
+**THE SHAPE IS NO LONGER AN INTERPOLATION.** Below the knee the centre is the
+fitted face minus a half width, row by row. Above it, a parabola with its
+vertex on the settled (20.40, y 44) — itself a measurement, three estimators
+inside 0.02 (round 40). `knee` 47.97 and `k` 0.0582 are not free: they are the
+unique pair that makes the parabola tangent to the line in value AND slope.
+The centre's slope runs 0.46 / 0.46 / 0.41 / 0.29 / 0.17 / 0.06 per unit from
+y 50 up to y 44 — monotone, no flat section, no step.
+
+**THE CROTCH HAD A SHELF 1.37 UNITS TALL.** The shipped path ran
+` L 65.2 54.7 L 63.83 54.35 `: the oak's inboard silhouette moved 1.37 in x
+over 0.35 in y, a slope of 3.9, where the rows above and below it move at 0.1
+and 0.7. proofbright's mask has no step at all — 12.55 / 13.05 / 13.50 / 13.80
+/ 14.05 / 14.20 at y 53 / 53.5 / 54 / 54.5 / 55 / 55.5, one lean at about half
+a unit per row. A **fillet** over y 54.25..55.9, the prong's own foot, replaces
+the step: drawn, at the polygon's own vertices, 13.44 (54.35) / 13.50 (54.5) /
+13.76 (54.7) / 14.19 (55.0) / 14.79 (55.4) / 15.16 (55.9) — monotone, steepest
+segment 1.5 per unit of y instead of 3.9.
+
+**⚠️ THE FILLET IS ADDED TO THE OUTLINE, NOT TO `oakC`, AND NO LEAF MOVES.**
+`leafAt` anchors every oak leaf on `oakC`, and the ladder row ay 54.99 sits
+inside the fillet's band; folding it into `oakC`/`oakHW` would have dragged
+that leaf 0.37 units inboard, away from the coin's own local centre of 16.70 at
+that height. A fillet is metal added at a junction — it does not move the
+trunk's axis. So the oak's outline is no longer symmetric about `oakC`: the
+outboard edge is `oakC + oakHW`, unchanged, and the inboard edge is a new
+`oakInFace`, identical to the old expression outside y 54.25..55.9 by
+construction. The oak side still has exactly **3** connected components,
+the stranded upper mass is **138.78 sq units** to the hundredth as before, and
+its nearest approach to the rest is **0.63 units at (59.0, 42.0)** — unchanged,
+and on the inboard side, nowhere near the prong.
+
+**WHAT IT COSTS AND WHAT IT BUYS.** Element ink 78.64 → **79.60 sq units**. At
+each file's own registration (`judge/_dr18prong.mjs bands`) the fork band
+y 48..54 goes **95.8 → 97.4 %** on proofbright and the whole element 95.4 →
+95.6 % / 96.1 → 96.1 %. On the older un-registered `_dr17oakfork.mjs outside`
+proofbright is 9.25 → **9.22 %** on more ink, and **unc2005 goes 17.65 →
+19.39 %** — reported, not hidden: that instrument applies no per-file
+registration, and unc2005's strokes are thinner than the coin's relief, so
+moving onto proofbright's mark moves off unc's. The registered band table is
+the one to reason from and it is flat on unc.
+
+**NONZERO CHECKED.** The element's area is 79.600 under nonzero and 78.345
+under evenodd — the two subpaths overlap by 1.255 sq units and it is unioned,
+so there is no cancelling hole in the crotch.
+
+**WHAT IS NOT DETERMINED.** The prong above y 44: `PRONG.out` is held constant
+to the tip at y 40.3 because nothing up there is separable. And the trunk's
+inboard face at y 55..58 is about **1.0 unit outboard** of the coin (drawn
+15.19 at y 55, mask 14.05) — that is the same defect the round-39 ledger named
+as the WAIST, it is out of this round's scope, and it is why the fillet lands
+0.3..0.7 outboard of the coin's own silhouette instead of on it.
+
 ## v1.107.0 — 2026-08-27
 
 **The oak's left prong ends almost at once; the right one goes up and OUT, not
