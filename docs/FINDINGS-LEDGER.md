@@ -22,6 +22,36 @@ Status: **OPEN** (confirmed present) · **FIXED** (with the version) ·
 
 ## 0. Standing rulings from the owner
 
+**R3 — THE DIME'S OAK STEM IS LOCKED (2026-08-29).** Six loops and the owner's
+sign-off went into the trunk, both prongs, the crotch fillet and the
+three-pointed foot. **Frozen:** `oakC`, `oakHW`, `PRONG`, `FORK`, `PFACE`,
+`forkIn`, `forkOut`, the foot, and the registration. A round needing an
+attachment point the stem does not provide **derives it from the frozen
+geometry**; it does not move the geometry. Verify by node diff — the emitted
+oak-stem path must be byte-identical.
+
+**R4 — REFERENCE ROLES ON THIS BRANCH (2026-08-29).** `dime-rev-proofbright.png`
+is the **placement** reference (registration +0.35). `dime-rev-unc2005.png`
+refines **shape only** (−0.75): its strokes are thinner than the coin's relief
+and it reads 15–20 points lower on containment even where the drawing is
+verified right, so it must not be used for placement. `dime-rev-2.jpg` fails the
+mask's own null test by 63 units and is never opened.
+
+**R5 — THE OAK CARRIES EIGHT LEAVES, IN FOUR GROUPS (2026-08-29).** Owner's
+reading, superseding the "seven leaves a side" finding — which was derived by
+counting connected blobs at an erosion threshold and **mirrored from the
+olive**, and which the owner's direct reading of the coin overrides:
+
+| group | leaves | attaches to |
+|---|---|---|
+| A | 2 | the left (inboard) prong |
+| B | 3 | the right (outboard) prong, which **terminates** in this bunch |
+| C | 1 | the right side of the right prong |
+| D | 2 | the right side of the main trunk, **below** the fork |
+
+**Individual overlapping leaves, not bundles** — each leaf is its own object
+that may overlap its neighbours; a group is never one merged glyph.
+
 **R1 — THE $1 NOTE IS TABLED (2026-08-24).** It is substantively different from
 the coins and needs its **own pipeline**, not the coin machinery bent around it.
 **Its aspect ratio must differ from the real note**, per the owner's research on
