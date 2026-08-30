@@ -7,6 +7,44 @@ reconsider after calibration.
 
 ## Where we are
 
+- 🟢 **THE DIME'S OAK BLADES HAD ONE LOBE PAIR TOO MANY AND THEIR CROWNS WERE
+  FINS — AND THE BRIEF'S "NARROW SINUS" HYPOTHESIS IS REFUTED WITH A NUMBER.**
+  The `OAK` glyph shipped **byte-identical from v1.92.0 to v1.121.0**, so the
+  eight-leaf round never re-authored it and v1.92.0's "broad lobe, narrow slot"
+  finding never regressed. Two faults measured instead. **Count and pitch:**
+  the path drew **five** laterals a side where its own comment claimed four and
+  the coin shows three — on leaf C's midrib, ours **5 at pitch 1.69** against
+  **2–3 at 2.49** (proofbright) and **3 at 2.49/2.69** (unc2005). **The bevel
+  skirt is the control:** dilate OUR mask by each file's own calibrated skirt
+  (0.55 / 0.37) and our five lobes **collapse to one or two** while proofbright,
+  which carries exactly that skirt, still resolves two — *our lobes were small
+  enough that the coin's own skirt would erase them.* **Crowns:** a
+  least-squares circle at each apex gives the coin **1.22 / 1.08** and ours
+  **0.61**; re-spacing to four lobes in the old grammar reached only 0.60,
+  because [wall][flat top][wall] has corners at the shoulders. Now **four
+  semicircular knobs a side** (true 180° arcs, radii 0.62/1.02/1.00/0.78) plus
+  a rounded terminal, same **12.00 × 7.58** box, sinuses **48/50/52 %**, **908
+  characters against 1087**. Whole oak: area **419.7 → 475.6** (coin 475.3 /
+  474.9), lobes **57 → 37** (36 / 35), pitch **4.50 → 5.15** (5.30 / 5.10),
+  crown r **0.61 → 0.81** (1.22 / 1.08) — count and pitch now land *between* the
+  two photographs, and on leaf C's own arc the count is exact (**7 / 7 / 7**).
+  **Cost published:** OUTSIDE **8.42 → 10.01 %** and **10.17 → 11.58 %** for
+  coverage **75.1 → 77.2 %** and **73.3 → 75.4 %**; we draw 432 sq units where
+  the coin has 508, so the trade runs toward the coin. **Sinus depth is HELD:**
+  ours cut to 50–53 % and the coin reads 70–82 %, but dilating ours by 0.37
+  makes it read 70–91 %, so the coin's floor is at least as deep — shallowing it
+  would improve OUTSIDE and be wrong. **Refused on the picture having measured
+  better:** a 220° arc (undercuts the neck; reads as grapes at 40×). **Could
+  not determine:** a fourth lateral at the blade's base, which A42/E25 make
+  invisible either way. Node `2.1.4` `407e6935d9d9ba80`, olive
+  `6aaf4d61c4317269`, partition **dime.reverse alone**, D9 0/180. Suite green.
+- 🔴 **`docs/FINDINGS-LEDGER.md` HAS A MERGE CONFLICT COMMITTED INTO IT** (since
+  v1.121.0): literal `<<<<<<<` / `>>>>>>>` markers at lines 212–220, because two
+  branches both allocated **D40 and D41** to different findings. Every citation
+  of those ids since is ambiguous, including two in `torch()` and two in
+  CHANGELOG.md. The same merge left **v1.121.0 with no CHANGELOG entry**. Not
+  resolved by the leaf round on purpose — renumbering rows other files cite by
+  number is a judge call. Ledger A51.
 - 🟢 **BOTH ACORNS ON THE DIME'S OAK NOW HANG ON MEASURED STEMS, AND THE STEM
   IS STILL BYTE-IDENTICAL.** The owner asked four times and three rounds
   refused. Run at a **0.2-unit step** instead of 0.5, round 42's own prong
