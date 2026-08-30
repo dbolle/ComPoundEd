@@ -7,6 +7,36 @@ reconsider after calibration.
 
 ## Where we are
 
+- 🟢 **THE HAIR TONE ON ALL FOUR PORTRAITS IS RIGHT, AND C2 IS CLOSED. No art
+  changed — the byte-identity partition reads 0/60 across 0 faces.** `bust()`
+  picks the hair mass's fill with one ternary (lighter than the face on
+  Jefferson, Roosevelt and Washington, darker on Lincoln) and nobody had ever
+  measured it at a size the app draws. **It is not a rounding error:** even at
+  the smallest size `money.js` asks for, the ternary owns **61 / 96 / 206 / 222
+  device pixels** (cent / dime / quarter / nickel), 7.3–26.0 % of the disc — and
+  a "38 px" row draws the dime at 28 device pixels, not 38. **But most of the
+  22-luma palette step is cancelled by the relief drawn over it:** what survives
+  against the abutting face pixels is 19.6–24.2 luma on the nickel
+  (2.5–2.9 × sd(face)) and only 3.6–6.7 on the dime, 3.8–5.2 on the cent,
+  9.5–12.9 on the quarter — **below the face's own texture on three of four
+  heads.** **And the sign is a stylisation, not a photometric fact:** hair and
+  cheek are the same metal, and hair-mask-mean over face-mask-mean on every
+  obverse photograph sits near unity (nickel 1.003/1.045, quarter 0.979–1.082,
+  dime 0.702–1.087, cent 0.874–1.015) — the 1.19–1.39 ratios this project has
+  quoted are lit *crests* against a flat cheek. **T1 confirms the shipped sign**
+  on the nickel (flipping costs 0.205 → 0.164 of margin) and the quarter
+  (0.368 → 0.342) at every drawn size, is a wash on the cent (0.389 → 0.394,
+  whose photographs say darker anyway), and **argues for the other branch on the
+  dime** (0.302 → 0.350) — **refused**, because `energyGrid` is a sign-blind
+  |grad|, the dime's ranking is monotone in darkness with its optimum at `deep`,
+  three of the dime's four obverse photographs put the hair brighter, and the
+  flip would split the three silvers' tone direction. **Rejected because it
+  scored better:** filling the hair in `p.motif` — no step at all — beats the
+  shipped branch on the cent, nickel and dime, and on sight turns the nickel's
+  head into one flat blob with a few ridge lines in it. Seven instruments added
+  (`_jz1hairtone` … `_jz7mag`, `_jzlib`). T1 32/32 and T5 36/40 A · 33/40 B,
+  unchanged. **New open item C2a:** every dime obverse reference in T1's pool is
+  a cameo proof.
 - 🟡 **THE DIME'S OAK CARRIES TWO ACORNS, AND THE SECOND ONE IS NOW DRAWN.**
   Sixteenth element round on this face. Round 27 put an acorn at (68, 45);
   round 28 found a leaf there, moved the acorn nine units inboard and twelve
@@ -1097,7 +1127,9 @@ reconsider after calibration.
     Their per-tier rows are now guaranteed identical, so they are degenerate
     rather than wrong. Editing them voids published hashes; the honest fix is a
     v2 the next time a round needs that measurement.
-  - **C2 is still open**: what `hairFill`'s sign does at 48 and 54 px.
+  - ~~**C2 is still open**: what `hairFill`'s sign does at 48 and 54 px.~~
+    **RESOLVED v1.114.0** — measured at all four drawn sizes on all four
+    obverses, both branches. The shipped sign stands; no art changed.
 
 
 - 🟢 **TIER-ERA DEAD CODE removed from `src/art/coins.js` (v1.93.0). No art
@@ -1118,9 +1150,9 @@ reconsider after calibration.
     only four print `icon`/`mid` rows. Partly fixed v1.95.0** — `_jq10tier.mjs`
     retired by move, `_jl1cap.mjs` corrected; five are hashed and left with the
     reason.
-  - **C2 (`hairFill`'s sign at `mid`) is moot as written** — that branch could
+  - ~~**C2 (`hairFill`'s sign at `mid`) is moot as written** — that branch could
     not run. The real open question is what the sign does at the 48 and 54 px
-    the app actually draws.
+    the app actually draws.~~ **ANSWERED v1.114.0.**
 
 - 🟢 **STALE INSTRUMENTS closed (v1.91.0). No art changed.** Ten of the
   fourteen ledger items this round owned are FIXED, with a verification command
