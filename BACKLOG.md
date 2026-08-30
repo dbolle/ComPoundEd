@@ -7,6 +7,34 @@ reconsider after calibration.
 
 ## Where we are
 
+- 🟢 **THE DIME OBVERSE NO LONGER RESTS ENTIRELY ON CAMEO PROOFS — AND THE THREE
+  BUSINESS STRIKES IT NEEDED WERE ALREADY ON DISK, UNUSED. C2a closed. No art
+  changed; the partition reads 0/60.** T1's dime obverse pool was two files and
+  both were mirror-field proofs, the finish §20.3 calls *the best SHAPE
+  reference and the worst TONE reference*. All nine dime obverses in `ref/` were
+  characterised from their own **mintmark crops**, not their filenames — which
+  mattered: `dime-obv.jpg` is 1996-**W** and `dime-obv-2.jpg` is 2015-**W**, and
+  those two Ws are opposite things (West Point mint-set business strike vs
+  proof). **Six proofs, three business strikes**, and no acquisition was needed.
+  Pool **n=2 → n=5**: `dime-obv-pcgs2015.png` (2015-P, the best rim of the nine
+  — p95 0.092 % of R, 353.8° of arc, round to h2 0.026 %), `dime-obv-unc2005.png`
+  (2005-P, U.S. Mint PD, diffuse — polarity −18 against a proof's +137…+194) and
+  `dime-obv.jpg` (1996-W, **shape only**: toning 26.7 is past the 25.9 that
+  disqualified the quarter's 1932 NGC file for tone). **Two excluded on GEOMETRY,
+  not finish:** `discOf()` — the registration T1 itself uses — is **−19.23 % wrong
+  with the centre 16.3 % of R out** on `dime-obv-4.jpg`, and
+  `dime-obv-proof2010.png` is clipped (8.8 % of R past the frame, 237° of arc
+  left, rim p95 9.3 %). **T1 32/32 before and after**, control 22/22 → 25/25.
+  **Four cells moved and the round accepted the drop:** the penny obverse margin
+  falls 0.389→0.384 / 0.387→0.382 / 0.387→0.380 / 0.386→0.381, all caused by
+  pcgs2015 alone — that photograph is genuinely the dime obverse nearest our
+  *cent* drawing, and the old margin was computed by a pool that did not contain
+  it. **Rejected because it scored better:** dropping the two proofs and keeping
+  only the struck files takes the worst margin in the whole 32-cell table from
+  **0.202 to 0.223**; refused, because a smaller pool is not a truer one. Its
+  finding is kept — **T1's global worst margin is set by the cameo-proof dime
+  obverses**. Two instruments added (`_jt6dobv`, `_jt7dpool`), neither writes
+  inside the checkout. Suite 464/464.
 - 🟢 **BOTH ACORNS ON THE DIME'S OAK NOW HANG ON MEASURED STEMS, AND THE STEM
   IS STILL BYTE-IDENTICAL.** The owner asked four times and three rounds
   refused. Run at a **0.2-unit step** instead of 0.5, round 42's own prong
