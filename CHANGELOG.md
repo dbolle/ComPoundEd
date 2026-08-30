@@ -3,6 +3,65 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.115.0 — 2026-08-30
+
+*(1.113.0 and 1.114.0 are reserved for two rounds in flight.)*
+
+**A repair from six days ago reverted eleven days of work, and nobody noticed
+because the thing it broke is a self-test that was already expected to shout.**
+No art changed; `src/` is byte-identical. This is the frozen-manifest audit.
+
+The manifest reconciles: **573 OK, 18 moved, 174 absent, zero unexplained.** All
+174 absent are accounted for — 160 retired by move into `judge/retired/`, and 14
+deliberately deleted in `7be3620`, the card writers that corrupted the evidence
+trail. Twelve of the 18 that moved are the published repairs A7/A11/A13/A14/
+A30/A31 and the path derivation; one is a legitimate v1.75.0 regeneration; five
+are artefacts covered below. **One is a regression.**
+
+**A45.** A38 restored `_jq8contain-v2.mjs` "byte-exact" to `512f61d5…`, the hash
+seven published records cite. Traced through history, that hash is the file's
+**2026-08-13** state. The file was legitimately edited on **2026-08-21**
+(v1.60.0) before the A11 repair touched it on 08-24 — so the restore did not
+undo the A11 repair, it undid **v1.60.0 as well**. What v1.60.0 fixed: the
+self-test asserted a literal field radius of 40.5 after v1.57.0 moved the field
+to 44.07, so it printed `SELFTEST FAIL` on clean art, on all four coins.
+v1.60.0 replaced the literal with the rule and wrote, in as many words, that *a
+guard that cries wolf on clean art is worse than no guard*. **It cries wolf
+again today** — verified, all four coins, on art nobody disputes.
+
+Impact is contained: the live successor `_jq8contain-v3.mjs` carries the
+v1.60.0 rule, so no live gate is affected, and v2 stays frozen and unedited.
+The warning goes in its `.SUPERSEDED.md`, which is not hashed.
+
+**The lesson A38 did not have: restoring a file to a cited hash is an edit.** A
+hash names a moment, not a file. Reverting to one silently discards everything
+done between that moment and now. Look at what the file was then, and what has
+happened since, before restoring to it.
+
+Two things the audit surfaced that are the owner's call, not mine:
+
+**A46 — five frozen artefacts of record are gitignored.** `_nkparts.json`,
+`_nkreg5.json`, `_p2fam.json`, `_pyout.json`, `_x6-run.json` are hashed into the
+manifest, exist here, and are untracked — absent from every clone, and moved
+since the manifest with no history to say why. A25 fixed the same problem for
+eight instrument modules by tracking them, no import rewritten and no hash
+moved. The remedy is available; whether these are third-party-derived is not
+mine to decide.
+
+**A47 — 33 abandoned agent worktrees, 2.3 GB, on the pre-purge history.** Each
+is "ahead" of `main` by 134–204 commits, which is not divergence but the
+signature of the purge: their HEADs are unreachable from `main` while sharing
+its 2026-07-08 root, so they still hold the objects the purge existed to
+remove. **The gate holds** — `.githooks/pre-push` reads *every* ref being
+pushed and scans each range, so it is not `main`-only. Disk, not leak. They
+carry up to 35 uncommitted files each, so deleting them is a decision, not
+housekeeping.
+
+The manifest itself is **not** edited. A frozen record that gets rewritten when
+it disagrees with the tree is not a record.
+
+Suite **225 + 239 = 464/464**.
+
 ## v1.112.0 — 2026-08-30
 
 **85 % of the disagreement between the dime's two reference photographs is

@@ -35,3 +35,29 @@ That is why this note is a separate file. **A frozen artefact cannot carry its
 own retraction; the retraction must sit beside it.** The general rule, stated
 for the next person: if a file's hash is cited anywhere, the only safe edit is
 no edit.
+
+## ⚠️ ITS SELF-TEST CRIES WOLF, AND THAT IS NOT A NEW BUG — IT IS AN OLD ONE, RESTORED
+
+`SELFTEST=1 node coloringbook/judge/_jq8contain-v2.mjs` prints **SELFTEST FAIL
+on clean art**, all four coins "WRONG (expect 40.5)". Do not chase it in the
+art. The assertion is a stale literal: v1.57.0 moved the field radius to 44.07
+and this file still expects 40.5.
+
+v1.60.0 fixed exactly that, replacing the literal with the rule — never picks
+the blank, the blank was offered and rejected, all coins agree on one radius —
+and said in as many words that *a guard that cries wolf on clean art is worse
+than no guard*.
+
+**The v1.96.0 restore then undid it.** That restore returned this file to the
+hash seven published records cite, which is its **2026-08-13** state; the
+v1.60.0 fix landed on **2026-08-21**, after it. So restoring to the cited hash
+reverted eleven days of work along with the edit it meant to undo.
+
+**Do not fix it here.** The whole reason this file is pinned is that editing it
+breaks the citations, and the last two attempts to improve it each moved the
+hash again. The live successor **`_jq8contain-v3.mjs` already carries the
+v1.60.0 rule**; use that. Ledger A45.
+
+**The general rule this earns:** *restoring a file to a cited hash is an edit.*
+A hash names a moment, not a file. Before restoring to one, look at what the
+file was at that moment and what has happened since.

@@ -7,6 +7,22 @@ reconsider after calibration.
 
 ## Where we are
 
+- 🟡 **A REPAIR REVERTED ELEVEN DAYS OF WORK, AND THE FROZEN MANIFEST IS WHAT
+  CAUGHT IT.** No art changed. The manifest reconciles — 573 OK, 18 moved, 174
+  absent, **zero unexplained** (160 retired by move, 14 deliberately deleted).
+  One of the 18 is a regression: A38's "byte-exact" restore of
+  `_jq8contain-v2.mjs` returned it to the hash seven records cite, which is its
+  **2026-08-13** state — but v1.60.0 edited that file on **08-21**, so the
+  restore undid v1.60.0 too, putting back a self-test that prints SELFTEST FAIL
+  on clean art. The live successor `-v3` carries the fix, so no gate is
+  affected; v2 stays frozen and the warning lives in its `.SUPERSEDED.md`
+  (A45). **New rule: restoring a file to a cited hash IS an edit** — a hash
+  names a moment, not a file. **Owner's call:** five frozen artefacts of record
+  are gitignored and so absent from every clone (A46), and 33 abandoned agent
+  worktrees hold 2.3 GB of pre-purge history — the pre-push gate scans every
+  ref so it is disk and hygiene, not a leak, but they carry uncommitted files
+  (A47). Suite 464/464.
+
 - 🟡 **85 % OF THE DISAGREEMENT BETWEEN THE DIME'S TWO REFERENCE PHOTOGRAPHS IS
   ONE CONSTANT.** No art changed. `deviceMask()`'s erosion is now measured
   rather than argued: scanning every field→device transition on the branch,
