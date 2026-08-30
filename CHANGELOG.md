@@ -3,6 +3,69 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.119.0 — 2026-08-30
+
+**The dime reverse's two-file registration, measured as a function of both
+axes. Nothing is applied.** No art changed, no registration constant changed;
+`src/` is byte-identical. D40 raised a y offset from four mask windows and
+fitted `dy = 0.489 + 0.0226·(y − 50)` to them. This round measures the whole
+first-order field and refines that line, and separates a cause D40 could not.
+
+**The function** (a feature at (x, y) on `dime-rev-proofbright.png` is at
+(x + dx, y + dy) on `dime-rev-unc2005.png`):
+
+    dx = -0.91 - 0.0101·(x - 50)          dy = +0.62 + 0.0156·(y - 50)
+
+Translation plus a DIAGONAL scale. **No rotation term** (+0.1° ± 0.1°, changes
+sign across the sweep), **no shear**, and **no quadratic** — adding (y − 50)² to
+dy moves the RMS from 0.1202 to 0.1199, which is a decimal place, not a term.
+So the tilt/projective explanation is ruled out over the measured range.
+
+**The control.** In the window `_dr18prong.mjs` fitted the published `REG` on —
+the torch trunk, y 62..69 — photograph against photograph, with our drawing
+nowhere in the path, this returns **−1.00 on all six window choices, spread
+0.03**. That instrument's own 0.25-step sweep peaks at +0.25 / −0.75, i.e.
+−1.00 for the pair; the published −1.10 carries 0.10 of refinement past its own
+grid. A second, unrelated estimator agrees: the x of the torch trunk's right
+wall, row by row, gives **−0.987 against DX(57) = −0.981**.
+
+**D40's line is too steep by a third and wrong at the top of the coin.** The
+y-scale term is **+1.56 % ± 0.25 %**, not 2.3 %, and D40's `DYU` over-corrects
+by **0.27 units at y 30**, 0.13 at y 50, and is right by y 70. Measured over
+window centres y 30..72 (picture read y 23..79) with three estimators sharing
+no image statistic — mask IoU, gradient-magnitude NCC, raw-grey NCC — which
+land at sy 1.74 / 1.48 / 1.45 %.
+
+**And a second finding D40 did not have: BOTH RIMS ARE ELLIPSES, and
+`samplerFor()` maps both axes through one radius.** proofbright's rim is
+**1.45 % flattened in y** (major axis at 1.4°), unc2005's **0.63 %** (at 26.0°),
+each a clean 2-cycle with harmonics 1, 3, 4 an order of magnitude smaller;
+`dime-rev.jpg` is round to 0.13 %. Predicted contribution to the two-file
+difference, from the rims alone: **0.83 points of anisotropy**. Tested rather
+than asserted — re-running the whole registration with each file normalised by
+its own (rx, ry) removes **0.836 points (mask) and 0.712 (gradient)**.
+
+**So the fault is a third rim fit and two thirds not.** The rest survives with
+both rims fitted exactly. It is not the disc CENTRE either: two fitters that
+share no code (`_rimfit` half-max + Taubin, `_dr1disc` nearest-pixel + Kasa)
+agree on the centre to **0.031 and 0.050 viewBox units**, against a measured
+constant term of +0.62.
+
+**Reported, not applied**, exactly as A40's erosion was. `DYU` in
+`_dr24acorn2.mjs` still carries D40's line and nothing in `src/art` moves. The
+table of what would move is in the ledger at D40/D41.
+
+New instrument `coloringbook/judge/_dr25yreg.mjs` — reports only, writes
+nothing under any flag, never opens `dime-rev-2.jpg`. Its selftest (56 checks)
+registers a file against a KNOWN affine warp of itself and recovers a known
+translation to 0.001 units and known ellipse axis RATIOS to 1e-5, and carries
+the **negative control the round's verdict rests on**: given a purely
+ISOTROPIC 2 % warp it reports anisotropy 0.06 %, so the anisotropy it reports
+on the real pair is not something the method manufactures. Two known biases are
+asserted rather than hidden — an oblique-ray bias on eccentric ellipses
+(common-mode; the ratio survives) and a 2–7 % shortfall on large scale terms
+(so the measured sy is a floor).
+
 ## v1.118.0 — 2026-08-30
 
 **Three owner decisions, applied.** No art changed; `src/` is byte-identical.
