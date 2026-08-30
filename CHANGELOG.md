@@ -3,69 +3,48 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
-## v1.120.0 — 2026-08-30
+## v1.125.0 — 2026-08-30
 
-**Both acorns on the dime's oak now hang on stems, and the stems are measured.**
-The owner asked four times; rounds 34, 35 and 44 each refused with a different
-reason. This round drew them, and the reason it could is that the refusals were
-about rows that *cannot be read at a 0.5-unit step*. Run at **0.2**, the same
-estimator round 42 used for the prong (`_dr20prongwidth.mjs hm`'s adaptive cut
-plus half-max edge refinement) resolves **a second mark inboard of the prong,
-with bare field between the two, on BOTH photographs** — proofbright at
-y 47.8–48.0, unc2005 at y 48.2–48.4. Round 42 had already written down that
-"rows y 48.5..49.5 are the two marks fusing", which is a statement that there
-are two marks there; only one of them was drawn.
+**The CHANGELOG lost two entries silently, and a specialist round found it, not
+me.** No art changed. Details in the commit; the short version is that a text
+substitution matched nothing twice and reported success both times, and
+`tests/changelog.spec.js` now makes that impossible to miss. On arrival the new
+gate also found **five versions carrying two different bodies each** and a
+scrambled section order, both pre-existing and neither previously noticed.
 
-**Acorn 2's stalk (node `2.1.41`)** is near-vertical, which is what the owner
-said the acorn looked like. Its inboard wall is at **67.81 ± 0.04 over nine
-rows y 47.8–50.0** while every edge of the prong slopes at `PFACE.slope`
-**0.4618** and moves 1.02 units across the same span — *a vertical wall inside
-a sloping element is a second element*. The extra width the fused rows carry
-over the prong's own plateau (1.35, 0.76, 0.47, 0.18, 0.00) is, to 0.05, just
-the distance from that wall to the prong's inboard face: **the prong slides
-over the stalk as it descends**, which is why the stalk vanishes at y 50 and
-why round 42 could not read those rows. **OUTSIDE 0.00 % on both files.**
+## v1.124.0 — 2026-08-30
 
-**Acorn 1's stalk (node `2.1.40`)** arches — measured, not stylised. Column by
-column the two files agree on its **centreline to 0.03–0.09 over eight
-columns**, tighter than they agree on anything else on this branch, and
-disagree on its **width by a factor of 2.2** (0.40–0.60 vs 0.90–1.30). The
-disagreement is published rather than averaged into a claim; the drawing sits
-between the two. It is emitted as a tapered band down a five-segment polyline
-(new helper `bandOf`, one closed subpath) because a straight quad on its own
-chord stands **0.40 off the coin's centreline at the crest — half the mark's
-width**.
+**A ledger row that said "this cannot be fixed" was wrong, and I wrote it.** No
+art changed; docs only.
 
-**Where ledger D40 bit this round, stated rather than corrected for.** The
-centreline agreement above exists **only after** unc2005's y is corrected by
-`DYU`. Raw, unc2005 puts acorn 1's stalk **0.61 units lower** than proofbright
-does, and the node's OUTSIDE on unc2005 reads **35.99 % without the correction
-and 0.00 % with it**. Nothing is placed on unc2005; proofbright places (R4).
+A43 recorded that `WINDOWS['oak-branch']` is **41 % not-oak** and then said it
+could not be corrected because *"`_dr13elem`'s `WINDOWS` is hashed into
+published rounds."* Checked: `_dr13elem.mjs` is **not in the frozen manifest**
+and its hash is cited in **zero** files. Asserted, not verified — the failure
+A45 records, committed one release after recording it. The window is fixable;
+deferred only because a round is live on this face.
 
-**Two refusals stand, both with numbers.** The stalk does **not** run to the
-crotch at (66.3, 54.4): the fork's negative slot is **8.3 sq units of bare
-field** at x 66.05–67.40, y 47.4–54.4 confirmed row by row, and that path would
-fill **6.0 of them**. And round 35's refusal — acorn 1's stalk "runs into the
-lowest oak blade (node 2.1.6, x 52.8..64.1, y 45.8..55.5)" — **is stale**: that
-blade belonged to the mirrored ladder round 43 retired. The two leaves that
-reach down here now stop at y 50.50 and y 51.65, **3.4 and 4.5 units clear**.
+Found while checking: `_dr22oakleaves.mjs` already uses the correct x 58..82
+y 25..61, while **`_dr15oakleaf.mjs:680` hardcodes its own copy** of the wrong
+`[55, 85, 25, 78]`. A second copy of a constant is a second constant.
 
-**Nothing else on the face moved, and it is checked three ways.** Node `2.1.4`
-comes back byte-identical at **`407e6935d9d9ba80`, 1015 bytes**; the olive's
-eighteen nodes hash **`6aaf4d61c4317269`** before and after; and a mark-by-mark
-diff of the whole reverse SVG shows **+6 marks (the two new paths × three
-`struck()` copies), 0 removed, 0 changed**. The stalks are emitted after the
-*olive* precisely so that adding them moved no existing id. Byte partition:
-**6/60 cells, `dime.reverse` alone**. D9 **0/180**. D6 on the reverse
-**0.0899 → 0.0883** against a 0.50 gate.
+**A50 — the anisotropy arbiter is not on disk.** Settling v1.121.0's ~1.5
+unexplained points needs a third independent dime reverse. `ref/` holds exactly
+four: the two in question, one that fails the mask's own null test by 63 units,
+and one already rejected at mean NCC 0.31. **No fourth candidate to promote** —
+unlike C2a, this needs acquisition.
 
-**Whole oak, x 58..82 y 25..61:** coverage of the coin's oak **73.9 → 75.1 %**
-(proofbright) and **72.4 → 73.3 %** (unc2005), with the share of our own ink
-that is on device holding at **91.8 %** and **89.5 %**. Suite green.
+**And this release exists because a text substitution failed silently.** The
+v1.121.0 heading above said 1.119.0, because the merge helper was handed the
+same string as both its search and its replacement; then this entry was anchored
+on `"## v1.121.0"`, matched nothing, and `str.replace` returned the input
+unchanged. Both were invisible until the dime-pool round noticed the version in
+`package.json` had no matching heading. **`tests/changelog.spec.js` now asserts
+that every version `package.json` has ever carried has a heading, and that the
+headings descend** — the same lesson as the stale instrument anchors in A30: an
+edit that does not verify its anchor matched is not an edit, it is a wish.
 
-New instrument `judge/_dr25stalk.mjs` (`rows` · `cols` · `score`) reprints
-every number above.
-## v1.119.0 — 2026-08-30
+## v1.121.0 — 2026-08-30
 
 **The dime reverse's two-file registration, measured as a function of both
 axes. Nothing is applied.** No art changed, no registration constant changed;
@@ -128,6 +107,68 @@ asserted rather than hidden — an oblique-ray bias on eccentric ellipses
 (common-mode; the ratio survives) and a 2–7 % shortfall on large scale terms
 (so the measured sy is a floor).
 
+## v1.120.0 — 2026-08-30
+
+**Both acorns on the dime's oak now hang on stems, and the stems are measured.**
+The owner asked four times; rounds 34, 35 and 44 each refused with a different
+reason. This round drew them, and the reason it could is that the refusals were
+about rows that *cannot be read at a 0.5-unit step*. Run at **0.2**, the same
+estimator round 42 used for the prong (`_dr20prongwidth.mjs hm`'s adaptive cut
+plus half-max edge refinement) resolves **a second mark inboard of the prong,
+with bare field between the two, on BOTH photographs** — proofbright at
+y 47.8–48.0, unc2005 at y 48.2–48.4. Round 42 had already written down that
+"rows y 48.5..49.5 are the two marks fusing", which is a statement that there
+are two marks there; only one of them was drawn.
+
+**Acorn 2's stalk (node `2.1.41`)** is near-vertical, which is what the owner
+said the acorn looked like. Its inboard wall is at **67.81 ± 0.04 over nine
+rows y 47.8–50.0** while every edge of the prong slopes at `PFACE.slope`
+**0.4618** and moves 1.02 units across the same span — *a vertical wall inside
+a sloping element is a second element*. The extra width the fused rows carry
+over the prong's own plateau (1.35, 0.76, 0.47, 0.18, 0.00) is, to 0.05, just
+the distance from that wall to the prong's inboard face: **the prong slides
+over the stalk as it descends**, which is why the stalk vanishes at y 50 and
+why round 42 could not read those rows. **OUTSIDE 0.00 % on both files.**
+
+**Acorn 1's stalk (node `2.1.40`)** arches — measured, not stylised. Column by
+column the two files agree on its **centreline to 0.03–0.09 over eight
+columns**, tighter than they agree on anything else on this branch, and
+disagree on its **width by a factor of 2.2** (0.40–0.60 vs 0.90–1.30). The
+disagreement is published rather than averaged into a claim; the drawing sits
+between the two. It is emitted as a tapered band down a five-segment polyline
+(new helper `bandOf`, one closed subpath) because a straight quad on its own
+chord stands **0.40 off the coin's centreline at the crest — half the mark's
+width**.
+
+**Where ledger D40 bit this round, stated rather than corrected for.** The
+centreline agreement above exists **only after** unc2005's y is corrected by
+`DYU`. Raw, unc2005 puts acorn 1's stalk **0.61 units lower** than proofbright
+does, and the node's OUTSIDE on unc2005 reads **35.99 % without the correction
+and 0.00 % with it**. Nothing is placed on unc2005; proofbright places (R4).
+
+**Two refusals stand, both with numbers.** The stalk does **not** run to the
+crotch at (66.3, 54.4): the fork's negative slot is **8.3 sq units of bare
+field** at x 66.05–67.40, y 47.4–54.4 confirmed row by row, and that path would
+fill **6.0 of them**. And round 35's refusal — acorn 1's stalk "runs into the
+lowest oak blade (node 2.1.6, x 52.8..64.1, y 45.8..55.5)" — **is stale**: that
+blade belonged to the mirrored ladder round 43 retired. The two leaves that
+reach down here now stop at y 50.50 and y 51.65, **3.4 and 4.5 units clear**.
+
+**Nothing else on the face moved, and it is checked three ways.** Node `2.1.4`
+comes back byte-identical at **`407e6935d9d9ba80`, 1015 bytes**; the olive's
+eighteen nodes hash **`6aaf4d61c4317269`** before and after; and a mark-by-mark
+diff of the whole reverse SVG shows **+6 marks (the two new paths × three
+`struck()` copies), 0 removed, 0 changed**. The stalks are emitted after the
+*olive* precisely so that adding them moved no existing id. Byte partition:
+**6/60 cells, `dime.reverse` alone**. D9 **0/180**. D6 on the reverse
+**0.0899 → 0.0883** against a 0.50 gate.
+
+**Whole oak, x 58..82 y 25..61:** coverage of the coin's oak **73.9 → 75.1 %**
+(proofbright) and **72.4 → 73.3 %** (unc2005), with the share of our own ink
+that is on device holding at **91.8 %** and **89.5 %**. Suite green.
+
+New instrument `judge/_dr25stalk.mjs` (`rows` · `cols` · `score`) reprints
+every number above.
 ## v1.118.0 — 2026-08-30
 
 **Three owner decisions, applied.** No art changed; `src/` is byte-identical.
@@ -2082,42 +2123,6 @@ T1 32/32 (dime reverse self-NCC 0.449–0.452 → 0.453–0.455, margin 0.224–
 over 120 renders, D8 dime reverse 0.0000 % outside the field circle, D10 PASS,
 D11 reverse-min 0.0730 → 0.0742.
 
-## v1.96.0 — 2026-08-24
-
-**A frozen artefact cannot carry its own retraction — and I proved that by
-making the same mistake twice, one minute apart.**
-
-`_jq8contain-v2.mjs` is pinned at hash `512f61d57444b288`, which **seven
-published records cite**. The v1.91.0 repair to its response test was applied
-**in place**, moving the hash to `28717096e3a2328a` and silently breaking every
-one of those citations. §1.1 says *retract beside, never rewrite*; that was my
-merge, and it did the opposite.
-
-**Then, fixing exactly that, I restored the file byte-exact and added a
-supersession note inside it** — moving the hash to `833c6f37f2eaf93e`. The same
-error, during its own repair.
-
-So: v2 is restored **byte-identical** at `512f61d5…`, the repair lives in
-`_jq8contain-v3.mjs`, and the note sits in a **separate file beside it**. Three
-live instruments import v2's helpers, and one of them documents that it does so
-"unedited at its published hash" — true again.
-
-**The general rule, now stated where it will be read: if a file's hash is cited
-anywhere, the only safe edit is no edit.**
-
-**The anchors test correctly went red on the restored file**, because v2's
-anchor genuinely *is* stale — that defect is why v3 exists — but it may not be
-fixed. The exemption added is deliberately narrow and **auditable**: `X.mjs` is
-exempt if and only if `X.SUPERSEDED.md` sits beside it **and that note names the
-file replacing it.** A silent skip-list would be a loophole; a note that must
-name its successor is a record.
-
-Response-tested three ways: with the note, green; **note removed, red**; **note
-present but naming no successor, red.**
-
-v3 verified working: response 0.0000 % → **4.1890 %**, injection asserted real,
-zero-translate null test bit-identical.
-
 ## v1.98.0 — 2026-08-25
 
 **The dime's flame has five tongues; we drew three. First element scored alone
@@ -2268,6 +2273,42 @@ all. At the nape the references disagree by 28° because the coin has a rolled
 *curl* there and a direction field is the wrong model for a spiral.
 
 Verified: T1 32/32, D9 56/56, zero centreline crossings, suite green.
+
+## v1.96.0 — 2026-08-24
+
+**A frozen artefact cannot carry its own retraction — and I proved that by
+making the same mistake twice, one minute apart.**
+
+`_jq8contain-v2.mjs` is pinned at hash `512f61d57444b288`, which **seven
+published records cite**. The v1.91.0 repair to its response test was applied
+**in place**, moving the hash to `28717096e3a2328a` and silently breaking every
+one of those citations. §1.1 says *retract beside, never rewrite*; that was my
+merge, and it did the opposite.
+
+**Then, fixing exactly that, I restored the file byte-exact and added a
+supersession note inside it** — moving the hash to `833c6f37f2eaf93e`. The same
+error, during its own repair.
+
+So: v2 is restored **byte-identical** at `512f61d5…`, the repair lives in
+`_jq8contain-v3.mjs`, and the note sits in a **separate file beside it**. Three
+live instruments import v2's helpers, and one of them documents that it does so
+"unedited at its published hash" — true again.
+
+**The general rule, now stated where it will be read: if a file's hash is cited
+anywhere, the only safe edit is no edit.**
+
+**The anchors test correctly went red on the restored file**, because v2's
+anchor genuinely *is* stale — that defect is why v3 exists — but it may not be
+fixed. The exemption added is deliberately narrow and **auditable**: `X.mjs` is
+exempt if and only if `X.SUPERSEDED.md` sits beside it **and that note names the
+file replacing it.** A silent skip-list would be a loophole; a note that must
+name its successor is a record.
+
+Response-tested three ways: with the note, green; **note removed, red**; **note
+present but naming no successor, red.**
+
+v3 verified working: response 0.0000 % → **4.1890 %**, injection asserted real,
+zero-translate null test bit-identical.
 
 ## v1.95.0 — 2026-08-24
 
