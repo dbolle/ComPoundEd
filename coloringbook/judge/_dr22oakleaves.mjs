@@ -96,6 +96,12 @@ NAMES.forEach((n, i) => { LEAF_ID[n] = `2.1.${5 + 2 * i}`; if (i) STALK_ID[n] = 
 // and left acorn 1's own footprint showing as coin-only blue. There are now TWO
 // acorns and both are listed, so the id is a list rather than a formula.
 const ACORN_IDS = ['2.1.20', '2.1.21'];
+// ROUND 45 gives each acorn a STALK. They are emitted after the OLIVE, not
+// after the oak, so that adding them moved no existing id (the oak is
+// 2.1.4..2.1.21, the olive 2.1.22..2.1.39). 2.1.40 is acorn 1's, 2.1.41 is
+// acorn 2's. They are folded into `stalks`, so `table`'s overlap column and
+// `over`/`diff` both carry them.
+const ACORN_STALK_IDS = ['2.1.40', '2.1.41'];
 
 const ink = {}; for (const n of NAMES) ink[n] = await inkOf(LEAF_ID[n]);
 const stem = await inkOf(STEM);
@@ -106,6 +112,10 @@ for (const id of ACORN_IDS) {
 const stalks = new Uint8Array(MW * MH);
 for (const n of Object.keys(STALK_ID)) {
   const v = await inkOf(STALK_ID[n]);
+  for (let i = 0; i < stalks.length; i++) if (v[i]) stalks[i] = 1;
+}
+for (const id of ACORN_STALK_IDS) {
+  const v = await inkOf(id);
   for (let i = 0; i < stalks.length; i++) if (v[i]) stalks[i] = 1;
 }
 const ours = new Uint8Array(MW * MH);

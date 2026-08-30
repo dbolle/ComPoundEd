@@ -7,6 +7,25 @@ reconsider after calibration.
 
 ## Where we are
 
+- 🟢 **BOTH ACORNS ON THE DIME'S OAK NOW HANG ON MEASURED STEMS, AND THE STEM
+  IS STILL BYTE-IDENTICAL.** The owner asked four times and three rounds
+  refused. Run at a **0.2-unit step** instead of 0.5, round 42's own prong
+  estimator resolves **a second mark inboard of the prong with bare field
+  between them on BOTH photographs**. Acorn 2's stalk (`2.1.41`) is vertical —
+  its inboard wall sits at **67.81 ± 0.04 over nine rows** while every prong
+  edge slopes 0.4618 — and scores **0.00 % OUTSIDE on both files**. Acorn 1's
+  (`2.1.40`) arches; the two files agree on its centreline to **0.03–0.09 over
+  eight columns** and disagree on its width by **2.2×**, published as a
+  disagreement. Node `2.1.4` is byte-identical at `407e6935d9d9ba80`, the
+  olive's eighteen nodes at `6aaf4d61c4317269`, and a mark-by-mark diff of the
+  whole reverse is **+6, −0, changed 0**. Oak coverage **73.9 → 75.1 %** /
+  **72.4 → 73.3 %** with precision flat. **Two refusals stand with numbers:**
+  the stalk does not cross the fork's 8.3 sq unit slot (it would fill 6.0 of
+  it), and round 35's "it runs into the lowest oak blade" is **stale** — that
+  blade was the ladder round 43 retired. **Where D40 bit:** acorn 1's stalk
+  reads 35.99 % OUTSIDE on unc2005 raw and **0.00 % with DYU**; the y
+  registration is still not settled. Suite green.
+
 - 🟢 **THE DIME'S OAK IS COMPLETE — STEM, EIGHT LEAVES, BOTH ACORNS — AND THE
   TWO REFERENCE PHOTOGRAPHS NOW AGREE.** The second acorn is drawn (node
   `2.1.21`, **0.00 % OUTSIDE on proofbright** at both erosions), the stem stayed
