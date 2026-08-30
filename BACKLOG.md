@@ -7,6 +7,24 @@ reconsider after calibration.
 
 ## Where we are
 
+- 🟡 **85 % OF THE DISAGREEMENT BETWEEN THE DIME'S TWO REFERENCE PHOTOGRAPHS IS
+  ONE CONSTANT.** No art changed. `deviceMask()`'s erosion is now measured
+  rather than argued: scanning every field→device transition on the branch,
+  proofbright's median 10–90 % rise is **0.600 units** against the ~0.59 that
+  justifies its 0.55 erosion (**1.01×, well calibrated**), while unc2005's is
+  **0.400** against the ~1.08 that justifies its 1.00 (**0.37× — 2.7× too
+  large**). On the locked oak stem that is worth 37.96 points: OUTSIDE reads
+  32.79 % on proofbright and **70.75 %** on unc2005, but **38.45 %** on unc2005
+  at its own measured 0.37. **This is the mechanism behind ruling R4** — unc2005
+  is not the worse photograph, its erosion is 2.7× its own edges. The constant
+  is shared and every published branch number moves with it, so **changing it is
+  the owner's call**; it is now a call that can be made on a number. Also
+  closed negative: a local half-max mask needs no erosion constant and works
+  perfectly on synthetics, but **collapses on these files** because the frosted
+  device is high-contrast speckle (44…222 inside the trunk against a smooth 249
+  field), not a flat tone — a future attempt needs a texture statistic, not an
+  intensity one (A44). Suite 464/464.
+
 - 🟡 **THE OAK CARRIES EIGHT INDIVIDUAL OVERLAPPING LEAVES, AND THE LOCKED STEM
   DID NOT MOVE.** Fifteenth element round on this face. The mirrored seven-row
   `LADDER` is retired from the oak (it was the OLIVE's table, and both its count

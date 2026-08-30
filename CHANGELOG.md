@@ -3,6 +3,63 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.112.0 — 2026-08-30
+
+**85 % of the disagreement between the dime's two reference photographs is
+manufactured by one constant.** No art changed; `src/` is byte-identical. This
+is a measurement and a negative result.
+
+`deviceMask()` erodes its output by a fixed number of units on every side —
+0.55 on proofbright, 1.00 on unc2005 — to pull the mask back off the shadow
+skirt around a struck mark. Ledger A40 said a constant cannot be right for
+marks whose widths differ by 5×. It is now measured rather than argued.
+`_dr23halfmax.mjs edge` scans every field→device transition on the branch and
+reports its 10–90 % rise distance:
+
+- **proofbright, 329 transitions: median 0.600 units**, against the ~0.59 that
+  would justify a 0.55 erosion — **1.01×. That constant is well calibrated**,
+  and this release does not touch it.
+- **unc2005, 609 transitions: median 0.400 units**, against the ~1.08 that
+  would justify a 1.00 erosion — **0.37×. That constant is 2.7× too large.**
+- Within either file the skirt varies about 4× from median to p90, so no single
+  number is right everywhere. That part of A40 stands.
+
+**What it costs, on the locked oak stem.** OUTSIDE reads **32.79 %** on
+proofbright at its 0.55 and **70.75 %** on unc2005 at its 1.00 — a 37.96-point
+gap. Score unc2005 at 0.37, its own measured median, and it reads **38.45 %**:
+the gap falls to 5.66. **This is the mechanism behind ruling R4.** unc2005 has
+been reading 15–20 points lower on containment than proofbright even where the
+drawing was independently verified right, and three rounds were told to treat
+it as the pessimistic file. It is not a worse photograph. Its erosion is 2.7×
+its own edges.
+
+The constant is **not changed here.** It is shared, and every published branch
+number moves with it — that is the owner's call, and it is now a call that can
+be made on a number.
+
+**And a negative result, recorded so nobody spends a round rediscovering it.**
+The obvious fix is a mask with no erosion constant at all: threshold each cell
+against the midpoint of its local min and max — the half-max edge this branch
+already uses as its standard — then flood as before. On synthetic bars it does
+exactly what the algebra predicts, over-reading by the skirt width rather than
+by 1.85× it, tracking each bar's own skirt, and **never** going negative, where
+erosion by 1.00 recovered **0.00 units for a 1.0-unit bar** and deleted it
+outright. On the actual photographs it collapses: the oak trunk reads 0.00–0.60
+against a calibrated 2.20. The cause is texture. The frosted device is not a
+flat tone but high-contrast speckle — across the trunk at y 68 proofbright runs
+**44…222 inside the mark against a smooth 249 field** — so a local midpoint
+calls half the frost field, punches holes through the device and lets the flood
+in. The global threshold works precisely *because* every texel of the frost
+sits below it. A future attempt needs a texture statistic, not an intensity
+one. Ledger A44, closed negative.
+
+The null test caught two of my own errors before it caught anything about the
+coin: bars laid out on an even pitch ran into each other twice, so every method
+"recovered" 17 units for a 5-unit bar. It now seats each bar clear of the last
+one's skirt and throws if the row overruns the lattice.
+
+Suite **225 + 239 = 464/464**.
+
 ## v1.111.0 — 2026-08-30
 
 **The dime's oak branch now carries eight individual overlapping leaves in the
