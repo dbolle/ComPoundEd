@@ -3,6 +3,32 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.127.0 — 2026-08-30
+
+**An unresolved merge conflict sat committed in the findings ledger for five
+releases, and it was not cosmetic.** No art changed; docs and one new test.
+
+`docs/FINDINGS-LEDGER.md` carried literal `<<<<<<< HEAD` / `=======` /
+`>>>>>>> round-yreg` markers, committed by me at v1.121.0 and pushed. Both sides
+had allocated **D41** to different findings, so for five releases two live rows
+shared one id and every citation of it was ambiguous — **including two inside
+`torch()`**. Both sides also carried a **D40**, and the copy that survived on
+`main` was the one *without* the numbers: the ledger asserted a registration
+error it never quantified, while the only record of the measured function was a
+CHANGELOG paragraph. Found by the leaf-shape round, reading the ledger for
+something else.
+
+Resolved: the stalk finding keeps **D41** because `torch()` cites it; the
+ellipse finding becomes **D44**, with the renumbering recorded in the row. The
+measured function `dx = −0.91 − 0.0101(x−50)`, `dy = +0.62 + 0.0156(y−50)` is
+folded back into D40 from the discarded side.
+
+`tests/merge-hygiene.spec.js` now fails on any tracked text file containing a
+matched pair of conflict markers. It passes clean and was verified to fail on a
+planted conflict — a gate nobody has seen fail is a gate nobody has tested. A
+conflict marker is valid Markdown, valid prose, and invisible to a renderer;
+nothing looked because nobody had thought to look.
+
 ## v1.126.0 — 2026-08-30
 
 **The dime obverse stops resting entirely on cameo proofs, and the fix was
