@@ -339,3 +339,91 @@ added earlier today. The watermark sits outside the disc on the obverse crop.
 ⚠️ Resolution is modest — each face is ~348 px against the 2000 px US Mint
 proof — so it may still be too coarse for the mid-jaw whisker texture, which is
 the open question. Measure px-per-local-unit before relying on it there.
+
+---
+
+## 2026-08-30 — THE DIME OBVERSE POOL, DECIDED (ledger C2a)
+
+Nine dime-obverse files sit in `ref/`. T1 used two, and both were cameo proofs.
+All nine were characterised — `_jt6dobv.mjs`, which reports and writes nothing
+inside the checkout — and the pool went **n=2 → n=5**. No acquisition was
+needed: **three business strikes were already here.**
+
+**The strike is read off the mintmark crop, never the filename.** That is not a
+formality on this face: `dime-obv.jpg` is 1996-**W** and `dime-obv-2.jpg` is
+2015-**W**, and the same letter is the West Point mint-set *business strike* on
+one and a *proof* on the other. Any rule keyed on the letter gets one wrong.
+
+| file | px / rim R | date + mint | strike | polarity | in pool | what it may be used for |
+|---|---|---|---|---|---|---|
+| `dime-obv-2.jpg` | 960×960 / 469.3 | 2015-W | cameo proof | **+167** | **yes** | shape. NOT D3/D13/D5-rim (§20.3) |
+| `dime-obv-3.jpg` | 750×770 / 366.1 | 1996-S | proof, field lit | **+22** | **yes** | shape. NOT tone — S is San Francisco |
+| `dime-obv-pcgs2015.png` | 950×959 / 468.1 | 2015-P | **business strike** | **−162** | **yes** | shape (the best rim of the nine) and tone, with the caveat that its light is hard and directional, not diffuse |
+| `dime-obv-unc2005.png` | 738×734 / 342.8 | 2005-P | **business strike** | **−18** | **yes** | shape **and tone** — diffuse, the flattest polarity here. U.S. Mint, PD-USGov |
+| `dime-obv.jpg` | 400×396 / 199.0 | 1996-W | **business strike** | **−88** | **yes** | ⚠️ **SHAPE ONLY.** toning **26.7**, past the 25.9 that disqualified `quarter-obv-1932ngc.jpg` for tone |
+| `dime-obv-4.jpg` | 897×904 / 448.2 | 2002-S | cameo proof | +194 | **no** | ⛔ **UNUSABLE for geometry** — see below |
+| `dime-obv-proof2010.png` | 540×534 / 271.1 | 2010-S | cameo proof | +153 | **no** | ⛔ **UNUSABLE for geometry** — see below |
+| `dime-obv-proof1960.png` | 500×500 / 247.4 | 1960 (no mm) | cameo proof | +137 | no | fits fine; excluded only as more of a finish the row already had too much of |
+| `dime-obv-proof1968.png` | 320×400 / 153.1 | 1968 (no mm) | proof | +51 | no | as above, and the lowest resolution on this face |
+
+`polarity` = median grey inside r < 0.50 R minus the modal grey of the ring
+0.72 R–0.86 R. Positive is the cameo-proof relationship (frosted device bright
+out of a dark field); negative is a struck coin shadowing itself against a
+bright field. It separates the nine perfectly against their mintmarks, and it is
+the sign §20.3 is about. **Two other statistics were tried first and both
+failed** — the failures are written into `_jt6dobv.mjs`'s header, not dropped.
+
+### The two exclusions are GEOMETRY, and they are not about the strike
+
+This document has been wrong about that before, and `_rimfit.mjs`'s header says
+so plainly: *"it only fails on proofs" — no.* Four cameo proofs here fit fine.
+The two that do not fail for reasons that have nothing to do with finish:
+
+- **`dime-obv-4.jpg`** — `discOf()`, the registration T1 itself uses, returns an
+  R that is **−19.23 %** wrong with the centre **73.2 px out, 16.3 % of R**.
+  `_rvdisc` cannot fit it either (p95 **27.3 %** of R; `_jt4pool.mjs` prints
+  `FIT UNUSABLE`). Half the coin is blown into the white ground. Ledger A26:
+  a registered NCC between misregistered images is meaningless.
+- **`dime-obv-proof2010.png`** — the crop **clips the coin**. The fitted disc
+  runs **8.8 % of R past the frame**, 491 of 1440 rays are discarded as frame
+  (A28), only **237° of arc** survives, and rim p95 is **9.316 %** of R. Its
+  harmonics settle what kind of failure it is: h2 **2.924 %** against h1/h3/h4
+  at **1.002 / 1.058 / 1.690** — all one order, so the outline is *broken*, not
+  an ellipse. Contrast `dime-obv-unc2005.png`, a real ellipse: h2 0.317 %
+  against 0.002 / 0.069 / 0.069.
+
+  It is the complement crop of `dime-proof2010-pair.png` and the clipping is
+  inherited from that source, so a better crop cannot be made from what we hold.
+
+### Ellipticity, for the record (the D41 question, asked on this face)
+
+Unlike the dime **reverse**, where both references are genuine ellipses at
+0.733 % and 0.513 %, most of the obverse pool is round. Only three files have a
+harmonic 2 an order of magnitude above harmonics 1/3/4:
+`dime-obv.jpg` **0.467 %** (ry/rx 0.99074, major axis 2.0°),
+`dime-obv-4.jpg` 0.755 %, and `dime-obv-unc2005.png` **0.317 %** (ry/rx
+0.99371). The two incumbents and `pcgs2015` are round to **0.013–0.026 %**, and
+`proof1960`/`obv-3` have h2 *below* their own h3, i.e. rough outlines rather
+than ellipses. So the pool as adopted introduces one 0.317 % ellipse where it
+previously had nothing above 0.026 %. Noted, not corrected: fitting an ellipse
+in `fitRim`/`samplerFor` is the owner decision D41 already raised.
+
+**A coincidence worth writing down and not interpreting:** `dime-obv-unc2005.png`
+and `dime-rev-unc2005.png` both measure **ry/rx = 0.99371**. Their major axes
+differ (−2.7° vs 26.0°), so this is probably chance rather than a shared imaging
+anisotropy. Recorded because it would be easy to build a story on it later.
+
+### Independence
+
+All 36 within-group pairs clear the duplicate rule (**MADbox < 6 and dHam ≤ 6**).
+The closest is `dime-obv-2.jpg | dime-obv-proof2010.png` at MADbox **39.8** —
+6.6× clear — with dHam 7. dHam alone would nearly call it; the rule needs two
+statistics of different kinds, and this is that rule earning its keep.
+
+**A26's resolution caveat was checked, not assumed away.** Re-running both
+statistics with each content box first resized to the smaller one's linear size
+(ratios here run 1.00× to 3.07×, spanning the 3.05× of A26's confirmed duplicate
+pair) reproduces **every number to one decimal place** — because MADbox already
+resizes each box to 64×64, which absorbs a linear scale on its own. So A26's
+5.01 → 4.01 was a residual on a pair already inside the threshold, not a
+mechanism that can pull a pair 6.6× outside it back in.

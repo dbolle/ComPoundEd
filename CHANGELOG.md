@@ -3,6 +3,102 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.126.0 — 2026-08-30
+
+**The dime obverse stops resting entirely on cameo proofs, and the fix was
+already on disk.** No art changed: `src/` is byte-identical and the partition
+reads 0/60 cells across 0 faces. T1 is **32/32 before and after**.
+
+Ledger C2a: `POOL_BY_SIDE.obverse.dime` held two files and both were
+mirror-field cameo proofs — the finish `COIN-ART-METHOD.md` §20.3 calls *the
+best SHAPE reference and the worst TONE reference*. It was the only face whose
+primary-gate verdict rested on one finish. `ref/` turned out to hold **nine**
+dime obverses, and **three of them are business strikes**. Nothing had to be
+acquired.
+
+**The strike call came from the mintmark crop, not the filename, and that is not
+pedantry here.** `dime-obv.jpg` is 1996-**W** and `dime-obv-2.jpg` is
+2015-**W** — the same letter, meaning the West Point mint-set *business strike*
+on one and a *proof* on the other. A rule keyed on the letter gets one of them
+wrong. Six proofs, three business strikes.
+
+**Two statistics were tried as strike tests and both failed on real data**, and
+they are written up in the instrument rather than quietly dropped:
+
+- *"more than 60 levels below the surround"* — its own selftest failed it. A
+  synthetic struck coin with a mid-grey field on a white ground scores 1.000,
+  because a struck field really is 80 levels below white. Relative-to-surround
+  measures the **lighting**, which is the exact error `_jt1transfer.mjs`'s v1
+  header already records about raw pixel correlation.
+- *absolute near-black fraction* — ranks `dime-obv-pcgs2015.png`, a **P**
+  mintmark and therefore a business strike, **highest of all nine at 0.490**,
+  above every proof. Open the picture and the reason is immediate: hard
+  directional light, bright field, portrait shadowed almost to silhouette. The
+  statistic counts the **device**, not the field.
+
+What does work is **field polarity** — median grey inside r < 0.50 R minus the
+modal grey of the ring 0.72 R < r < 0.86 R. It reads **−162 / −88 / −18** on the
+three business strikes and **+22 / +51 / +137 / +153 / +167 / +194** on the six
+proofs: a clean split, in the sign §20.3 is actually about. (The ring radius was
+chosen by measurement too. 0.55–0.82 R reads the *hair* on pcgs2015; 0.88–0.97 R
+reads the reeded edge on unc2005 and the clipped surround on proof2010.)
+
+**Pool n=2 → n=5.** Added `dime-obv-pcgs2015.png` (2015-P; the best rim of the
+nine — p95 0.092 % of R, 353.8° of arc, zero frame rays, round to h2 0.026 %),
+`dime-obv-unc2005.png` (2005-P, U.S. Mint PD-USGov; the most complete arc at
+358.3°, the disc 5.2 % of R clear of every edge, and diffuse — the obverse
+counterpart of the reverse's own tone reference) and `dime-obv.jpg` (1996-W,
+admitted for **shape only**: toning 26.7 is past the 25.9 that disqualified the
+quarter's 1932 NGC file for tone).
+
+**Two files excluded on GEOMETRY, not on finish — and by the gate's own
+registration.** `discOf()`, which is what T1 uses, returns an R that is
+**−19.23 % wrong with the centre 73.2 px out, 16.3 % of R**, on
+`dime-obv-4.jpg`; half that coin is blown into the white ground and `_rvdisc`
+cannot fit it either (p95 27.3 % of R). `dime-obv-proof2010.png` is clipped: the
+fitted disc runs 8.8 % of R past the frame, 491 of 1440 rays are discarded as
+frame, 237° of arc survives, rim p95 9.316 %, and its harmonics — h2 2.924 %
+against h1/h3/h4 at 1.002/1.058/1.690, all the same order — say the outline is
+broken rather than tilted. Ledger A26 is that a registered NCC between
+misregistered images is meaningless. `dime-obv-proof1960/1968` fit fine and are
+excluded only for adding the finish this row already had too much of; measured,
+they move no margin at all.
+
+**Four cells moved, and the round accepted the drop.** The penny obverse margin
+falls 0.389→0.384, 0.387→0.382, 0.387→0.380, 0.386→0.381 — all four caused by
+`dime-obv-pcgs2015.png` alone. T1 scores against `max` over a pool, so adding a
+file can only *raise* a column; the cell that falls is the one whose runner-up
+just got a better representative. That 2015-P photograph is genuinely the dime
+obverse nearest our **cent** drawing, and the old 0.389 was computed by a pool
+that did not contain it. The leave-one-out control goes 22/22 → 25/25.
+
+**Rejected because it scored better.** Dropping the two proofs and keeping only
+the three business strikes takes the worst margin in the entire 32-cell table
+from **0.202 to 0.223**, with the nickel obverse rows rising 0.068 at every
+size. Refused: it deletes half the evidence to raise a number, and a smaller
+pool is not a truer one. Its finding is kept as C2b — **T1's global worst
+margin, 0.202 at nickel obverse 48 px, is set by the cameo-proof dime
+obverses**, which was invisible until the pool was varied.
+
+**Independence, and A26's caveat discharged rather than assumed.** All 36 pairs
+clear the duplicate rule (MADbox < 6 **and** dHam ≤ 6); the closest is
+`dime-obv-2 | proof2010` at MADbox **39.8**, 6.6× clear, with dHam 7 — dHam
+alone would call it, and the rule needing both statistics is the rule working.
+Re-run with both content boxes resized to the smaller's linear size — ratios
+1.00× to 3.07×, spanning A26's 3.05× duplicate pair — every number reproduces to
+one decimal place, because MADbox's own 64×64 resize already absorbs a linear
+scale.
+
+Also recorded: **`_jp1discs.json` has no entry for any of the nine** (C2c). It
+does not bite today because the verdict runs through `discOf()` rather than
+`refAt()`, but a whole face missing from the frozen disc record is a gap.
+
+Two instruments added — `_jt6dobv.mjs` (nine files: rim, ellipticity, strike and
+field photometry, plus mintmark crops to look at) and `_jt7dpool.mjs` (T1 under
+seven candidate pools, importing the gate rather than editing it). Neither
+writes anything inside the checkout; the first version of `_jt6dobv` dropped
+PNGs into `coloringbook/judge/`, where `.gitignore` would have hidden them, and
+that is fixed to the OS temp directory. Suite 464/464 in two halves.
 ## v1.125.0 — 2026-08-30
 
 **The CHANGELOG lost two entries silently, and a specialist round found it, not

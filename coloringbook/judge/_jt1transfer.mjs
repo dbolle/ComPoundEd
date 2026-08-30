@@ -274,11 +274,93 @@ if (!existsSync(REF)) {
 // three rows carry n=2 (dime obverse, quarter obverse, quarter reverse). Adding a reference changes what this gate MEANS, so it is a
 // deliberate act for the judge, not a side effect of a bug fix. The evidence is
 // published; the decision is not taken here.
+//
+// ── THE DIME OBVERSE ROW, DECIDED 2026-08-30 (ledger C2a). n=2 -> n=5. ───────
+// C2a: this row was `dime-obv-2.jpg` + `dime-obv-3.jpg` and BOTH ARE CAMEO
+// PROOFS, as is `dime-obv-4.jpg` — the only face whose primary-gate verdict
+// rested entirely on one finish, and the finish §20.3 calls *the best SHAPE
+// reference and the worst TONE reference*. `_jt6dobv.mjs` measured all nine
+// dime-obverse files in `ref/`; `_jt7dpool.mjs` ran this gate under seven
+// candidate pools. Both are reproducible and neither writes.
+//
+// THE STRIKE CALL IS THE MINTMARK, LOOKED AT — not the filename, and not a
+// statistic. Two statistics were tried as strike tests and BOTH FAILED on real
+// data; that is written up in `_jt6dobv.mjs`'s header rather than buried.
+// `dime-obv.jpg` is 1996-**W**, `-2` is 2015-**W**, and those two Ws mean
+// OPPOSITE things — 1996-W is the West Point mint-set business strike, 2015-W
+// is a proof. A rule keyed on the letter would have got one of them wrong.
+//
+//   ADDED  dime-obv-pcgs2015.png   2015-**P**, a BUSINESS STRIKE. The best
+//          geometry of all nine: rim p95 0.092 % of R, 353.8° of arc measured,
+//          zero rays on the frame, and round to h2 0.026 %. R 468 px, the
+//          largest with `-2`. Field bright, portrait shadowed — polarity -162,
+//          the exact inverse of a cameo proof's +137 to +194.
+//   ADDED  dime-obv-unc2005.png    2005-**P**, a BUSINESS STRIKE, U.S. Mint,
+//          PD-USGov. Diffuse and near-shadowless: polarity -18, the flattest of
+//          the nine, and the highest interior plateau of any file with a valid
+//          disc (0.074). 358.3° of arc, the most complete of the nine, and the
+//          disc sits 5.2 % of R clear of every frame edge. This is the obverse
+//          counterpart of `dime-rev-unc2005.png`, which is already the tone
+//          reference on the other face.
+//   ADDED  dime-obv.jpg            1996-**W**, a BUSINESS STRIKE. Weakest of the
+//          three — R 199 px, the coin touches the bottom of the frame (178 rays
+//          discarded as frame, 315.5° of arc left), and toning 26.7 puts it past
+//          the 25.9 that disqualified `quarter-obv-1932ngc.jpg` for tone. It is
+//          admitted for SHAPE only: rim p95 0.491 %, comfortably inside the
+//          1.0 % square-on line, and it is the only 20th-century business strike
+//          this face has.
+//
+//   EXCLUDED  dime-obv-4.jpg       2002-S proof, and the exclusion is GEOMETRY,
+//          not finish. `discOf()` — the registration THIS FILE uses — returns an
+//          R that is **-19.23 %** wrong with the centre **73.2 px out, 16.3 % of
+//          R**. Ledger A26 is that a registered NCC between misregistered images
+//          is meaningless (two copies of one image scored 0.019). Half the coin
+//          is blown into the white ground, which is why: `_rvdisc` cannot fit it
+//          either (p95 27.3 % of R, `_jt4pool` prints FIT UNUSABLE).
+//   EXCLUDED  dime-obv-proof2010.png  Same reason. The crop clips the coin —
+//          the fitted disc runs 8.8 % of R past the frame, 491 of 1440 rays are
+//          discarded as frame, and only 237° of arc survives. Rim p95 9.316 % of
+//          R. Its harmonics say the outline is not even an ellipse: h2 2.924 %
+//          against h1/h3/h4 at 1.002/1.058/1.690, all the same order, which is
+//          the signature of a broken outline rather than a tilted coin.
+//   EXCLUDED  dime-obv-proof1960.png, dime-obv-proof1968.png   Both fit fine.
+//          They are excluded because they add the finish this row already has
+//          too much of, and 1968 is the lowest-resolution dime obverse on disk
+//          (R 153 px, visibly soft). Measured anyway: with them the gate is
+//          32/32 and every margin is identical to the pool below. The exclusion
+//          costs nothing and gains nothing, and is a judgement about what the
+//          row MEANS.
+//
+// WHAT IT COSTS, STATED BEFORE THE VERDICT. T1 is **32/32 before and after**,
+// and the leave-one-out control goes 22/22 -> 25/25. Four cells move, all four
+// the same way and all four caused by `dime-obv-pcgs2015.png` alone:
+//
+//     penny obverse margin   38px 0.389 -> 0.384   48px 0.387 -> 0.382
+//                            54px 0.387 -> 0.380   84px 0.386 -> 0.381
+//
+// THAT DROP IS THE POOL TELLING THE TRUTH. T1 scores against `max` over a
+// denomination's pool, so adding a file can only RAISE a column — never lower
+// it — and the cell that falls is the one whose runner-up just got a better
+// representative. The 2015-P photograph is genuinely the dime obverse nearest
+// our CENT drawing, and the old 0.389 was computed by a pool that did not
+// contain it. Nothing was optimised: the pool that scores BEST is the one
+// rejected below.
+//
+// ⚠️ AND THE POOL THAT SCORES BEST WAS REJECTED. Dropping the two proofs and
+// keeping only the three business strikes takes the worst margin in the entire
+// 32-cell table from **0.202 to 0.223** — the nickel obverse rows rise 0.068,
+// because the cameo proofs are what was crowding them. It scores better on
+// every summary. It is rejected: it deletes half the evidence to raise a number,
+// and a smaller pool is not a truer one. The finding it produced is kept —
+// **T1's global worst margin, 0.202 at nickel obverse 48 px, is set by the
+// cameo-proof dime obverses** — because that is worth knowing and was invisible
+// until the pool was varied.
 export const POOL_BY_SIDE = {
   obverse: {
     penny: ['penny-obv.jpg', 'penny-obv-2.jpg', 'penny-obv-3.jpg', 'penny-obv-4.png'],
     nickel: ['nickel-obv.jpg', 'nickel-obv-4.jpg', 'nickel-obv-5.JPG'],
-    dime: ['dime-obv-2.jpg', 'dime-obv-3.jpg'],
+    dime: ['dime-obv-2.jpg', 'dime-obv-3.jpg',
+      'dime-obv-pcgs2015.png', 'dime-obv-unc2005.png', 'dime-obv.jpg'],
     quarter: ['quarter-obv.jpg', 'quarter-obv-3.png'],
   },
   reverse: {
