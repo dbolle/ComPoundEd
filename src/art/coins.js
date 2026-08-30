@@ -6387,22 +6387,147 @@ function torch(p) {
   // shoulder points either side of each sinus and setting the sinus's own
   // tangent tension instead — the 2,208-character version with them is
   // indistinguishable from this one at 110 px per viewBox unit.
+  // ⚠️ THE COUNT IS THE FAULT AND THE DEPTH IS NOT (round 46, ledger D44).
+  //
+  // The outline above shipped from v1.92.0 to v1.121.0 BYTE-IDENTICAL — the
+  // eight-leaf round changed `OAKSEATS` and never touched the glyph, so
+  // v1.92.0's finding ("the coin's lobe is broad and its sinus a narrow slot")
+  // is still standing and is NOT what this round changes. What it changes is
+  // that the path draws FIVE lateral lobes a side where its own paragraph
+  // above says four ("drawing four laterals plus the terminal is what the
+  // crops show") and where the coin draws THREE.
+  //
+  // MEASURED, on both photographs, walking the SAME midrib on all three masks
+  // (`judge/_dr26lobe.mjs flank`), with each file at its own registration.
+  // Leaf C is the one blade whose outboard flank faces open field for its
+  // whole length; its midrib is (71.87, 44.56) -> (80.73, 38.80), ours, and
+  // the coin's edge is measured from it — a comparison of SHAPE only, which is
+  // fair because C's containment is already 5.4 % (A42 forbids fitting the
+  // coin's own midrib, so this is stated as a supplied line, not a fitted one):
+  //
+  //     leaf C            lobes/flank   pitch      the leaf's own end
+  //     v1.121.0               5        1.69       10.5
+  //     now                    4        2.19       10.5
+  //     proofbright  +.35      2-3      2.49        9.9
+  //     unc2005      -.75      3        2.49/2.69   9.5
+  //
+  //     leaf D2 (the longest blade, 14.6)
+  //     v1.121.0               5        2.39/1.99
+  //     now                    4        2.89
+  //     proofbright            4        2.59
+  //     unc2005                4        2.69/2.99
+  //
+  // AND THE BEVEL SKIRT IS THE CONTROL, because without it this is a photograph
+  // of a struck coin against a flat fill and the coin must read smoother. Ours
+  // dilated by each file's own calibrated skirt (0.55 / 0.37, ledger A40),
+  // through the identical estimator: at 0.55 our five lobes collapse to ONE or
+  // TWO at pitch 1.50 while proofbright — which carries exactly that skirt —
+  // still resolves two at 2.49; at 0.37 ours reads three at 1.69-1.79 against
+  // unc2005's three at 2.49-2.69. **Our lobes are small enough that the coin's
+  // own skirt would erase them, and the coin's are not.** That is the finding.
+  //
+  // ⚠️ AND THE HYPOTHESIS THIS ROUND WAS SENT WITH IS HALF WRONG, WITH THE
+  // NUMBER. It was "many small teeth where the coin has broad lobes separated
+  // by NARROW SINUSES". The count is right; the sinus half is refuted. On the
+  // same midrib our sinuses cut to 50-53 % of the mean of their two crowns; the
+  // coin's, on the same estimator, read 70-82 % — but the skirt inflates that,
+  // and the control settles it: dilate OUR outline by 0.37 and its 50-53 %
+  // reads 70-91 %, i.e. the coin's true floor is at least as deep as ours and
+  // possibly deeper. SINUS DEPTH IS THEREFORE HELD, NOT CHANGED, and the round
+  // that scores this is warned: making the sinuses shallower would smooth the
+  // outline, improve OUTSIDE, and be wrong.
+  //
+  // ⚠️ AND THERE IS A SECOND FAULT UNDER THE FIRST, WHICH ONLY SHOWED ONCE THE
+  // COUNT WAS RIGHT: THE CROWNS WERE FINS, NOT KNOBS. `_dr26lobe.mjs` fits a
+  // least-squares circle to the boundary over +/- 0.9 units of arclength at
+  // each lobe's apex, identically on all three masks. The coin's crowns come
+  // back at radius 1.22 (proofbright) and 1.08 (unc2005) over the whole oak,
+  // 1.19 and 1.03 on leaf C alone. The v1.121.0 outline read 0.61 and 0.49, and
+  // simply re-spacing it to four lobes in its own grammar reached only 0.60: a
+  // crown built as [steep wall][flat top][steep wall] has CORNERS at the
+  // shoulders, and the fitted circle sees the corners, not the top. That is
+  // what made our blades read as a fern beside the coin's oak at 90 px per
+  // viewBox unit. It now reads 0.81 over the whole oak and 0.81 on leaf C.
+  //
+  // WHAT IS DRAWN NOW. Each lateral lobe is a SEMICIRCLE — a true circular arc
+  // from 180 deg to 0 deg about a centre one radius below its own apex, so the
+  // knob's two ends carry vertical tangents and the slot beside it has vertical
+  // walls. Between two knobs, ONE cubic dipping to the measured sinus floor.
+  // That is v1.92.0's "broad crown, narrow slot" drawn as geometry instead of
+  // as tangent tension, and it is the whole construction:
+  //
+  //     glyph frame   crowns (x : half-width)                    pitch  fitted r
+  //     shipped  -2.62:1.82 -0.58:2.97 1.38:3.79 3.18:3.48 4.82:2.58  1.86  .42-.47
+  //     now      -2.58:2.24  0.14:3.72 2.62:3.79 4.70:2.70           2.50  .62-1.02
+  //
+  //     radius r     0.62   1.02   1.00   0.78   the circle each knob IS; the
+  //     sinus floors 1.43   1.89   1.69          fitted column above recovers
+  //     slot widths  1.08   0.46   0.32          it, and could not recover the
+  //                  = 48 / 50 / 52 % of crowns  old one — that is the fault
+  //
+  // ⚠️ ONE VARIANT MEASURED BETTER AND IS REFUSED ON THE PICTURE, recorded so
+  // the next round does not re-derive it. Sweeping the arc 220 deg instead of
+  // 180 (200 -> -20) makes each knob undercut its own neck; the two files'
+  // shape index is matched better by it and OUTSIDE is 0.3 points lower, and at
+  // 40x it reads as a bunch of grapes rather than a leaf. A full arc down to
+  // the sinus floor is worse again. The 180-deg arc is the largest sweep that
+  // leaves the knob visibly ATTACHED.
+  //
+  // `lk` scales the glyph's LENGTH, so the drawn pitch is 2.50 x blade/12: it
+  // runs 1.94 (B3, blade 9.3) to 3.04 (D2, 14.6), median 2.35, against the
+  // coin's measured 2.49-2.69. Before this change it ran 1.44 to 2.26, median
+  // 1.75. Nothing else moves: the box (12.00 x 7.58 before and after), the
+  // envelope, the reach, `lk`, `wk`, `OAKSEATS` and every placement number.
+  //
+  // ON THE COIN'S OWN MASKS, whole oak in x 58..82 y 25..61, all three through
+  // `_dr26lobe.mjs spectrum` at sigma 1.8, prominence 0.35:
+  //
+  //                    area   contour  lobes  pitch  crown r  shape  rough
+  //     v1.121.0      419.7    297.5     57    4.50    0.61   16.79  1.652
+  //     now           475.6    213.0     37    5.15    0.81    7.59  1.589
+  //     proofbright   475.3    234.3     36    5.30    1.22    9.19  1.459
+  //     unc2005       474.9    227.3     35    5.10    1.08    8.66  1.460
+  //
+  // The lobe COUNT and the PITCH now land between the two photographs. On leaf
+  // C's own arc the counts are exact: 7 against 7 and 7.
+  //
+  // IT IS ALSO CHEAPER: 908 characters against 1087, paid 24 times over
+  // (8 oak leaves x `struck()`'s three passes) — 4.3 KB off the emitted SVG,
+  // 51,815 chars to 47,519. Two cubics per arc, not three: at three the
+  // perimeter moves 0.01 and the fitted radii not at all.
+  //
+  // WHAT IT COSTS, AND IT IS A REAL COST. The glyph encloses 8.9 % more area
+  // (55.15 against 50.65) with 6 % LESS perimeter (42.51 against 45.09), so
+  // OUTSIDE rises on all eight leaves at once: 8.42 -> 10.01 % (proofbright)
+  // and 10.17 -> 11.58 % (unc2005). It is bought, not lost: coverage of the
+  // coin's own oak goes 75.1 -> 77.2 % and 73.3 -> 75.4 %, and we still draw
+  // 432 sq units where the coin has 508, i.e. this face UNDER-draws by 15 % and
+  // the direction of the trade is toward the coin. Quoted here beside the lobe
+  // numbers deliberately: on this element a lower OUTSIDE is not a pass, and a
+  // round that reads 10.01 as a regression should re-read the crown radius.
+  //
+  // WHAT COULD NOT BE DETERMINED. Whether the coin's blade carries a FOURTH
+  // lateral down at its base. On both files leaf C's profile rises
+  // monotonically over the first third of the midrib, but that end of the leaf
+  // is merged into the prong and B3 (A42/E25: an estimator that cannot separate
+  // two touching marks reports their union), so a lobe there would be invisible
+  // whether it exists or not. Four laterals is therefore the CONSERVATIVE
+  // reading — three confirmed in the outer two thirds, one allowed at the base
+  // that the coin can neither show nor deny — and it is not a claim of four.
   const OAK =
-    'M -6 0 C -6 -.23 -5.44 -.55 -5.1 -.7 C -4.76 -.85 -4.08 -.83 -3.95 -.9' +
-    ' C -3.82 -.97 -3.55 -1.47 -3.3 -1.62 C -3.05 -1.77 -2.67 -1.87 -2.45 -1.8' +
-    ' C -2.22 -1.73 -2.03 -1.15 -1.95 -1.2 C -1.87 -1.25 -1.56 -2.26 -1.3 -2.55' +
-    ' C -1.04 -2.84 -.63 -3.08 -.4 -2.92 C -.17 -2.76 .03 -1.55 .1 -1.58' +
-    ' C .17 -1.61 .45 -3 .7 -3.35 C .95 -3.7 1.39 -3.94 1.62 -3.68 C 1.85 -3.42 2.03 -1.81 2.1 -1.78' +
-    ' C 2.17 -1.75 2.37 -2.94 2.6 -3.2 C 2.83 -3.46 3.26 -3.6 3.48 -3.35' +
-    ' C 3.7 -3.1 3.84 -1.76 3.9 -1.7 C 3.96 -1.64 4.13 -2.31 4.35 -2.42' +
-    ' C 4.57 -2.53 4.94 -2.75 5.22 -2.35 C 5.5 -1.95 6 -.63 6 0 C 6 .63 5.5 1.95 5.22 2.35' +
-    ' C 4.94 2.75 4.57 2.53 4.35 2.42 C 4.13 2.31 3.96 1.64 3.9 1.7' +
-    ' C 3.84 1.76 3.7 3.1 3.48 3.35 C 3.26 3.6 2.83 3.46 2.6 3.2 C 2.37 2.94 2.17 1.75 2.1 1.78' +
-    ' C 2.03 1.81 1.85 3.42 1.62 3.68 C 1.39 3.94 .95 3.7 .7 3.35 C .45 3 .17 1.61 .1 1.58' +
-    ' C .03 1.55 -.17 2.76 -.4 2.92 C -.63 3.08 -1.04 2.84 -1.3 2.55' +
-    ' C -1.56 2.26 -1.87 1.25 -1.95 1.2 C -2.03 1.15 -2.22 1.73 -2.45 1.8' +
-    ' C -2.67 1.87 -3.05 1.77 -3.3 1.62 C -3.55 1.47 -3.82 .97 -3.95 .9' +
-    ' C -4.08 .83 -4.76 .85 -5.1 .7 C -5.44 .55 -6 .23 -6 0 Z';
+    'M -6 0 C -6 -.23 -5.44 -.55 -5.1 -.7 C -4.62 -.83 -3.75 -1.4 -3.2 -1.62' +
+    ' C -3.2 -1.96 -2.92 -2.24 -2.58 -2.24 C -2.24 -2.24 -1.96 -1.96 -1.96 -1.62' +
+    ' C -1.59 -1.27 -1.25 -1.27 -.88 -2.7 C -.88 -3.26 -.42 -3.72 .14 -3.72' +
+    ' C .7 -3.72 1.16 -3.26 1.16 -2.7 C 1.32 -1.59 1.46 -1.59 1.62 -2.79' +
+    ' C 1.62 -3.34 2.07 -3.79 2.62 -3.79 C 3.17 -3.79 3.62 -3.34 3.62 -2.79' +
+    ' C 3.73 -1.51 3.83 -1.51 3.94 -1.92 C 3.94 -2.35 4.29 -2.7 4.72 -2.7' +
+    ' C 5.15 -2.7 5.5 -2.35 5.5 -1.92 C 5.8 -1.64 6 -.63 6 0 C 6 .63 5.8 1.64 5.5 1.92' +
+    ' C 5.5 2.35 5.15 2.7 4.72 2.7 C 4.29 2.7 3.94 2.35 3.94 1.92' +
+    ' C 3.83 1.51 3.73 1.51 3.62 2.79 C 3.62 3.34 3.17 3.79 2.62 3.79' +
+    ' C 2.07 3.79 1.62 3.34 1.62 2.79 C 1.46 1.59 1.32 1.59 1.16 2.7' +
+    ' C 1.16 3.26 .7 3.72 .14 3.72 C -.42 3.72 -.88 3.26 -.88 2.7' +
+    ' C -1.25 1.27 -1.59 1.27 -1.96 1.62 C -1.96 1.96 -2.24 2.24 -2.58 2.24' +
+    ' C -2.92 2.24 -3.2 1.96 -3.2 1.62 C -3.75 1.4 -4.62 .83 -5.1 .7 C -5.44 .55 -6 .23 -6 0 Z';
   // ⚠️ THIS BLOCK'S HEADLINE WAS WRONG AND IS RETRACTED. It read "THERE IS NO
   // ACORN ON THIS COIN, AND ONE WAS DRAWN (round 28)". There IS an acorn; it
   // was drawn in the wrong place. The reasoning below is kept intact because

@@ -3,6 +3,95 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.128.0 — 2026-08-30
+
+**The dime's oak leaves had one lobe pair too many and their crowns were fins,
+not knobs — and the half of the brief about narrow sinuses is refuted with a
+number.** The owner said only "the leaves need some refinement still as well".
+
+**First, what did NOT go wrong.** The `OAK` outline shipped **byte-identical
+from v1.92.0 to v1.121.0**: the eight-leaf round changed `OAKSEATS` and never
+touched the glyph, so v1.92.0's finding — *the coin's lobe is broad and its
+sinus a narrow slot* — never regressed and is not what this round changes.
+
+**The fault is the COUNT and the PITCH.** The path drew **five** lateral lobes
+a side where its own comment claimed four and where the coin shows three. New
+instrument `judge/_dr26lobe.mjs` walks the SAME midrib across all three masks
+at each file's own registration (leaf C, whose outboard flank faces open field
+for its whole length): ours **5 lobes at pitch 1.69**, proofbright **2–3 at
+2.49**, unc2005 **3 at 2.49/2.69**. On D2, the longest blade, ours **5 at
+2.39/1.99** against the coin's **4 at 2.59** and **4 at 2.69/2.99**.
+
+**The bevel skirt is the control, and it is the strongest measurement here.**
+A photograph of a struck coin against a flat SVG fill is not a fair fight — a
+skirt is a dilation and it smooths the coin. So OUR mask was dilated by each
+file's own calibrated skirt (0.55 / 0.37, ledger A40) and put through the
+identical estimator: at 0.55 **our five lobes collapse to one or two at pitch
+1.50** while proofbright, which carries exactly that skirt, still resolves two
+at 2.49. **Our lobes were small enough that the coin's own skirt would erase
+them, and the coin's are not.**
+
+**⚠️ The dispatch hypothesis was half wrong and the refutation has a number.**
+It said the coin has "broad rounded lobes separated by NARROW sinuses" where
+ours has teeth. The count half holds; the sinus half does not. Ours cut to
+**50–53 %** of the mean of their two crowns and the coin read **70–82 %** on
+the same estimator — but dilate OUR outline by 0.37 and its 50–53 % also reads
+**70–91 %**, so the coin's true floor is **at least as deep as ours**. Sinus
+depth is therefore **held, not changed**; a round that shallows it will improve
+OUTSIDE and make the leaf worse.
+
+**A second fault only showed once the count was right: the crowns were fins.**
+Fitting a least-squares circle over ±0.9 units of arclength at each lobe apex,
+same estimator on all three masks, the coin's crowns come back at radius
+**1.22** (proofbright) and **1.08** (unc2005); ours read **0.61**. Re-spacing
+to four lobes in the old grammar reached only **0.60** — a crown built as
+[steep wall][flat top][steep wall] has **corners at the shoulders** and the
+circle fits the corners, which is what made our blades read as a fern.
+
+**Each lateral lobe is now a semicircle** — a true 180° arc about a centre one
+radius below its own apex (radii 0.62 / 1.02 / 1.00 / 0.78), so the knob's ends
+carry vertical tangents and the slot beside it has vertical walls, with **one
+cubic between knobs dipping to the measured floor**. Same **12.00 × 7.58** box,
+sinuses at **48 / 50 / 52 %**, and **908 characters against 1087** — 4.3 KB off
+the emitted SVG. Whole oak in x 58..82 y 25..61:
+
+| | area | contour | lobes | pitch | crown r | shape |
+|---|---|---|---|---|---|---|
+| v1.121.0 | 419.7 | 297.5 | 57 | 4.50 | 0.61 | 16.79 |
+| **now** | **475.6** | **213.0** | **37** | **5.15** | **0.81** | **7.59** |
+| proofbright | 475.3 | 234.3 | 36 | 5.30 | 1.22 | 9.19 |
+| unc2005 | 474.9 | 227.3 | 35 | 5.10 | 1.08 | 8.66 |
+
+The lobe count and the pitch now land **between the two photographs**, and on
+leaf C's own arc the count is exact: **7 against 7 and 7**.
+
+**The cost is published rather than hidden.** The glyph encloses 8.9 % more
+area, so OUTSIDE rises on all eight leaves at once — **8.42 → 10.01 %**
+(proofbright) and **10.17 → 11.58 %** (unc2005) — while coverage of the coin's
+own oak rises **75.1 → 77.2 %** and **73.3 → 75.4 %**. We still draw 432 sq
+units where the coin has 508, so this face under-draws by 15 % and the trade
+runs toward the coin. On this element a lower OUTSIDE is not a pass.
+
+**Refused on the picture, having measured better:** a 220° arc scores better on
+shape and 0.3 points better on OUTSIDE, and at 40× it undercuts each knob's
+neck and reads as a bunch of grapes. **Could not determine:** whether the coin
+carries a fourth lateral at the blade's base — that end is merged into the
+prong and B3, so a lobe there is invisible either way (A42/E25). Four laterals
+is the conservative reading, not a claim of four.
+
+**Nothing else moved.** Node `2.1.4` byte-identical at **`407e6935d9d9ba80`,
+1015 bytes**; the olive's eighteen at **`6aaf4d61c4317269`**; byte partition
+**5/50, `dime.reverse` alone**; D9 **0/180**. New `judge/_dr27nodehash.mjs`
+writes down how those two hashes are computed — they use **different recipes**
+and four rounds have had to guess (ledger A50).
+
+**⚠️ Found, not fixed: `docs/FINDINGS-LEDGER.md` carries an unresolved merge
+conflict** committed at v1.121.0 — two branches both allocated D40 and D41, so
+every citation of those ids since is ambiguous. Left for the judge because
+renumbering is not a specialist's call (ledger A51). This round's rows are
+appended after the conflict block as D44 / A50 / A51.
+
+Suite green in two halves (222 + 242).
 ## v1.127.0 — 2026-08-30
 
 **An unresolved merge conflict sat committed in the findings ledger for five
