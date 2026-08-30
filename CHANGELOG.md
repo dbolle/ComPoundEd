@@ -3,6 +3,41 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.129.0 — 2026-08-30
+
+**The oak window is corrected, and it turned out there were three copies of it.**
+No art changed; instruments only.
+
+`WINDOWS['oak-branch']` was `[55, 85, 25, 78]`, and **41 % of that was not oak**
+— it swept in the coin's ONE DIME legend (seven mask components at y 61.8..67.1)
+and the rim band beyond x 82. Our own `<text>` nodes never subtracted those,
+because subtraction removes mask where *our* letters fall and ours are not the
+coin's. Now the measured oak: **x 58..82, y 25..61**.
+
+It sat unfixed for two releases on a reason that was wrong — A43 said the table
+"is hashed into published rounds." Re-checked before touching anything:
+`_dr13elem.mjs` is **absent from the frozen manifest and its hash is cited in
+zero files**, and so is `_dr15oakleaf.mjs`. Checked, not assumed, which is the
+whole of A45.
+
+**Three copies, and correcting one reached neither of the others.**
+`_dr15oakleaf.mjs:680` hardcoded its own `[55, 85, 25, 78]`, and
+`_dr21target.mjs` held a third — whose comment claimed `--windows` "prints both
+and flags any mismatch." **It never did.** That comment was written in the same
+release that created the copy, and the copy promptly diverged: it still read the
+old bounds after `_dr13elem` was corrected.
+
+So `--windows` now does what it always claimed. It parses the other table,
+reports every window as `agrees` / `DIVERGED` / `not in _dr13elem`, and exits
+non-zero if any disagree. **Response-tested rather than asserted:** perturbing
+`_dr13elem`'s `acorn` window by one unit makes it print
+`DIVERGED: _dr13elem has 54 65 52 64` and exit **1**; restored, it exits **0**.
+The first attempt at that test perturbed nothing — the key is unquoted in that
+file and the pattern missed — which would have "passed" while proving nothing,
+so the anchor is now asserted before the perturbation is applied.
+
+A copied constant that nobody compares is a second constant.
+
 ## v1.128.0 — 2026-08-30
 
 **The dime's oak leaves had one lobe pair too many and their crowns were fins,

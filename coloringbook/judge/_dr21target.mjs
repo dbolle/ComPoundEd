@@ -85,17 +85,24 @@ const REFS = {
   unc2005: ['dime-rev-unc2005.png', 190],
 };
 
-// Kept in step with `_dr13elem.mjs` BY COPY, deliberately: that file's table is
-// hashed into published rounds and importing it would couple this instrument's
-// output to any future edit of it. If they diverge, the divergence is a finding
-// — `--windows` prints both and flags any mismatch.
+// Kept in step with `_dr13elem.mjs` BY COPY. The original reason given here —
+// "that file's table is hashed into published rounds" — was WRONG, the same
+// false premise as ledger A43: `_dr13elem.mjs` is absent from the frozen
+// manifest and its hash is cited nowhere. The copy is kept anyway, for the
+// honest reason: this instrument's numbers should not silently move because
+// somebody edited a table in another file. But a copy that nobody compares is
+// just a second constant waiting to disagree, and this one DID — it still read
+// `oak-branch` as [55, 85, 25, 78] after `_dr13elem` was corrected.
+//
+// So `--windows` now actually does what this comment always claimed: it loads
+// the other table and reports every divergence, exiting non-zero if any exist.
 const WINDOWS = {
   flame: [42, 59.5, 17, 33],
   head: [41, 59, 31, 40],
   shaft: [43, 57, 38.5, 73.5],
   foot: [42, 58, 73.5, 81],
   'olive-branch': [15, 45, 25, 78],
-  'oak-branch': [55, 85, 25, 78],
+  'oak-branch': [58, 82, 25, 61],   // corrected with _dr13elem's, ledger A43
   'oak-stem': [62, 70, 36, 78],
   'olive-stem': [30, 38, 36, 78],
   acorn: [54, 65, 52, 63],
@@ -177,8 +184,24 @@ const IS_MAIN = process.argv[1]
 
 if (IS_MAIN) {
   if (has('--windows')) {
-    console.log('declared windows (x0 x1 y0 y1):');
-    for (const [k, w] of Object.entries(WINDOWS)) console.log(`  ${k.padEnd(14)} ${w.join('  ')}`);
+    const { readFileSync } = await import('node:fs');
+    const other = readFileSync(join(JUDGE, '_dr13elem.mjs'), 'utf8');
+    console.log('declared windows (x0 x1 y0 y1), compared against _dr13elem.mjs:');
+    const diverged = [];
+    for (const [k, w] of Object.entries(WINDOWS)) {
+      const m = new RegExp(`['"\`]?${k.replace(/[-/]/g, '\\$&')}['"\`]?\\s*:\\s*\\[([^\\]]+)\\]`).exec(other);
+      const theirs = m ? m[1].split(',').map((v) => Number(v.trim())) : null;
+      const same = theirs && theirs.length === 4 && theirs.every((v, i) => v === w[i]);
+      console.log(`  ${k.padEnd(14)} ${w.join('  ').padEnd(24)} ${
+        theirs === null ? '(not in _dr13elem)' : same ? 'agrees' : `DIVERGED: _dr13elem has ${theirs.join('  ')}`}`);
+      if (theirs && !same) diverged.push(k);
+    }
+    if (diverged.length) {
+      console.error(`\n${diverged.length} window(s) disagree with _dr13elem.mjs: ${diverged.join(', ')}`);
+      console.error('A copied constant that nobody compares is a second constant. Reconcile them.');
+      process.exit(1);
+    }
+    console.log('\nevery window agrees with _dr13elem.mjs');
     process.exit(0);
   }
 

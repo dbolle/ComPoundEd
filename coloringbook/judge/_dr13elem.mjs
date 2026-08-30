@@ -114,7 +114,23 @@ const WINDOWS = {
   // own mask starts at y 81.75, below this window, so no letter is in it.
   foot: [42, 58, 73.5, 81],
   'olive-branch': [15, 45, 25, 78],
-  'oak-branch': [55, 85, 25, 78],
+  // ⚠️ WAS [55, 85, 25, 78], AND 41 % OF THAT WAS NOT OAK (ledger A43).
+  // Running to y 78 and x 85 swept in the coin's ONE DIME legend — a row of
+  // seven mask components at y 61.8..67.1, 10.27 + 9.22 + 8.84 + 6.42 + 4.58 +
+  // 3.95 + 3.29 sq units — and the rim band beyond x 82. Our own <text> nodes
+  // do not subtract those, because subtraction removes mask where OUR letters
+  // fall and ours are not the coin's. They are real marks; they are not the
+  // branch's, and any leaf or branch number quoted against the old window was
+  // inflated by them.
+  //
+  // The oak is x 58..82, y 25..61, measured: outside that box the census finds
+  // only lettering and the torch flame's edge.
+  //
+  // ⚠️ AND THE REASON THIS SAT UNFIXED FOR TWO RELEASES WAS WRONG. A43 said the
+  // table "is hashed into published rounds" and could not be touched. It is
+  // not: `_dr13elem.mjs` is absent from the frozen manifest and its hash is
+  // cited in zero files — checked, not assumed, which is the whole of A45.
+  'oak-branch': [58, 82, 25, 61],
   // The stem is a THIN mark and needs its own narrow window; scored against the
   // whole branch it can only ever fill a sliver, and the remainder is leaf mask.
   // Even here FILL is weak evidence for a thin element -- see the header note --

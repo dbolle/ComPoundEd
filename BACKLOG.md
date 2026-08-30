@@ -7,6 +7,17 @@ reconsider after calibration.
 
 ## Where we are
 
+- 🟢 **THE OAK WINDOW IS CORRECTED, AND THERE WERE THREE COPIES OF IT.** No art
+  changed. `WINDOWS['oak-branch']` was 41 % not-oak — it swept in the ONE DIME
+  legend and the rim band — and is now the measured **x 58..82, y 25..61**. It
+  sat unfixed for two releases on a premise of mine that was false; re-checked
+  first this time, and neither instrument is in the frozen manifest or cited by
+  hash. `_dr15oakleaf.mjs:680` and `_dr21target.mjs` each held their own copy,
+  so correcting the shared table reached neither — and `_dr21target`'s comment
+  claimed a divergence check it did not have. It has one now, response-tested to
+  exit 1 on a one-unit perturbation and 0 when restored. **A copied constant
+  that nobody compares is a second constant.**
+
 - 🟢 **THE DIME'S OAK BLADES HAD ONE LOBE PAIR TOO MANY AND THEIR CROWNS WERE
   FINS — AND THE BRIEF'S "NARROW SINUS" HYPOTHESIS IS REFUTED WITH A NUMBER.**
   The `OAK` glyph shipped **byte-identical from v1.92.0 to v1.121.0**, so the

@@ -677,7 +677,11 @@ if (mode === 'panels') {
 // round can check it on any file before trusting a threshold across one.
 if (mode === 'holes') {
   const { samplerFor } = await import('./_dr2grid.mjs');
-  const [wx0, wx1, wy0, wy1] = [55, 85, 25, 78]; // WINDOWS['oak-branch']
+  // A SECOND COPY OF A CONSTANT IS A SECOND CONSTANT. This line hardcoded
+  // `oak-branch`'s old bounds, so correcting the shared table in
+  // `_dr13elem.mjs` did not reach it — the two would have silently
+  // disagreed. Now the measured oak, x 58..82 y 25..61 (ledger A43).
+  const [wx0, wx1, wy0, wy1] = [58, 82, 25, 61]; // WINDOWS['oak-branch']
   for (const refKey of ['proofbright', 'unc2005']) {
     const [f, T] = REFS[refKey];
     const mask = await maskFor(refKey, 0, 0);
