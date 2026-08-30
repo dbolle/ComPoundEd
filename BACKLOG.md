@@ -7,6 +7,18 @@ reconsider after calibration.
 
 ## Where we are
 
+- 🟡 **A LEDGER ROW THAT SAID "CANNOT BE FIXED" WAS WRONG, AND THE JUDGE WROTE
+  IT.** No art changed. A43 claimed the oak window could not be corrected
+  because `_dr13elem`'s table is hashed into published rounds; it is **not in
+  the frozen manifest and its hash is cited nowhere**. Asserted, not verified —
+  A45's own failure, one release after recording it. The window is fixable and
+  is deferred only because a round is live on that face. Also found:
+  `_dr15oakleaf.mjs:680` **hardcodes its own copy** of the wrong window, so
+  fixing the shared table would not reach it. And **A50**: the third reference
+  needed to settle v1.121.0's unexplained anisotropy **is not on disk** — `ref/`
+  holds exactly four dime reverses, one banned by the null test and one already
+  rejected at NCC 0.31, so unlike C2a this one needs acquisition.
+
 - 🟢 **BOTH ACORNS ON THE DIME'S OAK NOW HANG ON MEASURED STEMS, AND THE STEM
   IS STILL BYTE-IDENTICAL.** The owner asked four times and three rounds
   refused. Run at a **0.2-unit step** instead of 0.5, round 42's own prong
