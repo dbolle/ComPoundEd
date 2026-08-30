@@ -5502,6 +5502,29 @@ function torch(p) {
     return `<path d="M ${n2(x1 + nx * w1)} ${n2(y1 + ny * w1)} L ${n2(x2 + nx * w2)} ${n2(y2 + ny * w2)}`
       + ` L ${n2(x2 - nx * w2)} ${n2(y2 - ny * w2)} L ${n2(x1 - nx * w1)} ${n2(y1 - ny * w1)} Z"/>`;
   };
+  /** The same mark when the centreline BENDS: a tapered band down a polyline,
+   *  emitted as ONE closed subpath (out along one side, back along the other),
+   *  so `<path>`'s NONZERO rule has nothing to cancel against — the fault D9
+   *  and the prong's crotch hole both came from a second subpath winding the
+   *  other way. `w0`/`w1` are the half-widths at the first and last point,
+   *  linear in the point index; the normal at each point is taken from the
+   *  chord through its neighbours, so the band has no kinks. Added for the two
+   *  ACORN STALKS: acorn 1's arches over 5 units and a straight quad drawn on
+   *  its own chord stands 0.40 off the coin's centreline at the crest, which is
+   *  half the mark's width. */
+  const bandOf = (pts, w0, w1) => {
+    const n = pts.length;
+    const nrm = pts.map((p, i) => {
+      const a = pts[Math.max(0, i - 1)], b = pts[Math.min(n - 1, i + 1)];
+      const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1;
+      return [-dy / L, dx / L];
+    });
+    const side = (s) => pts.map((p, i) => {
+      const w = w0 + ((w1 - w0) * i) / (n - 1);
+      return `${n2(p[0] + s * nrm[i][0] * w)} ${n2(p[1] + s * nrm[i][1] * w)}`;
+    });
+    return `<path d="M ${side(1).join(' L ')} L ${side(-1).reverse().join(' L ')} Z"/>`;
+  };
   // THE STEM, one description for all three tiers. Near straight, at the coin's
   // own offset 13.0 .. 15.8 (X 34.2 .. 37.0 read off the gridded crop). It used
   // to bow out to offset 22 at mid height, which put it through the middle of
@@ -7587,6 +7610,200 @@ function torch(p) {
   //   · `_dr9branch.mjs`'s `torchHalf()` mirrors the OLD taper to exclude the
   //     torch from the branch windows, so it is now ~0.4 too narrow at the top.
   //     Changing it would move published branch numbers; left alone deliberately.
+  // ── ROUND 45: THE TWO ACORNS GET THEIR STALKS, ON THE FOURTH ASKING.
+  //
+  // "The acorns still need stems to connect them to the branch." — the owner,
+  // for the fourth time. Rounds 34, 35 and 44 each refused, each with a
+  // different reason, and each reason is answered below with the measurement
+  // that answers it rather than with a judgement call.
+  //
+  // ⚠️ WHY THESE TWO PATHS ARE EMITTED HERE AND NOT INSIDE `branch(false)`,
+  // WHICH IS WHERE THEY BELONG ANATOMICALLY. Node ids on this face are
+  // positional and three rounds have quoted a stale one. The oak occupies
+  // 2.1.4..2.1.21 and the olive 2.1.22..2.1.39; appending inside the oak would
+  // have renumbered all eighteen olive nodes. These are 2.1.40 and 2.1.41 and
+  // NOTHING ELSE MOVED — node 2.1.4 is byte identical at `407e6935d9d9ba80`,
+  // 1015 bytes, and the olive's eighteen nodes hash `6aaf4d61c4317269`.
+  //
+  // ── THE REFUSAL THIS ROUND OVERTURNS, AND WHY IT WAS WRONG (round 44, §5 of
+  // the acorn-2 ledger above). It said a stalk to the owner's point ii "would
+  // be 1.2 units of new ink sitting one unit inboard of that locked face,
+  // which is the same geometry that produced the fault". It is not the same
+  // geometry. The fault twice recorded on this branch was the OUTBOARD PRONG
+  // being drawn along the acorn's stalk instead of along its own face — one
+  // element tracking two marks (E25). A stalk that is its OWN node, with
+  // `PRONG`/`PFACE` untouched, is the fix for that fault and not a repeat of
+  // it: the prong wandered onto the stalk's path precisely because no element
+  // owned that path. Round 42 measured the same thing and said so without
+  // acting on it — "rows y 48.5..49.5 are the two marks fusing and are NOT
+  // used" is a statement that there are TWO MARKS there, and only one of them
+  // was drawn.
+  //
+  // ── ACORN 2's STALK (node 2.1.41). Near vertical, which is what the owner
+  // said ("the acorn is pointing almost straight up").
+  //
+  // THE ESTIMATOR IS `_dr20prongwidth.mjs hm`'s, run at a 0.2-unit y step
+  // instead of 0.5 — the same per-file adaptive cut and the same half-max edge
+  // refinement that produced round 42's prong widths, so these numbers and the
+  // prong's are directly comparable. `judge/_dr25stalk.mjs rows 47.4 50.2 0.2
+  // 66 72` reprints the whole table; runs below are in OUR frame:
+  //
+  //     y      proofbright                  unc2005
+  //   47.40    65.95-68.50 | 69.30-70.35     65.45-70.65 (one run)
+  //   47.60    66.80-68.55 | 69.30-70.25     65.35-70.55 (one run)
+  //   47.80    67.70-68.40 | 69.20-70.15     65.90-70.45 (one run)
+  //   48.00    67.75-68.40 | 69.15-70.10     66.50-68.55 | 69.10-70.35
+  //   48.20    67.80-70.00 (fused)           67.40-68.55 | 69.05-70.25
+  //   48.40    67.80-68.10 | 69.45-69.90     67.50-68.55 | 69.00-70.20
+  //   48.60    67.85-68.10 | 69.35-69.85     67.55-70.10 (fused)
+  //   49.00    67.85-69.70 (fused)           67.65-69.95 (fused)
+  //   50.00    67.75-69.20 = the prong       68.10-69.50 = the prong
+  //
+  // BOTH FILES INDEPENDENTLY RESOLVE A SECOND MARK INBOARD OF THE PRONG, WITH
+  // FIELD BETWEEN THE TWO — proofbright at y 47.8..48.0, unc2005 at y
+  // 48.0..48.4 — and they agree on its OUTBOARD edge to 0.15 (68.40..68.55 on
+  // five rows across both files) and, on the rows where each has an inboard
+  // edge that is not the window's, on its centre to 0.09 (68.07 proofbright at
+  // y 47.8/48.0, 67.98/68.03 unc2005 at y 48.2/48.4). This is the first time
+  // the second mark has been isolated on EITHER file; round 44 had only the
+  // fused rows at a 0.5 step and correctly declined to draw from them.
+  //
+  // ⚠️ unc2005's y 48.00 inboard edge (66.50) IS NOT USED and is printed only
+  // so the table is the instrument's whole output: on that row the run reaches
+  // the scan window's own edge, which is E25 one level down — a face with no
+  // field beside it is the union's face. The two rows below it do have field
+  // on both sides and are the ones quoted.
+  //
+  // AND ITS INBOARD WALL IS VERTICAL, WHICH IS THE ARGUMENT THAT IT IS NOT THE
+  // PRONG. proofbright puts that wall at 67.75, 67.80, 67.80, 67.85, 67.85,
+  // 67.85, 67.85, 67.80, 67.75 on the nine rows y 47.8..50.0 — 67.81 ± 0.04 —
+  // while EVERY edge of the prong slopes at `PFACE.slope` 0.4618 and moves
+  // 1.02 units over the same span. A vertical wall inside a sloping element is
+  // a second element. The "extra" width the fused rows carry over the prong's
+  // own plateau (1.35, 0.76, 0.47, 0.18, 0.00 at y 48.0..50.0) is exactly the
+  // distance from that wall to the prong's inboard face at each row, to 0.05 —
+  // i.e. the prong SLIDES OVER the stalk as it descends, which is why it
+  // vanishes at y 50 and why round 42 could not read those rows.
+  //
+  // WIDTH: the two files disagree by a factor of 1.7 (0.65-0.70 proofbright,
+  // 1.05-1.20 unc2005), which is this branch's usual bevel-skirt disagreement
+  // (the berries disagree by 1.9, the shaft by 3). Published as a disagreement
+  // and drawn between it at 0.92 → 0.80, not averaged into a claim.
+  //
+  // EXTENT: the top is the acorn's own cup base. `acorn(x(17.65), 45.03, 175,
+  // 0.76, 0.87)` puts the cup's dome apex at (67.85, 47.28) — the drawn glyph's
+  // own geometry, not a new number — and the measured stalk centre 68.07 is
+  // 0.22 outboard of it, so the stalk leaves the cup where the cup ends. The
+  // bottom is where our own prong's inboard face crosses the stalk: 67.95 at
+  // y 50.0, 67.75 at y 50.4. Drawn to y 50.50, so the tip is buried and there
+  // is no free end.
+  //
+  // WHAT IT DOES NOT DO: it does not enter the fork's negative slot, which the
+  // leaf round (`OAKSEATS`, "no leaf below is aimed across it") requires to
+  // stay open and which round 38 fitted the fork to. `_dr20prongwidth
+  // iso` puts that field at 66.05..67.25 (y 48) to 66.10..67.40 (y 50); the
+  // drawn stalk's inboard edge runs 67.65..67.71, clear by 0.21..0.40 at every
+  // row. And it does NOT run to the crotch at (66.3, 54.4): see the refusal at
+  // the foot of this block.
+  const stalkA2 = stalk(68.08, 47.05, 68.12, 50.50, 0.46, 0.40);
+  // ── ACORN 1's STALK (node 2.1.40). It ARCHES, and that is measured, not
+  // stylised: at 100 px per viewBox unit proofbright shows a band leaving the
+  // acorn's cup, rising to a crest and falling into the trunk, with bare field
+  // above it AND below it for three units of its length.
+  //
+  // COLUMNS, not rows, because the mark is near horizontal — the same
+  // adaptive-cut + half-max estimator turned ninety degrees (`judge/
+  // _dr25stalk.mjs cols 61.8 63.4 0.2 53.4 57.4 0.25 --dy`). unc2005's y is
+  // corrected by `_dr24acorn2.mjs`'s `DYU`; see the caveat below.
+  //
+  //     x      proofbright        unc2005 (y corrected)   centre pb / unc
+  //   61.80    55.20-55.65 (0.45)  54.96-55.83 (0.90)      55.43 / 55.40
+  //   62.00    55.20-55.65 (0.45)  54.96-55.83 (0.90)      55.43 / 55.40
+  //   62.40    55.25-55.70 (0.45)  54.96-55.88 (0.95)      55.48 / 55.42
+  //   62.60    55.30-55.75 (0.45)  55.00-55.93 (0.95)      55.53 / 55.47
+  //   62.80    55.35-55.85 (0.50)  55.05-56.03 (1.00)      55.60 / 55.54
+  //   63.00    55.40-55.90 (0.50)  55.15-56.13 (1.00)      55.65 / 55.64
+  //   63.20    55.50-56.00 (0.50)  55.20-56.32 (1.15)      55.75 / 55.76
+  //   63.40    55.55-56.15 (0.60)  55.30-56.57 (1.30)      55.85 / 55.94
+  //
+  // The two files agree on the CENTRELINE to 0.03..0.09 over eight columns,
+  // which is tighter than they agree on anything else on this branch, and they
+  // disagree on the WIDTH by a factor of 2.2. Placed on proofbright (R4),
+  // drawn 0.64 → 0.78 wide, between the two files and inside both of them on
+  // the 237-cut, which is the mask `_dr22oakleaves.mjs` scores OUTSIDE against.
+  //
+  // ⚠️ WHERE LEDGER D40 BIT THIS ROUND, STATED RATHER THAN CORRECTED FOR. The
+  // centreline agreement above EXISTS ONLY AFTER unc2005's y is corrected by
+  // `DYU`. Raw, unc2005 puts this stalk 0.61 units LOWER than proofbright does
+  // — the whole of the agreement is the correction, and the correction is the
+  // thing a live round is measuring. Nothing here is placed on unc2005: the
+  // path is proofbright's, and unc2005 is quoted as a second reading that the
+  // published x-only registration cannot deliver on its own.
+  //
+  // ATTACHMENT, BOTH ENDS, AND WHY NEITHER IS ON THE COIN'S OWN GEOMETRY.
+  // The coin's stalk meets the coin's trunk at x 64.1; OUR trunk's inboard
+  // face is at 65.12 there, ~0.9 outboard, and that face is locked. The coin's
+  // stalk leaves the coin's acorn at (60.7, 55.95); OUR acorn's outline is
+  // ~0.5 short of that. A stalk drawn to the COIN's two ends would therefore
+  // float at both ends of OUR drawing, which is the one thing the owner has
+  // asked four times to fix. So the path follows the coin's measured
+  // centreline through its clean stretch and is run PAST it into our own two
+  // marks at each end: it starts at (60.30, 56.10), 0.6 units inside the
+  // acorn's ink, and finishes at (65.42, 56.82), 0.30 inside the trunk's face.
+  // Both extensions land on coin device.
+  //
+  // THE OLD REFUSAL IS STALE, WITH THE NUMBER. Round 35 declined this stalk
+  // because its far end at (62.96, 54.94) "is INSIDE the bounding box of the
+  // lowest oak blade (node 2.1.6, x 52.8..64.1, y 45.8..55.5)". That blade was
+  // the mirrored seven-row ladder's, and ROUND 43 RETIRED THAT LADDER. The oak
+  // now carries eight named leaves and the two that reach down here stop at
+  // y 50.50 (A1) and y 51.65 (A2) — 3.4 and 4.5 units clear of this stalk's
+  // whole length. There is no blade to merge into any more.
+  const stalkA1 = bandOf([[60.30, 56.10], [61.15, 55.62], [62.05, 55.44],
+    [63.00, 55.65], [64.00, 56.10], [65.42, 56.82]], 0.32, 0.39);
+  // ── BOTH STALKS, MEASURED BACK OFF OUR OWN RENDER through the same code
+  // (`_dr25stalk.mjs`'s "OURS" column and `score`). Numbers are the drawing's,
+  // not the intention's:
+  //
+  //   2.1.40  ink 4.34 sq units, bbox x 60.15..65.60 y 55.10..57.15.
+  //           half-max thickness 0.65..0.80 down the arch against the coin's
+  //           0.40..0.60 (proofbright) and 0.90..1.30 (unc2005) — between the
+  //           two files at every column. Its centreline reproduces
+  //           proofbright's to RMS 0.026 over the nine columns x 61.8..63.4.
+  //           OUTSIDE 0.92 % proofbright, 0.00 % unc2005 WITH DYU, 35.99 %
+  //           without it — see the D40 note above; that 36 is the y
+  //           registration, not the drawing. Overlaps: the acorn 7.2 %, the
+  //           stem 7.2 %, nothing else on the face.
+  //   2.1.41  ink 3.26 sq units, bbox x 67.60..68.55 y 47.05..50.50.
+  //           half-max width 0.85..0.90 against the coin's 0.65..0.70 and
+  //           1.05..1.20 — between the two files. Inboard wall 67.63 ± 0.02
+  //           against the measured 67.81 (proofbright) / 67.55 (unc2005).
+  //           OUTSIDE 0.00 % on BOTH files. Overlaps: the prong 20.4 %, its
+  //           own acorn 7.4 %, nothing else.
+  //
+  // AND IT REPRODUCES THE COIN'S OWN TOPOLOGY, which is the check that says
+  // this is the second mark and not a fatter prong: run through the same
+  // estimator, OUR drawing keeps the stalk and the prong SEPARATE down to
+  // y 48.6 and fuses them at y 48.8 — proofbright fuses at ~48.2 and unc2005
+  // at 48.6. A drawing that merely widened the prong could not do that.
+  //
+  // WHOLE OAK, x 58..82 y 25..61, before → after: coverage of the coin's oak
+  // 73.9 → 75.1 % (proofbright) and 72.4 → 73.3 % (unc2005); the share of OUR
+  // OWN INK that is on device 91.7 → 91.8 % and 89.7 → 89.5 %. Added ink,
+  // more of the coin covered, and the precision did not move — which is the
+  // pair of numbers a new element has to move the right way.
+  // ── WHAT IS STILL REFUSED, WITH THE NUMBER. The dispatch asks for acorn 2's
+  // stalk to run "down past point ii toward the crotch at (66.3, 54.4)". IT
+  // DOES NOT GO THERE AND MUST NOT. The fork's negative slot — the one piece
+  // of bare field inside this branch, and the thing that makes the fork read
+  // as a fork — is 8.3 sq units of field at x 66.05..67.40, y 47.4..54.4 on
+  // proofbright, confirmed row by row by `_dr20prongwidth.mjs iso` on that
+  // file and carried by unc2005 as a narrower channel. A stalk from (67.65,
+  // 47.3) to (66.3, 54.4) runs down the middle of it and would fill 6.0 of
+  // those 8.3 sq units. The coin's own stalk does not: its inboard wall stops
+  // at 67.81 ± 0.04 and the prong swallows it at y 50. The stalk attaches to
+  // the OUTBOARD PRONG, not to the crotch, and the prong is the branch.
+  const acornStalks = `${stalkA1}${stalkA2}`;
   const solid = `${flame}
     <rect x="44.15" y="33" width="11.7" height="5.5" rx="1.5"/>
     <path d="M 44.9 38.5 L 55.1 38.5 L 52.275 74.2 L 47.725 74.2 Z"/>
@@ -7596,7 +7813,7 @@ function torch(p) {
       L 50.5 78.45 L 51.22 78.25 L 51.57 78 L 51.85 77.5 L 52.02 77
       L 52.22 76.5 L 52.45 76.25 L 52.7 76 L 53.2 75.75 L 53.6 75.5
       L 53.72 75.25 L 53.7 74.75 L 53.4 74.5 L 52.85 74.2 Z"/>
-    ${branch(false)}${branch(true)}`;
+    ${branch(false)}${branch(true)}${acornStalks}`;
   // THE INTERIOR. A flat bar is a chimney; the real torch is a fluted
   // cylinder with two collars, and the fluting is what makes it metal.
   //

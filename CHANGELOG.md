@@ -3,6 +3,69 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.120.0 — 2026-08-30
+
+**Both acorns on the dime's oak now hang on stems, and the stems are measured.**
+The owner asked four times; rounds 34, 35 and 44 each refused with a different
+reason. This round drew them, and the reason it could is that the refusals were
+about rows that *cannot be read at a 0.5-unit step*. Run at **0.2**, the same
+estimator round 42 used for the prong (`_dr20prongwidth.mjs hm`'s adaptive cut
+plus half-max edge refinement) resolves **a second mark inboard of the prong,
+with bare field between the two, on BOTH photographs** — proofbright at
+y 47.8–48.0, unc2005 at y 48.2–48.4. Round 42 had already written down that
+"rows y 48.5..49.5 are the two marks fusing", which is a statement that there
+are two marks there; only one of them was drawn.
+
+**Acorn 2's stalk (node `2.1.41`)** is near-vertical, which is what the owner
+said the acorn looked like. Its inboard wall is at **67.81 ± 0.04 over nine
+rows y 47.8–50.0** while every edge of the prong slopes at `PFACE.slope`
+**0.4618** and moves 1.02 units across the same span — *a vertical wall inside
+a sloping element is a second element*. The extra width the fused rows carry
+over the prong's own plateau (1.35, 0.76, 0.47, 0.18, 0.00) is, to 0.05, just
+the distance from that wall to the prong's inboard face: **the prong slides
+over the stalk as it descends**, which is why the stalk vanishes at y 50 and
+why round 42 could not read those rows. **OUTSIDE 0.00 % on both files.**
+
+**Acorn 1's stalk (node `2.1.40`)** arches — measured, not stylised. Column by
+column the two files agree on its **centreline to 0.03–0.09 over eight
+columns**, tighter than they agree on anything else on this branch, and
+disagree on its **width by a factor of 2.2** (0.40–0.60 vs 0.90–1.30). The
+disagreement is published rather than averaged into a claim; the drawing sits
+between the two. It is emitted as a tapered band down a five-segment polyline
+(new helper `bandOf`, one closed subpath) because a straight quad on its own
+chord stands **0.40 off the coin's centreline at the crest — half the mark's
+width**.
+
+**Where ledger D40 bit this round, stated rather than corrected for.** The
+centreline agreement above exists **only after** unc2005's y is corrected by
+`DYU`. Raw, unc2005 puts acorn 1's stalk **0.61 units lower** than proofbright
+does, and the node's OUTSIDE on unc2005 reads **35.99 % without the correction
+and 0.00 % with it**. Nothing is placed on unc2005; proofbright places (R4).
+
+**Two refusals stand, both with numbers.** The stalk does **not** run to the
+crotch at (66.3, 54.4): the fork's negative slot is **8.3 sq units of bare
+field** at x 66.05–67.40, y 47.4–54.4 confirmed row by row, and that path would
+fill **6.0 of them**. And round 35's refusal — acorn 1's stalk "runs into the
+lowest oak blade (node 2.1.6, x 52.8..64.1, y 45.8..55.5)" — **is stale**: that
+blade belonged to the mirrored ladder round 43 retired. The two leaves that
+reach down here now stop at y 50.50 and y 51.65, **3.4 and 4.5 units clear**.
+
+**Nothing else on the face moved, and it is checked three ways.** Node `2.1.4`
+comes back byte-identical at **`407e6935d9d9ba80`, 1015 bytes**; the olive's
+eighteen nodes hash **`6aaf4d61c4317269`** before and after; and a mark-by-mark
+diff of the whole reverse SVG shows **+6 marks (the two new paths × three
+`struck()` copies), 0 removed, 0 changed**. The stalks are emitted after the
+*olive* precisely so that adding them moved no existing id. Byte partition:
+**6/60 cells, `dime.reverse` alone**. D9 **0/180**. D6 on the reverse
+**0.0899 → 0.0883** against a 0.50 gate.
+
+**Whole oak, x 58..82 y 25..61:** coverage of the coin's oak **73.9 → 75.1 %**
+(proofbright) and **72.4 → 73.3 %** (unc2005), with the share of our own ink
+that is on device holding at **91.8 %** and **89.5 %**. Suite green.
+
+New instrument `judge/_dr25stalk.mjs` (`rows` · `cols` · `score`) reprints
+every number above.
+
 ## v1.118.0 — 2026-08-30
 
 **Three owner decisions, applied.** No art changed; `src/` is byte-identical.
