@@ -3,6 +3,103 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.113.0 — 2026-08-30
+
+**The dime's oak carries TWO acorns. The second one is drawn, it points
+straight up, and it is the largest thing that was missing from this face.**
+
+Round 27 drew an acorn at (68, 45). Round 28 looked there, found a leaf, moved
+the acorn nine units inboard and twelve down and recorded the move as a
+correction. It was half a correction: there *is* an acorn nine-and-twelve away
+— ledger D38, drawn since v1.102.0 — and there is **also** one at (68, 45),
+exactly where round 27 had it. Round 28's error was the count, not the
+coordinates. The owner, marking a crop of `dime-rev-proofbright.png`: *"The
+acorn is directly above point ii split in half (top/bottom) by the grid lines
+you drew. Point ii is very close to the acorn's stem and the acorn is pointing
+almost straight up."*
+
+**It was the largest undrawn region on the branch.** With every element of
+v1.112.0 drawn, the coin's device minus our ink left ONE component of **19.58
+sq units** (proofbright, erode 0.55) / **25.84** (unc2005, erode 0.37) at
+centroid (67.31, 46.16), spanning x 64.40..69.95, y 42.8..50.0. The leaf round
+measured that wedge and read it as the locked stem being five units short. It
+is not the stem. Drawing the acorn removes **9.72 / 10.33 sq units** of it and
+adds no red anywhere.
+
+**How it was measured, given that the method that measured acorn 1 does not
+work here.** Acorn 1 sits in open field below the fork and a morphological
+opening isolates it. This one is embedded in the foliage: swept 0.35 → 1.00 the
+opening never separates it on either file, and `_dr21target.mjs` puts the whole
+oak crown at ONE component of 111.70 sq units. So the flood mask cannot measure
+this object, and **ledger D38's circularity — the published acorn-vs-leaf
+discriminator — is not available for it.** That is recorded as a gap.
+
+What replaces it, in the new `judge/_dr24acorn2.mjs`, is the object's own two
+walls: from a spine, walk out row by row to the first dark relief trough and
+read the trough's *minimum*. Same estimator on both files, so the two acorns
+and a leaf are directly comparable. On unc2005 it is monotone over ten
+consecutive rows — 1.48 → 3.08 wide, centre 67.46 → 67.62 — with **zero
+reversals**, where oak blade A1 over the same ten rows reverses **four** times.
+**A smooth closed object against a lobed one: that is the new discriminator,
+and it is available where circularity is not.**
+
+Drawn: `acorn(x(17.65), 45.03, 175, 0.76, 0.87)`, a body **3.19 × 4.39** against
+a measured **3.1 × 4.4**, apex y 42.90, base y 47.30, leaning 5° with the tip
+inboard. It is fitted to those walls, not to an IoU sweep: the sweep's
+unconstrained optimum is rot 171 / sw 0.71 / sl 0.91 at IoU 0.813 and the
+shipped values score 0.777, which is what the choice costs. Running the same
+sweep on acorn 1 returns rot **58** against its shipped **59** — the control
+that says the method works. Containment, on its own ink:
+
+| | erode 0 | erode 0.55 / 0.37 | erode 1.00 |
+|---|---|---|---|
+| acorn 2, proofbright | **0.00 %** | **1.62 %** | — |
+| acorn 2, unc2005 | **0.00 %** | **6.94 %** | 36.45 % |
+| acorn 1 (shipped), proofbright | 4.99 % | 28.78 % | — |
+| acorn 1 (shipped), unc2005 | 9.53 % | 23.52 % | 63.57 % |
+
+**The pair reads as a pair.** Measured on the emitted outlines, the two acorns
+have circularity P²/4πA of **1.19** and **1.22** — the same shape family at
+different scales, acorn 2 at 0.60 of acorn 1's area. (That is a vector-outline
+number and is not comparable to D38's 2.50, which is a pixel mask's perimeter;
+D38's estimator does not reach this acorn at all.)
+
+**And a low OUTSIDE here is not a low OUTSIDE bought by hiding: the new acorn
+overlaps NOTHING.** Not a leaf, not a stalk, not the stem, not acorn 1 — 0.00 %
+against all seventeen other marks on the branch. The unc2005 row is also the
+v1.112.0 finding in miniature: the same acorn reads 6.94 % at that file's
+measured 0.37 and 36.45 % at the shared 1.00.
+
+**A registration finding that predates this element.** Every registration
+number in `torch()` is a radial offset; y has always been assumed equal.
+Cross-correlating the two device masks for the shift that maximises their
+agreement gives dx −1.00…−1.15 across four windows — which reproduces the
+published −1.10 independently and is the control — and dy **+0.15 at y 35
+rising to +0.85 at y 66**. unc2005 is 2.3 % out of scale in y, and the rim fits
+do not remove it. Applying `dy = 0.489 + 0.0226·(y − 50)` brings the two files'
+readings of this acorn's apex from 1.1 units apart to 0.2. Instruments only;
+nothing in `src/art` moves.
+
+**An instrument bug fixed.** `_dr22oakleaves.mjs` computed the acorn's node id
+as `2.1.{5 + 2 × 8}` = 2.1.21. B1 is sessile, so the leaf/stalk run is one node
+shorter than that arithmetic assumes and acorn 1 is 2.1.20 — 2.1.21 was the
+**olive's** stem, on the other branch. Every `over` and `diff` map that round
+published drew the olive stem as the acorn and showed acorn 1's own footprint
+as coin-only blue. Both acorns are now listed explicitly.
+
+**What is refused, with the number.** The stalk is not drawn, for the third
+time on this face and for a new reason. The coin's mark at the owner's point ii
+is real and our drawing does not reach it, but between the cup's base (y 47.30)
+and point ii (y 48.5) a drawn stalk would be 1.2 units of new ink sitting one
+unit inboard of `PFACE`, the locked outboard-prong face that has twice been
+dragged onto exactly this mark. R3 holds. The eight leaves did not move: every
+one of their published OUTSIDE figures — 7.4 / 8.5 / 12.0 / 5.4 / 7.7 / 4.8 /
+9.8 / 10.9 % — reproduces to the digit, node `2.1.4` comes back byte-identical
+at `407e6935d9d9ba80`, and the olive's 51 marks are byte-identical. The only
+change to the emitted SVG is one `<g>`, three times (`struck()` draws solid
+three times). D9 0/180; nonzero area 9.87 against evenodd 8.79, so the two
+subpaths wind the same way and nothing cancels.
+
 ## v1.112.0 — 2026-08-30
 
 **85 % of the disagreement between the dime's two reference photographs is

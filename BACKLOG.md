@@ -7,6 +7,34 @@ reconsider after calibration.
 
 ## Where we are
 
+- 🟡 **THE DIME'S OAK CARRIES TWO ACORNS, AND THE SECOND ONE IS NOW DRAWN.**
+  Sixteenth element round on this face. Round 27 put an acorn at (68, 45);
+  round 28 found a leaf there, moved the acorn nine units inboard and twelve
+  down, and called the move a correction. It was half a correction — **the
+  error was the count, not the coordinates**. The owner, on a marked crop:
+  *"the acorn is directly above point ii … pointing almost straight up."*
+  It was the **largest undrawn region on the branch** — one component of
+  **19.58 sq units** (proofbright, erode 0.55) / **25.84** (unc2005, 0.37) at
+  centroid (67.31, 46.16); the leaf round measured that wedge and blamed the
+  locked stem for it. Drawn as `acorn(x(17.65), 45.03, 175, 0.76, 0.87)`, body
+  **3.19 × 4.39** against a measured **3.1 × 4.4**: OUTSIDE **0.00 %** at erode
+  0 on **both** files, **1.62 %** at proofbright's 0.55 and **6.94 %** at
+  unc2005's measured 0.37 — and it **overlaps nothing**, 0.00 % against all
+  seventeen other marks on the branch, so the low containment is not bought by
+  hiding. `2.1.4` byte-identical, the olive byte-identical, the eight leaves'
+  published figures reproduce to the digit, D9 0/180. **Two new measured
+  things and one instrument bug.** (1) The method that isolated acorn 1 does
+  not reach this one — it is embedded in the foliage and no erosion separates
+  it — so **D38's circularity discriminator is unavailable here**; what
+  replaces it is the object's own **wall pair**, monotone over ten rows with
+  **zero reversals** where oak blade A1 reverses **four times**. (2) The two
+  photographs **disagree in y by up to 0.85 units** and the published
+  registration is x-only (D40); the dx control comes back at the published
+  −1.10. (3) `_dr22oakleaves.mjs` was measuring the **olive's stem** as the oak's
+  acorn — an off-by-one from a formula over a list with one sessile leaf in it
+  (A45). **Refused:** the stalk, a third time, because it would put 1.2 units
+  of new ink one unit inboard of the locked `PFACE`. Suite 464/464.
+
 - 🟡 **85 % OF THE DISAGREEMENT BETWEEN THE DIME'S TWO REFERENCE PHOTOGRAPHS IS
   ONE CONSTANT.** No art changed. `deviceMask()`'s erosion is now measured
   rather than argued: scanning every field→device transition on the branch,

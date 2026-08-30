@@ -7103,6 +7103,119 @@ function torch(p) {
     // The stub's own direction is not wasted evidence — it is what sets `rot`
     // above. Recorded, measured, and still not drawn.
     if (!mirror) g += acorn(x(8.8), 57.7, 59, 1.13, 0.98);
+    // ── ROUND 44: THE OAK CARRIES **TWO** ACORNS, AND THE SECOND ONE POINTS UP.
+    //
+    // "The acorn is directly above point ii split in half (top/bottom) by the
+    //  grid lines you drew. Point ii is very close to the acorn's stem and the
+    //  acorn is pointing almost straight up." — the owner, on a marked crop of
+    // `dime-rev-proofbright.png` whose point ii is (68.0, 48.5) in that file's
+    // registration, i.e. (67.65, 48.5) in ours.
+    //
+    // THIS IS THE OBJECT ROUND 27 DREW AND ROUND 28 DELETED. Round 27 put an
+    // acorn at (68, 45); round 28 looked there, called it a leaf, moved the
+    // acorn nine units inboard and twelve down, and the block above records
+    // that move as a correction. It was half a correction. There IS an acorn
+    // nine-and-twelve away — the one drawn above, D38 — and there is ALSO one
+    // at (68, 45), which is where round 27 had it. Round 28's error was not
+    // the coordinates, it was the count.
+    //
+    // AND IT IS THE LARGEST UNDRAWN REGION ON THE BRANCH. With every element
+    // of v1.112.0 drawn, the coin's device minus our ink leaves ONE component
+    // of 19.58 sq units (proofbright, erode 0.55) / 25.84 (unc2005, erode
+    // 0.37) at centroid (67.31, 46.16) / (67.17, 46.89), spanning x 64.40..
+    // 69.95, y 42.8..50.0 — `judge/_zz-gap.mjs`. The leaf round measured that
+    // wedge and read it as the locked stem being five units short. It is not
+    // the stem. It is this acorn and the space under it.
+    //
+    // ── WHY IT IS MEASURED THE WAY IT IS, AND WHAT COULD NOT BE MEASURED.
+    //
+    // 1. THE OPENING THAT ISOLATED ACORN 1 DOES NOT WORK HERE, and that is a
+    //    property of the coin, not of the instrument. Acorn 1 sits in open
+    //    field below the fork; this one is embedded in the foliage. Sweeping
+    //    the morphological opening 0.35 → 1.00 in x 63..73 y 38..52 never
+    //    separates it on either file — the component containing it runs to the
+    //    window's own edges at every radius (91.77 → 32.94 sq units on
+    //    proofbright, 106.60 → 85.88 on unc2005). So `_dr16acorn.mjs`'s
+    //    numbers have no counterpart here and the two acorns CANNOT be
+    //    compared on that estimator. That is stated rather than fudged.
+    //
+    // 2. WHAT REPLACES IT: THE OBJECT'S OWN TWO WALLS, row by row, walked out
+    //    from a spine to the first dark relief trough and read at the trough's
+    //    MINIMUM (the middle of the boundary, not its near edge). Same
+    //    estimator on both files, so widths are comparable between the two
+    //    acorns. On unc2005 it is monotone over ten consecutive rows:
+    //
+    //        y      left    right   width   centre
+    //        43.50  66.72   68.20   1.48    67.46
+    //        44.00  66.54   68.42   1.88    67.48
+    //        44.50  66.38   68.60   2.22    67.49
+    //        45.00  66.38   68.88   2.50    67.63
+    //        45.50  66.24   69.02   2.78    67.63
+    //        45.75  66.08   69.16   3.08    67.62
+    //
+    //    proofbright agrees on the same rows to 0.2 where its frost lets the
+    //    tracker run (66.3 / 68.6..68.9 at y 44.0..44.5). Columns put the apex
+    //    at y 42.87 ± 0.10 and the base at y 47.3 ± 0.2. So the body is
+    //    **4.4 long, 3.1..3.2 at its widest, centre-line leaning 5 degrees
+    //    with the tip inboard** — an acorn standing nearly upright, which is
+    //    what the owner said and what no earlier round had measured.
+    //
+    // 3. THE TWO PHOTOGRAPHS DISAGREE IN **y**, AND THE PUBLISHED
+    //    REGISTRATION IS x-ONLY. Every registration number in this file is a
+    //    radial offset. Cross-correlating the two device masks for the shift
+    //    that maximises their agreement gives, per window:
+    //
+    //        window            dx      dy     IoU
+    //        x 38..62 y 25..45  -1.00  +0.15  0.880
+    //        x 58..82 y 25..61  -1.15  +0.40  0.879
+    //        x 38..62 y 55..78  -1.00  +0.75  0.922
+    //        x 30..70 y 60..72  -1.00  +0.85  0.908
+    //
+    //    dx reproduces the published -1.10 between the files independently,
+    //    which is the control. dy is NOT zero and NOT constant: unc2005 reads
+    //    0.15 low at y 35 and 0.85 low at y 66, i.e. `dy = 0.489 + 0.0226·
+    //    (y - 50)`, a 2.3 % y-scale difference the rim fits do not remove.
+    //    At this acorn that is +0.38, and applying it is what brings the two
+    //    files' readings of the apex (42.2 vs 43.3 raw) to within 0.2. It is
+    //    applied ONLY inside the instruments; nothing in the art moves.
+    //
+    // 4. THE FIT, AND ITS CALIBRATION AGAINST ACORN 1. An IoU sweep of the
+    //    glyph against the trough-centre silhouette (`judge/_zz-fit.mjs`) run
+    //    on ACORN 1 returns rot 58, sw 0.85, sl 0.93 at IoU 0.831 — the
+    //    rotation agrees with the shipped 59 to one degree, which is the
+    //    control that says the method works, while `sw` reads 0.85 against the
+    //    shipped 1.13 because the shipped value was fitted to an opened FLOOD
+    //    MASK body, which carries the strike's bevel skirt, and this estimator
+    //    reads the outline's centre line, which does not. The same sweep on
+    //    acorn 2 returns rot 171, sw 0.71, sl 0.91 at IoU 0.813.
+    //    Transferring acorn 1's estimator-to-drawing ratio (1.13/0.85) would
+    //    give sw 0.94, a 3.95-unit-wide acorn; it is NOT taken, because the
+    //    walls in §2 are a direct measurement of THIS object on both files and
+    //    they say 3.1. The values below are fitted to those walls, not to
+    //    either sweep — they reproduce the measured wall pairs to 0.12 at
+    //    y 44.0, 0.18 at y 45.25 and 0.17 at y 45.75 — and they score IoU
+    //    0.777 against the sweep's own 0.813, which is what that costs.
+    //
+    // 5. THE STALK IS NOT DRAWN, for the third time on this face and for a
+    //    new reason. The owner's point ii is a mark on the coin BELOW the cup
+    //    and our drawing does not reach it — but between the cup's base
+    //    (y 47.3) and point ii (y 48.5) the coin's own relief runs continuous
+    //    into the material below, and this is exactly where the outboard
+    //    prong was twice dragged off its face ("the middle traces up the
+    //    acorn's stem", "it is well lined up on its right side, but overflows
+    //    the left side"). `PRONG`/`PFACE` are locked by R3. A stalk drawn to
+    //    point ii would be 1.2 units of new ink sitting one unit inboard of
+    //    that locked face, which is the same geometry that produced the fault.
+    //    Recorded, measured, not drawn — and the acorn is now in the place
+    //    that made the prong look wrong, so the next round can test whether
+    //    the stalk is still needed with the acorn present.
+    //
+    // rot is degrees CLOCKWISE and the glyph is drawn nut-DOWN, so 175 turns
+    // it over: the nut's tip goes UP and the cup's mouth goes DOWN, with a
+    // 5-degree lean that puts the tip inboard of the base. `sw`/`sl` are the
+    // round-35 split: 4.2·sw across the axis, 5.05·sl along it, giving a body
+    // 3.19 x 4.39 against the measured 3.1 x 4.4.
+    if (!mirror) g += acorn(x(17.65), 45.03, 175, 0.76, 0.87);
     return `${stem(x, mirror)}${g}`;
   };
   // THE SHAFT TAPERS, AND IT WAS DRAWN AS A RECTANGLE (round 28).
