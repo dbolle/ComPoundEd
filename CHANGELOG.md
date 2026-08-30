@@ -3,6 +3,88 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.111.0 — 2026-08-30
+
+**The dime's oak branch now carries eight individual overlapping leaves in the
+four groups the owner read off the coin, and the stem they hang on did not
+move by one number.**
+
+Fifteenth element round on this face. The mirrored seven-row `LADDER` is
+retired from the oak: it was the OLIVE's table, read off the olive's blades and
+copied across, and both the "seven a side" count (retracted in v1.110.0) and
+its angle column had already been overruled twice on this branch. The oak now
+has its own eight-row `OAKSEATS`, one entry per leaf, in the owner's topology —
+**A** two on the inboard prong, **B** three terminating the outboard prong,
+**C** one off the outboard prong's outboard face, **D** two off the trunk below
+the fork.
+
+**Every base is evaluated on the frozen stem, never written down.** `prongC`,
+`prongFace`, `prongHW`, `oakC`, `oakInFace` and `oakTrunkOut` are asked where
+the branch is at a given height and the leaf attaches there, so ruling R3's lock
+holds by construction: the emitted oak-stem path (node `2.1.4`, 1015 bytes) is
+**byte-identical** before and after, and so are all eighteen of the olive's
+emitted paths.
+
+Fitted to the coin's **silhouette** — the device mask with the field removed —
+because no threshold separates these leaves on the coin either (v1.110.0's A42).
+`dime-rev-proofbright.png` placed them at +0.35; `dime-rev-unc2005.png`, whose
+outlines survive an overlap where relief does not, settled which leaf overlaps
+which and where each petiole leaves the stem. Per-leaf **OUTSIDE**: 7.4 / 8.5 /
+12.0 / 5.4 / 7.7 / 4.8 / 9.8 / 10.9 %, **8.00 % over all eight** (9.60 % on
+unc2005). The whole drawn oak covers **69.3 %** of the coin's oak inside
+x 58..82 y 25..61 and **91.8 %** of our own ink lands on device. The seven-leaf
+drawing it replaces had a **153.55 sq unit stranded floating mass** — three
+leaves and two stalks anchored on an extrapolated centreline five units above
+where the inboard prong actually ends — and that is gone.
+
+**Overlap is published beside containment, because on this element a low
+OUTSIDE is not a pass.** A leaf can score well by sliding under a neighbour.
+Measured as a fraction of each leaf's own ink: the B bunch shares 4.7–8.1 %
+across its three, A1/A2 share 6.4 %, and the D bundle — which is one merged fan
+on the coin — shares 43.8 / 36.8 %. That last pair was tuned against both
+numbers at once: at rot 47 it read 7.0 % outside and **49.8 %** overlap (one
+lump), at rot 55 **18.8 %** outside and 23.0 % overlap (out in the fork's own
+open channel); 49 is where both are acceptable.
+
+New instrument `coloringbook/judge/_dr22oakleaves.mjs` — `table` for the
+geometry, the pairwise overlap matrix and containment on both files; `over` for
+the eight outlined on each photograph at its own registration; `diff` for a
+coin-only / ours-only map. It derives its node ids from `OAKSEATS`' order rather
+than hard-coding them, because those ids move whenever a leaf is added and three
+rounds have quoted a stale one.
+
+**Published because it is not fixed:** the coin's inboard prong runs on to about
+y 47.3 — the fork's open slot has a left wall that far up — where the locked stem
+ends it at y 52.0. Five units of the coin's own branch are therefore covered by
+leaf and petiole rather than by stem, which is why A1 and A2 carry the longest
+petioles on the branch (1.5) against a coin that measures ~0.5. That is an
+inherited stem defect, stated rather than corrected, because the stem is locked.
+
+**And the ninth mass is the acorn.** A lobed-looking blob at x 56.8..63.2,
+y 54.6..59.5 sits left of the trunk below the fork with nothing in the owner's
+spec to match it. Measured: **21.53 sq units on proofbright, 21.72 on unc2005**,
+centroids 0.7 units apart, attaching to the trunk by a neck at ~(63.5, 54.7).
+Its circularity is **2.50** against **5.36** for a known oak leaf in the same
+mask at the same threshold — it is round, not lobed — which agrees with round
+35's two-file axis fit (30.2° / 31.3°, agreeing to 1.1°). It is already drawn,
+as node `2.1.20`. No ninth leaf.
+
+Partition: `dime.reverse` alone — of 80 emitted renders across 5 ids × 2 sides ×
+4 sizes × value on/off, the 8 that changed are all `dime/reverse`. D9 180 renders
+clean. D6 reverse **0.0915** against a 0.50 gate. Suite 225 + 239 = 464/464.
+
+**CORRECTION, the same day, from the owner.** This round's largest residual —
+an undrawn wedge at x 66..71, y 41..48 — was reported here as evidence that the
+locked stem ends the inboard prong five units short of the coin's, and it asked
+for the lock to be reopened. That is wrong. **The wedge is the coin's second
+acorn**, which we do not draw: directly above (68.0, 48.5), spanning roughly
+y 42..48 about x 67..69.5, pointing almost straight up, its stalk running down
+past that point to the crotch. It also explains a correction from two rounds
+back — *"the middle traces up the acorn's stem"* and *"well lined up on its
+right side, but overflows the left side"*: the outboard prong was being pulled
+onto this acorn's stalk. **The stem lock stands.** The residual is a missing
+element, not a short one, and the ledger row is amended to say so.
+
 ## v1.110.0 — 2026-08-29
 
 **FILL was never a grade out of 100, and the number that said the oak has seven
