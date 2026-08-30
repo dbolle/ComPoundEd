@@ -88,11 +88,21 @@ const STEM = '2.1.4';
 // B1 is sessile; every other leaf is preceded by its own stalk.
 const LEAF_ID = {}; const STALK_ID = {};
 NAMES.forEach((n, i) => { LEAF_ID[n] = `2.1.${5 + 2 * i}`; if (i) STALK_ID[n] = `2.1.${4 + 2 * i}`; });
-const ACORN = `2.1.${5 + 2 * NAMES.length}`;
+// ⚠️ OFF BY ONE UNTIL ROUND 44. This was `2.1.${5 + 2 * NAMES.length}` = 2.1.21,
+// and B1 is SESSILE — the run of leaf/stalk pairs is one node shorter than the
+// arithmetic assumed, so the first drawable node after D2 (2.1.19) is 2.1.20.
+// 2.1.21 was the OLIVE's stem path, which is on the other branch entirely: the
+// `over` and `diff` maps therefore drew the olive stem as if it were the acorn
+// and left acorn 1's own footprint showing as coin-only blue. There are now TWO
+// acorns and both are listed, so the id is a list rather than a formula.
+const ACORN_IDS = ['2.1.20', '2.1.21'];
 
 const ink = {}; for (const n of NAMES) ink[n] = await inkOf(LEAF_ID[n]);
 const stem = await inkOf(STEM);
-const acorn = await inkOf(ACORN);
+const acorn = new Uint8Array(MW * MH);
+for (const id of ACORN_IDS) {
+  const v = await inkOf(id); for (let i = 0; i < acorn.length; i++) if (v[i]) acorn[i] = 1;
+}
 const stalks = new Uint8Array(MW * MH);
 for (const n of Object.keys(STALK_ID)) {
   const v = await inkOf(STALK_ID[n]);
