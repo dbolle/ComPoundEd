@@ -3699,7 +3699,72 @@ function bust(id, p, dim, boxW) {
   // the `tier === 'full'` test it justified. There is no `mid`; the 40 px coin
   // gets the full drawing. `hairLit` alone now selects the tone. (C2 in
   // docs/FINDINGS-LEDGER.md — "`bust()`'s `hairFill` has the wrong sign at
-  // mid" — is therefore MOOT AS WRITTEN: the branch it names cannot run.)
+  // mid" — was therefore MOOT AS WRITTEN: the branch it named could not run.)
+  //
+  // WHAT THE SIGN ACTUALLY DOES AT 38 / 48 / 54 / 84 PX (v1.114.0, C2 closed).
+  // Nobody had ever measured it at a size the app draws. Four things were, and
+  // all four are worth keeping:
+  //
+  //  1. IT IS NOT A ROUNDING ERROR. Even at the smallest size `money.js` asks
+  //     for, the pixels this one ternary controls are 61 (cent), 96 (dime),
+  //     206 (quarter) and 222 (nickel) — 7.3 %-26.0 % of the disc. There was a
+  //     worry that a dozen pixels were being argued over. There are not.
+  //
+  //  2. IT IS MOSTLY CANCELLED BY WHAT IS DRAWN OVER IT. The palette step is
+  //     22 luma units on the silvers (`cloth` 170.9, `motif` 148.9, `hair`
+  //     125.9). What SURVIVES the grooves, the lit ridges and the eye, measured
+  //     against the face pixels the mass actually abuts, is much less — and it
+  //     is smaller than the face's own texture on three of the four heads:
+  //       nickel  LIT  19.6-24.2 luma  = 2.5-2.9 x sd(face)   <- doing work
+  //       penny   DARK  3.8- 5.2       = 0.5-0.7 x            <- nearly none
+  //       quarter LIT   9.5-12.9       = 0.8-0.9 x
+  //       dime    LIT   3.6- 6.7       = 0.2-0.6 x            <- least of all
+  //     On the dime that is the intended result, not a defect — see the
+  //     paragraph above: the grooves are what carry the mass there. It does
+  //     mean the FILL is not what a child is reading on three of these faces.
+  //
+  //  3. THE SIGN IS NOT A PHOTOMETRIC FACT ABOUT COINS. Hair and cheek are the
+  //     same metal; on a real coin the hair reads as hair through TEXTURE. Mean
+  //     grey inside our own hair mask over mean grey inside our own face mask,
+  //     on every obverse photograph in the pool, sits near unity: nickel 1.003
+  //     / 1.045, quarter 0.979 / 0.989 / 1.082, dime 0.702 / 1.012 / 1.082 /
+  //     1.087, cent 0.874 / 0.893 / 0.975 / 1.015. The 1.19-1.39 ratios quoted
+  //     in this file and in the nickel round are lit CRESTS against a flat
+  //     cheek, which is a true measurement of a different thing. The tone step
+  //     here is a stylisation standing in for texture our format cannot carry.
+  //     Read OUR art through the SAME masks, the shipped branch is the nearer
+  //     one to that band on the cent (0.912 vs a 0.934 median, against LIT's
+  //     1.145) and overwhelmingly on the dime (1.070 vs 1.047, against DARK's
+  //     0.835 — 0.023 against 0.212). The quarter is a wash on this statistic
+  //     (gap 0.009) and the NICKEL is the one place two statistics disagree: it
+  //     prefers DARK by 0.056 while T1 prefers LIT by 0.041 and the look is not
+  //     close. LIT stands there on T1 and D12, which §0 ranks above a tone
+  //     ratio; the disagreement is recorded, not resolved.
+  //
+  //  4. T1 PREFERS THE SHIPPED SIGN ON THE NICKEL AND THE QUARTER, and flipping
+  //     costs real margin: nickel 0.205 -> 0.164, quarter 0.368 -> 0.342 (both
+  //     at 38 px, and the same at 48, 54 and 84). The cent is a wash
+  //     (0.389 -> 0.394, inside the lower-bound caveat) and its photographs say
+  //     DARK, which is what it draws. The DIME is the one row that argues the
+  //     other way (0.302 -> 0.350) and it was NOT taken: `energyGrid` is a
+  //     blurred |grad| and has no sign, the dime's T1 ranking is monotone in
+  //     DARKNESS with its optimum at `deep` — a tone nobody would ship — and
+  //     three of the dime's four obverse photographs put the hair BRIGHTER than
+  //     the face. Flipping it would buy margin from a sign-blind descriptor by
+  //     moving away from the references. It would also split the three silvers'
+  //     tone direction, which the standing ruling treats as a reason to refuse.
+  //
+  // Filling the mass in `p.motif` — no step at all — scores BETTER on T1 than
+  // the shipped branch on the cent (+0.005), the nickel (+0.011) and the dime
+  // (+0.028). REJECTED on sight: `judge/_jz2hairlook.mjs` renders it, and the
+  // nickel's head becomes one flat blob with a few ridge lines in it, which is
+  // the "outline with nothing inside it" failure `_nk4energy.mjs` already
+  // priced. A number that good has to be looked at before it is believed.
+  //
+  // Instruments: judge/_jz1hairtone.mjs (mass and contrast at the drawn sizes),
+  // _jz2hairlook.mjs (D12, control first), _jz3refsign.mjs and _jz4refmass.mjs
+  // (what the photographs say), _jz5t1branch.mjs (T1 on the other branch),
+  // _jz6part.mjs (the partition), _jz7mag.mjs (sign or magnitude).
   const hairFill = o.hairLit ? p.cloth : p.hair;
   // LINCOLN'S BEARD IS ITS OWN MASS AND ITS OWN TONE. It used to ride inside
   // the hair group in `hair`, which put it at 0.818 of the cheek; on both

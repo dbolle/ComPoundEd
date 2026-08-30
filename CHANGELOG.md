@@ -3,6 +3,55 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.114.0 — 2026-08-30
+
+**The hair tone on all four portraits is right, and here is the first evidence
+that it is.** No art changed; the partition is **0/60 cells across 0 faces**.
+This closes ledger C2, which had been reframed twice and never measured.
+
+`bust()` picks the hair mass's fill with one ternary — lighter than the face on
+Jefferson, Roosevelt and Washington, darker on Lincoln. Nobody had ever looked
+at what that does at 38, 48, 54 or 84 px, the sizes `src/screens/money.js`
+actually draws.
+
+- **It is not a rounding error.** At the smallest size the app asks for, the
+  pixels the ternary controls are **61** (cent), **96** (dime), **206**
+  (quarter) and **222** (nickel) — **7.3 %–26.0 % of the disc**. Note that a
+  "38 px" coin row draws the dime at 28 device pixels and the cent at 30.
+- **But most of the step is cancelled by what is drawn over it.** The palette
+  difference is 22 luma units; what survives the grooves, the lit ridges and
+  the eye, measured against the face pixels the mass actually touches, is
+  **19.6–24.2** on the nickel (2.5–2.9 × the face's own texture sd) and only
+  **3.6–6.7** on the dime, **3.8–5.2** on the cent and **9.5–12.9** on the
+  quarter — **below the face's own texture on three of the four heads.**
+- **The sign is a stylisation, not a fact about coins.** Hair and cheek are the
+  same metal. Mean grey inside our hair mask over mean grey inside our face
+  mask, on every obverse photograph in the pool, sits near unity: nickel
+  1.003/1.045, quarter 0.979/0.989/1.082, dime 0.702/1.012/1.082/1.087, cent
+  0.874/0.893/0.975/1.015. The 1.19–1.39 ratios quoted in `coins.js` and in the
+  nickel round are **lit crests against a flat cheek** — a true measurement of a
+  different thing.
+- **T1 confirms the shipped sign where it matters.** Flipping costs the nickel
+  0.205 → 0.164 of margin and the quarter 0.368 → 0.342, at every drawn size.
+  The cent is a wash (0.389 → 0.394) and its photographs say darker, which is
+  what it draws.
+- **The dime asks for the other branch and did not get it** (0.302 → 0.350).
+  `energyGrid` is a blurred |grad| and has no sign; the dime's T1 ranking is
+  monotone in *darkness* with its optimum at `deep`, a tone nobody would ship;
+  and three of the dime's four obverse photographs put the hair brighter than
+  the face. Taking it would buy margin from a sign-blind descriptor by moving
+  away from the references, and would split the three silvers' tone direction.
+
+**Rejected because it scored better.** Filling the hair in `p.motif` — no tone
+step at all — beats the shipped branch on T1 for the cent (+0.005), the nickel
+(+0.011) and the dime (+0.028). Rendered and looked at, the nickel's head
+becomes one flat blob with a few ridge lines in it: the "outline with nothing
+inside it" failure `_nk4energy.mjs` already priced.
+
+**Also found:** every dime obverse reference in T1's pool is a cameo proof
+(ledger C2a). Seven instruments added under `coloringbook/judge/`; T1 32/32 and
+T5 36/40 A / 33/40 B, unchanged before and after.
+
 ## v1.112.0 — 2026-08-30
 
 **85 % of the disagreement between the dime's two reference photographs is
