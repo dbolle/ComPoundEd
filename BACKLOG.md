@@ -25,6 +25,28 @@ reconsider after calibration.
   blade was the ladder round 43 retired. **Where D40 bit:** acorn 1's stalk
   reads 35.99 % OUTSIDE on unc2005 raw and **0.00 % with DYU**; the y
   registration is still not settled. Suite green.
+- 🟡 **THE DIME REVERSE'S TWO-FILE REGISTRATION IS NOW A FUNCTION OF BOTH AXES,
+  AND IT IS AN OWNER DECISION WHETHER TO APPLY IT.** No art changed, no
+  registration constant changed; `src/` is byte-identical.
+  **`dx = −0.91 − 0.0101·(x − 50)`, `dy = +0.62 + 0.0156·(y − 50)`** —
+  translation plus a diagonal scale, **no rotation, no shear, no quadratic**
+  (the quadratic moves the RMS from 0.1202 to 0.1199, which rules out the
+  tilt/projective story). **D40's `DYU` is too steep by a third:** the y-scale
+  term is **+1.56 % ± 0.25 %, not 2.3 %**, and D40 over-corrects by **0.27 units
+  at y 30**. The control holds — photograph against photograph in the window
+  `_dr18prong.mjs` fitted `REG` on, this returns **−1.00 on all six window
+  choices**, which is that instrument's own sweep maximum for the pair.
+  **And a third of the cause is now named:** both rims are **ellipses** (proofbright
+  1.45 % flattened in y, unc2005 0.63 %, `dime-rev.jpg` round to 0.13 %) while
+  `samplerFor()` maps both axes through one radius — worth **0.83 points** of
+  the anisotropy, confirmed end-to-end by re-registering with ellipse-normalised
+  samplers (removes 0.836 / 0.712). **The other two thirds survive** with both
+  rims fitted exactly, so the fault is part rim fit and part not, and the two
+  halves need different repairs. Reported, not applied, following A40.
+  **Owner's call, three separate ones:** (1) replace `DYU` with the refined
+  line; (2) fit the rim as an ellipse in `fitRim`/`samplerFor`, which touches
+  every published number on this branch; (3) leave both and carry the error.
+  D40 (refined) / D41. Suite 464/464.
 
 - 🟢 **THE DIME'S OAK IS COMPLETE — STEM, EIGHT LEAVES, BOTH ACORNS — AND THE
   TWO REFERENCE PHOTOGRAPHS NOW AGREE.** The second acorn is drawn (node
