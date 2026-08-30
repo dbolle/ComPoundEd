@@ -382,8 +382,18 @@ if (mode === 'zoom') {
     if (data[p + info.channels - 1] > 24) ink[j * MW + i] = 1;
   }
   const w = Math.round((cx1 - cx0) / S), h = Math.round((cy1 - cy0) / S), Z = 4;
+// ⚠️ THE unc2005 EROSION IS 0.37, NOT 1.00 — RE-BASELINED 2026-08-30 (ledger A40).
+// The 1.00 was fitted on the 5-10 unit torch shaft. Measured across 609
+// field->device transitions on this branch, unc2005's median 10-90 % edge rise
+// is 0.400 units, against the ~1.08 that would justify 1.00 — so the old
+// constant was 2.7x the file's own edges and was not removing a skirt, it was
+// shrinking the coin. On the locked oak stem it cost 37.96 points of OUTSIDE
+// (70.75 % at 1.00 against proofbright's 32.79 % at its well-calibrated 0.55;
+// 38.45 % at 0.37). proofbright's 0.55 measures 1.01x its own median rise and
+// is UNCHANGED. Every unc2005 number published before this date was measured
+// at 1.00 and is not comparable — re-derive rather than compare.
   const panels = [];
-  for (const [f, T, E] of [['dime-rev-proofbright.png', 236, 0.55], ['dime-rev-unc2005.png', 190, 1.00]]) {
+  for (const [f, T, E] of [['dime-rev-proofbright.png', 236, 0.55], ['dime-rev-unc2005.png', 190, 0.37]]) {
     const m = await deviceMask(f, T, E);
     const b = Buffer.alloc(w * h * 3, 255);
     for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) {
@@ -438,7 +448,7 @@ if (mode === 'control') {
   const oak = await inkOf('2.1.4'), olive = await inkOf('2.1.19');
   console.log('OUTSIDE %% of each stem vs the mask\'s own erosion radius\n');
   console.log('  file          erode |    oak    olive   |  mask stem stripe width, y 62..69');
-  for (const [f, T, shipped] of [['dime-rev-proofbright.png', 236, 0.55], ['dime-rev-unc2005.png', 190, 1.00]]) {
+  for (const [f, T, shipped] of [['dime-rev-proofbright.png', 236, 0.55], ['dime-rev-unc2005.png', 190, 0.37]]) {
     for (const e of [0, 0.25, 0.55, 1.00]) {
       const m = await deviceMask(f, T, e);
       const pct = (ink) => {
@@ -512,7 +522,7 @@ if (mode === 'window') {
     }
   }
   console.log(`WINDOWS['oak-stem'] = [${WIN.join(', ')}]  —  what could a perfect stem fill?\n`);
-  for (const [f, T, E] of [['dime-rev-proofbright.png', 236, 0.55], ['dime-rev-unc2005.png', 190, 1.00]]) {
+  for (const [f, T, E] of [['dime-rev-proofbright.png', 236, 0.55], ['dime-rev-unc2005.png', 190, 0.37]]) {
     const m = await deviceMask(f, T, E);
     let tgt = 0, ex = 0, reach = 0, above = 0;
     for (let j = 0; j < MH; j++) {

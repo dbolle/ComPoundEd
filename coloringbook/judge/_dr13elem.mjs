@@ -67,8 +67,18 @@ const MW = Math.round((X1 - X0) / STEP), MH = Math.round((Y1 - Y0) / STEP);
 const PPU = 1 / STEP; // 20 px per viewBox unit — the mask's own resolution
 
 const REFS = {
+// ⚠️ THE unc2005 EROSION IS 0.37, NOT 1.00 — RE-BASELINED 2026-08-30 (ledger A40).
+// The 1.00 was fitted on the 5-10 unit torch shaft. Measured across 609
+// field->device transitions on this branch, unc2005's median 10-90 % edge rise
+// is 0.400 units, against the ~1.08 that would justify 1.00 — so the old
+// constant was 2.7x the file's own edges and was not removing a skirt, it was
+// shrinking the coin. On the locked oak stem it cost 37.96 points of OUTSIDE
+// (70.75 % at 1.00 against proofbright's 32.79 % at its well-calibrated 0.55;
+// 38.45 % at 0.37). proofbright's 0.55 measures 1.01x its own median rise and
+// is UNCHANGED. Every unc2005 number published before this date was measured
+// at 1.00 and is not comparable — re-derive rather than compare.
   proofbright: ['dime-rev-proofbright.png', 236, 0.55],
-  unc2005: ['dime-rev-unc2005.png', 190, 1.00],
+  unc2005: ['dime-rev-unc2005.png', 190, 0.37],
 };
 
 // ── declared windows. Coarse on purpose; the mask inside supplies precision.

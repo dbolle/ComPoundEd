@@ -113,8 +113,18 @@ if (process.argv[1] && process.argv[1].endsWith('_dr10sprig.mjs')) {
 
   console.log('\n=== foliage rows and per-row ink (the _dr9branch estimator) ===');
   const masks = {};
+// ⚠️ THE unc2005 EROSION IS 0.37, NOT 1.00 — RE-BASELINED 2026-08-30 (ledger A40).
+// The 1.00 was fitted on the 5-10 unit torch shaft. Measured across 609
+// field->device transitions on this branch, unc2005's median 10-90 % edge rise
+// is 0.400 units, against the ~1.08 that would justify 1.00 — so the old
+// constant was 2.7x the file's own edges and was not removing a skirt, it was
+// shrinking the coin. On the locked oak stem it cost 37.96 points of OUTSIDE
+// (70.75 % at 1.00 against proofbright's 32.79 % at its well-calibrated 0.55;
+// 38.45 % at 0.37). proofbright's 0.55 measures 1.01x its own median rise and
+// is UNCHANGED. Every unc2005 number published before this date was measured
+// at 1.00 and is not comparable — re-derive rather than compare.
   for (const [f, T, e] of [['dime-rev-proofbright.png', 236, 0.55],
-    ['dime-rev-unc2005.png', 190, 1.0], ['ours', 165, 0]]) masks[f] = await deviceMask(f, T, e);
+    ['dime-rev-unc2005.png', 190, 0.37], ['ours', 165, 0]]) masks[f] = await deviceMask(f, T, e);
   const USE = ['dime-rev-proofbright.png', 'dime-rev-unc2005.png', 'ours'];
   for (const [nm, mir] of [['OLIVE', true], ['OAK', false]]) {
     console.log(`--- ${nm} ---`);

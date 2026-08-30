@@ -7,6 +7,18 @@ reconsider after calibration.
 
 ## Where we are
 
+- 🟢 **THE DIME'S OAK IS COMPLETE — STEM, EIGHT LEAVES, BOTH ACORNS — AND THE
+  TWO REFERENCE PHOTOGRAPHS NOW AGREE.** The second acorn is drawn (node
+  `2.1.21`, **0.00 % OUTSIDE on proofbright** at both erosions), the stem stayed
+  byte-identical through all of it, and `hairFill`'s sign is confirmed right on
+  all four heads with no art change (C2 closed). unc2005's mask erosion is
+  re-baselined **1.00 → 0.37** on the owner's word: the locked oak stem's two
+  files now read 32.79 % / 38.45 % OUTSIDE, **5.66 points apart against 37.96
+  before**. Five frozen artefacts of record are tracked so their hashes can be
+  checked off this machine (A46). **Still open for the owner:** 32 abandoned
+  worktrees hold 2.3 GB — only one was clean, and the rest carry 40 uncommitted
+  `src/art` files (A47). Suite 464/464.
+
 - 🟢 **THE HAIR TONE ON ALL FOUR PORTRAITS IS RIGHT, AND C2 IS CLOSED. No art
   changed — the byte-identity partition reads 0/60 across 0 faces.** `bust()`
   picks the hair mass's fill with one ternary (lighter than the face on

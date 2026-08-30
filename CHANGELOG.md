@@ -3,6 +3,49 @@
 The version shown at the bottom of the Grown-Ups screen. Kid progress is
 never affected by updates (see CLAUDE.md's preservation gate).
 
+## v1.118.0 — 2026-08-30
+
+**Three owner decisions, applied.** No art changed; `src/` is byte-identical.
+
+**unc2005's mask erosion is now 0.37, not 1.00** (ledger A40). It was fitted on
+the 5–10 unit torch shaft and applied to everything; measured across 609
+field→device transitions on this branch, unc2005's median 10–90 % edge rise is
+**0.400 units** against the ~1.08 that would justify 1.00. proofbright's 0.55
+measures **1.01×** its own median rise and is **unchanged**. All seven
+instruments that carried the constant are updated, each with the reason beside
+it. The two files now agree: the locked oak stem reads OUTSIDE **32.79 % /
+38.45 %** and FILL exclusive **42.60 % / 37.09 %** — gaps of **5.66 and 5.51
+points**, against 37.96 and 15.22 before.
+
+**Correcting my own first framing of the scope:** `_dr22oakleaves.mjs`
+hardcodes `deviceMask(f, T, 0)` and never read the constant, so **the eight
+leaves' and both acorns' published unc2005 figures do not move.** What moves is
+anything taking the table default — chiefly `_dr13elem score` and
+`_dr14oakstem`. Every unc2005 number from those, published before today, was
+measured at 1.00 and should be re-derived rather than compared.
+
+Before editing, each of the seven was checked against the frozen manifest and
+against every hash citation in `docs/` and the scorecards — **none is in the
+manifest and none has a hash cited**, so an in-place edit is safe here. That
+check exists because of A45, one release ago.
+
+**Five frozen artefacts of record are now tracked** (A46) — `_nkparts`,
+`_nkreg5`, `_p2fam`, `_pyout`, `_x6-run`. They are hashed into the frozen
+manifest but `coloringbook/*` kept them out of the repository, so their hashes
+could not be checked anywhere but this disk. Same remedy as A25's eight
+modules: five `!` lines, no import rewritten, no hash moved, 42 KB. None
+carries an absolute path or a machine-local value, and `tests/privacy.spec.js`
+runs over tracked files, so it now guards them.
+
+**One abandoned worktree removed** (A47), and the outcome is worth recording
+because it is not what the number suggested. The instruction was to delete only
+the clean ones. **Exactly one of the 33 is clean**; removing it freed 56 MB of
+2337. The other 32 hold uncommitted files, and **40 of those are in `src/art/`**
+— abandoned round work, not scratch. The conservative choice was right, and the
+2.3 GB is not recoverable without deciding what that art is worth.
+
+Suite **225 + 239 = 464/464**.
+
 ## v1.117.0 — 2026-08-30
 
 **The hair tone on all four portraits is right, and here is the first evidence

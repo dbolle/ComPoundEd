@@ -43,6 +43,21 @@ coloringbook/*
 !coloringbook/_qtdisc.mjs
 !coloringbook/_qtedge.mjs
 !coloringbook/_qtseg.mjs
+
+# FROZEN ARTEFACTS OF RECORD (ledger A46). Same argument as the eight modules
+# above, one level down: these five are HASHED INTO THE FROZEN MANIFEST, so
+# their bytes are cited — and `coloringbook/*` kept them out of the repository,
+# meaning the hashes could not be checked anywhere but this disk. An instrument
+# that cannot run is obvious the moment someone runs it; an artefact of record
+# that cannot be checked is not. They carry no absolute path and no
+# machine-local value (verified before tracking, and tests/privacy.spec.js runs
+# over tracked files, so it now guards them too). 42 KB.
+# Anything ADDED here must be an artefact some published number depends on.
+!coloringbook/_nkparts.json
+!coloringbook/_nkreg5.json
+!coloringbook/_p2fam.json
+!coloringbook/_pyout.json
+!coloringbook/_x6-run.json
 !coloringbook/_rvdisc.mjs
 !coloringbook/_rvnorm.mjs
 !coloringbook/judge/
